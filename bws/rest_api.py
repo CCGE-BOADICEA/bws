@@ -8,6 +8,25 @@ from django.conf import settings
 from rest_framework.authentication import BasicAuthentication,\
     SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+# from boadicea.perlfunc import perlreq, perl5lib, perlfunc
+from boadicea.ped import PedigreeFile
+
+
+# http://www.boriel.com/en/2007/01/21/calling-perl-from-python/
+# @perlfunc
+# @perlreq('Vl.pm')
+# @perl5lib("/home/MINTS/tjc29/boadicea_classic/git/BOADICEA/perl/modules/vl/")
+# @perl5lib("/home/MINTS/tjc29/boadicea_classic/git/BOADICEA/perl/modules/cs/")
+# def vlValidateUploadedPedigreeFile(stUploadedPedigreeFileName,
+#                                    rValidationRequest,
+#                                    stCurrentOperation,
+#                                    rMinPedigreeSize,
+#                                    rMaxPedigreeSize,
+#                                    ref_stTitleLeft,
+#                                    ref_stTitleRight,
+#                                    ref_stErrorMode,
+#                                    ref_stNextPageName):
+#     pass
 
 
 class BwsInputSerializer(serializers.Serializer):
@@ -110,7 +129,13 @@ class BwsView(APIView):
                     "mut_freq": request.data['mut_freq'],
                     "cancer_rates": request.data['cancer_rates']})
 
+            pf = PedigreeFile(pedigree_data)
+
             self._run()
+
+#             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
+#                                            275, "", "", "errorMode", "")
+
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,6 +150,3 @@ class BwsView(APIView):
 
         (output, err) = process.communicate()
         exit_code = process.wait()
-        print(output)
-        print(err)
-        print(exit_code)
