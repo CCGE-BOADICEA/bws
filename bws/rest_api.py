@@ -130,6 +130,7 @@ class BwsView(APIView):
                     "cancer_rates": request.data['cancer_rates']})
 
             pf = PedigreeFile(pedigree_data)
+            pf.write()
 
             self._run()
 
