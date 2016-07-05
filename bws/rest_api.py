@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 # from boadicea.perlfunc import perlreq, perl5lib, perlfunc
 from boadicea.ped import PedigreeFile
 from boadicea import ped
+import os
 
 
 # http://www.boriel.com/en/2007/01/21/calling-perl-from-python/
@@ -131,10 +132,9 @@ class BwsView(APIView):
                     "cancer_rates": request.data['cancer_rates']})
 
             pf = PedigreeFile(pedigree_data)
-            ped_file = pf.write()
-            bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file)
-
-            self._run(bat_file)
+            ped_file = pf.write_pedigree_file()
+            bat_file = pf.write_batch_file(ped.MUTATION_CARRIER_PROBABILITIES, ped_file)
+            self._run(ped.MUTATION_CARRIER_PROBABILITIES, bat_file)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
@@ -142,13 +142,24 @@ class BwsView(APIView):
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def _run(self, bat_file):
+    def _run(self, process_type, bat_file, cwd="/tmp"):
         from subprocess import Popen, PIPE
+        prog = ""
+        out = ""
+        if process_type == ped.MUTATION_CARRIER_PROBABILITIES:
+            prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_probs_v10.exe")
+            out = "can_probs"
+        else:
+            os.path.join(settings.FORTRAN_HOME, "./boadicea_risks_v10.exe")
+            out = "can_risks"
 
-        process = Popen(["./boadicea_risks_v10.exe", bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
-                         "Data/locus.loc", "can_risks.stdout",
-                         "can_risks.out", "Data/incidence_rates_UK.nml"],
-                        cwd="/home/MINTS/tjc29/boadicea_classic/git/BOADICEA/fortran10_standalone/BOADICEA_V10_ver_2_10",
+        process = Popen([prog,
+                         bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
+                         os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
+                         out+".stdout",
+                         out+".out",
+                         os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_UK.nml")],
+                        cwd=cwd,
                         stdout=PIPE)
 
         (output, err) = process.communicate()
