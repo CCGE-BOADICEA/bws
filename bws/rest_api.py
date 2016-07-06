@@ -53,10 +53,10 @@ class BwsInputSerializer(serializers.Serializer):
 
 class BwsOutputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
-    msg = serializers.CharField()
-    pedigree_data = serializers.CharField()
     mut_freq = serializers.CharField()
     cancer_rates = serializers.CharField()
+    cancer_risks = serializers.CharField()
+    mutation_probabilties = serializers.CharField()
 
 
 class BwsView(APIView):
@@ -126,32 +126,38 @@ class BwsView(APIView):
                 for chunk in file_obj.chunks():
                     pedigree_data += chunk.decode("utf-8")
 
-            output_serialiser = BwsOutputSerializer({
-                    "msg": "Found data!",
-                    "pedigree_data": pedigree_data,
-                    "mut_freq": request.data['mut_freq'],
-                    "cancer_rates": request.data['cancer_rates']})
-
             pf = PedigreeFile(pedigree_data)
-            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_CARRIER_PROBABILITIES, filepath="/tmp/test_prob.ped")
-            bat_file = pf.write_batch_file(ped.MUTATION_CARRIER_PROBABILITIES, ped_file, filepath="/tmp/test_prob.bat")
-            self._run(ped.MUTATION_CARRIER_PROBABILITIES, bat_file)
 
+            # mutation probablility calculation
+            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_PROBABILITIES, filepath="/tmp/test_prob.ped")
+            bat_file = pf.write_batch_file(ped.MUTATION_PROBABILITIES, ped_file, filepath="/tmp/test_prob.bat")
+            probs = self._run(ped.MUTATION_PROBABILITIES, bat_file)
+
+            # cancer risk calculation
             ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
             bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file, filepath="/tmp/test_risk.bat")
-            self._run(ped.CANCER_RISKS, bat_file)
+            risks = self._run(ped.CANCER_RISKS, bat_file)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
+
+            output_serialiser = BwsOutputSerializer({
+                    "mut_freq": request.data['mut_freq'],
+                    "cancer_rates": request.data['cancer_rates'],
+                    "cancer_risks": risks,
+                    "mutation_probabilties": probs})
 
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def _run(self, process_type, bat_file, cwd="/tmp"):
+        """
+        Run a process.
+        """
         from subprocess import Popen, PIPE
         prog = ""
         out = ""
-        if process_type == ped.MUTATION_CARRIER_PROBABILITIES:
+        if process_type == ped.MUTATION_PROBABILITIES:
             prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_probs_v10.exe")
             out = "can_probs"
         else:
@@ -171,6 +177,9 @@ class BwsView(APIView):
         try:
             exit_code = process.wait(timeout=60*4)  # timeout in seconds
             print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
+            with open(os.path.join(cwd, out+".out"), 'r') as myfile:
+                data = myfile.read()
+            return data
         except subprocess.TimeoutExpired:
             process.terminate()
             print("we got a timeout. exiting")
