@@ -127,16 +127,19 @@ class BwsView(APIView):
                     pedigree_data += chunk.decode("utf-8")
 
             pf = PedigreeFile(pedigree_data)
+            population = request.POST.get('mut_freq')
+            cancer_rates = request.POST.get('cancer_rates')
 
             # mutation probablility calculation
             ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_PROBABILITIES, filepath="/tmp/test_prob.ped")
-            bat_file = pf.write_batch_file(ped.MUTATION_PROBABILITIES, ped_file, filepath="/tmp/test_prob.bat")
-            probs = self._run(ped.MUTATION_PROBABILITIES, bat_file)
+            bat_file = pf.write_batch_file(ped.MUTATION_PROBABILITIES, ped_file,
+                                           population=population, filepath="/tmp/test_prob.bat")
+            probs = self._run(ped.MUTATION_PROBABILITIES, bat_file, cancer_rates=cancer_rates)
 
             # cancer risk calculation
             ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
             bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file, filepath="/tmp/test_risk.bat")
-            risks = self._run(ped.CANCER_RISKS, bat_file)
+            risks = self._run(ped.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
@@ -150,7 +153,7 @@ class BwsView(APIView):
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def _run(self, process_type, bat_file, cwd="/tmp"):
+    def _run(self, process_type, bat_file, cancer_rates="UK", cwd="/tmp"):
         """
         Run a process.
         """
@@ -169,7 +172,7 @@ class BwsView(APIView):
                          os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
                          out+".stdout",
                          out+".out",
-                         os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_UK.nml")],
+                         os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_" + cancer_rates + ".nml")],
                         cwd=cwd,
                         stdout=PIPE)
 
