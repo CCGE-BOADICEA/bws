@@ -133,10 +133,11 @@ class BwsView(APIView):
                     "cancer_rates": request.data['cancer_rates']})
 
             pf = PedigreeFile(pedigree_data)
-            ped_file = pf.write_pedigree_file()
+            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_CARRIER_PROBABILITIES, filepath="/tmp/test_prob.ped")
             bat_file = pf.write_batch_file(ped.MUTATION_CARRIER_PROBABILITIES, ped_file, filepath="/tmp/test_prob.bat")
             self._run(ped.MUTATION_CARRIER_PROBABILITIES, bat_file)
 
+            ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
             bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file, filepath="/tmp/test_risk.bat")
             self._run(ped.CANCER_RISKS, bat_file)
 
