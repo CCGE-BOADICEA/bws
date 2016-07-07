@@ -9,8 +9,8 @@ from rest_framework.authentication import BasicAuthentication,\
     SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 # from boadicea.perlfunc import perlreq, perl5lib, perlfunc
-from boadicea.ped import PedigreeFile
-from boadicea import ped
+from boadicea.pedigree import PedigreeFile
+from boadicea import pedigree
 import os
 import subprocess
 
@@ -131,16 +131,16 @@ class BwsView(APIView):
             cancer_rates = request.POST.get('cancer_rates')
 
             # mutation probablility calculation
-            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
-            bat_file = pf.write_batch_file(ped.MUTATION_PROBS, ped_file,
+            ped_file = pf.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
+            bat_file = pf.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                            population=population, filepath="/tmp/test_prob.bat")
-            probs = self._run(ped.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+            probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
 
             # cancer risk calculation
-            ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
-            bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file,
+            ped_file = pf.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
+            bat_file = pf.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                            population=population, filepath="/tmp/test_risk.bat")
-            risks = self._run(ped.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+            risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
@@ -161,7 +161,7 @@ class BwsView(APIView):
         from subprocess import Popen, PIPE
         prog = ""
         out = ""
-        if process_type == ped.MUTATION_PROBS:
+        if process_type == pedigree.MUTATION_PROBS:
             prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_probs_v10.exe")
             out = "can_probs"
         else:
