@@ -130,26 +130,29 @@ class BwsView(APIView):
             population = request.POST.get('mut_freq')
             cancer_rates = request.POST.get('cancer_rates')
 
+            output = {
+                "mut_freq": request.data['mut_freq'],
+                "cancer_rates": request.data['cancer_rates']}
+
             # mutation probablility calculation
             ped_file = pf.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
             bat_file = pf.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                            population=population, filepath="/tmp/test_prob.bat")
             probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+            output["mutation_probabilties"] = probs
 
             # cancer risk calculation
-            ped_file = pf.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
-            bat_file = pf.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                           population=population, filepath="/tmp/test_risk.bat")
-            risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+            if pf.is_risks_calc_viable:
+                ped_file = pf.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
+                bat_file = pf.write_batch_file(pedigree.CANCER_RISKS, ped_file,
+                                               population=population, filepath="/tmp/test_risk.bat")
+                risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+                output["cancer_risks"] = risks
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
 
-            output_serialiser = BwsOutputSerializer({
-                    "mut_freq": request.data['mut_freq'],
-                    "cancer_rates": request.data['cancer_rates'],
-                    "cancer_risks": risks,
-                    "mutation_probabilties": probs})
+            output_serialiser = BwsOutputSerializer(output)
 
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -187,7 +190,8 @@ class BwsView(APIView):
                 return data
             else:
                 print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
-                return _err
+                print(_output)
+                return "error: " + str(exit_code)
         except subprocess.TimeoutExpired:
             process.terminate()
             return "Error: BOADICEA process timed out as the pedigree is too large or complex to process."
