@@ -13,6 +13,7 @@ from boadicea.pedigree import PedigreeFile
 from boadicea import pedigree
 import os
 import subprocess
+from collections import OrderedDict
 
 
 # http://www.boriel.com/en/2007/01/21/calling-perl-from-python/
@@ -55,8 +56,8 @@ class BwsOutputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
     mut_freq = serializers.CharField()
     cancer_rates = serializers.CharField()
-    cancer_risks = serializers.CharField()
-    mutation_probabilties = serializers.CharField()
+    cancer_risks = serializers.ListField()
+    mutation_probabilties = serializers.ListField()
 
 
 class BwsView(APIView):
@@ -139,7 +140,7 @@ class BwsView(APIView):
             bat_file = pf.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                            population=population, filepath="/tmp/test_prob.bat")
             probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
-            output["mutation_probabilties"] = probs
+            output["mutation_probabilties"] = self.parse_probs(probs)
 
             # cancer risk calculation
             if pf.is_risks_calc_viable:
@@ -147,7 +148,7 @@ class BwsView(APIView):
                 bat_file = pf.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                                population=population, filepath="/tmp/test_risk.bat")
                 risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
-                output["cancer_risks"] = risks
+                output["cancer_risks"] = self.parse_risks(risks)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
@@ -195,3 +196,37 @@ class BwsView(APIView):
         except subprocess.TimeoutExpired:
             process.terminate()
             return "Error: BOADICEA process timed out as the pedigree is too large or complex to process."
+
+    def parse_risks(self, risks):
+        """
+        Parse computed cancer risk results.
+        """
+        lines = risks.split(sep="\n")
+        risks_arr = []
+        for line in lines:
+            if pedigree.BLANK_LINE.match(line):
+                continue
+            parts = line.split(sep=",")
+            risks_arr.append(OrderedDict([
+                ("age", parts[0]),
+                ("breast cancer risk", {
+                    "decimal": parts[1],
+                    "percent": parts[2]
+                }),
+                ("ovarian cancer risk", {
+                    "decimal": parts[3],
+                    "percent": parts[4]
+                })
+            ]))
+        return risks_arr
+
+    def parse_probs(self, probs):
+        """
+        Parse computed mutation carrier probability results.
+        """
+        parts = probs.strip().split(sep=",")
+        probs_arr = [{"no mutation": {"decimal": parts[0], "percent": parts[1]}}]
+        for i, gene in enumerate(settings.GENES):
+            print()
+            probs_arr.append({gene: {"decimal": parts[((i*2)+2)], "percent": parts[(i*2)+3]}})
+        return probs_arr
