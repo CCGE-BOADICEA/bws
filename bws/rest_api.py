@@ -177,18 +177,17 @@ class BwsView(APIView):
                         cwd=cwd,
                         stdout=PIPE)
 
-        (output, err) = process.communicate()
+        (_output, _err) = process.communicate()
         try:
             exit_code = process.wait(timeout=60*4)  # timeout in seconds
-            print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
 
             if exit_code == 0:
-                with open(os.path.join(cwd, out+".out"), 'r') as myfile:
-                    data = myfile.read()
+                with open(os.path.join(cwd, out+".out"), 'r') as result_file:
+                    data = result_file.read()
                 return data
             else:
-                print(err)
-                print(output)
+                print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
+                return _err
         except subprocess.TimeoutExpired:
             process.terminate()
-            print("we got a timeout. exiting")
+            return "Error: BOADICEA process timed out as the pedigree is too large or complex to process."
