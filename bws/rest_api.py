@@ -138,7 +138,8 @@ class BwsView(APIView):
 
             # cancer risk calculation
             ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
-            bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file, filepath="/tmp/test_risk.bat")
+            bat_file = pf.write_batch_file(ped.CANCER_RISKS, ped_file,
+                                           population=population, filepath="/tmp/test_risk.bat")
             risks = self._run(ped.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
@@ -180,9 +181,14 @@ class BwsView(APIView):
         try:
             exit_code = process.wait(timeout=60*4)  # timeout in seconds
             print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
-            with open(os.path.join(cwd, out+".out"), 'r') as myfile:
-                data = myfile.read()
-            return data
+
+            if exit_code == 0:
+                with open(os.path.join(cwd, out+".out"), 'r') as myfile:
+                    data = myfile.read()
+                return data
+            else:
+                print(err)
+                print(output)
         except subprocess.TimeoutExpired:
             process.terminate()
             print("we got a timeout. exiting")
