@@ -131,10 +131,10 @@ class BwsView(APIView):
             cancer_rates = request.POST.get('cancer_rates')
 
             # mutation probablility calculation
-            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_PROBABILITIES, filepath="/tmp/test_prob.ped")
-            bat_file = pf.write_batch_file(ped.MUTATION_PROBABILITIES, ped_file,
+            ped_file = pf.write_pedigree_file(file_type=ped.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
+            bat_file = pf.write_batch_file(ped.MUTATION_PROBS, ped_file,
                                            population=population, filepath="/tmp/test_prob.bat")
-            probs = self._run(ped.MUTATION_PROBABILITIES, bat_file, cancer_rates=cancer_rates)
+            probs = self._run(ped.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
 
             # cancer risk calculation
             ped_file = pf.write_pedigree_file(file_type=ped.CANCER_RISKS, filepath="/tmp/test_risk.ped")
@@ -160,7 +160,7 @@ class BwsView(APIView):
         from subprocess import Popen, PIPE
         prog = ""
         out = ""
-        if process_type == ped.MUTATION_PROBABILITIES:
+        if process_type == ped.MUTATION_PROBS:
             prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_probs_v10.exe")
             out = "can_probs"
         else:
