@@ -60,8 +60,8 @@ class PedigreeSerializer(serializers.Serializer):
 
 class BwsOutputSerializer(serializers.Serializer):
     """ Boadicea result. """
-    mut_freq = serializers.CharField()
-    cancer_rates = serializers.CharField()
+    mut_freq = serializers.DictField()
+    cancer_rates = serializers.DictField()
     pedigree_result = PedigreeSerializer(many=True)
 
 
@@ -137,8 +137,8 @@ class BwsView(APIView):
             cancer_rates = request.POST.get('cancer_rates')
 
             output = {
-                "mut_freq": request.data['mut_freq'],
-                "cancer_rates": request.data['cancer_rates'],
+                "mut_freq": {population: settings.MUTATION_FREQUENCIES[population]},
+                "cancer_rates": {cancer_rates: settings.GENETIC_TEST_SENSITIVITY},
                 "pedigree_result": []
             }
 
@@ -220,14 +220,14 @@ class BwsView(APIView):
                 continue
             parts = line.split(sep=",")
             risks_arr.append(OrderedDict([
-                ("age", parts[0]),
+                ("age", int(parts[0])),
                 ("breast cancer risk", {
-                    "decimal": parts[1],
-                    "percent": parts[2]
+                    "decimal": float(parts[1]),
+                    "percent": float(parts[2])
                 }),
                 ("ovarian cancer risk", {
-                    "decimal": parts[3],
-                    "percent": parts[4]
+                    "decimal": float(parts[3]),
+                    "percent": float(parts[4])
                 })
             ]))
         return risks_arr
@@ -239,5 +239,7 @@ class BwsView(APIView):
         parts = probs.strip().split(sep=",")
         probs_arr = [{"no mutation": {"decimal": parts[0], "percent": parts[1]}}]
         for i, gene in enumerate(settings.GENES):
-            probs_arr.append({gene: {"decimal": parts[((i*2)+2)], "percent": parts[(i*2)+3]}})
+            probs_arr.append({gene:
+                              {"decimal": float(parts[((i*2)+2)]),
+                               "percent": float(parts[(i*2)+3])}})
         return probs_arr
