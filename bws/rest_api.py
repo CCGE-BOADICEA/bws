@@ -60,8 +60,9 @@ class PedigreeSerializer(serializers.Serializer):
 
 class BwsOutputSerializer(serializers.Serializer):
     """ Boadicea result. """
-    mut_freq = serializers.DictField()
-    cancer_rates = serializers.DictField()
+    mutation_frequency = serializers.DictField()
+    mutation_sensitivity = serializers.DictField()
+    cancer_incidence_rates = serializers.CharField()
     pedigree_result = PedigreeSerializer(many=True)
 
 
@@ -137,8 +138,9 @@ class BwsView(APIView):
             cancer_rates = request.POST.get('cancer_rates')
 
             output = {
-                "mut_freq": {population: settings.MUTATION_FREQUENCIES[population]},
-                "cancer_rates": {cancer_rates: settings.GENETIC_TEST_SENSITIVITY},
+                "mutation_frequency": {population: settings.MUTATION_FREQUENCIES[population]},
+                "mutation_sensitivity": settings.GENETIC_TEST_SENSITIVITY,
+                "cancer_incidence_rates": cancer_rates,
                 "pedigree_result": []
             }
 
