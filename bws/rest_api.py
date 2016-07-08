@@ -136,10 +136,12 @@ class BwsView(APIView):
             pf = PedigreeFile(pedigree_data)
             population = request.POST.get('mut_freq')
             cancer_rates = request.POST.get('cancer_rates')
+            mutation_frequency = settings.MUTATION_FREQUENCIES[population]
+            mutation_sensitivity = settings.GENETIC_TEST_SENSITIVITY
 
             output = {
-                "mutation_frequency": {population: settings.MUTATION_FREQUENCIES[population]},
-                "mutation_sensitivity": settings.GENETIC_TEST_SENSITIVITY,
+                "mutation_frequency": {population: mutation_frequency},
+                "mutation_sensitivity": mutation_sensitivity,
                 "cancer_incidence_rates": cancer_rates,
                 "pedigree_result": []
             }
@@ -151,7 +153,9 @@ class BwsView(APIView):
 
                 ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
                 bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                                 population=population, filepath="/tmp/test_prob.bat")
+                                                 population=population, filepath="/tmp/test_prob.bat",
+                                                 mutation_freq=mutation_frequency,
+                                                 sensitivity=mutation_sensitivity)
                 probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
                 this_pedigree["mutation_probabilties"] = self.parse_probs(probs)
 
@@ -159,7 +163,9 @@ class BwsView(APIView):
                 if pedi.is_risks_calc_viable:
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
                     bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                                     population=population, filepath="/tmp/test_risk.bat")
+                                                     population=population, filepath="/tmp/test_risk.bat",
+                                                     mutation_freq=mutation_frequency,
+                                                     sensitivity=mutation_sensitivity)
                     risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
                     this_pedigree["cancer_risks"] = self.parse_risks(risks)
                 output["pedigree_result"].append(this_pedigree)
@@ -239,7 +245,7 @@ class BwsView(APIView):
         Parse computed mutation carrier probability results.
         """
         parts = probs.strip().split(sep=",")
-        probs_arr = [{"no mutation": {"decimal": parts[0], "percent": parts[1]}}]
+        probs_arr = [{"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}}]
         for i, gene in enumerate(settings.GENES):
             probs_arr.append({gene:
                               {"decimal": float(parts[((i*2)+2)]),
