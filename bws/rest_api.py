@@ -52,12 +52,17 @@ class BwsInputSerializer(serializers.Serializer):
         return attrs
 
 
-class BwsOutputSerializer(serializers.Serializer):
-    ''' Boadicea result. '''
-    mut_freq = serializers.CharField()
-    cancer_rates = serializers.CharField()
+class PedigreeSerializer(serializers.Serializer):
+    family_id = serializers.CharField()
     cancer_risks = serializers.ListField()
     mutation_probabilties = serializers.ListField()
+
+
+class BwsOutputSerializer(serializers.Serializer):
+    """ Boadicea result. """
+    mut_freq = serializers.CharField()
+    cancer_rates = serializers.CharField()
+    pedigree_result = PedigreeSerializer(many=True)
 
 
 class BwsView(APIView):
@@ -133,22 +138,29 @@ class BwsView(APIView):
 
             output = {
                 "mut_freq": request.data['mut_freq'],
-                "cancer_rates": request.data['cancer_rates']}
+                "cancer_rates": request.data['cancer_rates'],
+                "pedigree_result": []
+            }
 
             # mutation probablility calculation
-            ped_file = pf.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
-            bat_file = pf.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                           population=population, filepath="/tmp/test_prob.bat")
-            probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
-            output["mutation_probabilties"] = self.parse_probs(probs)
+            for pedi in pf.pedigrees:
+                this_pedigree = {}
+                this_pedigree["family_id"] = pedi.famid
 
-            # cancer risk calculation
-            if pf.is_risks_calc_viable:
-                ped_file = pf.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
-                bat_file = pf.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                               population=population, filepath="/tmp/test_risk.bat")
-                risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
-                output["cancer_risks"] = self.parse_risks(risks)
+                ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
+                bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
+                                                 population=population, filepath="/tmp/test_prob.bat")
+                probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+                this_pedigree["mutation_probabilties"] = self.parse_probs(probs)
+
+                # cancer risk calculation
+                if pedi.is_risks_calc_viable:
+                    ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
+                    bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
+                                                     population=population, filepath="/tmp/test_risk.bat")
+                    risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+                    this_pedigree["cancer_risks"] = self.parse_risks(risks)
+                output["pedigree_result"].append(this_pedigree)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
 #                                            275, "", "", "errorMode", "")
@@ -227,6 +239,5 @@ class BwsView(APIView):
         parts = probs.strip().split(sep=",")
         probs_arr = [{"no mutation": {"decimal": parts[0], "percent": parts[1]}}]
         for i, gene in enumerate(settings.GENES):
-            print()
             probs_arr.append({gene: {"decimal": parts[((i*2)+2)], "percent": parts[(i*2)+3]}})
         return probs_arr
