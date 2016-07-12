@@ -38,6 +38,8 @@ class BwsInputSerializer(serializers.Serializer):
     pedigree_data = serializers.CharField()
     mut_freq = serializers.CharField()
     cancer_rates = serializers.CharField()
+    for gene in settings.GENES:
+        exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
 
     def validate(self, attrs):
         mut_freq = attrs.get('mut_freq')
@@ -49,7 +51,24 @@ class BwsInputSerializer(serializers.Serializer):
         elif cancer_rates not in settings.CANCER_RATES:
             raise serializers.ValidationError('value of cancer_rates (' + cancer_rates +
                                               ') is not one of the available options.')
+
+        if mut_freq == 'Custom':
+            for gene in settings.GENES:
+                mf = attrs.get(gene.lower() + '_mut_frequency')
+                if not self.isfloat(mf):
+                    print(gene.lower() + '_mut_frequency')
+                    raise serializers.ValidationError(gene+" has an invalid custom value = "+str(mf))
         return attrs
+
+    def isfloat(self, value):
+        """
+        Return true if the given value a float.
+        """
+        try:
+            float(value)
+            return True
+        except:
+            return False
 
 
 class PedigreeSerializer(serializers.Serializer):
@@ -123,13 +142,6 @@ class BwsView(APIView):
              defaultValue: 'UK'
              enum: ['UK', 'UK-version-1', 'Australia', 'USA-white', 'Denmark', 'Finland',
              'Iceland', 'New-Zealand', 'Norway', 'Sweden']
-           - name: output_format
-             description: output format
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'Percent'
-             enum: ['Percent', 'Decimal']
 
         responseMessages:
            - code: 401
@@ -147,20 +159,18 @@ class BwsView(APIView):
                 pedigree_data = ''
                 for chunk in file_obj.chunks():
                     pedigree_data += chunk.decode("utf-8")
+            else:
+                pedigree_data = request.data.get('pedigree_data')
 
             pf = PedigreeFile(pedigree_data)
-            population = request.POST.get('mut_freq')
-            cancer_rates = request.POST.get('cancer_rates')
+            population = request.data.get('mut_freq')
+            cancer_rates = request.data.get('cancer_rates')
             if population != 'Custom':
                 mutation_frequency = settings.MUTATION_FREQUENCIES[population]
             else:
                 mutation_frequency = {}
                 for gene in settings.GENES:
-                    mf = request.POST.get(gene.lower() + '_mut_frequency')
-                    if not self.isfloat(mf):
-                        raise PedigreeFileException(
-                            gene+" has an invalid custom value = "+str(mf))
-                    mutation_frequency[gene] = float(mf)
+                    mutation_frequency[gene] = float(request.POST.get(gene.lower() + '_mut_frequency'))
 
             mutation_sensitivity = settings.GENETIC_TEST_SENSITIVITY
 
