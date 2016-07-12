@@ -9,7 +9,7 @@ from rest_framework.authentication import BasicAuthentication,\
     SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 # from boadicea.perlfunc import perlreq, perl5lib, perlfunc
-from boadicea.pedigree import PedigreeFile
+from boadicea.pedigree import PedigreeFile, PedigreeFileException
 from boadicea import pedigree
 import os
 import subprocess
@@ -90,13 +90,28 @@ class BwsView(APIView):
              paramType: form
              defaultValue: 'UK'
              enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
-           - name: brca1_mut_search_sensitivity
-             description: brca1 mutation search sensitivity (only available with mut_freq=Custom)
+           - name: brca1_mut_frequency
+             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
              required: false
              type: float
              paramType: form
-           - name: brca2_mut_search_sensitivity
-             description: brca2 mutation search sensitivity (only available with mut_freq=Custom)
+           - name: brca2_mut_frequency
+             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: palb2_mut_frequency
+             description: PALB2 mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: atm_mut_frequency
+             description: ATM mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: chek2_mut_frequency
+             description: CHEK2 mutation frequency (only available with mut_freq=Custom)
              required: false
              type: float
              paramType: form
@@ -136,7 +151,17 @@ class BwsView(APIView):
             pf = PedigreeFile(pedigree_data)
             population = request.POST.get('mut_freq')
             cancer_rates = request.POST.get('cancer_rates')
-            mutation_frequency = settings.MUTATION_FREQUENCIES[population]
+            if population != 'Custom':
+                mutation_frequency = settings.MUTATION_FREQUENCIES[population]
+            else:
+                mutation_frequency = {}
+                for gene in settings.GENES:
+                    mf = request.POST.get(gene.lower() + '_mut_frequency')
+                    if not self.isfloat(mf):
+                        raise PedigreeFileException(
+                            gene+" has an invalid custom value = "+str(mf))
+                    mutation_frequency[gene] = float(mf)
+
             mutation_sensitivity = settings.GENETIC_TEST_SENSITIVITY
 
             output = {
@@ -153,7 +178,7 @@ class BwsView(APIView):
 
                 ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
                 bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                                 population=population, filepath="/tmp/test_prob.bat",
+                                                 filepath="/tmp/test_prob.bat",
                                                  mutation_freq=mutation_frequency,
                                                  sensitivity=mutation_sensitivity)
                 probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
@@ -163,7 +188,7 @@ class BwsView(APIView):
                 if pedi.is_risks_calc_viable:
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
                     bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                                     population=population, filepath="/tmp/test_risk.bat",
+                                                     filepath="/tmp/test_risk.bat",
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
                     risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
@@ -177,6 +202,16 @@ class BwsView(APIView):
 
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def isfloat(self, value):
+        """
+        Return true if the given value a float.
+        """
+        try:
+            float(value)
+            return True
+        except:
+            return False
 
     def _run(self, process_type, bat_file, cancer_rates="UK", cwd="/tmp"):
         """
