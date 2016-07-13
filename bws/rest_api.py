@@ -1,36 +1,26 @@
 ''' API for the BWS REST resources. '''
+from collections import OrderedDict
+import logging
+import os
+import subprocess
+
+from django.conf import settings
 from rest_framework import serializers, status
+from rest_framework.authentication import BasicAuthentication, \
+    SessionAuthentication, TokenAuthentication
+from rest_framework.exceptions import NotAcceptable
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
-from django.conf import settings
-from rest_framework.authentication import BasicAuthentication,\
-    SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-# from boadicea.perlfunc import perlreq, perl5lib, perlfunc
-from boadicea.pedigree import PedigreeFile
+
 from boadicea import pedigree
-import os
-import subprocess
-from collections import OrderedDict
+from boadicea.pedigree import PedigreeFile
 
 
-# http://www.boriel.com/en/2007/01/21/calling-perl-from-python/
-# @perlfunc
-# @perlreq('Vl.pm')
-# @perl5lib("/home/MINTS/tjc29/boadicea_classic/git/BOADICEA/perl/modules/vl/")
-# @perl5lib("/home/MINTS/tjc29/boadicea_classic/git/BOADICEA/perl/modules/cs/")
-# def vlValidateUploadedPedigreeFile(stUploadedPedigreeFileName,
-#                                    rValidationRequest,
-#                                    stCurrentOperation,
-#                                    rMinPedigreeSize,
-#                                    rMaxPedigreeSize,
-#                                    ref_stTitleLeft,
-#                                    ref_stTitleRight,
-#                                    ref_stErrorMode,
-#                                    ref_stNextPageName):
-#     pass
+# from boadicea.perlfunc import perlreq, perl5lib, perlfunc
+logger = logging.getLogger(__name__)
 
 
 class BwsInputSerializer(serializers.Serializer):
@@ -191,8 +181,8 @@ class BwsView(APIView):
                                                  filepath="/tmp/test_prob.bat",
                                                  mutation_freq=mutation_frequency,
                                                  sensitivity=mutation_sensitivity)
-                probs = self._run(pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
-                this_pedigree["mutation_probabilties"] = self.parse_probs(probs)
+                probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+                this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
 
                 # cancer risk calculation
                 if pedi.is_risks_calc_viable:
@@ -201,8 +191,8 @@ class BwsView(APIView):
                                                      filepath="/tmp/test_risk.bat",
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
-                    risks = self._run(pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
-                    this_pedigree["cancer_risks"] = self.parse_risks(risks)
+                    risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+                    this_pedigree["cancer_risks"] = self.parse_risks_output(risks)
                 output["pedigree_result"].append(this_pedigree)
 
 #             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
@@ -213,17 +203,7 @@ class BwsView(APIView):
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def isfloat(self, value):
-        """
-        Return true if the given value a float.
-        """
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
-    def _run(self, process_type, bat_file, cancer_rates="UK", cwd="/tmp"):
+    def _run(self, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp"):
         """
         Run a process.
         """
@@ -253,16 +233,20 @@ class BwsView(APIView):
             if exit_code == 0:
                 with open(os.path.join(cwd, out+".out"), 'r') as result_file:
                     data = result_file.read()
+                logger.info("BWS " +
+                            ("mutation " if process_type == pedigree.MUTATION_PROBS else "risk ") +
+                            "calculation, user = "+str(request.user))
                 return data
             else:
-                print("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
-                print(_output)
-                return "error: " + str(exit_code)
+                logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
+                logger.error(_output)
+                raise NotAcceptable("Error: " + str(exit_code))
         except subprocess.TimeoutExpired:
             process.terminate()
-            return "Error: BOADICEA process timed out as the pedigree is too large or complex to process."
+            logger.error("BOADICEA process timed out as the pedigree is too large or complex to process.")
+            raise NotAcceptable("Error: BOADICEA process timed out as the pedigree is too large or complex to process.")
 
-    def parse_risks(self, risks):
+    def parse_risks_output(self, risks):
         """
         Parse computed cancer risk results.
         """
@@ -285,7 +269,7 @@ class BwsView(APIView):
             ]))
         return risks_arr
 
-    def parse_probs(self, probs):
+    def parse_probs_output(self, probs):
         """
         Parse computed mutation carrier probability results.
         """
