@@ -1,3 +1,4 @@
+""" BOADICEA web-service testing.  """
 import os
 
 from django.conf import settings
