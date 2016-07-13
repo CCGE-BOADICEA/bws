@@ -9,7 +9,7 @@ from rest_framework.authentication import BasicAuthentication,\
     SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 # from boadicea.perlfunc import perlreq, perl5lib, perlfunc
-from boadicea.pedigree import PedigreeFile, PedigreeFileException
+from boadicea.pedigree import PedigreeFile
 from boadicea import pedigree
 import os
 import subprocess
