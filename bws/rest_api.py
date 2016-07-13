@@ -7,7 +7,7 @@ import subprocess
 from django.conf import settings
 from rest_framework import serializers, status
 from rest_framework.authentication import BasicAuthentication, \
-    SessionAuthentication, TokenAuthentication
+    TokenAuthentication  # SessionAuthentication
 from rest_framework.exceptions import NotAcceptable
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
@@ -18,8 +18,6 @@ from rest_framework_xml.renderers import XMLRenderer
 from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
 
-
-# from boadicea.perlfunc import perlreq, perl5lib, perlfunc
 logger = logging.getLogger(__name__)
 
 
