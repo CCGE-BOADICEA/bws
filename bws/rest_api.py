@@ -30,6 +30,7 @@ class BwsInputSerializer(serializers.Serializer):
         exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
 
     def validate(self, attrs):
+        """ Validate input parameters. """
         mut_freq = attrs.get('mut_freq')
         cancer_rates = attrs.get('cancer_rates')
 
@@ -44,7 +45,6 @@ class BwsInputSerializer(serializers.Serializer):
             for gene in settings.GENES:
                 mf = attrs.get(gene.lower() + '_mut_frequency')
                 if not self.isfloat(mf):
-                    print(gene.lower() + '_mut_frequency')
                     raise serializers.ValidationError(gene+" has an invalid custom value = "+str(mf))
         return attrs
 
