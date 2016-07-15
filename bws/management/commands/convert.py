@@ -1,7 +1,7 @@
 """ Command line utility. """
 import os
 from django.core.management.base import BaseCommand, CommandError
-from boadicea.pedigree import PedigreeFile
+from boadicea.utils import convert_boadice_pedigree_v4
 
 
 class Command(BaseCommand):
@@ -17,4 +17,4 @@ class Command(BaseCommand):
         if not os.access(pedigree_file, os.R_OK):
             raise CommandError('File "%s" can not be read' % pedigree_file)
 
-        PedigreeFile.convert_boadice_pedigree_v4(pedigree_file)
+        convert_boadice_pedigree_v4(pedigree_file)
