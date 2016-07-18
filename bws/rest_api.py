@@ -81,6 +81,9 @@ class BwsView(APIView):
     authentication_classes = (BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
 
+    def get_serializer_class(self):
+        return BwsInputSerializer
+
     def post(self, request):
         """
         BOADICEA Web-Service (BWS)
