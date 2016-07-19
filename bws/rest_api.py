@@ -92,7 +92,7 @@ class BwsView(APIView):
     def post(self, request):
         """
         BOADICEA Web-Service (BWS)
-
+        ---
         parameters_strategy: merge
         response_serializer: BwsOutputSerializer
         parameters:
