@@ -24,8 +24,13 @@ logger = logging.getLogger(__name__)
 class BwsInputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
     pedigree_data = serializers.CharField()
-    mut_freq = serializers.CharField()
-    cancer_rates = serializers.CharField()
+    mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
+                                       default='UK', help_text="Mutation frequency")
+    cancer_rates = serializers.ChoiceField(
+            choices=[('UK', 'UK'), ('UKold', 'UK-version-1'), ('Australia', 'Australia'),
+                     ('USA-white', 'USA-white'), ('Denmark', 'Denmark'), ('Finland', 'Finland'),
+                     ('Iceland', 'Iceland'), ('New-Zealand', 'New-Zealand'), ('Norway', 'Norway'),
+                     ('Sweden', 'Sweden')])
     for gene in settings.GENES:
         exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
 
@@ -87,7 +92,7 @@ class BwsView(APIView):
     def post(self, request):
         """
         BOADICEA Web-Service (BWS)
-        ---
+
         parameters_strategy: merge
         response_serializer: BwsOutputSerializer
         parameters:
@@ -156,7 +161,7 @@ class BwsView(APIView):
                 pedigree_data = request.data.get('pedigree_data')
 
             pf = PedigreeFile(pedigree_data)
-            population = request.data.get('mut_freq')
+            population = request.data.get('mut_freq', 'UK')
             cancer_rates = request.data.get('cancer_rates')
             if population != 'Custom':
                 mutation_frequency = settings.MUTATION_FREQUENCIES[population]
