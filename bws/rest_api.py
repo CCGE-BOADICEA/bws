@@ -66,7 +66,7 @@ class BwsInputSerializer(serializers.Serializer):
 
 class PedigreeSerializer(serializers.Serializer):
     family_id = serializers.CharField()
-    cancer_risks = serializers.ListField()
+    cancer_risks = serializers.ListField(required=False)
     mutation_probabilties = serializers.ListField()
 
 
@@ -182,6 +182,7 @@ class BwsView(APIView):
             (errors, warnings) = pf.validate()
             if len(errors) > 0:
                 output['errors'] = errors
+                return Response(BwsOutputSerializer(output).data)
             if len(warnings) > 0:
                 output['warnings'] = warnings
 
@@ -199,7 +200,7 @@ class BwsView(APIView):
                 this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
 
                 # cancer risk calculation
-                if pedi.is_risks_calc_viable:
+                if pedi.is_risks_calc_viable():
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
                     bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                                      filepath="/tmp/test_risk.bat",
