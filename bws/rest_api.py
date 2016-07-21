@@ -17,6 +17,7 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,8 @@ class PedigreeSerializer(serializers.Serializer):
 
 class BwsOutputSerializer(serializers.Serializer):
     """ Boadicea result. """
+    version = serializers.CharField()
+    timestamp = serializers.DateTimeField()
     mutation_frequency = serializers.DictField()
     mutation_sensitivity = serializers.DictField()
     cancer_incidence_rates = serializers.CharField()
@@ -173,6 +176,8 @@ class BwsView(APIView):
             mutation_sensitivity = settings.GENETIC_TEST_SENSITIVITY
 
             output = {
+                "version": settings.BOADICEA_VERSION,
+                "timestamp": datetime.datetime.now(),
                 "mutation_frequency": {population: mutation_frequency},
                 "mutation_sensitivity": mutation_sensitivity,
                 "cancer_incidence_rates": cancer_rates,
