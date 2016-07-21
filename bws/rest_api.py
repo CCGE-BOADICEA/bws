@@ -27,26 +27,13 @@ class BwsInputSerializer(serializers.Serializer):
     pedigree_data = serializers.CharField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
-    cancer_rates = serializers.ChoiceField(
-            choices=[('UK', 'UK'), ('UKold', 'UK-version-1'), ('Australia', 'Australia'),
-                     ('USA-white', 'USA-white'), ('Denmark', 'Denmark'), ('Finland', 'Finland'),
-                     ('Iceland', 'Iceland'), ('New-Zealand', 'New-Zealand'), ('Norway', 'Norway'),
-                     ('Sweden', 'Sweden')])
+    cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
     for gene in settings.GENES:
         exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
 
     def validate(self, attrs):
         """ Validate input parameters. """
         mut_freq = attrs.get('mut_freq')
-        cancer_rates = attrs.get('cancer_rates')
-
-        if mut_freq not in settings.MUTATION_FREQ:
-            raise serializers.ValidationError('value of mut_freq (' + mut_freq +
-                                              ') is not one of the available options.')
-        elif cancer_rates not in settings.CANCER_RATES:
-            raise serializers.ValidationError('value of cancer_rates (' + cancer_rates +
-                                              ') is not one of the available options.')
-
         if mut_freq == 'Custom':
             for gene in settings.GENES:
                 mf = attrs.get(gene.lower() + '_mut_frequency')
@@ -165,7 +152,8 @@ class BwsView(APIView):
 
             pf = PedigreeFile(pedigree_data)
             population = request.data.get('mut_freq', 'UK')
-            cancer_rates = request.data.get('cancer_rates')
+            cancer_rates = settings.CANCER_RATES.get(request.data.get('cancer_rates'))
+
             if population != 'Custom':
                 mutation_frequency = settings.MUTATION_FREQUENCIES[population]
             else:
