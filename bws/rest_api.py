@@ -66,7 +66,6 @@ class BwsOutputSerializer(serializers.Serializer):
     mutation_sensitivity = serializers.DictField()
     cancer_incidence_rates = serializers.CharField()
     pedigree_result = PedigreeSerializer(many=True)
-    errors = serializers.ListField(required=False)
     warnings = serializers.ListField(required=False)
 
 
@@ -172,10 +171,7 @@ class BwsView(APIView):
                 "pedigree_result": []
             }
 
-            (errors, warnings) = pf.validate()
-            if len(errors) > 0:
-                output['errors'] = errors
-                return Response(BwsOutputSerializer(output).data)
+            warnings = pf.validate()
             if len(warnings) > 0:
                 output['warnings'] = warnings
 
