@@ -1,5 +1,6 @@
 ''' API for the BWS REST resources. '''
 from collections import OrderedDict
+import datetime
 import logging
 import os
 import subprocess
@@ -12,14 +13,27 @@ from rest_framework.exceptions import NotAcceptable
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 
 from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
-import datetime
+
 
 logger = logging.getLogger(__name__)
+
+
+class BurstRateThrottle(UserRateThrottle):
+    """ Throttle short burst of requests from a user. """
+    scope = 'burst'
+    rate = '60/min'
+
+
+class SustainedRateThrottle(UserRateThrottle):
+    """ Throttle sustained requests from a user. """
+    scope = 'sustained'
+    rate = '1000/day'
 
 
 class BwsInputSerializer(serializers.Serializer):
@@ -79,6 +93,7 @@ class BwsView(APIView):
     serializer_class = BwsInputSerializer
     authentication_classes = (BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle)
 
     def get_serializer_class(self):
         return BwsInputSerializer
