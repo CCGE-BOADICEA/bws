@@ -175,32 +175,33 @@ class BwsView(APIView):
             if len(warnings) > 0:
                 output['warnings'] = warnings
 
-            # mutation probablility calculation
+            fp = "/tmp/"
             for pedi in pf.pedigrees:
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
 
-                ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS, filepath="/tmp/test_prob.ped")
-                bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                                 filepath="/tmp/test_prob.bat",
-                                                 mutation_freq=mutation_frequency,
-                                                 sensitivity=mutation_sensitivity)
-                probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
-                this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
+                # mutation probablility calculation
+                if pedi.is_carrier_probs_viable():
+                    ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
+                                                        filepath=os.path.join(fp, "test_prob.ped"))
+                    bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
+                                                     filepath=os.path.join(fp, "test_prob.bat"),
+                                                     mutation_freq=mutation_frequency,
+                                                     sensitivity=mutation_sensitivity)
+                    probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+                    this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
 
                 # cancer risk calculation
                 if pedi.is_risks_calc_viable():
-                    ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS, filepath="/tmp/test_risk.ped")
+                    ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
+                                                        filepath=os.path.join(fp, "test_risk.ped"))
                     bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                                     filepath="/tmp/test_risk.bat",
+                                                     filepath=os.path.join(fp, "test_risk.bat"),
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
                     risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
                     this_pedigree["cancer_risks"] = self.parse_risks_output(risks)
                 output["pedigree_result"].append(this_pedigree)
-
-#             vlValidateUploadedPedigreeFile(file_obj, 1, 'submit', 1,
-#                                            275, "", "", "errorMode", "")
 
             output_serialiser = BwsOutputSerializer(output)
 
