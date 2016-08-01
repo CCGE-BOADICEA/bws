@@ -27,29 +27,34 @@ class BwsInputSerializer(serializers.Serializer):
     pedigree_data = serializers.CharField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
-    cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
     for gene in settings.GENES:
         exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
 
-    def validate(self, attrs):
-        """ Validate input parameters. """
-        mut_freq = attrs.get('mut_freq')
-        if mut_freq == 'Custom':
-            for gene in settings.GENES:
-                mf = attrs.get(gene.lower() + '_mut_frequency')
-                if not self.isfloat(mf):
-                    raise serializers.ValidationError(gene+" has an invalid custom value = "+str(mf))
-        return attrs
+    for gene in settings.GENES:
+        exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
+             str(settings.GENETIC_TEST_SENSITIVITY[gene]) + ", max_value=1, min_value=0)")
+    cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
 
-    def isfloat(self, value):
-        """
-        Return true if the given value a float.
-        """
-        try:
-            float(value)
-            return True
-        except:
-            return False
+#     def validate(self, attrs):
+#         """ Validate input parameters. """
+#         mut_freq = attrs.get('mut_freq')
+#         if mut_freq == 'Custom':
+#             for gene in settings.GENES:
+#                 mf = attrs.get(gene.lower() + '_mut_frequency')
+#                 if not self.isfloat(mf):
+#                     raise serializers.ValidationError(
+#                         gene+" has an invalid (non-float) mutation frequency value = "+str(mf))
+#         return attrs
+
+#     def isfloat(self, value):
+#         """
+#         Return true if the given value a float.
+#         """
+#         try:
+#             float(value)
+#             return True
+#         except:
+#             return False
 
 
 class PedigreeSerializer(serializers.Serializer):
@@ -130,6 +135,37 @@ class BwsView(APIView):
              enum: ['UK', 'UK-version-1', 'Australia', 'USA-white', 'Denmark', 'Finland',
              'Iceland', 'New-Zealand', 'Norway', 'Sweden']
 
+           - name: brca1_mut_sensitivity
+             description: BRCA1 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.7
+           - name: brca2_mut_sensitivity
+             description: BRCA2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.8
+           - name: palb2_mut_sensitivity
+             description: PALB2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: atm_mut_sensitivity
+             description: ATM mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: chek2_mut_sensitivity
+             description: CHEK2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 1.0
+
         responseMessages:
            - code: 401
              message: Not authenticated
@@ -160,7 +196,10 @@ class BwsView(APIView):
                 for gene in settings.GENES:
                     mutation_frequency[gene] = float(request.POST.get(gene.lower() + '_mut_frequency'))
 
-            mutation_sensitivity = settings.GENETIC_TEST_SENSITIVITY
+            mutation_sensitivity = {
+                k: float(request.data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
+                for k in settings.GENETIC_TEST_SENSITIVITY.keys()
+            }
 
             output = {
                 "version": settings.BOADICEA_VERSION,
@@ -180,7 +219,7 @@ class BwsView(APIView):
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
 
-                # mutation probablility calculation
+                # mutation probability calculation
                 if pedi.is_carrier_probs_viable():
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
                                                         filepath=os.path.join(fp, "test_prob.ped"))
