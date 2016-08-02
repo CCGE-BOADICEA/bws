@@ -19,6 +19,8 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
+import tempfile
+import shutil
 
 
 logger = logging.getLogger(__name__)
@@ -71,7 +73,7 @@ class BwsInputSerializer(serializers.Serializer):
 #             return False
 
 
-class PedigreeSerializer(serializers.Serializer):
+class PedigreeResultSerializer(serializers.Serializer):
     family_id = serializers.CharField()
     cancer_risks = serializers.ListField(required=False)
     mutation_probabilties = serializers.ListField()
@@ -84,7 +86,7 @@ class BwsOutputSerializer(serializers.Serializer):
     mutation_frequency = serializers.DictField()
     mutation_sensitivity = serializers.DictField()
     cancer_incidence_rates = serializers.CharField()
-    pedigree_result = PedigreeSerializer(many=True)
+    pedigree_result = PedigreeResultSerializer(many=True)
     warnings = serializers.ListField(required=False)
 
 
@@ -229,7 +231,7 @@ class BwsView(APIView):
             if len(warnings) > 0:
                 output['warnings'] = warnings
 
-            fp = "/tmp/"
+            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
             for pedi in pf.pedigrees:
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
@@ -237,32 +239,35 @@ class BwsView(APIView):
                 # mutation probability calculation
                 if pedi.is_carrier_probs_viable():
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
-                                                        filepath=os.path.join(fp, "test_prob.ped"))
+                                                        filepath=os.path.join(cwd, "test_prob.ped"))
                     bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                                     filepath=os.path.join(fp, "test_prob.bat"),
+                                                     filepath=os.path.join(cwd, "test_prob.bat"),
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
-                    probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates)
+                    probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates,
+                                      cwd=cwd, size=len(pedi.people))
                     this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
 
                 # cancer risk calculation
                 if pedi.is_risks_calc_viable():
                     ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
-                                                        filepath=os.path.join(fp, "test_risk.ped"))
+                                                        filepath=os.path.join(cwd, "test_risk.ped"))
                     bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                                     filepath=os.path.join(fp, "test_risk.bat"),
+                                                     filepath=os.path.join(cwd, "test_risk.bat"),
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
-                    risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates)
+                    risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates,
+                                      cwd=cwd, size=len(pedi.people))
                     this_pedigree["cancer_risks"] = self.parse_risks_output(risks)
                 output["pedigree_result"].append(this_pedigree)
 
+            shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
-
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def _run(self, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp"):
+    def _run(self, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp",
+             size=settings.MAX_PEDIGREE_SIZE):
         """
         Run a process.
         """
@@ -276,6 +281,9 @@ class BwsView(APIView):
             prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_risks_v10.exe")
             out = "can_risks"
 
+        niceness = int(size/15)
+        if niceness > 19:
+            niceness = 19
         process = Popen([prog,
                          bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
                          os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
@@ -283,7 +291,8 @@ class BwsView(APIView):
                          out+".out",
                          os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_" + cancer_rates + ".nml")],
                         cwd=cwd,
-                        stdout=PIPE)
+                        stdout=PIPE,
+                        preexec_fn=lambda: os.nice(niceness))
 
         (_output, _err) = process.communicate()
         try:
