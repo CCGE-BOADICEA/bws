@@ -3,7 +3,10 @@ from collections import OrderedDict
 import datetime
 import logging
 import os
+import shutil
 import subprocess
+import tempfile
+import time
 
 from django.conf import settings
 from rest_framework import serializers, status
@@ -19,8 +22,7 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
-import tempfile
-import shutil
+from ipware.ip import get_real_ip
 
 
 logger = logging.getLogger(__name__)
@@ -235,6 +237,8 @@ class BwsView(APIView):
             for pedi in pf.pedigrees:
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
+                pedigree_size = len(pedi.people)
+                start = time.clock()
 
                 # mutation probability calculation
                 if pedi.is_carrier_probs_viable():
@@ -245,7 +249,7 @@ class BwsView(APIView):
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
                     probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates,
-                                      cwd=cwd, size=len(pedi.people))
+                                      cwd=cwd, size=pedigree_size)
                     this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
 
                 # cancer risk calculation
@@ -257,9 +261,14 @@ class BwsView(APIView):
                                                      mutation_freq=mutation_frequency,
                                                      sensitivity=mutation_sensitivity)
                     risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates,
-                                      cwd=cwd, size=len(pedi.people))
+                                      cwd=cwd, size=pedigree_size)
                     this_pedigree["cancer_risks"] = self.parse_risks_output(risks)
                 output["pedigree_result"].append(this_pedigree)
+
+                logger.info("BWS CALCULATIONS: user=" + str(request.user) +
+                            "; IP=" + str(get_real_ip(request)) +
+                            "; elapsed time=" + str(time.clock() - start) +
+                            "; pedigree size=" + str(pedigree_size))
 
             shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
@@ -284,6 +293,7 @@ class BwsView(APIView):
         niceness = int(size/15)
         if niceness > 19:
             niceness = 19
+        start = time.clock()
         process = Popen([prog,
                          bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
                          os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
@@ -302,8 +312,9 @@ class BwsView(APIView):
                 with open(os.path.join(cwd, out+".out"), 'r') as result_file:
                     data = result_file.read()
                 logger.info("BWS " +
-                            ("mutation " if process_type == pedigree.MUTATION_PROBS else "risk ") +
-                            "calculation, user = "+str(request.user))
+                            ("MUTATION PROBABILITY " if process_type == pedigree.MUTATION_PROBS else "RISK ") +
+                            "CALCULATION: user = " + str(request.user) +
+                            "; elapsed time=" + str(time.clock() - start))
                 return data
             else:
                 logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
