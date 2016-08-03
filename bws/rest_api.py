@@ -2,27 +2,22 @@
 from collections import OrderedDict
 import datetime
 import logging
-import os
 import shutil
-import subprocess
 import tempfile
-import time
 
 from django.conf import settings
 from rest_framework import serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     TokenAuthentication  # SessionAuthentication
-from rest_framework.exceptions import NotAcceptable
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
-
-from boadicea import pedigree
 from boadicea.pedigree import PedigreeFile
-from ipware.ip import get_real_ip
+from boadicea.calcs import RiskProbCalcs
 
 
 logger = logging.getLogger(__name__)
@@ -237,125 +232,18 @@ class BwsView(APIView):
             for pedi in pf.pedigrees:
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
-                pedigree_size = len(pedi.people)
-                start = time.clock()
 
-                # mutation probability calculation
-                if pedi.is_carrier_probs_viable():
-                    ped_file = pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
-                                                        filepath=os.path.join(cwd, "test_prob.ped"))
-                    bat_file = pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
-                                                     filepath=os.path.join(cwd, "test_prob.bat"),
-                                                     mutation_freq=mutation_frequency,
-                                                     sensitivity=mutation_sensitivity)
-                    probs = self._run(request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=cancer_rates,
-                                      cwd=cwd, size=pedigree_size)
-                    this_pedigree["mutation_probabilties"] = self.parse_probs_output(probs)
+                calcs = RiskProbCalcs(pedi, mutation_frequency=mutation_frequency,
+                                      mutation_sensitivity=mutation_sensitivity,
+                                      cancer_rates=cancer_rates, cwd=cwd, request=request)
+                if calcs.mutation_probabilties is not None:
+                    this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
+                if calcs.cancer_risks is not None:
+                    this_pedigree["cancer_risks"] = calcs.cancer_risks
 
-                # cancer risk calculation
-                if pedi.is_risks_calc_viable():
-                    ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
-                                                        filepath=os.path.join(cwd, "test_risk.ped"))
-                    bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                                     filepath=os.path.join(cwd, "test_risk.bat"),
-                                                     mutation_freq=mutation_frequency,
-                                                     sensitivity=mutation_sensitivity)
-                    risks = self._run(request, pedigree.CANCER_RISKS, bat_file, cancer_rates=cancer_rates,
-                                      cwd=cwd, size=pedigree_size)
-                    this_pedigree["cancer_risks"] = self.parse_risks_output(risks)
                 output["pedigree_result"].append(this_pedigree)
-
-                logger.info("BWS CALCULATIONS: user=" + str(request.user) +
-                            "; IP=" + str(get_real_ip(request)) +
-                            "; elapsed time=" + str(time.clock() - start) +
-                            "; pedigree size=" + str(pedigree_size))
 
             shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def _run(self, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp",
-             size=settings.MAX_PEDIGREE_SIZE):
-        """
-        Run a process.
-        """
-        from subprocess import Popen, PIPE
-        prog = ""
-        out = ""
-        if process_type == pedigree.MUTATION_PROBS:
-            prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_probs_v10.exe")
-            out = "can_probs"
-        else:
-            prog = os.path.join(settings.FORTRAN_HOME, "./boadicea_risks_v10.exe")
-            out = "can_risks"
-
-        niceness = int(size/15)
-        if niceness > 19:
-            niceness = 19
-        start = time.clock()
-        process = Popen([prog,
-                         bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
-                         os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
-                         out+".stdout",
-                         out+".out",
-                         os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_" + cancer_rates + ".nml")],
-                        cwd=cwd,
-                        stdout=PIPE,
-                        preexec_fn=lambda: os.nice(niceness))
-
-        (_output, _err) = process.communicate()
-        try:
-            exit_code = process.wait(timeout=60*4)  # timeout in seconds
-
-            if exit_code == 0:
-                with open(os.path.join(cwd, out+".out"), 'r') as result_file:
-                    data = result_file.read()
-                logger.info("BWS " +
-                            ("MUTATION PROBABILITY " if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            "CALCULATION: user = " + str(request.user) +
-                            "; elapsed time=" + str(time.clock() - start))
-                return data
-            else:
-                logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
-                logger.error(_output)
-                raise NotAcceptable("Error: " + str(exit_code))
-        except subprocess.TimeoutExpired:
-            process.terminate()
-            logger.error("BOADICEA process timed out as the pedigree is too large or complex to process.")
-            raise NotAcceptable("Error: BOADICEA process timed out as the pedigree is too large or complex to process.")
-
-    def parse_risks_output(self, risks):
-        """
-        Parse computed cancer risk results.
-        """
-        lines = risks.split(sep="\n")
-        risks_arr = []
-        for line in lines:
-            if pedigree.BLANK_LINE.match(line):
-                continue
-            parts = line.split(sep=",")
-            risks_arr.append(OrderedDict([
-                ("age", int(parts[0])),
-                ("breast cancer risk", {
-                    "decimal": float(parts[1]),
-                    "percent": float(parts[2])
-                }),
-                ("ovarian cancer risk", {
-                    "decimal": float(parts[3]),
-                    "percent": float(parts[4])
-                })
-            ]))
-        return risks_arr
-
-    def parse_probs_output(self, probs):
-        """
-        Parse computed mutation carrier probability results.
-        """
-        parts = probs.strip().split(sep=",")
-        probs_arr = [{"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}}]
-        for i, gene in enumerate(settings.GENES):
-            probs_arr.append({gene:
-                              {"decimal": float(parts[((i*2)+2)]),
-                               "percent": float(parts[(i*2)+3])}})
-        return probs_arr
