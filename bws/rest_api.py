@@ -16,7 +16,7 @@ from rest_framework.throttling import UserRateThrottle
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
-from boadicea.calcs import RiskProbCalcs
+from boadicea.calcs import Predictions
 
 
 logger = logging.getLogger(__name__)
@@ -232,9 +232,9 @@ class BwsView(APIView):
                 this_pedigree = {}
                 this_pedigree["family_id"] = pedi.famid
 
-                calcs = RiskProbCalcs(pedi, mutation_frequency=mutation_frequency,
-                                      mutation_sensitivity=mutation_sensitivity,
-                                      cancer_rates=cancer_rates, cwd=cwd, request=request)
+                calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
+                                    mutation_sensitivity=mutation_sensitivity,
+                                    cancer_rates=cancer_rates, cwd=cwd, request=request)
                 if calcs.mutation_probabilties is not None:
                     this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
                 if calcs.cancer_risks is not None:
