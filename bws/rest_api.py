@@ -1,5 +1,4 @@
 ''' API for the BWS REST resources. '''
-from collections import OrderedDict
 import datetime
 import logging
 import shutil
@@ -224,7 +223,7 @@ class BwsView(APIView):
                 "pedigree_result": []
             }
 
-            warnings = pf.validate()
+            warnings = PedigreeFile.validate(pf.pedigrees)
             if len(warnings) > 0:
                 output['warnings'] = warnings
 
