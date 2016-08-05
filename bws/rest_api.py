@@ -98,7 +98,10 @@ class BwsView(APIView):
 
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS)
+        BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
+        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM).
+        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
+        for each the genes and the population to use for cancer incidence rates.
         ---
         parameters_strategy: merge
         response_serializer: BwsOutputSerializer
