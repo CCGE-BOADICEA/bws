@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory, APIClient
 from django.utils.encoding import force_text
 import json
+from boadicea_auth.models import UserDetails
 
 
 class BwsTests(TestCase):
@@ -21,6 +22,9 @@ class BwsTests(TestCase):
         self.client = APIClient(enforce_csrf_checks=True)
         self.user = User.objects.create_user('testuser', email='testuser@test.com',
                                              password='testing')
+        # add user details
+        UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
+                                   country='UK')
         self.user.save()
         self.token = Token.objects.create(user=self.user)
         self.token.save()
