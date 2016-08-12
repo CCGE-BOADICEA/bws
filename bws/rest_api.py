@@ -233,21 +233,22 @@ class BwsView(APIView):
                 output['warnings'] = warnings
 
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
-            for pedi in pf.pedigrees:
-                this_pedigree = {}
-                this_pedigree["family_id"] = pedi.famid
+            try:
+                for pedi in pf.pedigrees:
+                    this_pedigree = {}
+                    this_pedigree["family_id"] = pedi.famid
 
-                calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
-                                    mutation_sensitivity=mutation_sensitivity,
-                                    cancer_rates=cancer_rates, cwd=cwd, request=request)
-                if calcs.mutation_probabilties is not None:
-                    this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
-                if calcs.cancer_risks is not None:
-                    this_pedigree["cancer_risks"] = calcs.cancer_risks
+                    calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
+                                        mutation_sensitivity=mutation_sensitivity,
+                                        cancer_rates=cancer_rates, cwd=cwd, request=request)
+                    if calcs.mutation_probabilties is not None:
+                        this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
+                    if calcs.cancer_risks is not None:
+                        this_pedigree["cancer_risks"] = calcs.cancer_risks
 
-                output["pedigree_result"].append(this_pedigree)
-
-            shutil.rmtree(cwd)
+                    output["pedigree_result"].append(this_pedigree)
+            finally:
+                shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
