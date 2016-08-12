@@ -11,6 +11,7 @@ from rest_framework.test import APIRequestFactory, APIClient
 from django.utils.encoding import force_text
 import json
 from boadicea_auth.models import UserDetails
+from django.test.utils import override_settings
 
 
 class BwsTests(TestCase):
@@ -65,3 +66,34 @@ class BwsTests(TestCase):
         content = json.loads(force_text(response.content))
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
+
+    def test_bws_errors(self):
+        ''' Test an error is reported by the web-service for an invalid year of birth. '''
+        url = reverse('bws')
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        # force an error changing to an invalid year of birth
+        pd = pedigree_data.read().replace('1963', '1600')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pd}
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('Person Error' in content)
+        self.assertTrue('year of birth' in content['Person Error'])
+
+    @override_settings(FORTRAN_TIMEOUT=0.05)
+    def test_bws_timeout(self):
+        ''' Test an error is reported by the web-service for an invalid year of birth. '''
+        url = reverse('bws')
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pedigree_data}
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('detail' in content)
+        self.assertTrue('BOADICEA process timed out' in content['detail'])
