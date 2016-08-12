@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
+# from boadicea.decorator import profile
 
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,7 @@ class BwsView(APIView):
     def get_serializer_class(self):
         return BwsInputSerializer
 
+    # @profile("profile_bws.profile")
     def post(self, request):
         """
         BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
