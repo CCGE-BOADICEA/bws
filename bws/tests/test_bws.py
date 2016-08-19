@@ -29,15 +29,15 @@ class BwsTests(TestCase):
         self.user.save()
         self.token = Token.objects.create(user=self.user)
         self.token.save()
+        self.url = reverse('bws')
+        self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
 
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
-        url = reverse('bws')
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': pedigree_data}
+                'pedigree_data': self.pedigree_data}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.post(url, data, format='multipart',
+        response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
@@ -47,20 +47,17 @@ class BwsTests(TestCase):
 
     def test_force_auth_bws(self):
         ''' Test POSTing to the BWS bypassing authentication. '''
-        url = reverse('bws')
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': pedigree_data}
+                'pedigree_data': self.pedigree_data}
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data, format='multipart')
+        response = self.client.post(self.url, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_missing_fields(self):
         ''' Test POSTing with missing fields. '''
-        url = reverse('bws')
         data = {'mut_freq': 'UK'}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.post(url, data, format='multipart',
+        response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_text(response.content))
@@ -69,14 +66,12 @@ class BwsTests(TestCase):
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
-        url = reverse('bws')
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
         # force an error changing to an invalid year of birth
-        pd = pedigree_data.read().replace('1963', '1600')
+        pd = self.pedigree_data.read().replace('1963', '1600')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': pd}
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data, format='multipart',
+        response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_text(response.content))
@@ -86,12 +81,10 @@ class BwsTests(TestCase):
     @override_settings(FORTRAN_TIMEOUT=0.05)
     def test_bws_timeout(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
-        url = reverse('bws')
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': pedigree_data}
+                'pedigree_data': self.pedigree_data}
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data, format='multipart',
+        response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         content = json.loads(force_text(response.content))
