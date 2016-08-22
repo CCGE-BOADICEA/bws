@@ -45,6 +45,17 @@ class BwsTests(TestCase):
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("family_id" in content["pedigree_result"][0])
 
+    def test_token_auth_err(self):
+        ''' Test POSTing to the BWS using token authentication. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data}
+        self.client.credentials(HTTP_AUTHORIZATION='Token xxxxxxxxxx')
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        content = json.loads(force_text(response.content))
+        self.assertEqual(content['detail'], 'Invalid token.')
+
     def test_force_auth_bws(self):
         ''' Test POSTing to the BWS bypassing authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
