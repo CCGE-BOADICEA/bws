@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
+from rest_framework.exceptions import NotAcceptable
 # from boadicea.decorator import profile
 
 
@@ -212,7 +213,10 @@ class BwsView(APIView):
             else:
                 mutation_frequency = {}
                 for gene in settings.GENES:
-                    mutation_frequency[gene] = float(request.POST.get(gene.lower() + '_mut_frequency'))
+                    try:
+                        mutation_frequency[gene] = float(request.POST.get(gene.lower() + '_mut_frequency'))
+                    except TypeError:
+                        raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
             mutation_sensitivity = {
                 k: float(request.data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
