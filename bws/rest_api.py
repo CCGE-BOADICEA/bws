@@ -41,8 +41,12 @@ class BwsInputSerializer(serializers.Serializer):
     pedigree_data = serializers.CharField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
+
+    MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
+    MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
     for gene in settings.GENES:
-        exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False)")
+        exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
+             "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
 
     for gene in settings.GENES:
         exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
@@ -52,14 +56,20 @@ class BwsInputSerializer(serializers.Serializer):
 #     def validate(self, attrs):
 #         """ Validate input parameters. """
 #         mut_freq = attrs.get('mut_freq')
+#         errs = []
 #         if mut_freq == 'Custom':
 #             for gene in settings.GENES:
 #                 mf = attrs.get(gene.lower() + '_mut_frequency')
-#                 if not self.isfloat(mf):
-#                     raise serializers.ValidationError(
-#                         gene+" has an invalid (non-float) mutation frequency value = "+str(mf))
+#                 if mf > settings.MAX_MUTATION_FREQ:
+#                     errs.append(gene + " mutation frequency should be less than or equal to " +
+#                                 str(settings.MAX_MUTATION_FREQ))
+#                 elif mf < settings.MIN_MUTATION_FREQ:
+#                     errs.append(gene + " mutation frequency should be greater than or equal to " +
+#                                 str(settings.MIN_MUTATION_FREQ))
+#         if len(errs) > 0:
+#             raise serializers.ValidationError(errs)
 #         return attrs
-
+#
 #     def isfloat(self, value):
 #         """
 #         Return true if the given value a float.

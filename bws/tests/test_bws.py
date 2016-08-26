@@ -79,6 +79,23 @@ class BwsTests(TestCase):
             self.assertTrue(g in settings.GENES)
             self.assertEqual(mf, data[g.lower() + '_mut_frequency'])
 
+    def test_custom_mutation_frequency_errs(self):
+        ''' Test POSTing custom mutation frequencies with errors. '''
+        GENES = settings.GENES
+        data = {g.lower() + '_mut_frequency':
+                (settings.MAX_MUTATION_FREQ + 0.1) if idx % 2 == 0 else (settings.MAX_MUTATION_FREQ - 0.1)
+                for idx, g in enumerate(GENES)}
+        data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data})
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertEqual(len(content.keys()), len(GENES))
+        for k in content.keys():
+            self.assertTrue(k.split("_")[0].upper() in GENES)
+
     def test_missing_fields(self):
         ''' Test POSTing with missing fields. '''
         data = {'mut_freq': 'UK'}
