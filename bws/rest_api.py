@@ -82,20 +82,20 @@ class BwsInputSerializer(serializers.Serializer):
 
 
 class PedigreeResultSerializer(serializers.Serializer):
-    family_id = serializers.CharField()
-    cancer_risks = serializers.ListField(required=False)
-    mutation_probabilties = serializers.ListField()
+    family_id = serializers.CharField(read_only=True)
+    cancer_risks = serializers.ListField(read_only=True, required=False)
+    mutation_probabilties = serializers.ListField(read_only=True)
 
 
 class BwsOutputSerializer(serializers.Serializer):
     """ Boadicea result. """
-    version = serializers.CharField()
-    timestamp = serializers.DateTimeField()
-    mutation_frequency = serializers.DictField()
-    mutation_sensitivity = serializers.DictField()
-    cancer_incidence_rates = serializers.CharField()
-    pedigree_result = PedigreeResultSerializer(many=True)
-    warnings = serializers.ListField(required=False)
+    version = serializers.CharField(read_only=True)
+    timestamp = serializers.DateTimeField(read_only=True)
+    mutation_frequency = serializers.DictField(read_only=True)
+    mutation_sensitivity = serializers.DictField(read_only=True)
+    cancer_incidence_rates = serializers.CharField(read_only=True)
+    pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
+    warnings = serializers.ListField(read_only=True, required=False)
 
 
 class BwsView(APIView):
