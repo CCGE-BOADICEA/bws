@@ -12,7 +12,7 @@ from rest_framework.authentication import BasicAuthentication, \
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle
+from rest_framework.throttling import UserRateThrottle, SimpleRateThrottle
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
@@ -27,17 +27,31 @@ logger = logging.getLogger(__name__)
 class BurstRateThrottle(UserRateThrottle):
     """ Throttle short burst of requests from a user. """
     scope = 'burst'
-    rate = '60/min'
 
 
 class SustainedRateThrottle(UserRateThrottle):
     """ Throttle sustained requests from a user. """
     scope = 'sustained'
-    rate = '1000/day'
+
+
+class EndUserIDRateThrottle(SimpleRateThrottle):
+    """
+    Limits the rate of API calls that may be made by a given end user.
+    The user id will be used as a unique cache key.
+    """
+    scope = 'userid'
+
+    def get_cache_key(self, request, view):
+        ident = request.data.get('client_id')
+        return self.cache_format % {
+            'scope': self.scope,
+            'ident': ident
+        }
 
 
 class BwsInputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
+    user_id = serializers.CharField(min_length=4, max_length=40)
     pedigree_data = serializers.CharField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
@@ -103,7 +117,7 @@ class BwsView(APIView):
     serializer_class = BwsInputSerializer
     authentication_classes = (BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
     def get_serializer_class(self):
         return BwsInputSerializer
@@ -119,6 +133,10 @@ class BwsView(APIView):
         parameters_strategy: merge
         response_serializer: BwsOutputSerializer
         parameters:
+           - name: user_id
+             description: unique end user ID, e.g. IP address
+             type: string
+             required: true
            - name: pedigree_data
              description: BOADICEA pedigree data file
              type: file

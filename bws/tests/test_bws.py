@@ -35,7 +35,8 @@ class BwsTests(TestCase):
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data}
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX'}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
@@ -59,7 +60,8 @@ class BwsTests(TestCase):
     def test_force_auth_bws(self):
         ''' Test POSTing to the BWS bypassing authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data}
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX'}
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -67,7 +69,8 @@ class BwsTests(TestCase):
     def test_custom_mutation_frequency(self):
         ''' Test POSTing custom mutation frequencies. '''
         data = {g.lower() + '_mut_frequency': 0.00085 for g in settings.GENES}
-        data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data})
+        data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
+                     'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart',
@@ -85,7 +88,8 @@ class BwsTests(TestCase):
         data = {g.lower() + '_mut_frequency':
                 (settings.MAX_MUTATION_FREQ + 0.1) if idx % 2 == 0 else (settings.MAX_MUTATION_FREQ - 0.1)
                 for idx, g in enumerate(GENES)}
-        data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data})
+        data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
+                     'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart',
@@ -112,7 +116,7 @@ class BwsTests(TestCase):
         # force an error changing to an invalid year of birth
         pd = self.pedigree_data.read().replace('1963', '1600')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': pd}
+                'pedigree_data': pd, 'user_id': 'test_XXX'}
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
@@ -123,9 +127,9 @@ class BwsTests(TestCase):
 
     @override_settings(FORTRAN_TIMEOUT=0.05)
     def test_bws_timeout(self):
-        ''' Test an error is reported by the web-service for an invalid year of birth. '''
+        ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data}
+                'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
