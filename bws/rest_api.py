@@ -44,11 +44,11 @@ class EndUserIDRateThrottle(SimpleRateThrottle):
 
     def get_cache_key(self, request, view):
         if is_authenticated(request.user):
-            ident = request.user.pk
+            ident = str(request.user.pk)
         else:
-            ident = self.get_ident(request)
+            ident = str(self.get_ident(request))
 
-        ident = str(ident)+"$"+request.data.get('user_id')
+        ident = ident+"$"+request.data.get('user_id')
         return self.cache_format % {
             'scope': self.scope,
             'ident': ident
