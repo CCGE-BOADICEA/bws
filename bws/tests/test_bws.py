@@ -101,13 +101,14 @@ class BwsTests(TestCase):
             self.assertTrue(k.split("_")[0].upper() in GENES)
 
     def test_missing_fields(self):
-        ''' Test POSTing with missing fields. '''
+        ''' Test POSTing with missing required fields. '''
         data = {'mut_freq': 'UK'}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_text(response.content))
+        self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
 
