@@ -48,16 +48,19 @@ class EndUserIDRateThrottle(SimpleRateThrottle):
         else:
             ident = str(self.get_ident(request))
 
-        ident = ident+"$"+request.data.get('user_id')
-        return self.cache_format % {
-            'scope': self.scope,
-            'ident': ident
-        }
+        try:
+            ident = ident+"$"+request.data.get('user_id')
+            return self.cache_format % {
+                'scope': self.scope,
+                'ident': ident
+            }
+        except TypeError:
+            return None
 
 
 class BwsInputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
-    user_id = serializers.CharField(min_length=4, max_length=40)
+    user_id = serializers.CharField(min_length=4, max_length=40, required=True)
     pedigree_data = serializers.CharField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
