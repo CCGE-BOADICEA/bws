@@ -18,6 +18,7 @@ from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable
+from rest_framework.compat import is_authenticated
 # from boadicea.decorator import profile
 
 
@@ -37,12 +38,17 @@ class SustainedRateThrottle(UserRateThrottle):
 class EndUserIDRateThrottle(SimpleRateThrottle):
     """
     Limits the rate of API calls that may be made by a given end user.
-    The user id will be used as a unique cache key.
+    The end user id plus the user will be used as a unique cache key.
     """
-    scope = 'userid'
+    scope = 'enduser_burst'
 
     def get_cache_key(self, request, view):
-        ident = request.data.get('client_id')
+        if is_authenticated(request.user):
+            ident = request.user.pk
+        else:
+            ident = self.get_ident(request)
+
+        ident = str(ident)+"$"+request.data.get('user_id')
         return self.cache_format % {
             'scope': self.scope,
             'ident': ident
