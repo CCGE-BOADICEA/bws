@@ -53,7 +53,7 @@ class BwsTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token xxxxxxxxxx')
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         content = json.loads(force_text(response.content))
         self.assertEqual(content['detail'], 'Invalid token.')
 
