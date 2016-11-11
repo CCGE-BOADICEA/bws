@@ -138,6 +138,12 @@ class BwsOutputSerializer(serializers.Serializer):
     warnings = serializers.ListField(read_only=True, required=False)
 
 
+# class CsrfExemptSessionAuthentication(SessionAuthentication):
+#
+#     def enforce_csrf(self, request):
+#         return  # To not perform the csrf check previously happening
+
+
 class BwsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = BwsInputSerializer
