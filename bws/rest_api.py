@@ -19,7 +19,6 @@ from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable
 from rest_framework.compat import is_authenticated
-from rest_framework.authentication import SessionAuthentication
 # from boadicea.decorator import profile
 
 
@@ -147,7 +146,7 @@ class BwsOutputSerializer(serializers.Serializer):
 class BwsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = BwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
