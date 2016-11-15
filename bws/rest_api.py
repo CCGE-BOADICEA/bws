@@ -7,7 +7,7 @@ import tempfile
 from django.conf import settings
 from rest_framework import serializers, status
 from rest_framework.authentication import BasicAuthentication, \
-    TokenAuthentication  # SessionAuthentication
+    TokenAuthentication, SessionAuthentication
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
@@ -146,7 +146,7 @@ class BwsOutputSerializer(serializers.Serializer):
 class BwsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = BwsInputSerializer
-    authentication_classes = (BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
