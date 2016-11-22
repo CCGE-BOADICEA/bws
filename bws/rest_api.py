@@ -19,6 +19,7 @@ from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable
 from rest_framework.compat import is_authenticated
+from django.core.files.base import File
 # from boadicea.decorator import profile
 
 
@@ -74,10 +75,30 @@ class EndUserIDRateThrottle(LogThrottleMixin, SimpleRateThrottle):
             return None
 
 
+class PedigreeField(serializers.Field):
+    """
+    Pedigree field object serialized into a string representation. The field can
+    be a str or and uploaded file type.
+    """
+    def to_representation(self, obj):
+        return obj
+
+    def to_internal_value(self, obj):
+        assert(isinstance(obj, str) or isinstance(obj, File))
+
+        if isinstance(obj, File):
+            pedigree_data = ''
+            for chunk in obj.chunks():
+                pedigree_data += chunk.decode("utf-8")
+            return pedigree_data
+        else:
+            return obj
+
+
 class BwsInputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
     user_id = serializers.CharField(min_length=4, max_length=40, required=True)
-    pedigree_data = serializers.CharField()
+    pedigree_data = PedigreeField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
 
@@ -255,17 +276,12 @@ class BwsView(APIView):
         """
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            file_obj = request.FILES.get('pedigree_data')
-            if file_obj is not None:
-                pedigree_data = ''
-                for chunk in file_obj.chunks():
-                    pedigree_data += chunk.decode("utf-8")
-            else:
-                pedigree_data = request.data.get('pedigree_data')
+            validated_data = serializer.validated_data
+            pedigree_data = validated_data.get('pedigree_data')
 
             pf = PedigreeFile(pedigree_data)
-            population = request.data.get('mut_freq', 'UK')
-            cancer_rates = settings.CANCER_RATES.get(request.data.get('cancer_rates'))
+            population = validated_data.get('mut_freq', 'UK')
+            cancer_rates = settings.CANCER_RATES.get(validated_data.get('cancer_rates'))
 
             if population != 'Custom':
                 mutation_frequency = settings.MUTATION_FREQUENCIES[population]
@@ -273,12 +289,12 @@ class BwsView(APIView):
                 mutation_frequency = {}
                 for gene in settings.GENES:
                     try:
-                        mutation_frequency[gene] = float(request.POST.get(gene.lower() + '_mut_frequency'))
+                        mutation_frequency[gene] = float(validated_data.get(gene.lower() + '_mut_frequency'))
                     except TypeError:
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
             mutation_sensitivity = {
-                k: float(request.data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
+                k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
                 for k in settings.GENETIC_TEST_SENSITIVITY.keys()
             }
 
