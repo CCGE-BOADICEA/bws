@@ -322,8 +322,15 @@ class BwsView(APIView):
                                         cancer_rates=cancer_rates, cwd=cwd, request=request)
                     if calcs.mutation_probabilties is not None:
                         this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
-                    if calcs.cancer_risks is not None:
-                        this_pedigree["cancer_risks"] = calcs.cancer_risks
+                    try:
+                        if calcs.cancer_risks is not None:
+                            this_pedigree["cancer_risks"] = calcs.cancer_risks
+                    except AttributeError as e:
+                        if 'warnings' in output:
+                            output['warnings'].append('cancer risks not provided')
+                        else:
+                            output['warnings'] = 'cancer risks not provided'
+                        logger.debug('cancer risks not provided :: '+str(e))
 
                     output["pedigree_result"].append(this_pedigree)
             finally:
