@@ -320,8 +320,15 @@ class BwsView(APIView):
                     calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
                                         mutation_sensitivity=mutation_sensitivity,
                                         cancer_rates=cancer_rates, cwd=cwd, request=request)
-                    if calcs.mutation_probabilties is not None:
-                        this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
+                    try:
+                        if calcs.mutation_probabilties is not None:
+                            this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
+                    except AttributeError as e:
+                        if 'warnings' in output:
+                            output['warnings'].append('mutation probabilties not provided')
+                        else:
+                            output['warnings'] = 'mutation probabilties not provided'
+                        logger.debug('cancer risks not provided :: '+str(e))
                     try:
                         if calcs.cancer_risks is not None:
                             this_pedigree["cancer_risks"] = calcs.cancer_risks
