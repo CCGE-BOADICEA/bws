@@ -1,8 +1,11 @@
-from ordereddict import OrderedDict
 from boadicea.exceptions import RiskFactorError
+from collections import OrderedDict
 
 
 class RiskFactors(object):
+    ''' Risk factors are defined in terms of a categories. An unknown risk factory
+    is category 0, otherwise they are given a non-zero number depending on which
+    group they belong to. '''
 
     categories = OrderedDict([
         ('menarche_age', 7),                # <11, 11, 12, 13, 14, 15, >15
@@ -19,7 +22,8 @@ class RiskFactors(object):
         ])
 
     @staticmethod
-    def encode(*risk_categories):
+    def encode(risk_categories):
+        ''' Encode the risk categories into a risk factor. '''
         # Define the number of categories for each factor
         n_categories = list(RiskFactors.categories.values())
         n_factors = len(n_categories)
@@ -29,32 +33,28 @@ class RiskFactors(object):
             raise RiskFactorError("Error: Incorrect number of command line arguments specified.\n" +
                                   "This program takes {} arguments, {} supplied".format(len(n_categories),
                                                                                         len(risk_categories)))
-
-        # Read in the category for each factor.
-        # Check that the category is in bounds.
-        category = []
+        multiplicand = 1
+        factor = 0
         for i in range(n_factors):
+            # Read in the category for each factor
             try:
-                category.append(int(float(risk_categories[i])))
+                category = int(float(risk_categories[i]))
             except:
                 raise RiskFactorError("Error: Unable to convert command line argument number {}, '{}'," +
                                       " to integer.\nThis program takes a list of integers" +
                                       " as arguments".format(i + 1, risk_categories[i]))
-            if category[i] < 0:
-                raise RiskFactorError("Error: factor {} out of range, {} < {}".format(i, category[i], 0))
-            elif category[i] > n_categories[i]:
-                raise RiskFactorError("Error: factor {} out of range, {} > {}".format(i, category[i], n_categories[i]))
+            # Check that the category is in bounds.
+            if category < 0 or category > n_categories[i]:
+                raise RiskFactorError("Error: factor {} out of range, {} > {}".format(i, category, n_categories[i]))
 
-        # Encode the categories into a single factor
-        multiplicand = 1
-        factor = 0
-        for i in range(n_factors):
-            factor += multiplicand * category[i]
+            # Encode the categories into a single factor
+            factor += multiplicand * category
             multiplicand = multiplicand * (n_categories[i] + 1)
         return factor
 
     @staticmethod
     def decode(factor):
+        ''' Decode the risk factor into the risk categories. '''
         # Define the number of categories for each factor
         n_categories = list(RiskFactors.categories.values())
         n_factors = len(n_categories)
@@ -66,9 +66,7 @@ class RiskFactors(object):
         max_factor -= 1
 
         # Read in the risk factor code and convert it to integer
-        try:
-            factor = int(float(factor))
-        except:
+        if not isinstance(factor, int):
             raise RiskFactorError("Error: Unable to convert command line argument, {} to integer.\n" +
                                   "This program takes a single integer as argument".format(factor))
 
@@ -82,6 +80,6 @@ class RiskFactors(object):
         dividend = factor
         category = []
         for i in range(n_factors):
-            category.append(dividend % (n_categories[i] + 1))
+            category.append(int(dividend % (n_categories[i] + 1)))
             dividend = (dividend - category[-1]) / (n_categories[i] + 1)
         return category
