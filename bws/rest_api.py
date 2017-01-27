@@ -20,6 +20,7 @@ from rest_framework.exceptions import NotAcceptable
 from django.core.files.base import File
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\
     SustainedRateThrottle
+from bws.risk_factors import RiskFactors
 # from boadicea.decorator import profile
 
 
@@ -63,6 +64,8 @@ class BwsInputSerializer(serializers.Serializer):
         exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
              str(settings.GENETIC_TEST_SENSITIVITY[gene]) + ", max_value=1, min_value=0)")
     cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
+    risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
+                                                min_value=0, default=0)
 
 #     def validate(self, attrs):
 #         """ Validate input parameters. """
@@ -215,6 +218,9 @@ class BwsView(APIView):
              type: float
              paramType: form
              defaultValue: 1.0
+           - name: risk_factor_code
+             description: see risk factors web-service
+             type: integer
 
         responseMessages:
            - code: 401
@@ -244,6 +250,8 @@ class BwsView(APIView):
                     except TypeError:
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
+            risk_factor_code = validated_data.get('risk_factor_code')
+
             mutation_sensitivity = {
                 k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
                 for k in settings.GENETIC_TEST_SENSITIVITY.keys()
@@ -270,7 +278,8 @@ class BwsView(APIView):
 
                     calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
                                         mutation_sensitivity=mutation_sensitivity,
-                                        cancer_rates=cancer_rates, cwd=cwd, request=request)
+                                        cancer_rates=cancer_rates, risk_factor_code=risk_factor_code,
+                                        cwd=cwd, request=request)
                     try:
                         if calcs.mutation_probabilties is not None:
                             this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
