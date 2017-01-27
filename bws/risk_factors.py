@@ -14,8 +14,10 @@ from rest_framework.authentication import BasicAuthentication,\
 
 class RiskFactors(object):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
-        For an unknown risk factor it is category 0, otherwise they are given a non-zero number
-        depending on which group they belong to. '''
+        If a factor is unobserved, missing or not applicable, it is assigned category 0,
+        and is not taken into account in the calculation. Otherwise a non-zero number is given
+        depending on which group they belong to. These are then combined into a single
+        risk factor code (see encode() function) that is used by the BOADICEA risk calculation. '''
 
     categories = OrderedDict([
         ('menarche_age', 7),                # <11, 11, 12, 13, 14, 15, >15
@@ -122,8 +124,10 @@ class RiskFactorsView(APIView):
     def post(self, request):
         """
         Each risk factor for an individual is defined in terms of a category they are in.
-        For an unknown risk factor it is category 0, otherwise they are given a non-zero number
-        depending on which group they belong to.
+        If a factor is unobserved, missing or not applicable, it is assigned category 0,
+        and is not taken into account in the calculation. Otherwise a non-zero number is given
+        depending on which group they belong to. These are then combined into a single
+        risk factor code that is used by the BOADICEA risk calculation.
         ---
         parameters_strategy: merge
         response_serializer: RiskFactorsOutputSerializer
