@@ -41,14 +41,22 @@ class RiskFactorsWebServices(TestCase):
         self.token.save()
         self.url = reverse('risk_factors')
 
-    def test_token_auth_risk_factors(self):
+    def test_risk_factors(self):
         ''' Test POSTing to the risk factors using token authentication. '''
         data = RiskFactors.categories
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, "factor")
         content = json.loads(force_text(response.content))
-        self.assertTrue("factor" in content)
         factor = RiskFactors.encode(list(data.values()))
         self.assertEqual(content['factor'], factor, "compare result web-service to direct function call")
+
+    def test_risk_factors_bad_request(self):
+        ''' Test POSTing to the risk factors with an out of range category number. '''
+        ncat = RiskFactors.categories.get('menarche_age')+1
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertContains(response, "Ensure this value is less than or equal to ",
+                            status_code=status.HTTP_400_BAD_REQUEST)
