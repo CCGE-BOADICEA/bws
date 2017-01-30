@@ -12,6 +12,7 @@ from django.utils.encoding import force_text
 import json
 from boadicea_auth.models import UserDetails
 from django.test.utils import override_settings
+from bws.risk_factors import RiskFactors
 
 
 class BwsTests(TestCase):
@@ -111,6 +112,21 @@ class BwsTests(TestCase):
         self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
+
+    def test_bws_risk_factor(self):
+        ''' Test POSTing to the BWS using token authentication. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX',
+                'factor': RiskFactors.categories.get('menarche_age')}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("mutation_frequency" in content)
+        self.assertTrue("pedigree_result" in content)
+        self.assertTrue("family_id" in content["pedigree_result"][0])
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
