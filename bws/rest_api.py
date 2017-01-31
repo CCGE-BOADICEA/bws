@@ -64,6 +64,9 @@ class BwsInputSerializer(serializers.Serializer):
         exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
              str(settings.GENETIC_TEST_SENSITIVITY[gene]) + ", max_value=1, min_value=0)")
     cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
+
+
+class BwsExtendedInputSerializer(BwsInputSerializer):
     risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
 
@@ -126,6 +129,8 @@ class BwsView(APIView):
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
     def get_serializer_class(self):
+        if self.request.user.has_perm('boadicea_auth.can_risk'):
+            return BwsExtendedInputSerializer
         return BwsInputSerializer
 
     # @profile("profile_bws.profile")
