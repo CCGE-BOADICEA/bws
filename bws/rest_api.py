@@ -253,7 +253,7 @@ class BwsView(APIView):
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
             if request.user.has_perm('boadicea_auth.can_risk'):
-                risk_factor_code = validated_data.get('risk_factor_code')
+                risk_factor_code = validated_data.get('risk_factor_code', 0)
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
