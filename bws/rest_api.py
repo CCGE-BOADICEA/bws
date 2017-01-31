@@ -255,7 +255,7 @@ class BwsView(APIView):
             if request.user.has_perm('boadicea_auth.can_risk'):
                 risk_factor_code = validated_data.get('risk_factor_code')
             else:
-                if validated_data.get('risk_factor_code') > 0:
+                if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
                 risk_factor_code = 0
 
