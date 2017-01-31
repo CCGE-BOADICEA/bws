@@ -2,7 +2,7 @@ from django.test import TestCase
 from bws.risk_factors import RiskFactors
 from boadicea.exceptions import RiskFactorError
 from rest_framework.test import APIRequestFactory, APIClient
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from boadicea_auth.models import UserDetails
 from django.core.urlresolvers import reverse
 from rest_framework.authtoken.models import Token
@@ -37,9 +37,11 @@ class RiskFactorsWebServices(TestCase):
         UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
                                    country='UK')
         self.user.save()
+        self.permission = Permission.objects.get(name='Can risk')
+        self.user.user_permissions.add(self.permission)
         self.token = Token.objects.create(user=self.user)
         self.token.save()
-        self.url = reverse('risk_factors')
+        self.url = reverse('internal_ws:risk_factors')
 
     def test_risk_factors(self):
         ''' Test POSTing to the risk factors using token authentication. '''
@@ -60,3 +62,13 @@ class RiskFactorsWebServices(TestCase):
                                     HTTP_ACCEPT="application/json")
         self.assertContains(response, "Ensure this value is less than or equal to ",
                             status_code=status.HTTP_400_BAD_REQUEST)
+
+    def test_risk_factors_permissions(self):
+        ''' Test POSTing to the risk factors with an out of range category number. '''
+        self.user.user_permissions.remove(self.permission)
+        ncat = RiskFactors.categories.get('menarche_age')
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertContains(response, "Ensure this value is less than or equal to ",
+                            status_code=status.HTTP_403_FORBIDDEN)

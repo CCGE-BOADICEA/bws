@@ -5,7 +5,7 @@ from rest_framework_xml.renderers import XMLRenderer
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\
     SustainedRateThrottle
-from rest_framework import serializers, status
+from rest_framework import serializers, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import BasicAuthentication,\
@@ -114,11 +114,18 @@ class RiskFactorsOutputSerializer(serializers.Serializer):
     factor = serializers.IntegerField(max_value=RiskFactors.get_max_factor())
 
 
+class CanRiskPermission(permissions.BasePermission):
+    message = 'Cancer risk factor permission not granted'
+
+    def has_permission(self, request, view):
+        return request.user.has_perm('boadicea_auth.can_risk')
+
+
 class RiskFactorsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = RiskFactorsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, CanRiskPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
     def post(self, request):

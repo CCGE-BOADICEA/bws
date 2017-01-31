@@ -218,9 +218,6 @@ class BwsView(APIView):
              type: float
              paramType: form
              defaultValue: 1.0
-           - name: risk_factor_code
-             description: see risk factors web-service
-             type: integer
 
         responseMessages:
            - code: 401
@@ -250,7 +247,12 @@ class BwsView(APIView):
                     except TypeError:
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
-            risk_factor_code = validated_data.get('risk_factor_code')
+            if request.user.has_perm('boadicea_auth.can_risk'):
+                risk_factor_code = validated_data.get('risk_factor_code')
+            else:
+                if validated_data.get('risk_factor_code') > 0:
+                    logger.warning('risk factor code parameter provided without the correct permissions')
+                risk_factor_code = 0
 
             mutation_sensitivity = {
                 k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
