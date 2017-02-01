@@ -123,7 +123,7 @@ class BwsOutputSerializer(serializers.Serializer):
 
 class BwsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
-    serializer_class = BwsInputSerializer
+    serializer_class = BwsExtendedInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
