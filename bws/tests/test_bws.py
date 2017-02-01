@@ -2,7 +2,7 @@
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework import status
@@ -12,7 +12,6 @@ from django.utils.encoding import force_text
 import json
 from boadicea_auth.models import UserDetails
 from django.test.utils import override_settings
-from bws.risk_factors import RiskFactors
 
 
 class BwsTests(TestCase):
@@ -118,8 +117,10 @@ class BwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
                 'user_id': 'test_XXX',
-                'factor': RiskFactors.categories.get('menarche_age')}
+                'risk_factor_code': 4}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.permission = Permission.objects.get(name='Can risk')
+        self.user.user_permissions.add(self.permission)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
