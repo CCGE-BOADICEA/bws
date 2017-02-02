@@ -113,20 +113,18 @@ class BwsTests(TestCase):
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
 
     def test_bws_risk_factor(self):
-        ''' Test affect of including the risk factor. '''
+        ''' Test affect of including the risk factors. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
                 'user_id': 'test_XXX', 'risk_factor_code': 7}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        # no permissions to use the risk factors and so ignored
         response = self.client.post(self.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
 
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': 7}
-        # add permissions to enable use of the risk factor
+        # add permissions to enable use of the risk factors
+        data['pedigree_data'] = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
         self.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         response = self.client.post(self.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
