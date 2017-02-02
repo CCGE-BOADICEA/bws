@@ -113,21 +113,26 @@ class BwsTests(TestCase):
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
 
     def test_bws_risk_factor(self):
-        ''' Test POSTing to the BWS using token authentication. '''
+        ''' Test affect of including the risk factor. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX',
-                'risk_factor_code': 4}
+                'user_id': 'test_XXX', 'risk_factor_code': 7}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        self.permission = Permission.objects.get(name='Can risk')
-        self.user.user_permissions.add(self.permission)
-        response = self.client.post(self.url, data, format='multipart',
-                                    HTTP_ACCEPT="application/json")
+        response = self.client.post(self.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
-        self.assertTrue("mutation_frequency" in content)
-        self.assertTrue("pedigree_result" in content)
-        self.assertTrue("family_id" in content["pedigree_result"][0])
+        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pedigree_data,
+                'user_id': 'test_XXX', 'risk_factor_code': 7}
+        # add permissions to enable use of the risk factor
+        self.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        response = self.client.post(self.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
+                        cancer_risks1[0]['breast cancer risk']['decimal'])
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
