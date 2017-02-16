@@ -101,6 +101,7 @@ class BwsExtendedInputSerializer(BwsInputSerializer):
 class PedigreeResultSerializer(serializers.Serializer):
     family_id = serializers.CharField(read_only=True)
     cancer_risks = serializers.ListField(read_only=True, required=False)
+    baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
     mutation_probabilties = serializers.ListField(read_only=True)
 
 
@@ -115,16 +116,16 @@ class BwsOutputSerializer(serializers.Serializer):
     warnings = serializers.ListField(read_only=True, required=False)
 
 
-# class CsrfExemptSessionAuthentication(SessionAuthentication):
-#
-#     def enforce_csrf(self, request):
-#         return  # To not perform the csrf check previously happening
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
 
 
 class BwsView(APIView):
     renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = BwsExtendedInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
@@ -295,10 +296,20 @@ class BwsView(APIView):
                             output['warnings'].append('mutation probabilties not provided')
                         else:
                             output['warnings'] = 'mutation probabilties not provided'
-                        logger.debug('cancer risks not provided :: '+str(e))
+                        logger.debug('mutation probabilties not provided :: '+str(e))
                     try:
                         if calcs.cancer_risks is not None:
                             this_pedigree["cancer_risks"] = calcs.cancer_risks
+                            # add baseline risks
+                            try:
+                                this_pedigree["baseline_cancer_risks"] = calcs.baseline_cancer_risks
+                            except AttributeError as e:
+                                if 'warnings' in output:
+                                    output['warnings'].append('baseline cancer risks not provided')
+                                else:
+                                    output['warnings'] = 'baseline cancer risks not provided'
+                                logger.debug('baseline cancer risks not provided :: '+str(e))
+
                     except AttributeError as e:
                         if 'warnings' in output:
                             output['warnings'].append('cancer risks not provided')
