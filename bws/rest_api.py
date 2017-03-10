@@ -266,7 +266,6 @@ class BwsView(APIView):
             }
 
             output = {
-                "version": settings.BOADICEA_VERSION,
                 "timestamp": datetime.datetime.now(),
                 "mutation_frequency": {population: mutation_frequency},
                 "mutation_sensitivity": mutation_sensitivity,
@@ -289,6 +288,10 @@ class BwsView(APIView):
                                         cancer_rates=cancer_rates, risk_factor_code=risk_factor_code,
                                         cwd=cwd, request=request)
                     try:
+                        if calcs.version is not None:
+                            output['version'] = calcs.version
+                        else:
+                            logger.warning("BOADICEA version not found")
                         if calcs.mutation_probabilties is not None:
                             this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
                     except AttributeError as e:
