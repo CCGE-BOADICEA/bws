@@ -100,6 +100,7 @@ class BwsExtendedInputSerializer(BwsInputSerializer):
 
 class PedigreeResultSerializer(serializers.Serializer):
     family_id = serializers.CharField(read_only=True)
+    proband_id = serializers.CharField(read_only=True)
     cancer_risks = serializers.ListField(read_only=True, required=False)
     baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
     mutation_probabilties = serializers.ListField(read_only=True)
@@ -282,6 +283,7 @@ class BwsView(APIView):
                 for pedi in pf.pedigrees:
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
+                    this_pedigree["proband_id"] = pedi.get_target().pid
 
                     calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
                                         mutation_sensitivity=mutation_sensitivity,
