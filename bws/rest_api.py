@@ -200,13 +200,13 @@ class BwsView(APIView):
              required: false
              type: float
              paramType: form
-             defaultValue: 0.7
+             defaultValue: 0.9
            - name: brca2_mut_sensitivity
              description: BRCA2 mutation sensitivity
              required: false
              type: float
              paramType: form
-             defaultValue: 0.8
+             defaultValue: 0.9
            - name: palb2_mut_sensitivity
              description: PALB2 mutation sensitivity
              required: false
