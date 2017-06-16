@@ -103,6 +103,8 @@ class PedigreeResultSerializer(serializers.Serializer):
     proband_id = serializers.CharField(read_only=True)
     cancer_risks = serializers.ListField(read_only=True, required=False)
     baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
+    lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
+    ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
     mutation_probabilties = serializers.ListField(read_only=True)
 
 
@@ -314,6 +316,26 @@ class BwsView(APIView):
                                 else:
                                     output['warnings'] = 'baseline cancer risks not provided'
                                 logger.debug('baseline cancer risks not provided :: '+str(e))
+
+                            # add lifetime risk
+                            try:
+                                this_pedigree["lifetime_cancer_risk"] = calcs.lifetime_cancer_risk
+                            except AttributeError as e:
+                                if 'warnings' in output:
+                                    output['warnings'].append('lifetime cancer risk not provided')
+                                else:
+                                    output['warnings'] = 'lifetime cancer risk not provided'
+                                logger.debug('lifetime cancer risk not provided :: '+str(e))
+
+                            # add ten year risk
+                            try:
+                                this_pedigree["ten_yr_cancer_risk"] = calcs.ten_yr_cancer_risk
+                            except AttributeError as e:
+                                if 'warnings' in output:
+                                    output['warnings'].append('ten year cancer risk not provided')
+                                else:
+                                    output['warnings'] = 'ten year cancer risk not provided'
+                                logger.debug('ten year cancer risk not provided :: '+str(e))
 
                     except AttributeError as e:
                         if 'warnings' in output:
