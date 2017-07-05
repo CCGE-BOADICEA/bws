@@ -104,7 +104,9 @@ class PedigreeResultSerializer(serializers.Serializer):
     cancer_risks = serializers.ListField(read_only=True, required=False)
     baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
     lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
+    baseline_lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
     ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
+    baseline_ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
     mutation_probabilties = serializers.ListField(read_only=True)
 
 
@@ -291,58 +293,15 @@ class BwsView(APIView):
                                         mutation_sensitivity=mutation_sensitivity,
                                         cancer_rates=cancer_rates, risk_factor_code=risk_factor_code,
                                         cwd=cwd, request=request)
-                    try:
-                        if calcs.version is not None:
-                            output['version'] = calcs.version
-                        else:
-                            logger.warning("BOADICEA version not found")
-                        if calcs.mutation_probabilties is not None:
-                            this_pedigree["mutation_probabilties"] = calcs.mutation_probabilties
-                    except AttributeError as e:
-                        if 'warnings' in output:
-                            output['warnings'].append('mutation probabilties not provided')
-                        else:
-                            output['warnings'] = 'mutation probabilties not provided'
-                        logger.debug('mutation probabilties not provided :: '+str(e))
-                    try:
-                        if calcs.cancer_risks is not None:
-                            this_pedigree["cancer_risks"] = calcs.cancer_risks
-                            # add baseline risks
-                            try:
-                                this_pedigree["baseline_cancer_risks"] = calcs.baseline_cancer_risks
-                            except AttributeError as e:
-                                if 'warnings' in output:
-                                    output['warnings'].append('baseline cancer risks not provided')
-                                else:
-                                    output['warnings'] = 'baseline cancer risks not provided'
-                                logger.debug('baseline cancer risks not provided :: '+str(e))
-
-                            # add lifetime risk
-                            try:
-                                this_pedigree["lifetime_cancer_risk"] = calcs.lifetime_cancer_risk
-                            except AttributeError as e:
-                                if 'warnings' in output:
-                                    output['warnings'].append('lifetime cancer risk not provided')
-                                else:
-                                    output['warnings'] = 'lifetime cancer risk not provided'
-                                logger.debug('lifetime cancer risk not provided :: '+str(e))
-
-                            # add ten year risk
-                            try:
-                                this_pedigree["ten_yr_cancer_risk"] = calcs.ten_yr_cancer_risk
-                            except AttributeError as e:
-                                if 'warnings' in output:
-                                    output['warnings'].append('ten year cancer risk not provided')
-                                else:
-                                    output['warnings'] = 'ten year cancer risk not provided'
-                                logger.debug('ten year cancer risk not provided :: '+str(e))
-
-                    except AttributeError as e:
-                        if 'warnings' in output:
-                            output['warnings'].append('cancer risks not provided')
-                        else:
-                            output['warnings'] = 'cancer risks not provided'
-                        logger.debug('cancer risks not provided :: '+str(e))
+                    # Add input parameters and calculated results as attributes to 'this_pedigree'
+                    self.add_attr("version", this_pedigree, calcs, output)
+                    self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
+                    self.add_attr("cancer_risks", this_pedigree, calcs, output)
+                    self.add_attr("baseline_cancer_risks", this_pedigree, calcs, output)
+                    self.add_attr("lifetime_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("baseline_lifetime_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("baseline_ten_yr_cancer_risk", this_pedigree, calcs, output)
 
                     output["pedigree_result"].append(this_pedigree)
             finally:
@@ -350,3 +309,14 @@ class BwsView(APIView):
             output_serialiser = BwsOutputSerializer(output)
             return Response(output_serialiser.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def add_attr(self, attr_name, this_pedigree, calcs, output):
+        ''' Utility to add attribute to calculation result. '''
+        try:
+            this_pedigree[attr_name] = getattr(calcs, attr_name)
+        except AttributeError as e:
+            if 'warnings' in output:
+                output['warnings'].append(attr_name+' not provided')
+            else:
+                output['warnings'] = [attr_name+' not provided']
+            logger.debug(attr_name+' not provided :: '+str(e))
