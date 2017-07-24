@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class Vcf2PrsInputSerializer(serializers.Serializer):
     ''' Vcf2Prs input. '''
     sample_name = serializers.CharField(min_length=1, max_length=40, required=True)
-    vcf_file = FileField()
+    vcf_file = FileField(required=True)
 
 
 class Vcf2PrsOutputSerializer(serializers.Serializer):
@@ -43,7 +43,6 @@ class Vcf2PrsView(APIView):
         """
         Calculate PRS from a vcf file.
         ---
-        parameters_strategy: merge
         response_serializer: Vcf2PrsOutputSerializer
         parameters:
            - name: sample_name
