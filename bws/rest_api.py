@@ -27,7 +27,7 @@ from bws.risk_factors import RiskFactors
 logger = logging.getLogger(__name__)
 
 
-class PedigreeField(serializers.Field):
+class FileField(serializers.Field):
     """
     Pedigree field object serialized into a string representation. The field can
     be a str or and uploaded file type.
@@ -50,7 +50,7 @@ class PedigreeField(serializers.Field):
 class BwsInputSerializer(serializers.Serializer):
     ''' Boadicea result. '''
     user_id = serializers.CharField(min_length=4, max_length=40, required=True)
-    pedigree_data = PedigreeField()
+    pedigree_data = FileField()
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
 
