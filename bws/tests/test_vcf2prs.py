@@ -32,7 +32,8 @@ class Vcf2PrsWebServices(TestCase):
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
         moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
-        data = {'vcf_file': os.path.join(moduledir, "sample_data.vcf"), 'sample_name': '4'}
+        vcf_data = open(os.path.join(moduledir, "sample_data.vcf"), "r")
+        data = {'vcf_file': vcf_data, 'sample_name': '4'}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
