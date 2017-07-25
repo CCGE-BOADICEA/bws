@@ -294,7 +294,7 @@ class BwsView(APIView):
                                         cancer_rates=cancer_rates, risk_factor_code=risk_factor_code,
                                         cwd=cwd, request=request)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
-                    self.add_attr("version", this_pedigree, calcs, output)
+                    self.add_attr("version", output, calcs, output)
                     self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
                     self.add_attr("cancer_risks", this_pedigree, calcs, output)
                     self.add_attr("baseline_cancer_risks", this_pedigree, calcs, output)
