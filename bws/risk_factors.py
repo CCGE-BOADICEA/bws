@@ -29,8 +29,8 @@ class RiskFactors(object):
         ('bmi', 4),                         # <18.5, 18.5-24.9, 25-29.9, >=30
         ('alcohol_intake', 7),              # 0g, <5g, 5-14g, 15-24g, 25-34g, 35-44g, >=45g
         ('age_of_menopause', 5),            # <40, 40-44, 45-49, 50-54, >54
-        ('mammographic_density', 4)         # Breast Imaging Reporting and Data System;
-                                            # BI-RADS 1, 2, 3, 4
+        ('mammographic_density', 4),        # Breast Imaging Reporting and Data System; BI-RADS 1, 2, 3, 4
+        ('height', 5)                       # Height/cm <150.17, 150.17-158.26, 158.26-165.82, 165.82-173.91, >173.91
         ])
 
     @staticmethod
