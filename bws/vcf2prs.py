@@ -23,13 +23,15 @@ logger = logging.getLogger(__name__)
 
 class Vcf2PrsInputSerializer(serializers.Serializer):
     ''' Vcf2Prs input. '''
-    sample_name = serializers.CharField(min_length=1, max_length=40, required=True)
+    sample_name = serializers.CharField(min_length=1, max_length=40, required=False)
     vcf_file = FileField(required=True)
+    tabix_file = FileField(required=False)
 
 
 class Vcf2PrsOutputSerializer(serializers.Serializer):
     """ Vcf2Prs result. """
-    prs = serializers.FloatField()
+    alpha = serializers.FloatField()
+    beta = serializers.FloatField()
 
 
 class Vcf2PrsView(APIView):
@@ -69,14 +71,15 @@ class Vcf2PrsView(APIView):
             validated_data = serializer.validated_data
             vcf_file = validated_data.get("vcf_file")
 
-            sample_name = validated_data.get("sample_name")
+            sample_name = validated_data.get("sample_name", None)
             moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
             prs_file_name = os.path.join(moduledir, "SNPs268wposition.chr_pos.txt")
             prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
 
             try:
                 load = prs.calculatePRS()
-                prs_serializer = Vcf2PrsOutputSerializer({'prs': load})
+                # NOTE:: PRS alpha value to be confirmed
+                prs_serializer = Vcf2PrsOutputSerializer({'alpha': 0.46, 'beta': load})
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
             except Vcf2PrsError as ex:

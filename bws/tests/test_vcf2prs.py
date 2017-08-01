@@ -38,7 +38,8 @@ class Vcf2PrsWebServices(TestCase):
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, "prs")
+        self.assertContains(response, "alpha")
+        self.assertContains(response, "beta")
 
     def test_prs_err(self):
         ''' Test POSTing to the 400 returned without the vcf specified. '''
