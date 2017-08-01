@@ -66,9 +66,19 @@ class BwsInputSerializer(serializers.Serializer):
     cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
 
 
+class Prs(object):
+
+    def __init__(self, alpha, beta):
+        ''' Polygenic risk alpha and beta values calculated from VCF file. '''
+        self.alpha = alpha
+        self.beta = beta
+
+
 class BwsExtendedInputSerializer(BwsInputSerializer):
+    ''' Other input parameters. '''
     risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
+    prs = serializers.JSONField(required=False)
 
 #     def validate(self, attrs):
 #         """ Validate input parameters. """
@@ -260,10 +270,16 @@ class BwsView(APIView):
 
             if request.user.has_perm('boadicea_auth.can_risk'):
                 risk_factor_code = validated_data.get('risk_factor_code', 0)
+                prs = validated_data.get('prs', None)
+                if prs is not None:
+                    prs = Prs(prs.get('alpha'), prs.get('beta'))
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
+                if validated_data.get('prs', 0) != 0:
+                    logger.warning('polygenic risk score parameter provided without the correct permissions')
                 risk_factor_code = 0
+                prs = None
 
             mutation_sensitivity = {
                 k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
@@ -290,8 +306,8 @@ class BwsView(APIView):
                     this_pedigree["proband_id"] = pedi.get_target().pid
 
                     calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
-                                        mutation_sensitivity=mutation_sensitivity,
-                                        cancer_rates=cancer_rates, risk_factor_code=risk_factor_code,
+                                        mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,
+                                        risk_factor_code=risk_factor_code, prs=prs,
                                         cwd=cwd, request=request)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     self.add_attr("version", output, calcs, output)
