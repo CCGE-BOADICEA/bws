@@ -8,6 +8,7 @@ import inspect
 from vcf2prs import Vcf2Prs
 import os
 from rest_framework import status
+from django.test.utils import override_settings
 
 
 class Vcf2PrsWebServices(TestCase):
@@ -49,3 +50,14 @@ class Vcf2PrsWebServices(TestCase):
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['vcf_file'][0], 'This field is required.')
+
+    @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=1)
+    def test_prs_upload_limit(self):
+        ''' Test POSTing to a vcf file that is too large. '''
+        moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
+        vcf_data = open(os.path.join(moduledir, "sample_data.vcf"), "r")
+        data = {'vcf_file': vcf_data, 'sample_name': '4'}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
