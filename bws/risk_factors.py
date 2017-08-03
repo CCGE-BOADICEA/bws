@@ -166,6 +166,9 @@ class RiskFactorsView(APIView):
            - name: mammographic_density
              description: categories are BI-RADS 1, 2, 3, 4
              type: integer
+           - name: height                       
+             description: categories are <150.17, 150.17-158.26, 158.26-165.82, 165.82-173.91, >173.91
+             type: integer
 
         responseMessages:
            - code: 401
