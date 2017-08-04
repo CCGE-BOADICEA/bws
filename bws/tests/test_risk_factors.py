@@ -95,7 +95,7 @@ class RiskFactorsWebServices(TestCase):
                             status_code=status.HTTP_400_BAD_REQUEST)
 
     def test_risk_factors_permissions(self):
-        ''' Test POSTing to the risk factors with an out of range category number. '''
+        ''' Test POSTing to the risk factors without the correct permission. '''
         self.user.user_permissions.remove(self.permission)
         ncat = RiskFactors.categories.get('menarche_age')
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
