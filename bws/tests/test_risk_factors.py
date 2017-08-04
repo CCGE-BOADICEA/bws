@@ -23,13 +23,36 @@ class RiskFactorsTests(TestCase):
         ''' Test that an error is raised when the wrong number of risks is submitted '''
         self.assertRaises(RiskFactorError, RiskFactors.encode, [7, 4, 4, 3, 4])
 
-    def test_bounds_exceeded_u(self):
-        ''' Test that an error is raised when a risk is above bounds '''
-        self.assertRaises(RiskFactorError, RiskFactors.encode, [8, 4, 4, 3, 4, 4, 7, 5, 4, 5])
+    def test_bounds_exceeded_u_encoding(self):
+        ''' Test that an error is raised when a risk is above bounds - encoding '''
+        category = list(RiskFactors.categories.values())
+        category[0] += 1
+        self.assertRaises(RiskFactorError, RiskFactors.encode, category)
 
-    def test_bounds_exceeded_l(self):
-        ''' Test that an error is raised when a risk is below bounds '''
-        self.assertRaises(RiskFactorError, RiskFactors.encode, [-1, 4, 4, 3, 4, 4, 7, 5, 4, 5])
+    def test_bounds_exceeded_l_encoding(self):
+        ''' Test that an error is raised when a risk is below bounds - encoding '''
+        category = list(RiskFactors.categories.values())
+        category[0] = -1
+        self.assertRaises(RiskFactorError, RiskFactors.encode, category)
+
+    def test_non_numeric_encoding(self):
+        ''' Test that an error is raised when passed a non numeric argument - encoding '''
+        category = list(RiskFactors.categories.values())
+        category[0] = 'a'
+        self.assertRaises(RiskFactorError, RiskFactors.encode, category)
+
+    def test_bounds_exceeded_u_decoding(self):
+        ''' Test that an error is raised when a risk is above bounds - decoding '''
+        max_plus_1 = RiskFactors.encode(list(RiskFactors.categories.values())) + 1
+        self.assertRaises(RiskFactorError, RiskFactors.decode, max_plus_1)
+
+    def test_bounds_exceeded_l_decoding(self):
+        ''' Test that an error is raised when a risk is below bounds - decoding '''
+        self.assertRaises(RiskFactorError, RiskFactors.decode, -1)
+
+    def test_non_numeric_decoding(self):
+        ''' Test that an error is raised when passed a non numeric argument - decoding '''
+        self.assertRaises(RiskFactorError, RiskFactors.decode, 'a')
 
 
 class RiskFactorsWebServices(TestCase):
