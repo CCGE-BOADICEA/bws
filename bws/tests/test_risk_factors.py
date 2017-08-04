@@ -23,6 +23,14 @@ class RiskFactorsTests(TestCase):
         ''' Test that an error is raised when the wrong number of risks is submitted '''
         self.assertRaises(RiskFactorError, RiskFactors.encode, [7, 4, 4, 3, 4])
 
+    def test_bounds_exceeded_u(self):
+        ''' Test that an error is raised when a risk is above bounds '''
+        self.assertRaises(RiskFactorError, RiskFactors.encode, [8, 4, 4, 3, 4, 4, 7, 5, 4, 5])
+
+    def test_bounds_exceeded_l(self):
+        ''' Test that an error is raised when a risk is below bounds '''
+        self.assertRaises(RiskFactorError, RiskFactors.encode, [-1, 4, 4, 3, 4, 4, 7, 5, 4, 5])
+
 
 class RiskFactorsWebServices(TestCase):
     ''' Test the risk factors webservice '''
