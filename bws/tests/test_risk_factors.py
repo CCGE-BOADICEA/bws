@@ -91,7 +91,7 @@ class RiskFactorsWebServices(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
                                     HTTP_ACCEPT="application/json")
-        self.assertContains(response, "Ensure this value is less than or equal to ",
+        self.assertContains(response, "Ensure this value is less than or equal to number of categories",
                             status_code=status.HTTP_400_BAD_REQUEST)
 
     def test_risk_factors_permissions(self):
