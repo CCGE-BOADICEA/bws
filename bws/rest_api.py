@@ -127,6 +127,8 @@ class BwsOutputSerializer(serializers.Serializer):
     mutation_frequency = serializers.DictField(read_only=True)
     mutation_sensitivity = serializers.DictField(read_only=True)
     cancer_incidence_rates = serializers.CharField(read_only=True)
+    prs = serializers.DictField(read_only=True, required=False)
+    risk_factors = serializers.DictField(read_only=True, required=False)
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
     warnings = serializers.ListField(read_only=True, required=False)
 
@@ -268,19 +270,6 @@ class BwsView(APIView):
                     except TypeError:
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
-            if request.user.has_perm('boadicea_auth.can_risk'):
-                risk_factor_code = validated_data.get('risk_factor_code', 0)
-                prs = validated_data.get('prs', None)
-                if prs is not None:
-                    prs = Prs(prs.get('alpha'), prs.get('beta'))
-            else:
-                if validated_data.get('risk_factor_code', 0) > 0:
-                    logger.warning('risk factor code parameter provided without the correct permissions')
-                if validated_data.get('prs', 0) != 0:
-                    logger.warning('polygenic risk score parameter provided without the correct permissions')
-                risk_factor_code = 0
-                prs = None
-
             mutation_sensitivity = {
                 k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
                 for k in settings.GENETIC_TEST_SENSITIVITY.keys()
@@ -293,6 +282,23 @@ class BwsView(APIView):
                 "cancer_incidence_rates": cancer_rates,
                 "pedigree_result": []
             }
+
+            if request.user.has_perm('boadicea_auth.can_risk'):
+                risk_factor_code = validated_data.get('risk_factor_code', 0)
+                prs = validated_data.get('prs', None)
+                if prs is not None:
+                    output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
+                    prs = Prs(prs.get('alpha'), prs.get('beta'))
+                factors = RiskFactors.decode(risk_factor_code)
+                keys = list(RiskFactors.categories.keys())
+                output['risk_factors'] = {keys[idx]: val for idx, val in enumerate(factors)}
+            else:
+                if validated_data.get('risk_factor_code', 0) > 0:
+                    logger.warning('risk factor code parameter provided without the correct permissions')
+                if validated_data.get('prs', 0) != 0:
+                    logger.warning('polygenic risk score parameter provided without the correct permissions')
+                risk_factor_code = 0
+                prs = None
 
             warnings = PedigreeFile.validate(pf.pedigrees)
             if len(warnings) > 0:
