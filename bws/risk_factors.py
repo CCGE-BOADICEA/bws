@@ -16,7 +16,7 @@ import re
 class RiskFactor(object):
 
     @classmethod
-    def convertCamel(cls, label):
+    def camel_to_space(cls, label):
         ''' Convert camel case to space separated. '''
         return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r' \1', label)
 
@@ -28,43 +28,53 @@ class RiskFactor(object):
 
 class MenarcheAge(RiskFactor):
     cats = ['-', '<11', '11', '12', '13', '14', '15', '>15']
+    help_text = 'The age at first occurrence of menstruation'
 
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '2', '>2']
+    help_text = 'Number of births (including live and still births)'
 
 
 class AgeOfFirstLiveBirth(RiskFactor):
     cats = ['-', '<20', '20-24', '25-29', '>29']
+    help_text = 'Age of first live birth'
 
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never', 'former', 'current']
+    help_text = 'Oral contraception usage'
 
 
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
     cats = ['-', 'never', 'former', 'current e-type', 'current c-type']
+    help_text = 'Menopause hormone replacement'
 
 
 class BMI(RiskFactor):
     cats = ['-', '<18.5', '18.5-24.9', '25-29.9', '>=30']
+    help_text = 'Body Mass Index'
 
 
 class AlcoholIntake(RiskFactor):
     cats = ['-', '0', '<5', '5-14', '15-24', '25-34', '35-44', '>=45']
+    help_text = 'Alcohol intake (grams)'
 
 
 class AgeOfMenopause(RiskFactor):
     cats = ['-', '<40', '40-44', '45-49', '50-54', '>54']
+    help_text = 'Age of menopause'
 
 
 class MammographicDensity(RiskFactor):
     cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
+    help_text = 'Mammographic denisity'
 
 
 class Height(RiskFactor):
     cats = ['-', '<150.17', '150.17-158.26', '158.26-165.82', '165.82-173.91', '>173.91']
+    help_text = 'Height (cm)'
 
 
 class RiskFactors(object):
