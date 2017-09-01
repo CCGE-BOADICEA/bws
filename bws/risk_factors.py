@@ -10,6 +10,61 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import BasicAuthentication,\
     SessionAuthentication, TokenAuthentication
+import re
+
+
+class RiskFactor(object):
+
+    @classmethod
+    def convertCamel(cls, label):
+        ''' Convert camel case to space separated. '''
+        return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r' \1', label)
+
+    @classmethod
+    def camel_to_snake(cls, label):
+        ''' Convert camel to snake case e.g. AgeOfFirstLiveBirth -> age_of_first_live_birth '''
+        return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r'_\1', label).lower()
+
+
+class MenarcheAge(RiskFactor):
+    cats = ['-', '<11', '11', '12', '13', '14', '15', '>15']
+
+
+class Parity(RiskFactor):
+    cats = ['-', '0', '1', '2', '>2']
+
+
+class AgeOfFirstLiveBirth(RiskFactor):
+    cats = ['-', '<20', '20-24', '25-29', '>29']
+
+
+class OralContraception(RiskFactor):
+    cats = ['-', 'never', 'former', 'current']
+
+
+class MHT(RiskFactor):
+    ''' Menopause hormone replacement '''
+    cats = ['-', 'never', 'former', 'current e-type', 'current c-type']
+
+
+class BMI(RiskFactor):
+    cats = ['-', '<18.5', '18.5-24.9', '25-29.9', '>=30']
+
+
+class AlcoholIntake(RiskFactor):
+    cats = ['-', '0', '<5', '5-14', '15-24', '25-34', '35-44', '>=45']
+
+
+class AgeOfMenopause(RiskFactor):
+    cats = ['-', '<40', '40-44', '45-49', '50-54', '>54']
+
+
+class MammographicDensity(RiskFactor):
+    cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
+
+
+class Height(RiskFactor):
+    cats = ['-', '<150.17', '150.17-158.26', '158.26-165.82', '165.82-173.91', '>173.91']
 
 
 class RiskFactors(object):
@@ -18,6 +73,19 @@ class RiskFactors(object):
         and is not taken into account in the calculation. Otherwise a non-zero number is given
         depending on which group they belong to. These are then combined into a single
         risk factor code (see encode() function) that is used by the BOADICEA risk calculation. '''
+
+    risk_factors = [
+        MenarcheAge,
+        Parity,
+        AgeOfFirstLiveBirth,
+        OralContraception,
+        MHT,
+        BMI,
+        AlcoholIntake,
+        AgeOfMenopause,
+        MammographicDensity,
+        Height
+    ]
 
     categories = OrderedDict([
         ('menarche_age', 7),                # <11, 11, 12, 13, 14, 15, >15
