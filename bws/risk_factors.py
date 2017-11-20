@@ -127,6 +127,11 @@ class RiskFactors(object):
 #         ('height', 5)                       # Height/cm <150.17, 150.17-158.26, 158.26-165.82, 165.82-173.91, >173.91
 #         ])
 
+    # dictionary of risk factor name and the categories
+    risk_factors_categories = OrderedDict(
+        (rf.snake_name(), rf.cats) for rf in risk_factors
+    )
+
     @staticmethod
     def encode(risk_categories):
         ''' Encode the risk categories into a risk factor. '''
