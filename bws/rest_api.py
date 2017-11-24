@@ -10,7 +10,8 @@ from rest_framework.authentication import BasicAuthentication, \
     TokenAuthentication, SessionAuthentication
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer,\
+    TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
@@ -21,6 +22,7 @@ from django.core.files.base import File
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\
     SustainedRateThrottle
 from bws.risk_factors import RiskFactors
+
 # from boadicea.decorator import profile
 
 
@@ -140,7 +142,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class BwsView(APIView):
-    renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
+    renderer_classes = (XMLRenderer, JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsExtendedInputSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
@@ -329,7 +331,8 @@ class BwsView(APIView):
             finally:
                 shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
-            return Response(output_serialiser.data)
+            return Response(output_serialiser.data, template_name='injection.html')
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def add_attr(self, attr_name, this_pedigree, calcs, output):
