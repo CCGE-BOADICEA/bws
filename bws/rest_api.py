@@ -331,7 +331,7 @@ class BwsView(APIView):
             finally:
                 shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
-            return Response(output_serialiser.data, template_name='injection.html')
+            return Response(output_serialiser.data, template_name='result_tab.html')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
