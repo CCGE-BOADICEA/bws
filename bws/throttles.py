@@ -1,6 +1,5 @@
 import logging
 from rest_framework.throttling import UserRateThrottle, SimpleRateThrottle
-from rest_framework.compat import is_authenticated
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ class EndUserIDRateThrottle(LogThrottleMixin, SimpleRateThrottle):
     scope = 'enduser_burst'
 
     def get_cache_key(self, request, view):
-        if is_authenticated(request.user):
+        if request.user.is_authenticated:
             ident = str(request.user.pk)
         else:
             ident = str(self.get_ident(request))
