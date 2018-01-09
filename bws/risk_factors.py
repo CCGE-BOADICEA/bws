@@ -58,7 +58,7 @@ class OralContraception(RiskFactor):
 
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
-    cats = ['-', 'never', 'former', 'current e-type', 'current c-type']
+    cats = ['-', 'never/former', 'current e-type', 'current c-type']
     help_text = 'Menopause hormone replacement'
 
 
@@ -251,7 +251,7 @@ class RiskFactorsView(APIView):
              description: categories are never, former, current
              type: integer
            - name: mht
-             description: categories are never, former, current e-type, current c-type
+             description: categories are never/former, current e-type, current c-type
              type: integer
            - name: bmi
              description: categories are <18.5, 18.5-24.9, 25-29.9, >=30
