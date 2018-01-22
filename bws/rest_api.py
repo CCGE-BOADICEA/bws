@@ -10,18 +10,18 @@ from rest_framework.authentication import BasicAuthentication, \
     TokenAuthentication, SessionAuthentication
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer,\
-    TemplateHTMLRenderer
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from boadicea.pedigree import PedigreeFile
 from boadicea.calcs import Predictions
-from rest_framework.exceptions import NotAcceptable
+from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.core.files.base import File
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\
     SustainedRateThrottle
 from bws.risk_factors import RiskFactors
+from django.http.response import JsonResponse
 
 # from boadicea.decorator import profile
 
@@ -302,9 +302,14 @@ class BwsView(APIView):
                 risk_factor_code = 0
                 prs = None
 
-            warnings = PedigreeFile.validate(pf.pedigrees)
-            if len(warnings) > 0:
-                output['warnings'] = warnings
+            try:
+                warnings = PedigreeFile.validate(pf.pedigrees)
+                if len(warnings) > 0:
+                    output['warnings'] = warnings
+            except ValidationError as e:
+                logger.error(e)
+                return JsonResponse(e.detail, content_type="application/json",
+                                    status=status.HTTP_400_BAD_REQUEST)
 
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
             try:
