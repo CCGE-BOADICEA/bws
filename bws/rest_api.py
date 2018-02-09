@@ -311,7 +311,7 @@ class BwsView(APIView):
                 return JsonResponse(e.detail, content_type="application/json",
                                     status=status.HTTP_400_BAD_REQUEST)
 
-            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
+            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
                     this_pedigree = {}
@@ -334,7 +334,8 @@ class BwsView(APIView):
 
                     output["pedigree_result"].append(this_pedigree)
             finally:
-                shutil.rmtree(cwd)
+                if not request.user.has_perm('boadicea_auth.evaluation'):
+                    shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab.html')
 
