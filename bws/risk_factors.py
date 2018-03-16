@@ -58,7 +58,7 @@ class OralContraception(RiskFactor):
 
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
-    cats = ['-', 'never/former', 'current e-type', 'current c-type']
+    cats = ['-', 'never/former', 'current e-type', 'current other/unknown type (including combined type)']
     help_text = 'Menopause hormone replacement'
 
 
