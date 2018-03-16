@@ -38,28 +38,28 @@ class RiskFactor(object):
 
 class MenarcheAge(RiskFactor):
     cats = ['-', '<11', '11', '12', '13', '14', '15', '>15']
-    help_text = 'The age at first occurrence of menstruation'
+    help_text = 'Age at First Occurrence of Menstruation'
 
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '2', '>2']
-    help_text = 'Number of births (including live and still births)'
+    help_text = 'Number of Births (live and still births)'
 
 
 class AgeOfFirstLiveBirth(RiskFactor):
     cats = ['-', '<20', '20-24', '25-29', '>29']
-    help_text = 'Age of first live birth'
+    help_text = 'Age of First Live Birth'
 
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never', 'former', 'current']
-    help_text = 'Oral contraception usage'
+    help_text = 'Oral Contraception Usage'
 
 
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
     cats = ['-', 'never/former', 'current e-type', 'current other/unknown type (including combined type)']
-    help_text = 'Menopause hormone replacement'
+    help_text = 'Hormone Replacement Therapy'
 
 
 class BMI(RiskFactor):
@@ -69,17 +69,17 @@ class BMI(RiskFactor):
 
 class AlcoholIntake(RiskFactor):
     cats = ['-', '0', '<5', '5-14', '15-24', '25-34', '35-44', '>=45']
-    help_text = 'Alcohol intake (grams)'
+    help_text = 'Alcohol Intake (grams/day)'
 
 
 class AgeOfMenopause(RiskFactor):
     cats = ['-', '<40', '40-44', '45-49', '50-54', '>54']
-    help_text = 'Age of menopause'
+    help_text = 'Age of Menopause'
 
 
 class MammographicDensity(RiskFactor):
     cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
-    help_text = 'Mammographic denisity'
+    help_text = 'Mammographic Denisity'
 
 
 class Height(RiskFactor):
