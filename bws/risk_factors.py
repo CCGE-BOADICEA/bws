@@ -79,7 +79,7 @@ class AgeOfMenopause(RiskFactor):
 
 class MammographicDensity(RiskFactor):
     cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
-    help_text = 'Mammographic Denisity'
+    help_text = 'Mammographic Density'
 
 
 class Height(RiskFactor):
