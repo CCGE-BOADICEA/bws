@@ -17,12 +17,23 @@ import time
 
 class EvaluationInputSerializer(serializers.Serializer):
     ''' Evaluation timings for events '''
-    prototype = serializers.ListField()
-    events = serializers.ListField()
-    mouse = serializers.ListField()
-    # evaluation = serializers.JSONField()
+    # prototype = serializers.ListField()
+    # events = serializers.ListField()
+    # mouse = serializers.ListField() 
 
+    # prototype = serializers.JSONField()
+    # events = serializers.JSONField()
+    # mouse = serializers.JSONField()
 
+    mousemoveRecordsX  = serializers.ListField()
+    mousemoveRecordsY  = serializers.ListField()
+    clickRecordsX  = serializers.ListField()
+    clickRecordsY  = serializers.ListField()
+    scrollRecordsX = serializers.ListField()
+    scrollRecordsY = serializers.ListField()
+    keyRecordskey  = serializers.ListField()
+    elementsRecord = serializers.ListField()  
+ 
 class CanRiskPermission(permissions.BasePermission):
     message = 'Cancer risk factor permission not granted'
 
@@ -44,6 +55,7 @@ class EvaluationView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
+            print(os.getcwd())
             user_dir = os.path.join(settings.CWD_DIR, str(request.user))
             if not os.path.exists(user_dir):
                 try:
