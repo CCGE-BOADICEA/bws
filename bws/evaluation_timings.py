@@ -13,27 +13,21 @@ import os
 import errno
 import json
 import time
+import gzip
 
 
 class EvaluationInputSerializer(serializers.Serializer):
     ''' Evaluation timings for events '''
-    # prototype = serializers.ListField()
-    # events = serializers.ListField()
-    # mouse = serializers.ListField() 
-
-    # prototype = serializers.JSONField()
-    # events = serializers.JSONField()
-    # mouse = serializers.JSONField()
-
-    mousemoveRecordsX  = serializers.ListField()
-    mousemoveRecordsY  = serializers.ListField()
-    clickRecordsX  = serializers.ListField()
-    clickRecordsY  = serializers.ListField()
+    mousemoveRecordsX = serializers.ListField()
+    mousemoveRecordsY = serializers.ListField()
+    clickRecordsX = serializers.ListField()
+    clickRecordsY = serializers.ListField()
     scrollRecordsX = serializers.ListField()
     scrollRecordsY = serializers.ListField()
-    keyRecordskey  = serializers.ListField()
-    elementsRecord = serializers.ListField()  
- 
+    keyRecordskey = serializers.ListField()
+    elementsRecord = serializers.ListField()
+
+
 class CanRiskPermission(permissions.BasePermission):
     message = 'Cancer risk factor permission not granted'
 
@@ -65,9 +59,10 @@ class EvaluationView(APIView):
                     if e.errno != errno.EEXIST:
                         raise
 
-            filepath = os.path.join(user_dir, "eval_" + time.strftime("%Y%m%d-%H%M%S"))
-            f = open(filepath, "w")
-            print(json.dumps(validated_data), file=f)
+            filepath = os.path.join(user_dir, "eval_" + time.strftime("%Y%m%d-%H%M%S") + ".gz")
+            with gzip.open(filepath, 'wb') as f:
+                f.write(bytes(json.dumps(validated_data), 'utf-8'))
+            f.close()
 
             return Response()
 
