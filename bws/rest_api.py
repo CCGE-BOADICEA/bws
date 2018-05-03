@@ -334,7 +334,8 @@ class BwsView(APIView):
 
                     output["pedigree_result"].append(this_pedigree)
             finally:
-                if not request.user.has_perm('boadicea_auth.evaluation'):
+                if(not request.user.has_perm('boadicea_auth.evaluation') and
+                   not request.user.has_perm('boadicea_auth.evaluation1b')):
                     shutil.rmtree(cwd)
             output_serialiser = BwsOutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab.html')
