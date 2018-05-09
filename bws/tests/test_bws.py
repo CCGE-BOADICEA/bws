@@ -46,6 +46,22 @@ class BwsTests(TestCase):
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("family_id" in content["pedigree_result"][0])
 
+    def test_multi_pedigree_bws(self):
+        ''' Test POSTing multiple pedigrees to the BWS. '''
+        multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi_pedigree_data.txt"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': multi_pedigree_data,
+                'user_id': 'test_XXX'}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertEqual(len(content['pedigree_result']), 2, "two results")
+        family_ids = ["XXX0", "XXX1"]
+        for res in content['pedigree_result']:
+            self.assertTrue(res['family_id'] in family_ids)
+
     def test_token_auth_err(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
