@@ -170,7 +170,7 @@ class BwsTests(TestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_text(response.content))
         self.assertTrue('detail' in content)
-        self.assertTrue('BOADICEA process timed out' in content['detail'])
+        self.assertTrue('Request has timed out.' in content['detail'])
