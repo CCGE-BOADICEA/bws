@@ -14,8 +14,8 @@ from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , Br
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
-from boadicea.pedigree import PedigreeFile
-from boadicea.calcs import Predictions
+from bws.pedigree import PedigreeFile
+from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.core.files.base import File
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\

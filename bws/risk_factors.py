@@ -1,4 +1,4 @@
-from boadicea.exceptions import RiskFactorError
+from bws.exceptions import RiskFactorError
 from collections import OrderedDict
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer

@@ -1,6 +1,6 @@
 from django.test import TestCase
 from bws.risk_factors import RiskFactors
-from boadicea.exceptions import RiskFactorError
+from bws.exceptions import RiskFactorError
 from rest_framework.test import APIRequestFactory, APIClient
 from django.contrib.auth.models import User, Permission
 from boadicea_auth.models import UserDetails

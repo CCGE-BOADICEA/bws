@@ -15,7 +15,8 @@ from django.test.utils import override_settings
 
 
 class BwsTests(TestCase):
-    TEST_DATA_DIR = os.path.join(settings.PROJECT_DIR, 'tests', 'data')
+    TEST_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
 
     def setUp(self):
         ''' Create a user and set up the test client. '''
