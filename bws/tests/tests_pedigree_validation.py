@@ -3,7 +3,6 @@ import os
 from copy import deepcopy
 from datetime import date
 
-from django.conf import settings
 from django.test import TestCase
 
 from bws.exceptions import PathologyError, PedigreeError, GeneticTestError,\
