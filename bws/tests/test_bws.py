@@ -151,7 +151,7 @@ class BwsTests(TestCase):
                         cancer_risks1[0]['breast cancer risk']['decimal'])
 
     def test_risk_factors_inconsistent(self):
-        ''' Test POSTing to the risk factors with an out of range category number. '''
+        ''' Test inconsistent risk factors, e.g. age of first birth specified with parity unobserved. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
                 'user_id': 'test_XXX', 'risk_factor_code': RiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0, 0])}
