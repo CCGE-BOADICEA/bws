@@ -3,23 +3,20 @@ see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
 from bws import pedigree
 from bws.cancer import CancerDiagnoses, Cancers, Cancer
 from bws.pedigree import Pedigree, Male, Female
-from bws.exceptions import TimeOutException
+from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
 from copy import deepcopy
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.http.request import HttpRequest
 from ipware.ip import get_real_ip
-from rest_framework.exceptions import NotAcceptable
 from rest_framework.request import Request
 from subprocess import Popen, PIPE, TimeoutExpired
 import logging
 import os
 import resource
-import sys
 import tempfile
 import time
-import traceback
 
 
 logger = logging.getLogger(__name__)
@@ -363,16 +360,15 @@ class Predictions(object):
                 logger.error(outs)
                 errs = errs.decode("utf-8").replace('\n', '')
                 logger.error(errs)
-                raise NotAcceptable(errs)
+                raise ModelError(errs)
         except TimeoutExpired as to:
             process.terminate()
             logger.error("BOADICEA PROCESS TIMED OUT.")
             logger.error(to)
             raise TimeOutException()
-        except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+        except Exception as e:
             logger.error('BOADICEA PROCESS EXCEPTION: '+cwd)
-            logger.error(''.join(line for line in traceback.format_exception(exc_type, exc_value, exc_traceback)))
+            logger.error(e)
             raise
 
     def _parse_probs_output(self, probs):

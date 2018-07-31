@@ -74,6 +74,16 @@ class RiskFactorError(ValidationError):
         super().__init__({'Risk Factor Error': detail})
 
 
+class ModelError(ValidationError):
+    """
+    ModelError raised for an error when Fortran model code is run with non-zero exit code.
+    @param detail: explanation of the error
+    """
+
+    def __init__(self, detail):
+        super().__init__({'Model Error': detail})
+
+
 class TimeOutException(APIException):
     ''' Request timeout '''
     status_code = status.HTTP_408_REQUEST_TIMEOUT

@@ -12,6 +12,7 @@ from django.utils.encoding import force_text
 import json
 from boadicea_auth.models import UserDetails
 from django.test.utils import override_settings
+from bws.risk_factors import RiskFactors
 
 
 class BwsTests(TestCase):
@@ -148,6 +149,18 @@ class BwsTests(TestCase):
         cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
         self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
                         cancer_risks1[0]['breast cancer risk']['decimal'])
+
+    def test_risk_factors_inconsistent(self):
+        ''' Test POSTing to the risk factors with an out of range category number. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX', 'risk_factor_code': RiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0, 0])}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        response = self.client.post(self.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('Model Error' in content)
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
