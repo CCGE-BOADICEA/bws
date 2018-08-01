@@ -372,7 +372,7 @@ class Pedigree(object):
         """
         f = open(filepath, "w")
         print("(I3,X,A8)", file=f)
-        pcount = (len(settings.GENES)+1) if file_type == MUTATION_PROBS else 3
+        pcount = (len(settings.BC_MODEL['GENES'])+1) if file_type == MUTATION_PROBS else 3
         risk_factor_str_len = str(len(risk_factor_code))
         print("(3(A7,X),2(A1,X),2(A3,X),6(A3,X),5(A1,X),A4,6(X,A1),X,A"+risk_factor_str_len+",2(X,A6))", file=f)
 
@@ -414,8 +414,8 @@ class Pedigree(object):
         return filepath
 
     def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
-                         mutation_freq=settings.MUTATION_FREQUENCIES['UK'],
-                         sensitivity=settings.GENETIC_TEST_SENSITIVITY,
+                         mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
+                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
                          calc_ages=None):
         """
         Write fortran input batch file.
@@ -436,9 +436,9 @@ class Pedigree(object):
             print("3", file=f)
             print(pedigree_file_name, file=f)
             print("8", file=f)
-            for gene in settings.GENES:
+            for gene in settings.BC_MODEL['GENES']:
                 print(mutation_freq[gene], file=f)
-            for gene in settings.GENES:
+            for gene in settings.BC_MODEL['GENES']:
                 print(sensitivity[gene], file=f)
 
             print("21", file=f)
@@ -467,9 +467,9 @@ class Pedigree(object):
             for i, age in enumerate(calc_ages):
                 print("8", file=f)
                 print((age-tage), file=f)
-                for gene in settings.GENES:
+                for gene in settings.BC_MODEL['GENES']:
                     print(mutation_freq[gene], file=f)
-                for gene in settings.GENES:
+                for gene in settings.BC_MODEL['GENES']:
                     print(sensitivity[gene], file=f)
 
                 print("21", file=f)
@@ -487,7 +487,7 @@ class Pedigree(object):
         if bwa_file is None:
             try:
                 bwa_file = open("/tmp/test.bwa.txt", "a")
-            except:
+            except Exception:
                 return
 
         for person in self.people:
@@ -526,7 +526,7 @@ class Pedigree(object):
         if bwa_file is None:
             try:
                 bwa_file = open("/tmp/test.bwa.txt", "a")
-            except:
+            except Exception:
                 return
         print("BOADICEA import pedigree file format 4.0", file=bwa_file)
 

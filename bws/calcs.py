@@ -211,9 +211,9 @@ class RangeRiskBaseline(RangeRisk):
 class Predictions(object):
 
     def __init__(self, pedi,
-                 mutation_frequency=settings.MUTATION_FREQUENCIES["UK"],
-                 mutation_sensitivity=settings.GENETIC_TEST_SENSITIVITY,
-                 cancer_rates=settings.CANCER_RATES.get("UK"),
+                 mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
+                 mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                 cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
                  risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()), run_risks=True):
         """
         Run cancer risk and mutation probability prediction calculations.
@@ -316,11 +316,12 @@ class Predictions(object):
         @keyword niceness: niceness value
         @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
+        model = settings.BC_MODEL
         if process_type == pedigree.MUTATION_PROBS:
-            prog = os.path.join(settings.FORTRAN_HOME, settings.PROBS_EXE)
+            prog = os.path.join(model['HOME'], model['PROBS_EXE'])
             out = "can_probs"
         else:
-            prog = os.path.join(settings.FORTRAN_HOME, settings.RISKS_EXE)
+            prog = os.path.join(model['HOME'], model['RISKS_EXE'])
             out = "can_risks"
 
         start = time.time()
@@ -333,10 +334,10 @@ class Predictions(object):
             process = Popen(
                 [prog,
                  bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
-                 os.path.join(settings.FORTRAN_HOME, "Data/locus.loc"),
+                 os.path.join(model['HOME'], "Data/locus.loc"),
                  out+".stdout",
                  out+".out",
-                 os.path.join(settings.FORTRAN_HOME, "Data/incidence_rates_" + cancer_rates + ".nml")],
+                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")],
                 cwd=cwd,
                 stdout=PIPE,
                 stderr=PIPE,
@@ -385,7 +386,7 @@ class Predictions(object):
             else:
                 parts = line.strip().split(sep=",")
                 probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
-                for i, gene in enumerate(settings.GENES):
+                for i, gene in enumerate(settings.BC_MODEL['GENES']):
                     probs_arr.append({gene:
                                       {"decimal": float(parts[((i*2)+2)]),
                                        "percent": float(parts[(i*2)+3])}})

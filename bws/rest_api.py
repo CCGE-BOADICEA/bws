@@ -56,16 +56,18 @@ class BwsInputSerializer(serializers.Serializer):
     mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                                        default='UK', help_text="Mutation frequency")
 
+    bc_model = settings.BC_MODEL
     MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
     MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
-    for gene in settings.GENES:
+    for gene in bc_model['GENES']:
         exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
              "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
 
-    for gene in settings.GENES:
+    gts = bc_model['GENETIC_TEST_SENSITIVITY']
+    for gene in bc_model['GENES']:
         exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
-             str(settings.GENETIC_TEST_SENSITIVITY[gene]) + ", max_value=1, min_value=0)")
-    cancer_rates = serializers.ChoiceField(choices=list(settings.CANCER_RATES.keys()))
+             str(gts[gene]) + ", max_value=1, min_value=0)")
+    cancer_rates = serializers.ChoiceField(choices=list(bc_model['CANCER_RATES'].keys()))
 
 
 class Prs(object):
@@ -87,7 +89,7 @@ class BwsExtendedInputSerializer(BwsInputSerializer):
 #         mut_freq = attrs.get('mut_freq')
 #         errs = []
 #         if mut_freq == 'Custom':
-#             for gene in settings.GENES:
+#             for gene in settings.BC_MODEL['GENES']:
 #                 mf = attrs.get(gene.lower() + '_mut_frequency')
 #                 if mf > settings.MAX_MUTATION_FREQ:
 #                     errs.append(gene + " mutation frequency should be less than or equal to " +
@@ -260,21 +262,23 @@ class BwsView(APIView):
 
             pf = PedigreeFile(pedigree_data)
             population = validated_data.get('mut_freq', 'UK')
-            cancer_rates = settings.CANCER_RATES.get(validated_data.get('cancer_rates'))
+            bc_model = settings.BC_MODEL
+            cancer_rates = bc_model['CANCER_RATES'].get(validated_data.get('cancer_rates'))
 
             if population != 'Custom':
-                mutation_frequency = settings.MUTATION_FREQUENCIES[population]
+                mutation_frequency = bc_model['MUTATION_FREQUENCIES'][population]
             else:
                 mutation_frequency = {}
-                for gene in settings.GENES:
+                for gene in bc_model['GENES']:
                     try:
                         mutation_frequency[gene] = float(validated_data.get(gene.lower() + '_mut_frequency'))
                     except TypeError:
                         raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
 
+            gts = bc_model['GENETIC_TEST_SENSITIVITY']
             mutation_sensitivity = {
-                k: float(validated_data.get(k.lower() + "_mut_sensitivity", settings.GENETIC_TEST_SENSITIVITY[k]))
-                for k in settings.GENETIC_TEST_SENSITIVITY.keys()
+                k: float(validated_data.get(k.lower() + "_mut_sensitivity", gts[k]))
+                for k in gts.keys()
             }
 
             output = {
