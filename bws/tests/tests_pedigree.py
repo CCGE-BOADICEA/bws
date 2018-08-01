@@ -59,8 +59,8 @@ class RiskTests(TestCase):
         # each gene should have a mutation probability plus a result for no mutations
         for mp in calcs.mutation_probabilties:
             key = list(mp.keys())[0]
-            self.assertTrue(key in settings.GENES or key == "no mutation")
-        self.assertEqual(len(calcs.mutation_probabilties), len(settings.GENES) + 1)
+            self.assertTrue(key in settings.BC_MODEL['GENES'] or key == "no mutation")
+        self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
 
         # risks calculated at 16 different ages:
         self.assertEqual(len(calcs.cancer_risks), 16)
@@ -103,8 +103,8 @@ class RiskTests(TestCase):
         # each gene should have a mutation probability plus a result for no mutations
         for mp in calcs.mutation_probabilties:
             key = list(mp.keys())[0]
-            self.assertTrue(key in settings.GENES or key == "no mutation")
-        self.assertEqual(len(calcs.mutation_probabilties), len(settings.GENES) + 1)
+            self.assertTrue(key in settings.BC_MODEL['GENES'] or key == "no mutation")
+        self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
 
         # risks calculated at different ages:
         self.assertEqual(len(calcs.cancer_risks), 9)
@@ -177,12 +177,13 @@ class RiskTests(TestCase):
         PedigreeFile.validate(pedigree)
         target = pedigree.get_target()
         target.age = 78
+        crates = settings.BC_MODEL['CANCER_RATES']
 
-        for cancer_rates in settings.CANCER_RATES.values():
+        for cancer_rates in crates.values():
             calcs = Predictions(pedigree, cwd=self.cwd, cancer_rates=cancer_rates)
 
             # each gene should have a mutation probability plus a result for no mutations
-            self.assertEqual(len(calcs.mutation_probabilties), len(settings.GENES) + 1)
+            self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
 
             # risks calculated at different ages:
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
@@ -194,20 +195,22 @@ class RiskTests(TestCase):
         PedigreeFile.validate(pedigree)
         target = pedigree.get_target()
         target.age = 78
+        mutation_frequencies = settings.BC_MODEL['MUTATION_FREQUENCIES']
 
-        for mf in settings.MUTATION_FREQ:
+        for mf in mutation_frequencies.keys():
             if mf == 'Custom':
                 continue
-            calcs = Predictions(pedigree, cwd=self.cwd, mutation_frequency=settings.MUTATION_FREQUENCIES[mf])
+            calcs = Predictions(pedigree, cwd=self.cwd,
+                                mutation_frequency=mutation_frequencies[mf])
 
             # each gene should have a mutation probability plus a result for no mutations
-            self.assertEqual(len(calcs.mutation_probabilties), len(settings.GENES) + 1)
+            self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
 
             # risks calculated at different ages:
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                             [79, 80])
 
-    @override_settings(FORTRAN_HOME='xyz')
+    @override_settings(BC_MODEL={'GENES': [], 'HOME': 'xyz', 'PROBS_EXE': '', 'RISKS_EXE': ''})
     def test_subproces_err(self):
         """ Test subprocess raises an error when the fortran can not be run. """
         pedigree = deepcopy(self.pedigree)

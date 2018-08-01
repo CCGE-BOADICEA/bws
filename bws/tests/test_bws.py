@@ -86,7 +86,8 @@ class BwsTests(TestCase):
 
     def test_custom_mutation_frequency(self):
         ''' Test POSTing custom mutation frequencies. '''
-        data = {g.lower() + '_mut_frequency': 0.00085 for g in settings.GENES}
+        genes = settings.BC_MODEL['GENES']
+        data = {g.lower() + '_mut_frequency': 0.00085 for g in genes}
         data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
                      'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
@@ -97,15 +98,15 @@ class BwsTests(TestCase):
         content = json.loads(force_text(response.content))
 
         for g, mf in content['mutation_frequency']['Custom'].items():
-            self.assertTrue(g in settings.GENES)
+            self.assertTrue(g in genes)
             self.assertEqual(mf, data[g.lower() + '_mut_frequency'])
 
     def test_custom_mutation_frequency_errs(self):
         ''' Test POSTing custom mutation frequencies with errors. '''
-        GENES = settings.GENES
+        genes = settings.BC_MODEL['GENES']
         data = {g.lower() + '_mut_frequency':
                 (settings.MAX_MUTATION_FREQ + 0.1) if idx % 2 == 0 else (settings.MAX_MUTATION_FREQ - 0.1)
-                for idx, g in enumerate(GENES)}
+                for idx, g in enumerate(genes)}
         data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
                      'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
@@ -114,9 +115,9 @@ class BwsTests(TestCase):
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_text(response.content))
-        self.assertEqual(len(content.keys()), len(GENES))
+        self.assertEqual(len(content.keys()), len(genes))
         for k in content.keys():
-            self.assertTrue(k.split("_")[0].upper() in GENES)
+            self.assertTrue(k.split("_")[0].upper() in genes)
 
     def test_missing_fields(self):
         ''' Test POSTing with missing required fields. '''
