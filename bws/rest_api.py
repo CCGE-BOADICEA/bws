@@ -5,9 +5,8 @@ import shutil
 import tempfile
 
 from django.conf import settings
-from rest_framework import serializers, status
-from rest_framework.authentication import BasicAuthentication, \
-    TokenAuthentication, SessionAuthentication
+from rest_framework import status
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , BrowsableAPIRenderer
@@ -17,57 +16,13 @@ from rest_framework_xml.renderers import XMLRenderer
 from bws.pedigree import PedigreeFile
 from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
-from django.core.files.base import File
-from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle,\
-    SustainedRateThrottle
+from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 from bws.risk_factors import RiskFactors
 from django.http.response import JsonResponse
-
-# from boadicea.decorator import profile
+from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, BwsOutputSerializer
 
 
 logger = logging.getLogger(__name__)
-
-
-class FileField(serializers.Field):
-    """
-    Pedigree field object serialized into a string representation. The field can
-    be a str or and uploaded file type.
-    """
-    def to_representation(self, obj):
-        return obj
-
-    def to_internal_value(self, obj):
-        assert(isinstance(obj, str) or isinstance(obj, File))
-
-        if isinstance(obj, File):
-            pedigree_data = ''
-            for chunk in obj.chunks():
-                pedigree_data += chunk.decode("utf-8")
-            return pedigree_data
-        else:
-            return obj
-
-
-class BwsInputSerializer(serializers.Serializer):
-    ''' Boadicea result. '''
-    user_id = serializers.CharField(min_length=4, max_length=40, required=True)
-    pedigree_data = FileField()
-    mut_freq = serializers.ChoiceField(choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
-                                       default='UK', help_text="Mutation frequency")
-
-    bc_model = settings.BC_MODEL
-    MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
-    MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
-    for gene in bc_model['GENES']:
-        exec(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
-             "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
-
-    gts = bc_model['GENETIC_TEST_SENSITIVITY']
-    for gene in bc_model['GENES']:
-        exec(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
-             str(gts[gene]) + ", max_value=1, min_value=0)")
-    cancer_rates = serializers.ChoiceField(choices=list(bc_model['CANCER_RATES'].keys()))
 
 
 class Prs(object):
@@ -76,65 +31,6 @@ class Prs(object):
         ''' Polygenic risk alpha and beta values calculated from VCF file. '''
         self.alpha = alpha
         self.beta = beta
-
-
-class BwsExtendedInputSerializer(BwsInputSerializer):
-    ''' Other input parameters. '''
-    risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
-                                                min_value=0, default=0)
-    prs = serializers.JSONField(required=False)
-
-#     def validate(self, attrs):
-#         """ Validate input parameters. """
-#         mut_freq = attrs.get('mut_freq')
-#         errs = []
-#         if mut_freq == 'Custom':
-#             for gene in settings.BC_MODEL['GENES']:
-#                 mf = attrs.get(gene.lower() + '_mut_frequency')
-#                 if mf > settings.MAX_MUTATION_FREQ:
-#                     errs.append(gene + " mutation frequency should be less than or equal to " +
-#                                 str(settings.MAX_MUTATION_FREQ))
-#                 elif mf < settings.MIN_MUTATION_FREQ:
-#                     errs.append(gene + " mutation frequency should be greater than or equal to " +
-#                                 str(settings.MIN_MUTATION_FREQ))
-#         if len(errs) > 0:
-#             raise serializers.ValidationError(errs)
-#         return attrs
-#
-#     def isfloat(self, value):
-#         """
-#         Return true if the given value a float.
-#         """
-#         try:
-#             float(value)
-#             return True
-#         except:
-#             return False
-
-
-class PedigreeResultSerializer(serializers.Serializer):
-    family_id = serializers.CharField(read_only=True)
-    proband_id = serializers.CharField(read_only=True)
-    cancer_risks = serializers.ListField(read_only=True, required=False)
-    baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
-    lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
-    baseline_lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
-    ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
-    baseline_ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
-    mutation_probabilties = serializers.ListField(read_only=True)
-
-
-class BwsOutputSerializer(serializers.Serializer):
-    """ Boadicea result. """
-    version = serializers.CharField(read_only=True)
-    timestamp = serializers.DateTimeField(read_only=True)
-    mutation_frequency = serializers.DictField(read_only=True)
-    mutation_sensitivity = serializers.DictField(read_only=True)
-    cancer_incidence_rates = serializers.CharField(read_only=True)
-    prs = serializers.DictField(read_only=True, required=False)
-    risk_factors = serializers.DictField(read_only=True, required=False)
-    pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
-    warnings = serializers.ListField(read_only=True, required=False)
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):

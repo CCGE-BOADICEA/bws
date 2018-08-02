@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 from vcf2prs import Vcf2Prs, Vcf2PrsError
 
-from bws.rest_api import FileField
+from bws.serializers import FileField
 from bws.risk_factors import CanRiskPermission
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 import time
