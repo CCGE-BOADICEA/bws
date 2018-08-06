@@ -103,6 +103,11 @@ class Pedigree(object):
     A pedigree object.
     """
 
+    BOADICEA_COLUMNS = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+                        "1stBrCa", "2ndBrCa", "OvCa", "ProCa", "PanCa", "Ashkn",
+                        "BRCA1t", "BRCA1r", "BRCA2t", "BRCA2r", "PALB2t", "PALB2r", "ATMt", "ATMr", "CHEK2t", "CHEK2r",
+                        "ER", "PR", "HER2", "CK14", "CK56"]
+
     def __init__(self, pedigree_records=None, people=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
@@ -509,7 +514,13 @@ class Pedigree(object):
 
             record = [person.ashkn]
             # genetic tests
-            for gtest in person.gtests:
+            gt = person.gtests
+            # NOTE: order is different to settings.BC_MODEL['GENES'] so use column header
+            idx = Pedigree.get_column_idx('Ashkn') + 1
+            ngene_test_columns = len(settings.BC_MODEL['GENES'])*2
+            for i in range(idx, idx+ngene_test_columns, 2):
+                gene = Pedigree.BOADICEA_COLUMNS[i][:-1].lower()
+                gtest = getattr(gt, gene)
                 record.extend([gtest.test_type, gtest.result])
 
             # pathology
@@ -518,6 +529,16 @@ class Pedigree(object):
             print('\t'.join(record), file=bwa_file)
         bwa_file.flush()
         return bwa_file
+
+    @classmethod
+    def get_column_idx(cls, name):
+        """
+        Get the BOADICEA file column index from the column name
+        """
+        for idx, val in enumerate(Pedigree.BOADICEA_COLUMNS):
+            if val == name or val.lower == name.lower():
+                return idx
+        return -1
 
     def write_boadicea_file_header(self, bwa_file=None):
         """
@@ -529,12 +550,7 @@ class Pedigree(object):
             except Exception:
                 return
         print("BOADICEA import pedigree file format 4.0", file=bwa_file)
-
-        columns = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
-                   "1stBrCa", "2ndBrCa", "OvCa", "ProCa", "PanCa", "Ashkn",
-                   "BRCA1t", "BRCA1r", "BRCA2t", "BRCA2r", "PALB2t", "PALB2r", "ATMt", "ATMr", "CHEK2t", "CHEK2r",
-                   "ER", "PR", "HER2", "CK14", "CK56"]
-        print("\t".join(columns), file=bwa_file)
+        print("\t".join(Pedigree.BOADICEA_COLUMNS), file=bwa_file)
         bwa_file.flush()
         return bwa_file
 
@@ -691,12 +707,12 @@ class Person(object):
         diagnoses = CancerDiagnoses(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
                                     prc=Cancer(cols[14]), pac=Cancer(cols[15]))
         cancers = Cancers(diagnoses=diagnoses)
-        gtests = GeneticTests(
-                        GeneticTest(cols[17], cols[18]),  # brca1
-                        GeneticTest(cols[19], cols[20]),  # brca2
-                        GeneticTest(cols[21], cols[22]),  # palb2
-                        GeneticTest(cols[23], cols[24]),  # atm
-                        GeneticTest(cols[25], cols[26]))  # check2
+
+        # use column headers to get gene test type and result
+        gtests = GeneticTests._make([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
+                                                 cols[Pedigree.get_column_idx(gene+'r')])
+                                    for gene in settings.BC_MODEL['GENES']])
+
         pathology = PathologyTests(
                         er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, cols[27]),
                         pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, cols[28]),
