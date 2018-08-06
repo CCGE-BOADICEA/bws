@@ -24,8 +24,9 @@ CK56_TEST = "5"                   # Cytokeratin 56 test
 CANCER_TYPES = ['bc1', 'bc2', 'oc', 'prc', 'pac']
 CancerDiagnoses = collections.namedtuple('CancerDiagnoses', CANCER_TYPES)
 
-# genetic tests and resilts stored in named tuple
-GENETIC_TESTS = ['brca1', 'brca2', 'palb2', 'atm', 'chek2']
+# genetic tests and results stored in named tuple
+# GENETIC_TESTS = ['brca1', 'brca2', 'palb2', 'atm', 'chek2']
+GENETIC_TESTS = [gene.lower() for gene in settings.BC_MODEL['GENES']]
 GeneticTests = collections.namedtuple('GeneticTests', GENETIC_TESTS)
 
 # pathology tests stored in named tuple
