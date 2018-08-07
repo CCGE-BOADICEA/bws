@@ -348,11 +348,11 @@ class Cancers(object):
 
     def write(self):
         """
-        Returns a string used in the input pedigree file for fortran.
+        Returns a string of cancer ages used in the input pedigree file for fortran.
         """
         d = self.diagnoses
-        return ("%3s %3s %3s %3s %3s " %
-                (d.bc1.age, d.bc2.age, d.oc.age, d.prc.age, d.pac.age))
+        ages = ["%3s " % c.age for c in d]
+        return "".join(ages)
 
     def is_cancer_diagnosed(self):
         """
