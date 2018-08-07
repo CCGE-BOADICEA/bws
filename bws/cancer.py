@@ -25,7 +25,6 @@ CANCER_TYPES = ['bc1', 'bc2', 'oc', 'prc', 'pac']
 CancerDiagnoses = collections.namedtuple('CancerDiagnoses', CANCER_TYPES)
 
 # genetic tests and results stored in named tuple
-# GENETIC_TESTS = ['brca1', 'brca2', 'palb2', 'atm', 'chek2']
 GENETIC_TESTS = [gene.lower() for gene in settings.BC_MODEL['GENES']]
 GeneticTests = collections.namedtuple('GeneticTests', GENETIC_TESTS)
 
@@ -347,7 +346,7 @@ class Cancers(object):
             raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                               "but the age at diagnosis of the first breast cancer is missing.")
 
-    def write(self, *args, **kwargs):
+    def write(self):
         """
         Returns a string used in the input pedigree file for fortran.
         """
