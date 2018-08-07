@@ -359,10 +359,7 @@ class Cancers(object):
         Has a cancer been diagnosed.
         """
         d = self.diagnoses
-        if((d.bc1.age != "0") or
-           (d.bc2.age != "0") or
-           (d.oc.age != "0") or
-           (d.prc.age != "0") or
-           (d.pac.age != "0")):
-            return True
+        for c in d:
+            if(c.age != "0"):
+                return True
         return False
