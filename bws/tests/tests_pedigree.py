@@ -4,7 +4,7 @@ from django.test import TestCase
 from bws.pedigree import Female, Pedigree, PedigreeFile
 from copy import deepcopy
 from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline
-from bws.cancer import Cancers, Cancer, CancerDiagnoses
+from bws.cancer import Cancer, BCCancers
 from django.conf import settings
 import tempfile
 import shutil
@@ -39,9 +39,8 @@ class RiskTests(TestCase):
         self.year = date.today().year
 
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
-                        yob=str(self.year-20), cancers=Cancers())
+                        yob=str(self.year-20), cancers=BCCancers())
         self.pedigree = Pedigree(people=[target])
-
         # parents
         (_father, _mother) = self.pedigree.add_parents(target)
         self.cwd = tempfile.mkdtemp(prefix="TEST_", dir="/tmp")
@@ -81,21 +80,18 @@ class RiskTests(TestCase):
 
         # parents
         mother = pedigree.get_person(target.mothid)
-        diagnoses = CancerDiagnoses(bc1=Cancer("52"), bc2=Cancer(), oc=Cancer(),
-                                    prc=Cancer(), pac=Cancer())
         mother.yob = str(self.year-84)
         mother.age = "85"
-        mother.cancers = Cancers(diagnoses=diagnoses)
+        mother.cancers = BCCancers(bc1=Cancer("52"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
 
         # maternal grandparents
         (_maternal_grandfather, maternal_grandmother) = pedigree.add_parents(mother)
 
-        diagnoses = CancerDiagnoses(bc1=Cancer("42"), bc2=Cancer(), oc=Cancer(),
-                                    prc=Cancer(), pac=Cancer())
         maternal_grandmother.age = "81"
         maternal_grandmother.yob = "1912"
         maternal_grandmother.dead = "1"
-        maternal_grandmother.cancers = Cancers(diagnoses=diagnoses)
+        maternal_grandmother.cancers = BCCancers(bc1=Cancer("42"), bc2=Cancer(), oc=Cancer(),
+                                                 prc=Cancer(), pac=Cancer())
 
         PedigreeFile.validate(pedigree)
         calcs = Predictions(pedigree, cwd=self.cwd)
@@ -226,9 +222,7 @@ class RiskTests(TestCase):
 
         # sister
         target = pedigree.get_target()
-        diagnoses = CancerDiagnoses(bc1=Cancer("20"), bc2=Cancer(), oc=Cancer(),
-                                    prc=Cancer(), pac=Cancer())
         sister = Female("FAM1", "F01", "0011", target.fathid, target.mothid, age="22", yob=str(self.year-23),
-                        cancers=Cancers(diagnoses=diagnoses))
+                        cancers=BCCancers(bc1=Cancer("20")))
         pedigree.people.append(sister)
         self.assertEqual(Predictions._get_niceness(pedigree), 19)

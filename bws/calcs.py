@@ -1,7 +1,7 @@
 """ Risk and mutation probability calculations, for details
 see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
 from bws import pedigree
-from bws.cancer import CancerDiagnoses, Cancers, Cancer
+from bws.cancer import Cancer, BCCancers
 from bws.pedigree import Pedigree, Male, Female
 from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
@@ -129,10 +129,10 @@ class RemainingLifetimeBaselineRisk(Risk):
     def _get_pedi(self):
         t = self.predictions.pedi.get_target()
         if t.cancers.is_cancer_diagnosed():
-            cancers = Cancers(diagnoses=CancerDiagnoses(bc1=Cancer(t.cancers.diagnoses.bc1.age),
-                                                        bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer()))
+            cancers = BCCancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
+                                prc=Cancer(),  pac=Cancer())
         else:
-            cancers = Cancers()
+            cancers = BCCancers()
         if t.sex() is "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
                          dead="0", age=t.age, yob=t.yob, cancers=cancers)

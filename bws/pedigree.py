@@ -4,8 +4,7 @@ import re
 from django.conf import settings
 
 from bws import cancer
-from bws.cancer import Cancers, Cancer, CancerDiagnoses, GeneticTest, \
-    GeneticTests, PathologyTests, PathologyTest
+from bws.cancer import Cancer, GeneticTest, GeneticTests, PathologyTests, PathologyTest, BCCancers
 from bws.cancer import GENETIC_TESTS
 from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
@@ -91,7 +90,7 @@ class PedigreeFile(object):
                     warnings.append("year of birth and age at last follow up must be specified in order for " +
                                     p.pid + " to be included in a calculation")
                 p.validate(pedigree)                        # Validate person data
-                Cancers.validate(p)                         # Validate cancer diagnoses
+                type(p.cancers).validate(p)                 # Validate cancer diagnoses
                 warnings.extend(PathologyTest.validate(p))  # Validate pathology status
                 GeneticTest.validate(p)                     # Validate genetic tests
 
@@ -559,7 +558,7 @@ class Person(object):
     """ Person class. """
 
     def __init__(self, famid, name, pid, fathid, mothid, target="0", dead="0", age="0", yob="0", ashkn="0", mztwin="0",
-                 cancers=Cancers(),
+                 cancers=BCCancers(),
                  gtests=GeneticTests._make([GeneticTest("0", "0") for _i in range(len(GENETIC_TESTS))]),
                  pathology=PathologyTest.factory_default()):
         """
@@ -704,9 +703,8 @@ class Person(object):
         famid = cols[0]
         name = cols[1]
         pid = cols[3]
-        diagnoses = CancerDiagnoses(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
-                                    prc=Cancer(cols[14]), pac=Cancer(cols[15]))
-        cancers = Cancers(diagnoses=diagnoses)
+        cancers = BCCancers(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
+                            prc=Cancer(cols[14]), pac=Cancer(cols[15]))
 
         # use column headers to get gene test type and result
         gtests = GeneticTests._make([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
