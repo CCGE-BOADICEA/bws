@@ -217,10 +217,14 @@ class GeneticTest(object):
         """
         gtests1 = person1.gtests
         gtests2 = person2.gtests
-        for i in range(len(GENETIC_TESTS)):
-            if(REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(gtests1[i].test_type) and
-               REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(gtests2[i].test_type)):
-                if gtests1[i].result != gtests2[i].result:
+        if len(gtests1) != len(gtests2):
+            return False
+
+        for idx, t1 in enumerate(gtests1):
+            t2 = gtests2[idx]
+            if(REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t1.test_type) and
+               REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t2.test_type)):
+                if t1.result != t2.result:
                     return False
         return True
 
