@@ -398,14 +398,11 @@ class Pedigree(object):
                 print(c.write(), file=f, end="")
                 print("%3s " % p.age, file=f, end="")
 
-                # BRCA1 BRCA2 PALB2 CHEK2 ATM YOB ER
-                print("%1s %1s %1s %1s %1s %4s " %
-                      (p.gtests.brca1.get_genetic_test_data(),
-                       p.gtests.brca2.get_genetic_test_data(),
-                       p.gtests.palb2.get_genetic_test_data(),
-                       p.gtests.chek2.get_genetic_test_data(),
-                       p.gtests.atm.get_genetic_test_data(),
-                       (p.yob if p.yob != 0 else settings.MENDEL_NULL_YEAR_OF_BIRTH)), file=f, end="")
+                # Gene Tests
+                gtests = p.gtests
+                for t in gtests:
+                    print("%1s " % t.get_genetic_test_data(), file=f, end="")
+                print("%4s " % (p.yob if p.yob != 0 else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
 
                 print(PathologyTest.write(p.pathology), file=f, end="")
 
