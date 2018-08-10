@@ -1,8 +1,10 @@
-""" Cancer, pathology and genetic testing """
-import collections
+"""
+Cancer, pathology and genetic testing
+"""
+
 import re
-from bws.exceptions import GeneticTestError, PedigreeFileError,\
-    PathologyError, CancerError
+from bws.exceptions import GeneticTestError, PedigreeFileError, PathologyError, CancerError
+from collections import namedtuple
 from django.conf import settings
 import abc
 
@@ -14,20 +16,16 @@ REGEX_GENETIC_TEST_TYPE = re.compile("^[0ST]$")
 REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT = re.compile("^[0NP]$")
 REGEX_GENETIC_TEST_TYPE_IS_TESTED = re.compile("^[ST]$")
 
-# pathology tests
+# BC pathology tests
 ESTROGEN_RECEPTOR_TEST = "1"      # Estrogen Receptor test
 PROGESTROGEN_RECEPTOR_TEST = "2"  # Progestrogen Receptor test
 HER2_TEST = "3"                   # Human Epidermal Growth Factor 2 test
 CK14_TEST = "4"                   # Cytokeratin 14 test
 CK56_TEST = "5"                   # Cytokeratin 56 test
 
-# genetic tests and results stored in named tuple
-GENETIC_TESTS = [gene.lower() for gene in settings.BC_MODEL['GENES']]
-GeneticTests = collections.namedtuple('GeneticTests', GENETIC_TESTS)
-
-# pathology tests stored in named tuple
+# BC pathology tests stored in named tuple
 PATHOLOGY_TESTS = ['er', 'pr', 'her2', 'ck14', 'ck56']
-PathologyTests = collections.namedtuple('PathologyTests', PATHOLOGY_TESTS)
+PathologyTests = namedtuple('PathologyTests', PATHOLOGY_TESTS)
 
 
 class PathologyTest(object):
@@ -264,6 +262,16 @@ class GeneticTest(object):
                         "Invalid BOADICEA format four genetic test summary.")
 
 
+class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]))):
+    """
+    Breast Cancer Model: Genetic tests and results stored in named tuple of gene names
+    """
+    @classmethod
+    def default_factory(cls):
+        """ Set all genetic tests to untested """
+        return BCGeneticTests._make([GeneticTest() for _i in range(len(BCGeneticTests._fields))])
+
+
 class Cancer(object):
     """
     Basic object for cancer.
@@ -288,7 +296,7 @@ class Cancers(metaclass=abc.ABCMeta):
                 kwargs[ctype] = Cancer()
 
         # cancer diagnoses stored in named tuple
-        CancerDiagnoses = collections.namedtuple('CancerDiagnoses', cancer_types)
+        CancerDiagnoses = namedtuple('CancerDiagnoses', cancer_types)
         self.diagnoses = CancerDiagnoses(**kwargs)
 
     @classmethod
@@ -381,7 +389,7 @@ class Cancers(metaclass=abc.ABCMeta):
 
 class BCCancers(Cancers):
     """
-    Breast cancer model store diagnosis for each cancer and age of last follow up.
+    Breast Cancer Model: store diagnosis for each cancer and age of last follow up.
     """
 
     def get_cancer_types(self):

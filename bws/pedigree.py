@@ -4,8 +4,7 @@ import re
 from django.conf import settings
 
 from bws import cancer
-from bws.cancer import Cancer, GeneticTest, GeneticTests, PathologyTests, PathologyTest, BCCancers
-from bws.cancer import GENETIC_TESTS
+from bws.cancer import Cancer, GeneticTest, BCGeneticTests, PathologyTests, PathologyTest, BCCancers
 from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
@@ -556,7 +555,7 @@ class Person(object):
 
     def __init__(self, famid, name, pid, fathid, mothid, target="0", dead="0", age="0", yob="0", ashkn="0", mztwin="0",
                  cancers=BCCancers(),
-                 gtests=GeneticTests._make([GeneticTest("0", "0") for _i in range(len(GENETIC_TESTS))]),
+                 gtests=BCGeneticTests.default_factory(),
                  pathology=PathologyTest.factory_default()):
         """
         @type  famid: str
@@ -704,9 +703,9 @@ class Person(object):
                             prc=Cancer(cols[14]), pac=Cancer(cols[15]))
 
         # use column headers to get gene test type and result
-        gtests = GeneticTests._make([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
-                                                 cols[Pedigree.get_column_idx(gene+'r')])
-                                    for gene in settings.BC_MODEL['GENES']])
+        gtests = BCGeneticTests._make([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
+                                                   cols[Pedigree.get_column_idx(gene+'r')])
+                                      for gene in settings.BC_MODEL['GENES']])
 
         pathology = PathologyTests(
                         er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, cols[27]),
