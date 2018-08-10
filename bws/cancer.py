@@ -292,34 +292,41 @@ class Cancers(metaclass=abc.ABCMeta):
         self.diagnoses = CancerDiagnoses(**kwargs)
 
     @classmethod
-    def validate_cancer_diagnoses(cls, REGEX_AGE, person, diagnoses_age, ctype):
-        # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'
-        # and is within range i.e. 0-110 (zero for unaffected)
-        if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU') or
-           (REGEX_AGE.match(diagnoses_age) and int(diagnoses_age) > settings.MAX_AGE)):
-                raise CancerError("Family member '" + person.pid + "' has an age at cancer diagnosis (" + ctype +
-                                  ")specified as '"+diagnoses_age+"'. Age at cancer diagnosis " +
-                                  "must be set to '0' for unaffected, 'AU' for affected at unknown age, or " +
-                                  "specified with an integer in the range 1-"+str(settings.MAX_AGE)+".")
+    def validate(cls, person):
+        """
+        Validate a person's cancer types and diagnoses ages.
+        """
+        from bws import pedigree
+        cancer_types = person.cancers.get_cancer_types()
+        diagnoses = person.cancers.diagnoses
+        REGEX_AGE = pedigree.REGEX_AGE
+        for idx, ctype in enumerate(cancer_types):
+            diagnoses_age = diagnoses[idx].age
+            # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'
+            # and is within range i.e. 0-110 (zero for unaffected)
+            if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU') or
+               (REGEX_AGE.match(diagnoses_age) and int(diagnoses_age) > settings.MAX_AGE)):
+                    raise CancerError("Family member '" + person.pid + "' has an age at cancer diagnosis (" + ctype +
+                                      ")specified as '"+diagnoses_age+"'. Age at cancer diagnosis " +
+                                      "must be set to '0' for unaffected, 'AU' for affected at unknown age, or " +
+                                      "specified with an integer in the range 1-"+str(settings.MAX_AGE)+".")
 
-        # Check that the age at last follow up is greater or equal to that of all cancer diagnoses
-        if(diagnoses_age != 'AU' and diagnoses_age != '0' and int(person.age) < int(diagnoses_age)):
-            raise CancerError("Family member '" + person.pid + "' has been assigned an age at cancer " +
-                              "diagnosis that exceeds age at last follow up. An age at cancer " +
-                              "diagnosis must not exceed an age at last follow up.")
+            # Check that the age at last follow up is greater or equal to that of all cancer diagnoses
+            if(diagnoses_age != 'AU' and diagnoses_age != '0' and int(person.age) < int(diagnoses_age)):
+                raise CancerError("Family member '" + person.pid + "' has been assigned an age at cancer " +
+                                  "diagnosis that exceeds age at last follow up. An age at cancer " +
+                                  "diagnosis must not exceed an age at last follow up.")
 
-        # Check that males don't have an ovarian cancer diagnosis
-        if ctype == 'oc' and person.sex() == 'M' and diagnoses_age != '0':
-            raise CancerError("Family member '" + person.pid + "' is male but has been assigned an " +
-                              "ovarian cancer diagnosis.")
+            # Check that males don't have an ovarian cancer diagnosis
+            if ctype == 'oc' and person.sex() == 'M' and diagnoses_age != '0':
+                raise CancerError("Family member '" + person.pid + "' is male but has been assigned an " +
+                                  "ovarian cancer diagnosis.")
 
-        # Check that females don't have a prostate cancer diagnosis
-        if ctype == 'prc' and person.sex() == 'F' and diagnoses_age != '0':
-            raise CancerError("Family member '" + person.pid + "' is female but has been assigned an " +
-                              "prostate cancer diagnosis.")
+            # Check that females don't have a prostate cancer diagnosis
+            if ctype == 'prc' and person.sex() == 'F' and diagnoses_age != '0':
+                raise CancerError("Family member '" + person.pid + "' is female but has been assigned an " +
+                                  "prostate cancer diagnosis.")
 
-    @classmethod
-    def validate_cancer(cls, REGEX_AGE, person):
         # Check that individuals who have cancer have both a valid age at last follow up and year of birth
         cancers = person.cancers
         if cancers.is_cancer_diagnosed():
@@ -347,16 +354,6 @@ class Cancers(metaclass=abc.ABCMeta):
             if(bc2.age == 'AU' and bc1.age == '0'):
                 raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                                   "but the age at diagnosis of the first breast cancer is missing.")
-
-    @classmethod
-    def validate(cls, person):
-        from bws import pedigree
-        cancer_types = person.cancers.get_cancer_types()
-        diagnoses = person.cancers.diagnoses
-        REGEX_AGE = pedigree.REGEX_AGE
-        for idx, ctype in enumerate(cancer_types):
-            Cancers.validate_cancer_diagnoses(REGEX_AGE, person, diagnoses[idx].age, ctype)
-        Cancers.validate_cancer(REGEX_AGE, person)
 
     def write(self):
         """
