@@ -266,6 +266,8 @@ class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gen
     """
     Breast Cancer Model: Genetic tests and results stored in named tuple of gene names
     """
+    __slots__ = ()   # set to empty tuple prevents creation of instance dictionary and keeps memory low
+
     @classmethod
     def default_factory(cls):
         """ Set all genetic tests to untested """
