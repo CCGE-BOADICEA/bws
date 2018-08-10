@@ -1,13 +1,11 @@
 """
 Cancer, pathology and genetic testing
 """
-
 import re
 from bws.exceptions import GeneticTestError, PedigreeFileError, PathologyError, CancerError
 from collections import namedtuple
 from django.conf import settings
 import abc
-
 
 REGEX_PATHOLOGY_TEST_OPTION = re.compile("^([1-5])$")
 REGEX_PATHOLOGY_STATUS = re.compile("^[0NP]$")
@@ -47,6 +45,7 @@ class PathologyTest(object):
     @classmethod
     def write(cls, tests):
         """
+        Returns a string of pathology data used in the input pedigree file for fortran.
         @type tests: PathologyTests
         @keyword tests: pathology tests
         """
@@ -271,14 +270,13 @@ class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gen
     @classmethod
     def default_factory(cls):
         """ Set all genetic tests to untested """
-        return BCGeneticTests._make([GeneticTest() for _i in range(len(BCGeneticTests._fields))])
+        return cls._make([GeneticTest() for _i in range(len(cls._fields))])
 
 
 class Cancer(object):
     """
     Basic object for cancer.
     """
-
     def __init__(self, age="0"):
         self.age = age
 
@@ -393,6 +391,5 @@ class BCCancers(Cancers):
     """
     Breast Cancer Model: store diagnosis for each cancer and age of last follow up.
     """
-
     def get_cancer_types(self):
         return ['bc1', 'bc2', 'oc', 'prc', 'pac']
