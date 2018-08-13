@@ -703,9 +703,9 @@ class Person(object):
                             prc=Cancer(cols[14]), pac=Cancer(cols[15]))
 
         # use column headers to get gene test type and result
-        gtests = BCGeneticTests._make([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
-                                                   cols[Pedigree.get_column_idx(gene+'r')])
-                                      for gene in settings.BC_MODEL['GENES']])
+        gtests = BCGeneticTests.factory([GeneticTest(cols[Pedigree.get_column_idx(gene+'t')],
+                                                     cols[Pedigree.get_column_idx(gene+'r')])
+                                        for gene in settings.BC_MODEL['GENES']])
 
         pathology = PathologyTests(
                         er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, cols[27]),

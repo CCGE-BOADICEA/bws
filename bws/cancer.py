@@ -272,6 +272,10 @@ class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gen
         """ Set all genetic tests to untested """
         return cls._make([GeneticTest() for _i in range(len(cls._fields))])
 
+    @classmethod
+    def factory(cls, geneticTestList):
+        return cls._make(geneticTestList)
+
 
 class Cancer(object):
     """
