@@ -1,7 +1,7 @@
 """ Mutation risk and probability calculation testing. """
 from datetime import date
 from django.test import TestCase
-from bws.pedigree import Female, Pedigree, PedigreeFile
+from bws.pedigree import Female, PedigreeFile, BwaPedigree
 from copy import deepcopy
 from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline
 from bws.cancer import Cancer, BCCancers
@@ -10,7 +10,6 @@ import tempfile
 import shutil
 import os
 import filecmp
-from django.test.utils import override_settings
 
 
 class WritePedigree(TestCase):
@@ -40,7 +39,7 @@ class RiskTests(TestCase):
 
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
                         yob=str(self.year-20), cancers=BCCancers())
-        self.pedigree = Pedigree(people=[target])
+        self.pedigree = BwaPedigree(people=[target])
         # parents
         (_father, _mother) = self.pedigree.add_parents(target)
         self.cwd = tempfile.mkdtemp(prefix="TEST_", dir="/tmp")
@@ -206,13 +205,14 @@ class RiskTests(TestCase):
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                             [79, 80])
 
-    @override_settings(BC_MODEL={'GENES': [], 'HOME': 'xyz', 'PROBS_EXE': '', 'RISKS_EXE': ''})
     def test_subproces_err(self):
         """ Test subprocess raises an error when the fortran can not be run. """
         pedigree = deepcopy(self.pedigree)
         PedigreeFile.validate(pedigree)
         with self.assertRaises(FileNotFoundError):
-            Predictions(pedigree, cwd=self.cwd)
+            model_settings = settings.BC_MODEL
+            model_settings['HOME'] = 'xyz'
+            Predictions(pedigree, cwd=self.cwd, model_settings=model_settings)
 
     def test_niceness(self):
         """ Test niceness level for pedigree with sibling and large pedigree. """

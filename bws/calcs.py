@@ -1,8 +1,8 @@
 """ Risk and mutation probability calculations, for details
 see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
 from bws import pedigree
-from bws.cancer import Cancer, BCCancers
-from bws.pedigree import Pedigree, Male, Female
+from bws.cancer import Cancer, BCCancers, CanRiskGeneticTests, BWSGeneticTests
+from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
 from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
 from copy import deepcopy
@@ -70,7 +70,8 @@ class Risk(object):
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
                                             prs=self._get_prs(),
-                                            filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.ped"))
+                                            filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.ped"),
+                                            model_settings=self.predictions.model_settings)
         bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                          filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.bat"),
                                          mutation_freq=self.predictions.mutation_frequency,
@@ -78,7 +79,8 @@ class Risk(object):
                                          calc_ages=self.risk_age)
         risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
                                 cancer_rates=self.predictions.cancer_rates, cwd=self.predictions.cwd,
-                                niceness=self.predictions.niceness, name=self._get_name())
+                                niceness=self.predictions.niceness, name=self._get_name(),
+                                model=self.predictions.model_settings)
         return self._parse_risks_output(risks)
 
     def _parse_risks_output(self, risks):
@@ -97,17 +99,26 @@ class Risk(object):
                 version = line.replace('#Version:', '').strip()
             else:
                 parts = line.split(sep=",")
-                risks_arr.append(OrderedDict([
-                    ("age", int(parts[0])),
-                    ("breast cancer risk", {
-                        "decimal": float(parts[1]),
-                        "percent": float(parts[2])
-                    }),
-                    ("ovarian cancer risk", {
-                        "decimal": float(parts[3]),
-                        "percent": float(parts[4])
-                    })
-                ]))
+                if self.predictions.model_settings['NAME'] == 'BC':
+                    risks_arr.append(OrderedDict([
+                        ("age", int(parts[0])),
+                        ("breast cancer risk", {
+                            "decimal": float(parts[1]),
+                            "percent": float(parts[2])
+                        }),
+                        ("ovarian cancer risk", {
+                            "decimal": float(parts[3]),
+                            "percent": float(parts[4])
+                        })
+                    ]))
+                else:
+                    risks_arr.append(OrderedDict([
+                        ("age", int(parts[0])),
+                        ("ovarian cancer risk", {
+                            "decimal": float(parts[1]),
+                            "percent": float(parts[2])
+                        })
+                    ]))
         return risks_arr, version
 
 
@@ -133,13 +144,23 @@ class RemainingLifetimeBaselineRisk(Risk):
                                 prc=Cancer(),  pac=Cancer())
         else:
             cancers = BCCancers()
-        if t.sex() is "M":
-            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
-                         dead="0", age=t.age, yob=t.yob, cancers=cancers)
+
+        if self.predictions.model_settings['NAME'] == 'BC':
+            gtests = BWSGeneticTests.default_factory()
         else:
-            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target,
-                           dead="0", age=t.age, yob=t.yob, cancers=cancers)
-        return Pedigree(people=[new_t])
+            gtests = CanRiskGeneticTests.default_factory()
+
+        if t.sex() is "M":
+            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
+                         age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
+        else:
+            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
+                           age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
+
+        if self.predictions.model_settings['NAME'] == 'BC':
+            return BwaPedigree(people=[new_t])
+        else:
+            return CanRiskPedigree(people=[new_t])
 
     def _get_risk_factor_code(self):
         return '0'
@@ -195,11 +216,17 @@ class RangeRiskBaseline(RangeRisk):
         t = super()._get_pedi().get_target()
         if t.sex() is "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
-                         dead="0", age=t.age, yob=t.yob, cancers=t.cancers)
+                         dead="0", age=t.age, yob=t.yob, cancers=t.cancers,
+                         gtests=t.gtests)
         else:
             new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target,
-                           dead="0", age=t.age, yob=t.yob, cancers=t.cancers)
-        return Pedigree(people=[new_t])
+                           dead="0", age=t.age, yob=t.yob, cancers=t.cancers,
+                           gtests=t.gtests)
+
+        if self.predictions.model_settings['NAME'] == 'BC':
+            return BwaPedigree(people=[new_t])
+        else:
+            return CanRiskPedigree(people=[new_t])
 
     def _get_risk_factor_code(self):
         return '0'
@@ -214,7 +241,8 @@ class Predictions(object):
                  mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
                  mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
                  cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
-                 risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()), run_risks=True):
+                 risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()),
+                 run_risks=True, model_settings=settings.BC_MODEL):
         """
         Run cancer risk and mutation probability prediction calculations.
         @param pedi: L{Pedigree} used in prediction calculations
@@ -235,6 +263,7 @@ class Predictions(object):
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
         self.prs = prs
+        self.model_settings = model_settings
         if cwd is None:
             self.cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
         if isinstance(risk_factor_code, int):
@@ -252,13 +281,14 @@ class Predictions(object):
             ped_file = self.pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
                                                      risk_factor_code=self.risk_factor_code,
                                                      prs=self.prs,
-                                                     filepath=os.path.join(self.cwd, "test_prob.ped"))
+                                                     filepath=os.path.join(self.cwd, "test_prob.ped"),
+                                                     model_settings=self.model_settings)
             bat_file = self.pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                                   filepath=os.path.join(self.cwd, "test_prob.bat"),
                                                   mutation_freq=self.mutation_frequency,
                                                   sensitivity=self.mutation_sensitivity)
             probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=self.cancer_rates,
-                             cwd=self.cwd, niceness=self.niceness)
+                             cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
             self.mutation_probabilties, self.version = self._parse_probs_output(probs)
 
         # cancer risk calculation
@@ -305,7 +335,8 @@ class Predictions(object):
         return niceness
 
     @classmethod
-    def run(cls, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp", niceness=0, name=""):
+    def run(cls, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp", niceness=0, name="",
+            model=settings.BC_MODEL):
         """
         Run a process.
         @param request: HTTP request
@@ -316,7 +347,6 @@ class Predictions(object):
         @keyword niceness: niceness value
         @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
-        model = settings.BC_MODEL
         if process_type == pedigree.MUTATION_PROBS:
             prog = os.path.join(model['HOME'], model['PROBS_EXE'])
             out = "can_probs"

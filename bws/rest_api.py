@@ -19,7 +19,8 @@ from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 from bws.risk_factors import RiskFactors
 from django.http.response import JsonResponse
-from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, BwsOutputSerializer
+from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, BwsOutputSerializer,\
+    OwsExtendedInputSerializer, OwsInputSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,115 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
         return  # To not perform the csrf check previously happening
 
 
-class BwsView(APIView):
+class ModelWebServiceMixin():
+
+    def post_to_model(self, request, model_settings):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            validated_data = serializer.validated_data
+            pedigree_data = validated_data.get('pedigree_data')
+            pf = PedigreeFile(pedigree_data)
+            population = validated_data.get('mut_freq', 'UK')
+            cancer_rates = model_settings['CANCER_RATES'].get(validated_data.get('cancer_rates'))
+
+            if population != 'Custom':
+                mutation_frequency = model_settings['MUTATION_FREQUENCIES'][population]
+            else:
+                mutation_frequency = {}
+                for gene in model_settings['GENES']:
+                    try:
+                        mutation_frequency[gene] = float(validated_data.get(gene.lower() + '_mut_frequency'))
+                    except TypeError:
+                        raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
+
+            gts = model_settings['GENETIC_TEST_SENSITIVITY']
+            mutation_sensitivity = {
+                k: float(validated_data.get(k.lower() + "_mut_sensitivity", gts[k]))
+                for k in gts.keys()
+            }
+
+            output = {
+                "timestamp": datetime.datetime.now(),
+                "mutation_frequency": {population: mutation_frequency},
+                "mutation_sensitivity": mutation_sensitivity,
+                "cancer_incidence_rates": cancer_rates,
+                "pedigree_result": []
+            }
+
+            if request.user.has_perm('boadicea_auth.can_risk'):
+                risk_factor_code = validated_data.get('risk_factor_code', 0)
+                prs = validated_data.get('prs', None)
+                if prs is not None:
+                    output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
+                    prs = Prs(prs.get('alpha'), prs.get('beta'))
+                factors = RiskFactors.decode(risk_factor_code)
+                keys = list(RiskFactors.categories.keys())
+                output['risk_factors'] = {keys[idx]: val for idx, val in enumerate(factors)}
+            else:
+                if validated_data.get('risk_factor_code', 0) > 0:
+                    logger.warning('risk factor code parameter provided without the correct permissions')
+                if validated_data.get('prs', 0) != 0:
+                    logger.warning('polygenic risk score parameter provided without the correct permissions')
+                risk_factor_code = 0
+                prs = None
+
+            try:
+                warnings = PedigreeFile.validate(pf.pedigrees)
+                if len(warnings) > 0:
+                    output['warnings'] = warnings
+            except ValidationError as e:
+                logger.error(e)
+                return JsonResponse(e.detail, content_type="application/json",
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
+            try:
+                for pedi in pf.pedigrees:
+                    this_pedigree = {}
+                    this_pedigree["family_id"] = pedi.famid
+                    this_pedigree["proband_id"] = pedi.get_target().pid
+
+                    calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
+                                        mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,
+                                        risk_factor_code=risk_factor_code, prs=prs,
+                                        cwd=cwd, request=request, model_settings=model_settings)
+                    # Add input parameters and calculated results as attributes to 'this_pedigree'
+                    self.add_attr("version", output, calcs, output)
+                    self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
+                    self.add_attr("cancer_risks", this_pedigree, calcs, output)
+                    self.add_attr("baseline_cancer_risks", this_pedigree, calcs, output)
+                    self.add_attr("lifetime_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("baseline_lifetime_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
+                    self.add_attr("baseline_ten_yr_cancer_risk", this_pedigree, calcs, output)
+
+                    output["pedigree_result"].append(this_pedigree)
+            except ValidationError as e:
+                logger.error(e)
+                return JsonResponse(e.detail, content_type="application/json",
+                                    status=status.HTTP_400_BAD_REQUEST, safe=False)
+            finally:
+                if(not request.user.has_perm('boadicea_auth.evaluation') and
+                   not request.user.has_perm('boadicea_auth.evaluation1b')):
+                    shutil.rmtree(cwd)
+            output_serialiser = BwsOutputSerializer(output)
+            return Response(output_serialiser.data, template_name='result_tab.html')
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def add_attr(self, attr_name, this_pedigree, calcs, output):
+        ''' Utility to add attribute to calculation result. '''
+        try:
+            this_pedigree[attr_name] = getattr(calcs, attr_name)
+        except AttributeError as e:
+            if 'warnings' in output:
+                output['warnings'].append(attr_name+' not provided')
+            else:
+                output['warnings'] = [attr_name+' not provided']
+            logger.debug(attr_name+' not provided :: '+str(e))
+
+
+class BwsView(APIView, ModelWebServiceMixin):
     renderer_classes = (XMLRenderer, JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsExtendedInputSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
@@ -151,108 +260,122 @@ class BwsView(APIView):
            - application/xml
         produces: ['application/json', 'application/xml']
         """
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            validated_data = serializer.validated_data
-            pedigree_data = validated_data.get('pedigree_data')
+        return self.post_to_model(request, settings.BC_MODEL)
 
-            pf = PedigreeFile(pedigree_data)
-            population = validated_data.get('mut_freq', 'UK')
-            bc_model = settings.BC_MODEL
-            cancer_rates = bc_model['CANCER_RATES'].get(validated_data.get('cancer_rates'))
 
-            if population != 'Custom':
-                mutation_frequency = bc_model['MUTATION_FREQUENCIES'][population]
-            else:
-                mutation_frequency = {}
-                for gene in bc_model['GENES']:
-                    try:
-                        mutation_frequency[gene] = float(validated_data.get(gene.lower() + '_mut_frequency'))
-                    except TypeError:
-                        raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
+class OwsView(APIView, ModelWebServiceMixin):
+    """
+    Ovarian Model Web-Service
+    """
+    renderer_classes = (XMLRenderer, JSONRenderer, TemplateHTMLRenderer, )
+    serializer_class = OwsExtendedInputSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
-            gts = bc_model['GENETIC_TEST_SENSITIVITY']
-            mutation_sensitivity = {
-                k: float(validated_data.get(k.lower() + "_mut_sensitivity", gts[k]))
-                for k in gts.keys()
-            }
+    def get_serializer_class(self):
+        if self.request.user.has_perm('boadicea_auth.can_risk'):
+            return OwsExtendedInputSerializer
+        return OwsInputSerializer
 
-            output = {
-                "timestamp": datetime.datetime.now(),
-                "mutation_frequency": {population: mutation_frequency},
-                "mutation_sensitivity": mutation_sensitivity,
-                "cancer_incidence_rates": cancer_rates,
-                "pedigree_result": []
-            }
+    # @profile("profile_bws.profile")
+    def post(self, request):
+        """
+        Ovarian Web-Service (BWS) used to calculate the risks of ovarian cancer and the probability
+        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, RAD51D, RAD51C, BRIP1).
+        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
+        for each the genes and the population to use for cancer incidence rates.
+        ---
+        parameters_strategy: merge
+        response_serializer: OwsOutputSerializer
+        parameters:
+           - name: user_id
+             description: unique end user ID, e.g. IP address
+             type: string
+             required: true
+           - name: pedigree_data
+             description: BOADICEA pedigree data file
+             type: file
+             required: true
+           - name: mut_freq
+             description: mutation frequency
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
+           - name: brca1_mut_frequency
+             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: brca2_mut_frequency
+             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: rad51d_mut_frequency
+             description: RAD51D mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: rad51c_mut_frequency
+             description: RAD51C mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: brip1_mut_frequency
+             description: BRIP1 mutation frequency (only available with mut_freq=Custom)
+             required: false
+             type: float
+             paramType: form
+           - name: cancer_rates
+             description: cancer incidence rates
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'UK-version-1', 'Australia', 'USA-white', 'Denmark', 'Finland',
+             'Iceland', 'New-Zealand', 'Norway', 'Sweden']
 
-            if request.user.has_perm('boadicea_auth.can_risk'):
-                risk_factor_code = validated_data.get('risk_factor_code', 0)
-                prs = validated_data.get('prs', None)
-                if prs is not None:
-                    output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
-                    prs = Prs(prs.get('alpha'), prs.get('beta'))
-                factors = RiskFactors.decode(risk_factor_code)
-                keys = list(RiskFactors.categories.keys())
-                output['risk_factors'] = {keys[idx]: val for idx, val in enumerate(factors)}
-            else:
-                if validated_data.get('risk_factor_code', 0) > 0:
-                    logger.warning('risk factor code parameter provided without the correct permissions')
-                if validated_data.get('prs', 0) != 0:
-                    logger.warning('polygenic risk score parameter provided without the correct permissions')
-                risk_factor_code = 0
-                prs = None
+           - name: brca1_mut_sensitivity
+             description: BRCA1 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: brca2_mut_sensitivity
+             description: BRCA2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: rad51d_mut_sensitivity
+             description: RAD51D mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: rad51c_mut_sensitivity
+             description: RAD51C mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: brip1_mut_sensitivity
+             description: BRIP1 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 1.0
 
-            try:
-                warnings = PedigreeFile.validate(pf.pedigrees)
-                if len(warnings) > 0:
-                    output['warnings'] = warnings
-            except ValidationError as e:
-                logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json",
-                                    status=status.HTTP_400_BAD_REQUEST)
+        responseMessages:
+           - code: 401
+             message: Not authenticated
 
-            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
-            try:
-                for pedi in pf.pedigrees:
-                    this_pedigree = {}
-                    this_pedigree["family_id"] = pedi.famid
-                    this_pedigree["proband_id"] = pedi.get_target().pid
-
-                    calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
-                                        mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,
-                                        risk_factor_code=risk_factor_code, prs=prs,
-                                        cwd=cwd, request=request)
-                    # Add input parameters and calculated results as attributes to 'this_pedigree'
-                    self.add_attr("version", output, calcs, output)
-                    self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
-                    self.add_attr("cancer_risks", this_pedigree, calcs, output)
-                    self.add_attr("baseline_cancer_risks", this_pedigree, calcs, output)
-                    self.add_attr("lifetime_cancer_risk", this_pedigree, calcs, output)
-                    self.add_attr("baseline_lifetime_cancer_risk", this_pedigree, calcs, output)
-                    self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
-                    self.add_attr("baseline_ten_yr_cancer_risk", this_pedigree, calcs, output)
-
-                    output["pedigree_result"].append(this_pedigree)
-            except ValidationError as e:
-                logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json",
-                                    status=status.HTTP_400_BAD_REQUEST, safe=False)
-            finally:
-                if(not request.user.has_perm('boadicea_auth.evaluation') and
-                   not request.user.has_perm('boadicea_auth.evaluation1b')):
-                    shutil.rmtree(cwd)
-            output_serialiser = BwsOutputSerializer(output)
-            return Response(output_serialiser.data, template_name='result_tab.html')
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def add_attr(self, attr_name, this_pedigree, calcs, output):
-        ''' Utility to add attribute to calculation result. '''
-        try:
-            this_pedigree[attr_name] = getattr(calcs, attr_name)
-        except AttributeError as e:
-            if 'warnings' in output:
-                output['warnings'].append(attr_name+' not provided')
-            else:
-                output['warnings'] = [attr_name+' not provided']
-            logger.debug(attr_name+' not provided :: '+str(e))
+        consumes:
+           - application/json
+           - application/xml
+        produces: ['application/json', 'application/xml']
+        """
+        return self.post_to_model(request, settings.OC_MODEL)

@@ -9,8 +9,7 @@ from bws.exceptions import PathologyError, PedigreeError, GeneticTestError,\
     CancerError, PersonError, PedigreeFileError
 from bws.pedigree import PedigreeFile, Male, Female
 from django.test.utils import override_settings
-from bws.cancer import GeneticTest, PathologyTest, PathologyTests,\
-    BCGeneticTests
+from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
 from bws import cancer
 import copy
 import re
@@ -433,13 +432,13 @@ class PedigreeTests(TestCase, ErrorTests):
         pedigree = pedigree_file.pedigrees[0]
         m2 = pedigree.get_person_by_name('M2')
 
-        m2.gtests = BCGeneticTests._make([GeneticTest("S", "P")
-                                          if i == 0 else GeneticTest("0", "0")
-                                          for i in range(len(BCGeneticTests._fields))])
+        m2.gtests = BWSGeneticTests._make([GeneticTest("S", "P")
+                                           if i == 0 else GeneticTest("0", "0")
+                                           for i in range(len(BWSGeneticTests._fields))])
         self._add_twin(pedigree, twin=m2)
-        m2.gtests = BCGeneticTests._make([GeneticTest("S", "N")
-                                          if i == 0 else GeneticTest("0", "0")
-                                          for i in range(len(BCGeneticTests._fields))])
+        m2.gtests = BWSGeneticTests._make([GeneticTest("S", "N")
+                                           if i == 0 else GeneticTest("0", "0")
+                                           for i in range(len(BWSGeneticTests._fields))])
 
         with self.assertRaisesRegex(PedigreeError, r"genetic test results for these individuals are different"):
             PedigreeFile.validate(pedigree_file.pedigrees)

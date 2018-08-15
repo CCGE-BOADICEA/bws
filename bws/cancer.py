@@ -261,10 +261,7 @@ class GeneticTest(object):
                         "Invalid BOADICEA format four genetic test summary.")
 
 
-class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]))):
-    """
-    Breast Cancer Model: Genetic tests and results stored in named tuple of gene names
-    """
+class GeneticTestsMixin():
     __slots__ = ()   # set to empty tuple prevents creation of instance dictionary and keeps memory low
 
     @classmethod
@@ -275,6 +272,23 @@ class BCGeneticTests(namedtuple('BCGeneticTests', ' '.join([gene.lower() for gen
     @classmethod
     def factory(cls, geneticTestList):
         return cls._make(geneticTestList)
+
+
+class BWSGeneticTests(namedtuple('BWSGeneticTests', ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']])),
+                      GeneticTestsMixin):
+    """
+    BWS Genetic tests and results stored in named tuple of gene names
+    """
+
+
+class CanRiskGeneticTests(namedtuple('CanRiskGeneticTests',
+                                     ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]) + ' ' +
+                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][2:]])
+                                     ),
+                          GeneticTestsMixin):
+    """
+    CanRisk Genetic tests and results stored in named tuple of gene names
+    """
 
 
 class Cancer(object):
@@ -367,12 +381,12 @@ class Cancers(metaclass=abc.ABCMeta):
                 raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                                   "but the age at diagnosis of the first breast cancer is missing.")
 
-    def write(self):
+    def write(self, cancers=None):
         """
         Returns a string of cancer ages used in the input pedigree file for fortran.
         """
         d = self.diagnoses
-        ages = ["%3s " % c.age for c in d]
+        ages = ["%3s " % getattr(d, c).age for c in cancers]
         return "".join(ages)
 
     def is_cancer_diagnosed(self):
@@ -397,3 +411,11 @@ class BCCancers(Cancers):
     """
     def get_cancer_types(self):
         return ['bc1', 'bc2', 'oc', 'prc', 'pac']
+
+
+class OCCancers(Cancers):
+    """
+    Ovarian Cancer Model: store diagnosis for each cancer and age of last follow up.
+    """
+    def get_cancer_types(self):
+        return settings.OC_MODEL['CANCERS']
