@@ -79,7 +79,27 @@ class BwsInputSerializer(BaseInputSerializer):
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(bc_model)
 
 
+class OwsInputSerializer(BaseInputSerializer):
+    """ Boadicea breast cancer input fields. """
+    oc_model = settings.OC_MODEL
+    mut_freq = BaseInputSerializer.get_mutation_frequency_field(oc_model)
+
+    for f in BaseInputSerializer.get_gene_mutation_frequency_fields(oc_model):
+        exec(f)
+
+    for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(oc_model):
+        exec(f)
+    cancer_rates = BaseInputSerializer.get_cancer_rates_field(oc_model)
+
+
 class BwsExtendedInputSerializer(BwsInputSerializer):
+    """ Other input parameters. """
+    risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
+                                                min_value=0, default=0)
+    prs = serializers.JSONField(required=False)
+
+
+class OwsExtendedInputSerializer(OwsInputSerializer):
     """ Other input parameters. """
     risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
@@ -112,4 +132,9 @@ class PedigreeResultSerializer(serializers.Serializer):
 
 class BwsOutputSerializer(BaseOutputSerializer):
     """ Boadicea result. """
+    pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
+
+
+class OwsOutputSerializer(BaseOutputSerializer):
+    """ Ovarian result. """
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
