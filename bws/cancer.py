@@ -308,7 +308,7 @@ class Cancers(metaclass=abc.ABCMeta):
         """
         @keyword kwargs: list of Cancer objects
         """
-        cancer_types = self.get_cancer_types()
+        cancer_types = Cancers.get_cancers()
         for ctype in cancer_types:
             if ctype not in kwargs:
                 kwargs[ctype] = Cancer()
@@ -323,7 +323,7 @@ class Cancers(metaclass=abc.ABCMeta):
         Validate a person's cancer types and diagnoses ages.
         """
         from bws import pedigree
-        cancer_types = person.cancers.get_cancer_types()
+        cancer_types = Cancers.get_cancers()
         diagnoses = person.cancers.diagnoses
         REGEX_AGE = pedigree.REGEX_AGE
         for idx, ctype in enumerate(cancer_types):
@@ -399,6 +399,7 @@ class Cancers(metaclass=abc.ABCMeta):
                 return True
         return False
 
-    def get_cancer_types(self):
+    @classmethod
+    def get_cancers(cls):
         """ Get a list of the cancer types stored for CanRisk. """
         return ['bc1', 'bc2', 'oc', 'prc', 'pac']
