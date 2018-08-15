@@ -7,26 +7,24 @@ from collections import namedtuple
 from django.conf import settings
 import abc
 
-REGEX_PATHOLOGY_TEST_OPTION = re.compile("^([1-5])$")
-REGEX_PATHOLOGY_STATUS = re.compile("^[0NP]$")
-
-REGEX_GENETIC_TEST_TYPE = re.compile("^[0ST]$")
-REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT = re.compile("^[0NP]$")
-REGEX_GENETIC_TEST_TYPE_IS_TESTED = re.compile("^[ST]$")
-
-# BC pathology tests
-ESTROGEN_RECEPTOR_TEST = "1"      # Estrogen Receptor test
-PROGESTROGEN_RECEPTOR_TEST = "2"  # Progestrogen Receptor test
-HER2_TEST = "3"                   # Human Epidermal Growth Factor 2 test
-CK14_TEST = "4"                   # Cytokeratin 14 test
-CK56_TEST = "5"                   # Cytokeratin 56 test
-
 # BC pathology tests stored in named tuple
 PATHOLOGY_TESTS = ['er', 'pr', 'her2', 'ck14', 'ck56']
 PathologyTests = namedtuple('PathologyTests', PATHOLOGY_TESTS)
 
 
 class PathologyTest(object):
+    """
+    Stores BC pathology test type and result.
+    """
+    # test types
+    ESTROGEN_RECEPTOR_TEST = "1"      # Estrogen Receptor test
+    PROGESTROGEN_RECEPTOR_TEST = "2"  # Progestrogen Receptor test
+    HER2_TEST = "3"                   # Human Epidermal Growth Factor 2 test
+    CK14_TEST = "4"                   # Cytokeratin 14 test
+    CK56_TEST = "5"                   # Cytokeratin 56 test
+
+    REGEX_PATHOLOGY_TEST_OPTION = re.compile("^([1-5])$")
+    REGEX_PATHOLOGY_STATUS = re.compile("^[0NP]$")
 
     def __init__(self, test_type, result="0", description="pathology test"):
         self.test_type = test_type
@@ -36,11 +34,11 @@ class PathologyTest(object):
     @classmethod
     def factory_default(cls):
         return PathologyTests(
-            er=PathologyTest(ESTROGEN_RECEPTOR_TEST, "0", "Estrogen Receptor"),
-            pr=PathologyTest(PROGESTROGEN_RECEPTOR_TEST, "0", "Progestrogen Receptor"),
-            her2=PathologyTest(HER2_TEST, "0", "Human Epidermal Growth Factor 2"),
-            ck14=PathologyTest(CK14_TEST, "0", "Cytokeratin 14"),
-            ck56=PathologyTest(CK56_TEST, "0", "Cytokeratin 56"))
+            er=PathologyTest(cls.ESTROGEN_RECEPTOR_TEST, "0", "Estrogen Receptor"),
+            pr=PathologyTest(cls.PROGESTROGEN_RECEPTOR_TEST, "0", "Progestrogen Receptor"),
+            her2=PathologyTest(cls.HER2_TEST, "0", "Human Epidermal Growth Factor 2"),
+            ck14=PathologyTest(cls.CK14_TEST, "0", "Cytokeratin 14"),
+            ck56=PathologyTest(cls.CK56_TEST, "0", "Cytokeratin 56"))
 
     @classmethod
     def write(cls, tests):
@@ -63,7 +61,7 @@ class PathologyTest(object):
         tests = person.pathology
         for t in tests:
             # Check that the pathology results are correctly set (0, N, P)
-            if not REGEX_PATHOLOGY_STATUS.match(t.result):
+            if not PathologyTest.REGEX_PATHOLOGY_STATUS.match(t.result):
                 raise PathologyError("Family member '" + person.pid + "' has been assigned an invalid " + t.test_type +
                                      " status. It must be 'N' for negative, 'P' for positive, or '0' for unknown.")
             # Check that pathology test results are only provided for family members with a first breast cancer
@@ -137,14 +135,14 @@ class PathologyTest(object):
         @return: ER, PROG, HER2 status: neg = 1, pos = 0, unknown = 9
                  CK14, CK56 status: pos = 1, neg = 0, unknown = 9
         """
-        if((not REGEX_PATHOLOGY_TEST_OPTION.match(self.test_type)) or
-           (not REGEX_PATHOLOGY_STATUS.match(self.result))):
+        if((not PathologyTest.REGEX_PATHOLOGY_TEST_OPTION.match(self.test_type)) or
+           (not PathologyTest.REGEX_PATHOLOGY_STATUS.match(self.result))):
             raise PedigreeFileError(
                     "Invalid BOADICEA import format pathology test option has unexpected characters.")
 
-        if((self.test_type == ESTROGEN_RECEPTOR_TEST) or
-           (self.test_type == PROGESTROGEN_RECEPTOR_TEST) or
-           (self.test_type == HER2_TEST)):
+        if((self.test_type == PathologyTest.ESTROGEN_RECEPTOR_TEST) or
+           (self.test_type == PathologyTest.PROGESTROGEN_RECEPTOR_TEST) or
+           (self.test_type == PathologyTest.HER2_TEST)):
             if self.result == "0":
                 return "9"    # individual is untested
             elif self.result == "N":
@@ -154,7 +152,7 @@ class PathologyTest(object):
             else:
                 raise PedigreeFileError(
                     "Program string has unexpected value")
-        elif((self.test_type == CK14_TEST) or (self.test_type == CK56_TEST)):
+        elif((self.test_type == PathologyTest.CK14_TEST) or (self.test_type == PathologyTest.CK56_TEST)):
             if self.result == "0":
                 return "9"    # individual is untested
             elif self.result == "N":
@@ -168,6 +166,13 @@ class PathologyTest(object):
 
 
 class GeneticTest(object):
+    """
+    Store genetic test type and result.
+    """
+
+    REGEX_GENETIC_TEST_TYPE = re.compile("^[0ST]$")
+    REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT = re.compile("^[0NP]$")
+    REGEX_GENETIC_TEST_TYPE_IS_TESTED = re.compile("^[ST]$")
 
     def __init__(self, test_type="0", result="0"):
         """
@@ -186,12 +191,12 @@ class GeneticTest(object):
         gtests = person.gtests
         for t in gtests:
             # Check that the genetic test type is valid
-            if not REGEX_GENETIC_TEST_TYPE.match(t.test_type):
+            if not GeneticTest.REGEX_GENETIC_TEST_TYPE.match(t.test_type):
                 raise GeneticTestError("Family member '" + person.pid + "' has been assigned an invalid "
                                        "genetic test type. It must be specified with '0' for untested, "
                                        "'S' for mutation search or 'T' for direct gene test.")
             # Check that the mutation status is valid
-            if not REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT.match(t.result):
+            if not GeneticTest.REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT.match(t.result):
                 raise GeneticTestError("Family member '" + person.pid + "' has been assigned an invalid "
                                        "genetic test result. Genetic test results must be '0' for untested, "
                                        "'N' for no mutation, 'P' mutation detected.")
@@ -217,8 +222,8 @@ class GeneticTest(object):
 
         for idx, t1 in enumerate(gtests1):
             t2 = gtests2[idx]
-            if(REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t1.test_type) and
-               REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t2.test_type)):
+            if(GeneticTest.REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t1.test_type) and
+               GeneticTest.REGEX_GENETIC_TEST_TYPE_IS_TESTED.match(t2.test_type)):
                 if t1.result != t2.result:
                     return False
         return True

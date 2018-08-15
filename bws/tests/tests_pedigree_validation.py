@@ -10,7 +10,6 @@ from bws.exceptions import PathologyError, PedigreeError, GeneticTestError,\
 from bws.pedigree import PedigreeFile, Male, Female
 from django.test.utils import override_settings
 from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
-from bws import cancer
 import copy
 import re
 
@@ -615,11 +614,11 @@ class PathologyTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1. pathology = PathologyTests(
-                    er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, result="0"),
-                    pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, result="P"),
-                    her2=PathologyTest(cancer.HER2_TEST, result="0"),
-                    ck14=PathologyTest(cancer.CK14_TEST, result="0"),
-                    ck56=PathologyTest(cancer.CK56_TEST, result="0"))
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="0"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="0"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="0"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="0"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "this individual's pathology information will not be taken into account")
 
@@ -631,11 +630,11 @@ class PathologyTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1. pathology = PathologyTests(
-                    er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, result="P"),
-                    pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, result="P"),
-                    her2=PathologyTest(cancer.HER2_TEST, result="0"),
-                    ck14=PathologyTest(cancer.CK14_TEST, result="0"),
-                    ck56=PathologyTest(cancer.CK56_TEST, result="0"))
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="P"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="0"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="0"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="0"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "ER positive, where an additional pathology parameter ")
 
@@ -647,11 +646,11 @@ class PathologyTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1. pathology = PathologyTests(
-                    er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, result="N"),
-                    pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, result="P"),
-                    her2=PathologyTest(cancer.HER2_TEST, result="0"),
-                    ck14=PathologyTest(cancer.CK14_TEST, result="0"),
-                    ck56=PathologyTest(cancer.CK56_TEST, result="0"))
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="0"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="0"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="0"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "PR status is specified but HER2 status is unspecified")
 
@@ -663,11 +662,11 @@ class PathologyTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1. pathology = PathologyTests(
-                    er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, result="N"),
-                    pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, result="N"),
-                    her2=PathologyTest(cancer.HER2_TEST, result="N"),
-                    ck14=PathologyTest(cancer.CK14_TEST, result="N"),
-                    ck56=PathologyTest(cancer.CK56_TEST, result="0"))
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="0"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "only CK14 or CK5/6 status has been specified")
 
@@ -679,10 +678,10 @@ class PathologyTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1. pathology = PathologyTests(
-                    er=PathologyTest(cancer.ESTROGEN_RECEPTOR_TEST, result="N"),
-                    pr=PathologyTest(cancer.PROGESTROGEN_RECEPTOR_TEST, result="0"),
-                    her2=PathologyTest(cancer.HER2_TEST, result="0"),
-                    ck14=PathologyTest(cancer.CK14_TEST, result="N"),
-                    ck56=PathologyTest(cancer.CK56_TEST, result="N"))
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="0"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="0"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "CK14 or CK5/6 status is specified but the breast cancer pathology is not triple")
