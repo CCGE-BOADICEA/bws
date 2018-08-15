@@ -162,11 +162,9 @@ class PathologyTest(object):
             elif self.result == "P":
                 return "1"    # individual has tested positive
             else:
-                raise PedigreeFileError(
-                    "Program string has unexpected value")
+                raise PedigreeFileError("Program string has unexpected value")
 
-        raise PedigreeFileError(
-                    "Program string has unexpected value")
+        raise PedigreeFileError("Program string has unexpected value")
 
 
 class GeneticTest(object):
@@ -243,8 +241,7 @@ class GeneticTest(object):
            ((ttype == 'T') and (result == '0')) or   # (T,0) 'T' for direct gene test
            ((ttype == '0') and (result == 'N')) or   # (0,N) untested and test result is 'N' for -ve
            ((ttype == '0') and (result == 'P'))):    # (0,P) unknown and genetic test result is 'P' for +ve
-            raise GeneticTestError(
-                        "Invalid BOADICEA format four genetic test summary.")
+            raise GeneticTestError("Invalid BOADICEA format four genetic test summary.")
 
         if((ttype == 'S') and (result == 'N')):
             return '0'   # 0 mutation search test, no mutation detected
@@ -257,8 +254,7 @@ class GeneticTest(object):
 
         if((ttype == 'T') and (result == 'P')):
             return '3'   # 3 gene test, mutation detected
-        raise GeneticTestError(
-                        "Invalid BOADICEA format four genetic test summary.")
+        raise GeneticTestError("Invalid BOADICEA format four genetic test summary.")
 
 
 class GeneticTestsMixin():
