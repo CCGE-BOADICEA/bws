@@ -5,7 +5,6 @@ import re
 from bws.exceptions import GeneticTestError, PedigreeFileError, PathologyError, CancerError
 from collections import namedtuple
 from django.conf import settings
-import abc
 
 # BC pathology tests stored in named tuple
 PATHOLOGY_TESTS = ['er', 'pr', 'her2', 'ck14', 'ck56']
@@ -300,7 +299,7 @@ class Cancer(object):
         self.age = age
 
 
-class Cancers(metaclass=abc.ABCMeta):
+class Cancers():
     """
     Store diagnosis for each cancer and age of last follow up.
     """
