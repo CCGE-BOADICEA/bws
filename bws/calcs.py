@@ -1,7 +1,7 @@
 """ Risk and mutation probability calculations, for details
 see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
 from bws import pedigree
-from bws.cancer import Cancer, BCCancers, CanRiskGeneticTests, BWSGeneticTests
+from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
 from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
@@ -140,10 +140,10 @@ class RemainingLifetimeBaselineRisk(Risk):
     def _get_pedi(self):
         t = self.predictions.pedi.get_target()
         if t.cancers.is_cancer_diagnosed():
-            cancers = BCCancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
-                                prc=Cancer(),  pac=Cancer())
+            cancers = Cancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
+                              prc=Cancer(),  pac=Cancer())
         else:
-            cancers = BCCancers()
+            cancers = Cancers()
 
         if self.predictions.model_settings['NAME'] == 'BC':
             gtests = BWSGeneticTests.default_factory()

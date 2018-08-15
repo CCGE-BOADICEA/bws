@@ -4,7 +4,7 @@ from django.test import TestCase
 from bws.pedigree import Female, PedigreeFile, BwaPedigree
 from copy import deepcopy
 from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline
-from bws.cancer import Cancer, BCCancers
+from bws.cancer import Cancer, Cancers
 from django.conf import settings
 import tempfile
 import shutil
@@ -38,7 +38,7 @@ class RiskTests(TestCase):
         self.year = date.today().year
 
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
-                        yob=str(self.year-20), cancers=BCCancers())
+                        yob=str(self.year-20), cancers=Cancers())
         self.pedigree = BwaPedigree(people=[target])
         # parents
         (_father, _mother) = self.pedigree.add_parents(target)
@@ -81,7 +81,7 @@ class RiskTests(TestCase):
         mother = pedigree.get_person(target.mothid)
         mother.yob = str(self.year-84)
         mother.age = "85"
-        mother.cancers = BCCancers(bc1=Cancer("52"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
+        mother.cancers = Cancers(bc1=Cancer("52"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
 
         # maternal grandparents
         (_maternal_grandfather, maternal_grandmother) = pedigree.add_parents(mother)
@@ -89,8 +89,8 @@ class RiskTests(TestCase):
         maternal_grandmother.age = "81"
         maternal_grandmother.yob = "1912"
         maternal_grandmother.dead = "1"
-        maternal_grandmother.cancers = BCCancers(bc1=Cancer("42"), bc2=Cancer(), oc=Cancer(),
-                                                 prc=Cancer(), pac=Cancer())
+        maternal_grandmother.cancers = Cancers(bc1=Cancer("42"), bc2=Cancer(), oc=Cancer(),
+                                               prc=Cancer(), pac=Cancer())
 
         PedigreeFile.validate(pedigree)
         calcs = Predictions(pedigree, cwd=self.cwd)
@@ -222,7 +222,7 @@ class RiskTests(TestCase):
 
         # sister
         target = pedigree.get_target()
-        sister = Female("FAM1", "F01", "0011", target.fathid, target.mothid, age="22", yob=str(self.year-23),
-                        cancers=BCCancers(bc1=Cancer("20")))
+        sister = Female("FAM1", "F01", "0011", target.fathid, target.mothid, age="22",
+                        yob=str(self.year-23), cancers=Cancers(bc1=Cancer("20")))
         pedigree.people.append(sister)
         self.assertEqual(Predictions._get_niceness(pedigree), 19)

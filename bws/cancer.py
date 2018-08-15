@@ -399,23 +399,6 @@ class Cancers(metaclass=abc.ABCMeta):
                 return True
         return False
 
-    @abc.abstractmethod
     def get_cancer_types(self):
-        """ Get a list of the cancer types stored. """
-        return
-
-
-class BCCancers(Cancers):
-    """
-    Breast Cancer Model: store diagnosis for each cancer and age of last follow up.
-    """
-    def get_cancer_types(self):
+        """ Get a list of the cancer types stored for CanRisk. """
         return ['bc1', 'bc2', 'oc', 'prc', 'pac']
-
-
-class OCCancers(Cancers):
-    """
-    Ovarian Cancer Model: store diagnosis for each cancer and age of last follow up.
-    """
-    def get_cancer_types(self):
-        return settings.OC_MODEL['CANCERS']

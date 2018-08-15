@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 
 from bws import cancer
-from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, BCCancers,\
+from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cancers,\
     BWSGeneticTests, CanRiskGeneticTests
 from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
@@ -587,7 +587,7 @@ class BwaPedigree(Pedigree):
 
 class CanRiskPedigree(Pedigree):
     """
-    BOADICEA pedigree
+    CanRisk pedigree
     """
     COLUMNS = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
@@ -598,7 +598,7 @@ class Person(object):
     """ Person class. """
 
     def __init__(self, famid, name, pid, fathid, mothid, target="0", dead="0", age="0", yob="0", ashkn="0", mztwin="0",
-                 cancers=BCCancers(),
+                 cancers=Cancers(),
                  gtests=BWSGeneticTests.default_factory(),
                  pathology=PathologyTest.factory_default()):
         """
@@ -743,8 +743,8 @@ class Person(object):
         famid = cols[0]
         name = cols[1]
         pid = cols[3]
-        cancers = BCCancers(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
-                            prc=Cancer(cols[14]), pac=Cancer(cols[15]))
+        cancers = Cancers(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
+                          prc=Cancer(cols[14]), pac=Cancer(cols[15]))
 
         # use column headers to get gene test type and result
         if file_type == 'bwa':
