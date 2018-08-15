@@ -383,7 +383,14 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         f = open(filepath, "w")
         print("(I3,X,A8)", file=f)
-        pcount = (len(settings.BC_MODEL['GENES'])+1) if file_type == MUTATION_PROBS else 3
+        if file_type == MUTATION_PROBS:
+            pcount = (len(model_settings['GENES'])+1)
+        else:
+            if model_settings['NAME'] == "BC":
+                pcount = 3
+            elif model_settings['NAME'] == "OC":
+                pcount = 2
+
         risk_factor_str_len = str(len(risk_factor_code))
 
         print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X),5(A1,X),A4," +
