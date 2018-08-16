@@ -1,7 +1,7 @@
 CanRisk pedigree file format 1.0
 FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
 NICE	301   	1	PB     	PF     	PM     	F	0	0	51 	1967	0	0	0	0	0  	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
-NICE	202   	0	PM     	MGA    	MGO    	F	0	1	61 	1940	55	0	44	0	0  	0	S:P	0:0	0:0	0:0	0:0	S:P	0:0	0:0	P:N:0:0:0
+NICE	202   	0	PM     	MGA    	MGO    	F	0	1	61 	1940	55	0	44	0	0  	0	S:P	0:0	0:0	0:0	0:0	S:P	0:0	0:0	P:0:0:0:0
 NICE	201   	0	PF     	PGA    	PGO    	M	0	0	0  	0   	0	0	0	0	0  	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
 NICE	101   	0	PGA    	0      	0      	M	0	0	0  	0   	0	0	0	0	0  	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
 NICE	102   	0	PGO    	0      	0      	F	0	1	40 	1915	40	0	0	0	0  	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
