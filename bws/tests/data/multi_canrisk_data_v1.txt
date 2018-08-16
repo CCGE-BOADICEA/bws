@@ -1,0 +1,8 @@
+CanRisk pedigree file format 1.0
+FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXX0    0       0       PM      0       0       F       0       1       55      1940    55      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX0    1       0       PF      0       0       M       0       0       78      1938    56      0       0       0       0       0       S:P     0:0     0:0     0:0     0:0     S:P     0:0     0:0     P:N:0:0:0
+XXX0    2       1       PB      PF      PM      F       0       0       40      1967    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX1    F1      1       1       3       2       F       0       0       23      1993    21      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX1    F2      0       2       0       0       F       0       0       55      1961    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX1    M2      0       3       0       0       M       0       0       53      1963    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
