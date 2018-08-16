@@ -307,7 +307,7 @@ class Predictions(object):
             job_title = u.userdetails.job_title
         else:
             job_title = 'AnonymousUser'
-        logger.info("BWS CALCULATIONS: user=" + str(self.request.user) +
+        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user) +
                     "; end user id=" + self.request.data.get('user_id', 'end_user') +
                     "; job=" + job_title +
                     "; IP=" + str(get_real_ip(self.request)) +
@@ -381,7 +381,7 @@ class Predictions(object):
             if exit_code == 0:
                 with open(os.path.join(cwd, out+".out"), 'r') as result_file:
                     data = result_file.read()
-                logger.info("BWS " +
+                logger.info(model.get('NAME', "") + " " +
                             ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
                             name + " CALCULATION: user=" + str(request.user) +
                             "; elapsed time=" + str(time.time() - start))
@@ -394,11 +394,11 @@ class Predictions(object):
                 raise ModelError(errs)
         except TimeoutExpired as to:
             process.terminate()
-            logger.error("BOADICEA PROCESS TIMED OUT.")
+            logger.error(model.get('NAME', "")+" PROCESS TIMED OUT.")
             logger.error(to)
             raise TimeOutException()
         except Exception as e:
-            logger.error('BOADICEA PROCESS EXCEPTION: '+cwd)
+            logger.error(model.get('NAME', "")+' PROCESS EXCEPTION: '+cwd)
             logger.error(e)
             raise
 
