@@ -64,6 +64,22 @@ class BwsTests(TestCase):
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
 
+    def test_canrisk_format_bws(self):
+        ''' Test POSTing canrisk format pedigree to the BWS. '''
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': canrisk_data,
+                'user_id': 'test_XXX'}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        response = self.client.post(self.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("pedigree_result" in content)
+        genes = settings.BC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
     def test_token_auth_err(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
