@@ -19,7 +19,7 @@ from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 from bws.risk_factors import RiskFactors
 from django.http.response import JsonResponse
-from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, BwsOutputSerializer,\
+from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, OutputSerializer,\
     OwsExtendedInputSerializer, OwsInputSerializer
 
 
@@ -131,7 +131,7 @@ class ModelWebServiceMixin():
                 if(not request.user.has_perm('boadicea_auth.evaluation') and
                    not request.user.has_perm('boadicea_auth.evaluation1b')):
                     shutil.rmtree(cwd)
-            output_serialiser = BwsOutputSerializer(output)
+            output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab.html')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -169,7 +169,7 @@ class BwsView(APIView, ModelWebServiceMixin):
         for each the genes and the population to use for cancer incidence rates.
         ---
         parameters_strategy: merge
-        response_serializer: BwsOutputSerializer
+        response_serializer: OutputSerializer
         parameters:
            - name: user_id
              description: unique end user ID, e.g. IP address
@@ -287,7 +287,7 @@ class OwsView(APIView, ModelWebServiceMixin):
         for each the genes and the population to use for cancer incidence rates.
         ---
         parameters_strategy: merge
-        response_serializer: OwsOutputSerializer
+        response_serializer: OutputSerializer
         parameters:
            - name: user_id
              description: unique end user ID, e.g. IP address

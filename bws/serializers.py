@@ -106,18 +106,6 @@ class OwsExtendedInputSerializer(OwsInputSerializer):
     prs = serializers.JSONField(required=False)
 
 
-class BaseOutputSerializer(serializers.Serializer):
-    """ Base serializer for cancer risk output. """
-    version = serializers.CharField(read_only=True)
-    timestamp = serializers.DateTimeField(read_only=True)
-    mutation_frequency = serializers.DictField(read_only=True)
-    mutation_sensitivity = serializers.DictField(read_only=True)
-    cancer_incidence_rates = serializers.CharField(read_only=True)
-    prs = serializers.DictField(read_only=True, required=False)
-    risk_factors = serializers.DictField(read_only=True, required=False)
-    warnings = serializers.ListField(read_only=True, required=False)
-
-
 class PedigreeResultSerializer(serializers.Serializer):
     family_id = serializers.CharField(read_only=True)
     proband_id = serializers.CharField(read_only=True)
@@ -130,11 +118,14 @@ class PedigreeResultSerializer(serializers.Serializer):
     mutation_probabilties = serializers.ListField(read_only=True)
 
 
-class BwsOutputSerializer(BaseOutputSerializer):
+class OutputSerializer(serializers.Serializer):
     """ Boadicea result. """
-    pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
-
-
-class OwsOutputSerializer(BaseOutputSerializer):
-    """ Ovarian result. """
+    version = serializers.CharField(read_only=True)
+    timestamp = serializers.DateTimeField(read_only=True)
+    mutation_frequency = serializers.DictField(read_only=True)
+    mutation_sensitivity = serializers.DictField(read_only=True)
+    cancer_incidence_rates = serializers.CharField(read_only=True)
+    prs = serializers.DictField(read_only=True, required=False)
+    risk_factors = serializers.DictField(read_only=True, required=False)
+    warnings = serializers.ListField(read_only=True, required=False)
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
