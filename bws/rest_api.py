@@ -217,7 +217,7 @@ class BwsView(APIView, ModelWebServiceMixin):
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'USA-white', 'Denmark', 'Finland',
+             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
              'Iceland', 'New-Zealand', 'Norway', 'Sweden']
 
            - name: brca1_mut_sensitivity
@@ -294,7 +294,7 @@ class OwsView(APIView, ModelWebServiceMixin):
              type: string
              required: true
            - name: pedigree_data
-             description: BOADICEA pedigree data file
+             description: CanRisk pedigree data file
              type: file
              required: true
            - name: mut_freq
@@ -335,7 +335,7 @@ class OwsView(APIView, ModelWebServiceMixin):
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'USA-white', 'Denmark', 'Finland',
+             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
              'Iceland', 'New-Zealand', 'Norway', 'Sweden']
 
            - name: brca1_mut_sensitivity
