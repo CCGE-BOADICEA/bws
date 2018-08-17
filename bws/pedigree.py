@@ -73,10 +73,15 @@ class PedigreeFile(object):
                 famid = record[0]
 
                 if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
-                    raise PedigreeFileError(
-                        "A data record has an unexpected number of data items. " +
-                        "BOADICEA format 4 pedigree files should have " +
-                        str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) + " data items per line.")
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "BOADICEA format 4 pedigree files should have " +
+                                            str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) +
+                                            " data items per line.")
+                elif(file_type == 'canrisk' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS):
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "CanRisk format 1 pedigree files should have " +
+                                            str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
+                                            " data items per line.")
 
                 pedigrees_records[pid].append(line)
         self.pedigrees = []
