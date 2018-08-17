@@ -24,6 +24,9 @@ class ErrorTests(object):
             self.pedigree_data = f.read()
         f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r") as f:
+            self.canrisk_data = f.read()
+        f.close()
 
 
 class PedigreeFileTests(TestCase, ErrorTests):
@@ -40,7 +43,15 @@ class PedigreeFileTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeFileError, r"header record in the pedigree file has unexpected characters"):
             PedigreeFile(pedigree_data)
 
-    def test_header2(self):
+    def test_canrisk_header(self):
+        ''' Test canrisk file header. '''
+        PedigreeFile(self.canrisk_data)
+        canrisk_data = copy.copy(self.canrisk_data)
+        canrisk_data = canrisk_data.replace('CanRisk ', 'CanRisky ', 1)
+        with self.assertRaisesRegex(PedigreeFileError, r"header record in the pedigree file has unexpected characters"):
+            PedigreeFile(canrisk_data)
+
+    def test_header_line2(self):
         ''' Test pedigree file column header. '''
         pedigree_data = copy.copy(self.pedigree_data)
         pedigree_data = pedigree_data.replace('FamID', 'FamIDa', 1)
@@ -60,11 +71,18 @@ class PedigreeFileTests(TestCase, ErrorTests):
             self.assertEqual(len(warnings), 0)
 
     def test_columns(self):
-        ''' Test multiple pedigrees in a single file. '''
+        ''' Test number of columns in bwa file. '''
         pedigree_data = copy.copy(self.pedigree_data)
         pedigree_data = pedigree_data.replace('F1', 'F1    F1')
         with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
             PedigreeFile(pedigree_data)
+
+    def test_canrisk_columns(self):
+        ''' Test number of columns in canrisk file. '''
+        canrisk_data = copy.copy(self.canrisk_data)
+        canrisk_data = canrisk_data.replace('PB', 'PB    PB')
+        with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
+            PedigreeFile(canrisk_data)
 
 
 class PersonTests(TestCase, ErrorTests):
