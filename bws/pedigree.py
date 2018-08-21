@@ -240,18 +240,19 @@ class Pedigree(metaclass=abc.ABCMeta):
             raise PedigreeError("Maximum number of MZ twin pairs has been exceeded. Input pedigrees must have a "
                                 "maximum of " + str(settings.MAX_NUMBER_MZ_TWIN_PAIRS) + " MZ twin pairs.")
 
-    def add_parents(self, person):
+    def add_parents(self, person, gtests=BWSGeneticTests.default_factory()):
         """
         Add parents for a given person to the pedigree.
         @param person: Person in the pedigree to add parents to
+        @keyword gtests: genetic test results
         @return: father and mother
         """
         if person.fathid == "0" and person.mothid == "0":
             n = randint(1000, 9999)
             person.fathid = person.pid + str(n)
             person.mothid = person.pid + str(n+1)
-        father = Male(person.famid, person.name + "father", person.fathid, "0", "0")
-        mother = Female(person.famid, person.name + "mother", person.mothid, "0", "0")
+        father = Male(person.famid, person.name + "father", person.fathid, "0", "0", gtests=gtests)
+        mother = Female(person.famid, person.name + "mother", person.mothid, "0", "0", gtests=gtests)
         self.people.append(father)
         self.people.append(mother)
         return (father, mother)
