@@ -1,10 +1,10 @@
 """ Mutation risk and probability calculation testing. """
 from datetime import date
 from django.test import TestCase
-from bws.pedigree import Female, PedigreeFile, BwaPedigree
+from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree
 from copy import deepcopy
 from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline
-from bws.cancer import Cancer, Cancers
+from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
 from django.conf import settings
 import tempfile
 import shutil
@@ -105,6 +105,31 @@ class RiskTests(TestCase):
         self.assertEqual(len(calcs.cancer_risks), 9)
         self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                         [64, 65, 66, 67, 68, 70, 73, 75, 80])
+
+    def test_ovarian_calculations(self):
+        """ Test prediction of cancer risk and mutation probability. """
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
+                        yob=str(self.year-20), cancers=Cancers(),
+                        gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        # parents
+        (_father, _mother) = pedigree.add_parents(target, gtests=CanRiskGeneticTests.default_factory())
+        PedigreeFile.validate(pedigree)
+        calcs = Predictions(pedigree, cwd=self.cwd,
+                            mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
+                            mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                            model_settings=settings.OC_MODEL)
+
+        # each gene should have a mutation probability plus a result for no mutations
+        for mp in calcs.mutation_probabilties:
+            key = list(mp.keys())[0]
+            self.assertTrue(key in settings.OC_MODEL['GENES'] or key == "no mutation")
+        self.assertEqual(len(calcs.mutation_probabilties), len(settings.OC_MODEL['GENES']) + 1)
+
+        # risks calculated at 16 different ages:
+        self.assertEqual(len(calcs.cancer_risks), 16)
+        self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
+                        [21, 22, 23, 24, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80])
 
     def test_lifetime_risk(self):
         """ Test lifetime risk calculation matches the risk to 80 for a 20 year old. """
