@@ -289,7 +289,7 @@ class Predictions(object):
                                                   sensitivity=self.mutation_sensitivity)
             probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=self.cancer_rates,
                              cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
-            self.mutation_probabilties, self.version = self._parse_probs_output(probs)
+            self.mutation_probabilties, self.version = self._parse_probs_output(probs, self.model_settings)
 
         # cancer risk calculation
         if self.pedi.is_risks_calc_viable():
@@ -402,10 +402,11 @@ class Predictions(object):
             logger.error(e)
             raise
 
-    def _parse_probs_output(self, probs):
+    def _parse_probs_output(self, probs, model_settings):
         """
         Parse computed mutation carrier probability results.
         @param probs: mutation probaility text from fortran output
+        @param model_settings: cancer model settings
         @return: list of containing dictionaries of the mutaion probability results
         """
         probs_arr = []
@@ -416,7 +417,7 @@ class Predictions(object):
             else:
                 parts = line.strip().split(sep=",")
                 probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
-                for i, gene in enumerate(settings.BC_MODEL['GENES']):
+                for i, gene in enumerate(model_settings['GENES']):
                     probs_arr.append({gene:
                                       {"decimal": float(parts[((i*2)+2)]),
                                        "percent": float(parts[(i*2)+3])}})
