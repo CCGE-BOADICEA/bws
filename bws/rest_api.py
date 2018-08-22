@@ -13,7 +13,7 @@ from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , Br
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
-from bws.pedigree import PedigreeFile
+from bws.pedigree import PedigreeFile, CanRiskPedigree
 from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
@@ -104,6 +104,16 @@ class ModelWebServiceMixin():
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
+
+                    # if canrisk format file check if risk factors set in the header
+                    if isinstance(pedi, CanRiskPedigree) and 'risk_factor_code' not in request.data.keys():
+                        if model_settings['NAME'] == 'BC' and hasattr(pedi, 'bc_risk_factor_code'):
+                            print(pedi.bc_risk_factor_code)
+                            risk_factor_code = pedi.bc_risk_factor_code
+                        elif model_settings['NAME'] == 'OC' and hasattr(pedi, 'oc_risk_factor_code'):
+                            print(pedi.oc_risk_factor_code)
+                            risk_factor_code = pedi.oc_risk_factor_code
+
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
