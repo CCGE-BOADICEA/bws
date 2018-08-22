@@ -9,13 +9,14 @@ from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
 import abc
+from bws.risk_factors import RiskFactors
 
 
 # BOADICEA header
 REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
     re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
 REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE = \
-    re.compile("^(CanRisk\\s+pedigree\\s+file\\s+format\\s[1](.0)*)$")
+    re.compile("^(##CanRisk\\s[1](.0)*)$")
 REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")
 REGEX_ONLY_HYPHENS = re.compile("^([\-]+)$")
 REGEX_ONLY_ZEROS = re.compile("^[0]+$")
@@ -41,17 +42,36 @@ class PedigreeFile(object):
         pid = 0
         famid = None
         file_type = None
+        bc_risk_categories = False
 
         for idx, line in enumerate(pedigree_data.splitlines()):
             if idx == 0:
                 if REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'canrisk'
+                    bc_risk_categories = [0 for _k in RiskFactors.categories.keys()]
+                    bc_risk_factor_codes = []
                 elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
                         "The first header record must be 'BOADICEA import pedigree file format 4'.")
+            elif line.startswith('##'):
+                try:
+                    if '=' in line:
+                        parts = line.split('=')
+                        rfvar = parts[0][2:].lower()
+                        rfval = parts[1]
+
+                        for rfidx, rf in enumerate(RiskFactors.risk_factors):
+                            if(rfvar == rf.__name__.lower() or
+                               rfvar == rf.snake_name().lower() or
+                               (hasattr(rf, 'synonyms') and rfvar in rf.synonyms)):
+                                # print("FOUND " + rfvar + ' ' + rfval + ' category=' + str(rf.get_category(rfval)))
+                                bc_risk_categories[rfidx] = rf.get_category(rfval)
+                except Exception:
+                    raise PedigreeFileError("Header unrecognised error at: " + line)
+                continue
             elif idx == 1:
                 self.column_names = line.split()
                 if (((self.column_names[0] != 'FamID') or
@@ -70,6 +90,9 @@ class PedigreeFile(object):
                 if famid is not None and famid != record[0]:
                     pid += 1
                     pedigrees_records.append([])
+                    if bc_risk_categories:
+                        bc_risk_factor_codes.append(RiskFactors.encode(bc_risk_categories))
+                        bc_risk_categories = [0 for _k in RiskFactors.categories.keys()]
                 famid = record[0]
 
                 if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
@@ -84,12 +107,20 @@ class PedigreeFile(object):
                                             " data items per line.")
 
                 pedigrees_records[pid].append(line)
+
+        if bc_risk_categories:
+            bc_risk_factor_codes.append(RiskFactors.encode(bc_risk_categories))
         self.pedigrees = []
         for i in range(pid+1):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type == 'canrisk':
-                self.pedigrees.append(CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
+                try:
+                    rfc = bc_risk_factor_codes[i]
+                except Exception:
+                    rfc = 0
+                self.pedigrees.append(CanRiskPedigree(pedigree_records=pedigrees_records[i],
+                                                      file_type=file_type, bc_risk_factor_code=rfc))
 
     @classmethod
     def validate(cls, pedigrees):
@@ -117,10 +148,12 @@ class Pedigree(metaclass=abc.ABCMeta):
     A pedigree object.
     """
 
-    def __init__(self, pedigree_records=None, people=None, file_type=None):
+    def __init__(self, pedigree_records=None, people=None, file_type=None,
+                 bc_risk_factor_code=None, oc_risk_factor_code=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
+        @keyword file_type: file type is 'bwa' or 'canrisk'.
         """
         self.people = []
         if pedigree_records is not None:
@@ -155,6 +188,11 @@ class Pedigree(metaclass=abc.ABCMeta):
         if pedigree_size > settings.MAX_PEDIGREE_SIZE or pedigree_size < settings.MIN_BASELINE_PEDIGREE_SIZE:
             raise PedigreeError("Pedigree (" + self.famid + ") has unexpected number of family members " +
                                 str(pedigree_size))
+        if file_type == 'canrisk':
+            if bc_risk_factor_code is not None:
+                self.bc_risk_factor_code = bc_risk_factor_code
+            if oc_risk_factor_code is not None:
+                self.oc_risk_factor_code = oc_risk_factor_code
 
     def validate(self):
         """ Validation check for pedigree input.
