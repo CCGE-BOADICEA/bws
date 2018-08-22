@@ -35,10 +35,44 @@ class RiskFactor(object):
         ''' Return the class name in space separated format (e.g. Menarche Age) '''
         return cls.camel_to_space(cls.__name__)
 
+    @classmethod
+    def get_category(cls, val, isreal=False):
+        ''' Get category for risk factor. This assumes the categories a'''
+        if val == 'NA' or val == '-':
+            return 0
+        try:
+            val = cls.get_num(val, isreal)
+            for idx, cat in enumerate(cls.cats):
+                if cat == '-':
+                    continue
+                if cat.startswith('<'):
+                    if(val < cls.get_num(cat[1:], isreal)):
+                        return idx
+                elif cat.endswith('>'):
+                    if(val > cls.get_num(cat[:-1], isreal)):
+                        return idx
+                elif '-' in cat:
+                    rng = cat.split("-")
+                    if(val >= cls.get_num(rng[0], isreal) and val <= cls.get_num(rng[1], isreal)):
+                        return idx
+                elif cls.get_num(cat, isreal) == cls.get_num(val, isreal):
+                    return idx
+        except Exception as e:
+            print(e)
+            raise RiskFactorError("Unknown category for: "+cls.__name__)
+
+    @classmethod
+    def get_num(cls, val, isreal):
+        if isreal:
+            return float(val)
+        else:
+            return int(val)
+
 
 class MenarcheAge(RiskFactor):
     cats = ['-', '<11', '11', '12', '13', '14', '15', '>15']
     help_text = 'Age at First Occurrence of Menstruation'
+    synonyms = ['menarche']
 
 
 class Parity(RiskFactor):
@@ -49,42 +83,78 @@ class Parity(RiskFactor):
 class AgeOfFirstLiveBirth(RiskFactor):
     cats = ['-', '<20', '20-24', '25-29', '>29']
     help_text = 'Age of First Live Birth'
+    synonyms = ['first_live_birth']
 
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never', 'former', 'current']
     help_text = 'Oral Contraception Usage'
+    synonyms = ['oc_use']
+
+    @classmethod
+    def get_category(cls, val):
+        alt = ['NA', 'N', 'F', 'C']
+        for idx, cat in enumerate(OralContraception.cats):
+            if val == cat or val == alt[idx]:
+                return idx
+        return 0
 
 
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
     cats = ['-', 'never/former', 'current e-type', 'current other/unknown type (including combined type)']
     help_text = 'Hormone Replacement Therapy'
+    synonyms = ['mht_use']
+
+    @classmethod
+    def get_category(cls, val):
+        if val == 'N' or val == 'F':
+            return 1
+        elif val == 'E':
+            return 2
+        elif val == 'C':
+            return 2
+        return 0
 
 
 class BMI(RiskFactor):
     cats = ['-', '<18.5', '18.5-24.9', '25-29.9', '>=30']
     help_text = 'Body Mass Index'
 
+    @classmethod
+    def get_category(cls, val, isreal=True):
+        return super(BMI, cls).get_category(val, isreal)
+
 
 class AlcoholIntake(RiskFactor):
     cats = ['-', '0', '<5', '5-14', '15-24', '25-34', '35-44', '>=45']
     help_text = 'Alcohol Intake (grams/day)'
+    synonyms = ['alcohol']
+
+    @classmethod
+    def get_category(cls, val, isreal=True):
+        return super(AlcoholIntake, cls).get_category(val, isreal)
 
 
 class AgeOfMenopause(RiskFactor):
     cats = ['-', '<40', '40-44', '45-49', '50-54', '>54']
     help_text = 'Age of Menopause'
+    synonyms = ['menopause']
 
 
 class MammographicDensity(RiskFactor):
     cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
     help_text = 'Mammographic Density'
+    synonyms = ['birads']
 
 
 class Height(RiskFactor):
     cats = ['-', '<150.17', '150.17-158.26', '158.26-165.82', '165.82-173.91', '>173.91']
     help_text = 'Height (cm)'
+
+    @classmethod
+    def get_category(cls, val, isreal=True):
+        return super(Height, cls).get_category(val, isreal)
 
 
 class RiskFactors(object):
@@ -150,7 +220,7 @@ class RiskFactors(object):
             # Read in the category for each factor
             try:
                 category = int(float(risk_categories[i]))
-            except:
+            except Exception:
                 raise RiskFactorError("Error: Unable to convert command line argument number {}, '{}'," +
                                       " to integer.\nThis program takes a list of integers" +
                                       " as arguments".format(i + 1, risk_categories[i]))
