@@ -13,7 +13,7 @@ from rest_framework_xml.renderers import XMLRenderer
 from vcf2prs import Vcf2Prs, Vcf2PrsError
 
 from bws.serializers import FileField
-from bws.risk_factors import CanRiskPermission
+from bws.risk_factors_ws import CanRiskPermission
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 import time
 import logging

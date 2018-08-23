@@ -1,0 +1,134 @@
+import re
+from bws.exceptions import RiskFactorError
+
+
+class RiskFactor(object):
+
+    @classmethod
+    def camel_to_space(cls, label):
+        ''' Convert camel case to space separated. '''
+        return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r' \1', label)
+
+    @classmethod
+    def camel_to_snake(cls, label):
+        ''' Convert camel to snake case e.g. AgeOfFirstLiveBirth -> age_of_first_live_birth '''
+        return re.sub(r'((?<=[a-z])[A-Z]|(?<!\A)[A-Z](?=[a-z]))', r'_\1', label).lower()
+
+    @classmethod
+    def snake_name(cls):
+        ''' Return the class name in snake format (e.g. menarche_age) '''
+        return cls.camel_to_snake(cls.__name__)
+
+    @classmethod
+    def space_name(cls):
+        ''' Return the class name in space separated format (e.g. Menarche Age) '''
+        return cls.camel_to_space(cls.__name__)
+
+    @classmethod
+    def get_category(cls, val, isreal=False):
+        ''' Get category for risk factor. This assumes the categories a'''
+        if val == 'NA' or val == '-':
+            return 0
+        try:
+            val = cls.get_num(val, isreal)
+            for idx, cat in enumerate(cls.cats):
+                if cat == '-':
+                    continue
+                if cat.startswith('<'):
+                    if(val < cls.get_num(cat[1:], isreal)):
+                        return idx
+                elif cat.endswith('>'):
+                    if(val > cls.get_num(cat[:-1], isreal)):
+                        return idx
+                elif '-' in cat:
+                    rng = cat.split("-")
+                    if(val >= cls.get_num(rng[0], isreal) and val <= cls.get_num(rng[1], isreal)):
+                        return idx
+                elif cls.get_num(cat, isreal) == cls.get_num(val, isreal):
+                    return idx
+        except Exception as e:
+            print(e)
+            raise RiskFactorError("Unknown category for: "+cls.__name__)
+
+    @classmethod
+    def get_num(cls, val, isreal):
+        if isreal:
+            return float(val)
+        else:
+            return int(val)
+
+
+class RiskFactors(object):
+    ''' Each risk factor for an individual is defined in terms of a category they are in.
+        If a factor is unobserved, missing or not applicable, it is assigned category 0,
+        and is not taken into account in the calculation. Otherwise a non-zero number is given
+        depending on which group they belong to. These are then combined into a single
+        risk factor code (see encode() function) that is used by the BOADICEA risk calculation. '''
+
+    @classmethod
+    def encode(cls, risk_categories):
+        ''' Encode the risk categories into a risk factor. '''
+        # Define the number of categories for each factor
+        n_categories = list(cls.categories.values())
+        n_factors = len(n_categories)
+
+        # Check that the correct number of command line arguments have been supplied.
+        if len(risk_categories) != len(n_categories):
+            raise RiskFactorError("Error: Incorrect number of command line arguments specified.\n" +
+                                  "This program takes {} arguments, {} supplied".format(len(n_categories),
+                                                                                        len(risk_categories)))
+        multiplicand = 1
+        factor = 0
+        for i in range(n_factors):
+            # Read in the category for each factor
+            try:
+                category = int(float(risk_categories[i]))
+            except Exception:
+                raise RiskFactorError("Error: Unable to convert command line argument number {}, '{}'," +
+                                      " to integer.\nThis program takes a list of integers" +
+                                      " as arguments".format(i + 1, risk_categories[i]))
+            # Check that the category is in bounds.
+            if category < 0 or category > n_categories[i]:
+                raise RiskFactorError("Error: factor {} out of range, {} > {}".format(i, category, n_categories[i]))
+
+            # Encode the categories into a single factor
+            factor += multiplicand * category
+            multiplicand = multiplicand * (n_categories[i] + 1)
+        return factor
+
+    @classmethod
+    def decode(cls, factor):
+        ''' Decode the risk factor into the risk categories. '''
+        # Define the number of categories for each factor
+        n_categories = list(cls.categories.values())
+        n_factors = len(n_categories)
+        max_factor = cls.get_max_factor()
+
+        # Read in the risk factor code and convert it to integer
+        if not isinstance(factor, int):
+            raise RiskFactorError("Error: Unable to convert command line argument, {} to integer.\n" +
+                                  "This program takes a single integer as argument".format(factor))
+
+        # Check that the category is in bounds
+        if factor < 0:
+            raise RiskFactorError("Error: factor out of range, {} < {}".format(factor, 0))
+        elif factor > max_factor:
+            raise RiskFactorError("Error: factor out of range, {} > {}".format(factor, max_factor))
+
+        # Decode the single factor
+        dividend = factor
+        category = []
+        for i in range(n_factors):
+            category.append(int(dividend % (n_categories[i] + 1)))
+            dividend = (dividend - category[-1]) / (n_categories[i] + 1)
+        return category
+
+    @classmethod
+    def get_max_factor(cls):
+        ''' Calcaulate the maximum allowed risk factor code. '''
+        n_categories = list(cls.categories.values())
+        max_factor = 1
+        for i in n_categories:
+            max_factor *= i + 1
+        max_factor -= 1
+        return max_factor

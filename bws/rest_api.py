@@ -17,10 +17,10 @@ from bws.pedigree import PedigreeFile, CanRiskPedigree
 from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-from bws.risk_factors import RiskFactors
 from django.http.response import JsonResponse
 from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, OutputSerializer,\
     OwsExtendedInputSerializer, OwsInputSerializer
+from bws.risk_factors.bc import BCRiskFactors
 
 
 logger = logging.getLogger(__name__)
@@ -81,8 +81,8 @@ class ModelWebServiceMixin():
                 if prs is not None:
                     output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
                     prs = Prs(prs.get('alpha'), prs.get('beta'))
-                factors = RiskFactors.decode(risk_factor_code)
-                keys = list(RiskFactors.categories.keys())
+                factors = BCRiskFactors.decode(risk_factor_code)
+                keys = list(BCRiskFactors.categories.keys())
                 output['risk_factors'] = {keys[idx]: val for idx, val in enumerate(factors)}
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:

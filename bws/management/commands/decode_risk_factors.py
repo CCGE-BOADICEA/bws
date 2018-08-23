@@ -1,6 +1,6 @@
 """ Command line utility. """
 from django.core.management.base import BaseCommand
-from bws.risk_factors import RiskFactors
+from bws.risk_factors.bc import BCRiskFactors
 
 
 class Command(BaseCommand):
@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         risk_factor_code = options['factor']
-        categories = RiskFactors.decode(risk_factor_code)
+        categories = BCRiskFactors.decode(risk_factor_code)
         for idx, cat in enumerate(categories):
-            name = RiskFactors.risk_factors[idx].__name__
-            print(name + " idx: " + str(cat) + " category: " + RiskFactors.risk_factors[idx].cats[cat])
+            name = BCRiskFactors.risk_factors[idx].__name__
+            print(name + " idx: " + str(cat) + " category: " + BCRiskFactors.risk_factors[idx].cats[cat])

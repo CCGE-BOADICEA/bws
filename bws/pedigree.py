@@ -9,7 +9,7 @@ from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
 import abc
-from bws.risk_factors import RiskFactors
+from bws.risk_factors.bc import BCRiskFactors
 
 
 # BOADICEA header
@@ -48,7 +48,7 @@ class PedigreeFile(object):
             if idx == 0:
                 if REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'canrisk'
-                    bc_risk_categories = [0 for _k in RiskFactors.categories.keys()]
+                    bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
                     bc_risk_factor_codes = []
                 elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
@@ -63,7 +63,7 @@ class PedigreeFile(object):
                         rfvar = parts[0][2:].lower()
                         rfval = parts[1]
 
-                        for rfidx, rf in enumerate(RiskFactors.risk_factors):
+                        for rfidx, rf in enumerate(BCRiskFactors.risk_factors):
                             if(rfvar == rf.__name__.lower() or
                                rfvar == rf.snake_name().lower() or
                                (hasattr(rf, 'synonyms') and rfvar in rf.synonyms)):
@@ -91,8 +91,8 @@ class PedigreeFile(object):
                     pid += 1
                     pedigrees_records.append([])
                     if bc_risk_categories:
-                        bc_risk_factor_codes.append(RiskFactors.encode(bc_risk_categories))
-                        bc_risk_categories = [0 for _k in RiskFactors.categories.keys()]
+                        bc_risk_factor_codes.append(BCRiskFactors.encode(bc_risk_categories))
+                        bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
                 famid = record[0]
 
                 if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
@@ -109,7 +109,7 @@ class PedigreeFile(object):
                 pedigrees_records[pid].append(line)
 
         if bc_risk_categories:
-            bc_risk_factor_codes.append(RiskFactors.encode(bc_risk_categories))
+            bc_risk_factor_codes.append(BCRiskFactors.encode(bc_risk_categories))
         self.pedigrees = []
         for i in range(pid+1):
             if file_type == 'bwa':

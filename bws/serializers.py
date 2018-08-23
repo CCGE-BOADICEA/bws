@@ -5,7 +5,7 @@ I/O serializers for the web-services.
 from rest_framework import serializers
 from django.conf import settings
 from django.core.files.base import File
-from bws.risk_factors import RiskFactors
+from bws.risk_factors.bc import BCRiskFactors
 
 
 class FileField(serializers.Field):
@@ -94,14 +94,14 @@ class OwsInputSerializer(BaseInputSerializer):
 
 class BwsExtendedInputSerializer(BwsInputSerializer):
     """ Other input parameters. """
-    risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
+    risk_factor_code = serializers.IntegerField(max_value=BCRiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
     prs = serializers.JSONField(required=False)
 
 
 class OwsExtendedInputSerializer(OwsInputSerializer):
     """ Other input parameters. """
-    risk_factor_code = serializers.IntegerField(max_value=RiskFactors.get_max_factor(),
+    risk_factor_code = serializers.IntegerField(max_value=BCRiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
     prs = serializers.JSONField(required=False)
 
