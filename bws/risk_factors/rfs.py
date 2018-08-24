@@ -1,5 +1,6 @@
 import re
 from bws.exceptions import RiskFactorError
+import operator
 
 
 class RiskFactor(object):
@@ -24,6 +25,21 @@ class RiskFactor(object):
         ''' Return the class name in space separated format (e.g. Menarche Age) '''
         return cls.camel_to_space(cls.__name__)
 
+    OPS = {
+        ">=": operator.ge,
+        ">": operator.gt,
+        "<=": operator.le,
+        "<": operator.lt
+    }
+
+    @classmethod
+    def eval(cls, val, expr, isreal):
+        ''' Evaluate a value against an operand at the start of a string, e.g. <3 '''
+        if expr.startswith('<=') or expr.startswith('>='):
+            return cls.OPS[expr[0:2]](val, cls.get_num(expr[2:], isreal))
+        elif expr.startswith('<') or expr.startswith('>'):
+            return cls.OPS[expr[0:1]](val, cls.get_num(expr[1:], isreal))
+
     @classmethod
     def get_category(cls, val, isreal=False):
         ''' Get category for risk factor. This assumes the categories a'''
@@ -34,17 +50,16 @@ class RiskFactor(object):
             for idx, cat in enumerate(cls.cats):
                 if cat == '-':
                     continue
-                if cat.startswith('<'):
-                    if(val < cls.get_num(cat[1:], isreal)):
-                        return idx
-                elif cat.endswith('>'):
-                    if(val > cls.get_num(cat[:-1], isreal)):
-                        return idx
-                elif '-' in cat:
+
+                if '-' in cat:
                     rng = cat.split("-")
-                    if(val >= cls.get_num(rng[0], isreal) and val <= cls.get_num(rng[1], isreal)):
+                    if rng[0][0] not in cls.OPS:
+                        rng[0] = ">="+rng[0]
+                    if rng[1][0] not in cls.OPS:
+                        rng[1] = "<="+rng[1]
+                    if cls.eval(val, rng[0], isreal) and cls.eval(val, rng[1], isreal):
                         return idx
-                elif cls.get_num(cat, isreal) == cls.get_num(val, isreal):
+                elif cls.eval(val, cat, isreal):
                     return idx
         except Exception as e:
             print(e)
