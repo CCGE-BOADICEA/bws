@@ -1,3 +1,7 @@
+'''
+Breast cancer risk factors.
+'''
+
 from bws.risk_factors.rfs import RiskFactor, RiskFactors
 from collections import OrderedDict
 
