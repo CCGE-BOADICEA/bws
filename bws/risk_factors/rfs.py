@@ -29,7 +29,8 @@ class RiskFactor(object):
         ">=": operator.ge,
         ">": operator.gt,
         "<=": operator.le,
-        "<": operator.lt
+        "<": operator.lt,
+        "=": operator.eq
     }
 
     @classmethod
@@ -39,6 +40,11 @@ class RiskFactor(object):
             return cls.OPS[expr[0:2]](val, cls.get_num(expr[2:], isreal))
         elif expr.startswith('<') or expr.startswith('>'):
             return cls.OPS[expr[0:1]](val, cls.get_num(expr[1:], isreal))
+        else:
+            try:
+                return cls.OPS["="](val, cls.get_num(expr, isreal))
+            except ValueError:
+                return False
 
     @classmethod
     def get_category(cls, val, isreal=False):
