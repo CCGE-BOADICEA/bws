@@ -30,7 +30,10 @@ class OralContraception(RiskFactor):
 
     @classmethod
     def get_category(cls, val):
-        alt = ['NA', 'N', 'F', 'C']
+        alt = ['na', 'n', 'f', 'c']
+        if ':' in val:
+            val = val.split(':')[0]
+        val = val.lower()
         for idx, cat in enumerate(OralContraception.cats):
             if val == cat or val == alt[idx]:
                 return idx
