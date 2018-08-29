@@ -87,6 +87,15 @@ class MammographicDensity(RiskFactor):
     help_text = 'Mammographic Density'
     synonyms = ['birads']
 
+    @classmethod
+    def get_category(cls, val):
+        alt = ['NA', '1', '2', '3']
+        val = val.upper()
+        for idx, cat in enumerate(cls.cats):
+            if val == cat or val == alt[idx]:
+                return idx
+        return 0
+
 
 class Height(RiskFactor):
     cats = ['-', '<150.17', '150.17-158.26', '158.26-165.82', '165.82-173.91', '>173.91']
