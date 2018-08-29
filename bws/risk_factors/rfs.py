@@ -43,6 +43,8 @@ class RiskFactor(object):
     @classmethod
     def get_category(cls, val, isreal=False):
         ''' Get category for risk factor. This assumes the categories a'''
+        if isinstance(val, str):
+            val = val.strip()
         if val == 'NA' or val == '-':
             return 0
         try:

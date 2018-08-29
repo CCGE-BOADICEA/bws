@@ -52,7 +52,7 @@ class TubalLigation(RiskFactor):
     @classmethod
     def get_category(cls, val):
         alt = ['na', 'n', 'y']
-        val = val.lower()
+        val = val.lower().strip()
         for idx, cat in enumerate(TubalLigation.cats):
             if val == cat or val == alt[idx]:
                 return idx
@@ -67,7 +67,7 @@ class Endometriosis(RiskFactor):
     @classmethod
     def get_category(cls, val):
         alt = ['na', 'n', 'y']
-        val = val.lower()
+        val = val.lower().strip()
         for idx, cat in enumerate(TubalLigation.cats):
             if val == cat or val == alt[idx]:
                 return idx
