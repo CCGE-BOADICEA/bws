@@ -11,9 +11,34 @@ from rest_framework.test import APIRequestFactory, APIClient
 from boadicea_auth.models import UserDetails
 from bws.exceptions import RiskFactorError
 from bws.risk_factors.bc import BCRiskFactors
+from bws.risk_factors import bc, oc
 
 
 class RiskFactorsTests(TestCase):
+
+    def test_get_BMI_category(self):
+        ''' Given a BMI value check the category is correctly assigned. '''
+        self.assertEqual(bc.BMI.get_category(22), 2)
+        self.assertEqual(oc.BMI.get_category(22), 1)
+        self.assertEqual(bc.BMI.get_category(25), 3)
+        self.assertEqual(oc.BMI.get_category(25), 3)
+        self.assertEqual(bc.BMI.get_category(30), 4)
+        self.assertEqual(oc.BMI.get_category(30), 5)
+
+    def test_get_OralContraception_category(self):
+        ''' Given a Oral Contraception value check the category is correctly assigned. '''
+        self.assertEqual(bc.OralContraception.get_category('-'), 0)
+        self.assertEqual(bc.OralContraception.get_category('N'), 1)
+        self.assertEqual(bc.OralContraception.get_category('Never'), 1)
+        self.assertEqual(bc.OralContraception.get_category('F'), 2)
+        self.assertEqual(bc.OralContraception.get_category('C:4'), 3)
+
+        self.assertEqual(oc.OralContraception.get_category('-'), 0)
+        self.assertEqual(oc.OralContraception.get_category('N'), 1)
+        self.assertEqual(oc.OralContraception.get_category('Never'), 1)
+        self.assertEqual(oc.OralContraception.get_category('C:4'), 2)
+        self.assertEqual(oc.OralContraception.get_category('C:5'), 3)
+        self.assertEqual(oc.OralContraception.get_category('C'), 0)
 
     def test_round_trip(self):
         ''' Test encoding of risk categories and decoding returns same risk categories. '''
