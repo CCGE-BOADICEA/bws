@@ -16,6 +16,19 @@ from bws.risk_factors import bc, oc
 
 class RiskFactorsCategoryTests(TestCase):
 
+    def test_get_Parity_category(self):
+        ''' Given a parity value check the category is correctly assigned. '''
+        self.assertEqual(bc.Parity.get_category(3), 4)
+        self.assertEqual(oc.Parity.get_category(3), 3)
+
+    def test_get_MHT_category(self):
+        ''' Given a MHT value check the category is correctly assigned. '''
+        self.assertEqual(bc.MHT.get_category("N"), 1)
+        self.assertEqual(oc.MHT.get_category("N"), 1)
+
+        self.assertEqual(bc.MHT.get_category("never/former"), 1)
+        self.assertEqual(oc.MHT.get_category("ever"), 2)
+
     def test_get_BMI_category(self):
         ''' Given a BMI value check the category is correctly assigned. '''
         self.assertEqual(bc.BMI.get_category(" 22 "), 2)
@@ -24,6 +37,13 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.BMI.get_category(25), 3)
         self.assertEqual(bc.BMI.get_category(30), 4)
         self.assertEqual(oc.BMI.get_category(30), 5)
+
+    def test_get_Height_category(self):
+        ''' Given a height value check the category is correctly assigned. '''
+        self.assertEqual(bc.Height.get_category(" 152.4 "), 2)
+        self.assertEqual(oc.Height.get_category(" 152.4 "), 1)
+        self.assertEqual(bc.Height.get_category(173), 4)
+        self.assertEqual(oc.Height.get_category(173), 5)
 
     def test_get_OralContraception_category(self):
         ''' Given a Oral Contraception value check the category is correctly assigned. '''
@@ -51,6 +71,33 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.TubalLigation.get_category('-'), 0)
         self.assertEqual(oc.TubalLigation.get_category('no'), 1)
         self.assertEqual(oc.TubalLigation.get_category(' Y'), 2)
+
+    def test_get_FirstLiveBirth_category(self):
+        ''' Given a First Live Birth value check the category is correctly assigned. '''
+        self.assertEqual(bc.AgeOfFirstLiveBirth.get_category('-'), 0)
+        self.assertEqual(bc.AgeOfFirstLiveBirth.get_category(19), 1)
+        self.assertEqual(bc.AgeOfFirstLiveBirth.get_category(23), 2)
+        self.assertEqual(bc.AgeOfFirstLiveBirth.get_category(32), 4)
+
+    def test_get_Alcohol_category(self):
+        ''' Given a Alcohol Intake value check the category is correctly assigned. '''
+        self.assertEqual(bc.AlcoholIntake.get_category('NA'), 0)
+        self.assertEqual(bc.AlcoholIntake.get_category("0 "), 1)
+        self.assertEqual(bc.AlcoholIntake.get_category(3.5), 2)
+        self.assertEqual(bc.AlcoholIntake.get_category(33.1), 5)
+        self.assertEqual(bc.AlcoholIntake.get_category(45), 7)
+
+    def test_get_AgeOfMenopause_category(self):
+        ''' Given an Age Of Menopause value check the category is correctly assigned. '''
+        self.assertEqual(bc.AgeOfMenopause.get_category('-'), 0)
+        self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
+        self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
+
+    def test_get_MammographicDensity_category(self):
+        ''' Given a Mammographic Density value check the category is correctly assigned. '''
+        self.assertEqual(bc.MammographicDensity.get_category('-'), 0)
+        self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
+        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
 
 
 class RiskFactorsTests(TestCase):
