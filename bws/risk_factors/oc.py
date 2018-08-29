@@ -60,8 +60,18 @@ class TubalLigation(RiskFactor):
 
 
 class Endometriosis(RiskFactor):
-    cats = []
+    ''' Endometriosis '''
+    cats = ['-', 'no', 'yes']
     synonyms = ['Endo']
+
+    @classmethod
+    def get_category(cls, val):
+        alt = ['na', 'n', 'y']
+        val = val.lower()
+        for idx, cat in enumerate(TubalLigation.cats):
+            if val == cat or val == alt[idx]:
+                return idx
+        return 0
 
 
 class BMI(RiskFactor):
