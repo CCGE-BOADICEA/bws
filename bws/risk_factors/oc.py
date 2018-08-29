@@ -36,9 +36,9 @@ class MHT(RiskFactor):
 
     @classmethod
     def get_category(cls, val):
-        if val == 'N':
+        if val == 'N' or val == 'never':
             return 1
-        elif val == 'E' or val == 'F' or val == 'C':
+        elif val == 'E' or val == 'F' or val == 'C' or val == 'ever':
             return 2
         return 0
 
