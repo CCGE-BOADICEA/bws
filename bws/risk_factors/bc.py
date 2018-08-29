@@ -48,11 +48,11 @@ class MHT(RiskFactor):
 
     @classmethod
     def get_category(cls, val):
-        if val == 'N' or val == 'F':
+        if val == 'N' or val == 'F' or val == 'never/former':
             return 1
-        elif val == 'E':
+        elif val == 'E' or val == 'current e-type':
             return 2
-        elif val == 'C':
+        elif val == 'C' or val == 'current other/unknown type (including combined type)':
             return 2
         return 0
 
