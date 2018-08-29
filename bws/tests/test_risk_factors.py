@@ -14,11 +14,11 @@ from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors import bc, oc
 
 
-class RiskFactorsTests(TestCase):
+class RiskFactorsCategoryTests(TestCase):
 
     def test_get_BMI_category(self):
         ''' Given a BMI value check the category is correctly assigned. '''
-        self.assertEqual(bc.BMI.get_category(22), 2)
+        self.assertEqual(bc.BMI.get_category(" 22 "), 2)
         self.assertEqual(oc.BMI.get_category(22), 1)
         self.assertEqual(bc.BMI.get_category(25), 3)
         self.assertEqual(oc.BMI.get_category(25), 3)
@@ -39,6 +39,21 @@ class RiskFactorsTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('C:4'), 2)
         self.assertEqual(oc.OralContraception.get_category('C:5'), 3)
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
+
+    def test_get_Endometriosis_category(self):
+        ''' Given a endometriosis value check the category is correctly assigned. '''
+        self.assertEqual(oc.Endometriosis.get_category('NA'), 0)
+        self.assertEqual(oc.Endometriosis.get_category('YES '), 2)
+        self.assertEqual(oc.Endometriosis.get_category('n '), 1)
+
+    def test_get_TubalLigation_category(self):
+        ''' Given a Tubal Ligation value check the category is correctly assigned. '''
+        self.assertEqual(oc.TubalLigation.get_category('-'), 0)
+        self.assertEqual(oc.TubalLigation.get_category('no'), 1)
+        self.assertEqual(oc.TubalLigation.get_category(' Y'), 2)
+
+
+class RiskFactorsTests(TestCase):
 
     def test_round_trip(self):
         ''' Test encoding of risk categories and decoding returns same risk categories. '''
