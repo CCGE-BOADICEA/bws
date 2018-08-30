@@ -80,6 +80,13 @@ class RiskFactor(object):
         else:
             return int(val)
 
+    @classmethod
+    def isclass(cls, rfname):
+        ''' Given a risk factor name determine if it matches the class names or synonym. '''
+        return (rfname == cls.__name__.lower() or
+                rfname == cls.snake_name().lower() or
+                (hasattr(cls, 'synonyms') and rfname in cls.synonyms))
+
 
 class RiskFactors(object):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
