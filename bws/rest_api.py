@@ -108,10 +108,10 @@ class ModelWebServiceMixin():
                     # if canrisk format file check if risk factors set in the header
                     if isinstance(pedi, CanRiskPedigree) and 'risk_factor_code' not in request.data.keys():
                         if model_settings['NAME'] == 'BC' and hasattr(pedi, 'bc_risk_factor_code'):
-                            print(pedi.bc_risk_factor_code)
+                            logger.debug('BC risk factor code '+str(pedi.bc_risk_factor_code))
                             risk_factor_code = pedi.bc_risk_factor_code
                         elif model_settings['NAME'] == 'OC' and hasattr(pedi, 'oc_risk_factor_code'):
-                            print(pedi.oc_risk_factor_code)
+                            logger.debug('OC risk factor code '+str(pedi.oc_risk_factor_code))
                             risk_factor_code = pedi.oc_risk_factor_code
 
                     this_pedigree = {}
