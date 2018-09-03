@@ -34,7 +34,7 @@ MUTATION_PROBS = 2
 
 class PedigreeFile(object):
     """
-    BOADICEA import pedigree file.
+    CanRisk and BOADICEA import pedigree file.
     """
 
     def __init__(self, pedigree_data):
