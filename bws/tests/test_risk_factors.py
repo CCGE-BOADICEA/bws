@@ -12,6 +12,7 @@ from boadicea_auth.models import UserDetails
 from bws.exceptions import RiskFactorError
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors import bc, oc
+from bws.risk_factors.oc import OCRiskFactors
 
 
 class RiskFactorsCategoryTests(TestCase):
@@ -98,6 +99,24 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.MammographicDensity.get_category('-'), 0)
         self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
         self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
+
+    def test_risk_factor_code(self):
+        '''
+        Test the risk factor code generated
+        RFC =    Parity category +
+                 Oral Contraception category * 4 +
+                 MHT category * 16 +
+                 Tubal Ligation category * 48 +
+                 Endometriosis category * 144 +
+                 BMI category * 432 +
+                 Height category * 2592
+        '''
+        oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
+        oc_risk_categories[1] = oc.OralContraception.get_category('C:4')
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), 8)
+
+        oc_risk_categories[6] = oc.Height.get_category(153)
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), (8+(2*2592)))
 
 
 class RiskFactorsTests(TestCase):
