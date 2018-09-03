@@ -112,11 +112,34 @@ class RiskFactorsCategoryTests(TestCase):
                  Height category * 2592
         '''
         oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
+
+        oc_risk_categories[0] = oc.Parity.get_category('2')
+        rfc = 3
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
+
         oc_risk_categories[1] = oc.OralContraception.get_category('C:4')
-        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), 8)
+        rfc += 2*4
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
+
+        oc_risk_categories[2] = oc.MHT.get_category('C')
+        rfc += 2*16
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
+
+        oc_risk_categories[3] = oc.TubalLigation.get_category('no')
+        rfc += 1*48
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
+
+        oc_risk_categories[4] = oc.Endometriosis.get_category('yes')
+        rfc += 2*144
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
+
+        oc_risk_categories[5] = oc.BMI.get_category(25)
+        rfc += 3*432
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[6] = oc.Height.get_category(153)
-        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), (8+(2*2592)))
+        rfc += 2*2592
+        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
 
 class RiskFactorsTests(TestCase):
