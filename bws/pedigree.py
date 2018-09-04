@@ -32,6 +32,36 @@ CANCER_RISKS = 1
 MUTATION_PROBS = 2
 
 
+class CanRiskHeader():
+    '''
+    CanRisk File Format Header
+    '''
+
+    def __init__(self):
+        self.lines = []
+
+    def add_line(self, line):
+        ''' Append header line to the list of lines. '''
+        self.lines.append(line)
+
+    def get_risk_factor_codes(self):
+        ''' Get risk factor code from header lines. '''
+        bc_risk_factors = BCRiskFactors()
+        oc_risk_factors = OCRiskFactors()
+        for line in self.lines:
+            try:
+                parts = line.split('=')
+                rfnam = parts[0][2:].lower()    # risk factor name
+                rfval = parts[1]                # risk factor value
+
+                # lookup breast/ovarian cancer risk factors
+                bc_risk_factors.add_category(rfnam, rfval)
+                oc_risk_factors.add_category(rfnam, rfval)
+            except Exception as e:
+                raise PedigreeFileError(e)
+        return BCRiskFactors.encode(bc_risk_factors.cats), OCRiskFactors.encode(oc_risk_factors.cats)
+
+
 class PedigreeFile(object):
     """
     CanRisk and BOADICEA import pedigree file.
@@ -40,20 +70,16 @@ class PedigreeFile(object):
     def __init__(self, pedigree_data):
         self.pedigree_data = pedigree_data
         pedigrees_records = [[]]
+        canrisk_headers = []
+        canrisk_header = CanRiskHeader()
         pid = 0
         famid = None
         file_type = None
-        bc_risk_categories = False
-        oc_risk_categories = False
 
         for idx, line in enumerate(pedigree_data.splitlines()):
             if idx == 0:
                 if REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'canrisk'
-                    bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
-                    bc_risk_factor_codes = []
-                    oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
-                    oc_risk_factor_codes = []
                 elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                 else:
@@ -61,23 +87,8 @@ class PedigreeFile(object):
                         "The first header record in the pedigree file has unexpected characters. " +
                         "The first header record must be 'BOADICEA import pedigree file format 4'.")
             elif line.startswith('##'):
-                try:
-                    if '=' in line:                     # risk factor declaration line
-                        parts = line.split('=')
-                        rfnam = parts[0][2:].lower()    # risk factor name
-                        rfval = parts[1]                # risk factor value
-
-                        # lookup breast cancer risk factors
-                        for rfidx, rf in enumerate(BCRiskFactors.risk_factors):
-                            if rf.isclass(rfnam):
-                                bc_risk_categories[rfidx] = rf.get_category(rfval)
-                        # lookup ovarian cancer risk factors
-                        for rfidx, rf in enumerate(OCRiskFactors.risk_factors):
-                            if rf.isclass(rfnam):
-                                oc_risk_categories[rfidx] = rf.get_category(rfval)
-                except Exception:
-                    raise PedigreeFileError("Header unrecognised error at: " + line)
-                continue
+                if '=' in line:                     # risk factor declaration line
+                    canrisk_header.add_line(line)
             elif idx == 1:
                 self.column_names = line.split()
                 if (((self.column_names[0] != 'FamID') or
@@ -93,15 +104,12 @@ class PedigreeFile(object):
                 continue
             else:
                 record = line.split()
-                if famid is not None and famid != record[0]:
-                    pid += 1
+                if famid is None or famid != record[0]:         # start of pedigree
+                    canrisk_headers.append(canrisk_header)
+                    canrisk_header = CanRiskHeader()
+                if famid is not None and famid != record[0]:    # start of next pedigree found
                     pedigrees_records.append([])
-                    if bc_risk_categories:
-                        bc_risk_factor_codes.append(BCRiskFactors.encode(bc_risk_categories))
-                        bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
-                    if oc_risk_categories:
-                        oc_risk_factor_codes.append(OCRiskFactors.encode(oc_risk_categories))
-                        oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
+                    pid += 1
                 famid = record[0]
 
                 if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
@@ -114,25 +122,17 @@ class PedigreeFile(object):
                                             "CanRisk format 1 pedigree files should have " +
                                             str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
                                             " data items per line.")
-
                 pedigrees_records[pid].append(line)
 
-        if bc_risk_categories:
-            bc_risk_factor_codes.append(BCRiskFactors.encode(bc_risk_categories))
-        if oc_risk_categories:
-            oc_risk_factor_codes.append(OCRiskFactors.encode(oc_risk_categories))
         self.pedigrees = []
         for i in range(pid+1):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type == 'canrisk':
                 try:
-                    bc_rfc = bc_risk_factor_codes[i]
+                    bc_rfc, oc_rfc = canrisk_headers[i].get_risk_factor_codes()
                 except Exception:
                     bc_rfc = 0
-                try:
-                    oc_rfc = oc_risk_factor_codes[i]
-                except Exception:
                     oc_rfc = 0
                 self.pedigrees.append(CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                                       bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc))
