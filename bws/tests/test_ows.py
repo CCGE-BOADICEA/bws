@@ -56,8 +56,8 @@ class OwsTests(TestCase):
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
-        self.assertEqual(len(content['pedigree_result']), 2, "two results")
-        family_ids = ["XXX0", "XXX1"]
+        self.assertEqual(len(content['pedigree_result']), 3, "three results")
+        family_ids = ["XXX0", "XXX1", "XXX2"]
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
 
