@@ -95,6 +95,9 @@ class RiskFactors(object):
         depending on which group they belong to. These are then combined into a single
         risk factor code (see encode() function) that is used by the BOADICEA risk calculation. '''
 
+    def __init__(self):
+        self.cats = [0 for _k in self.categories.keys()]
+
     @classmethod
     def encode(cls, risk_categories):
         ''' Encode the risk categories into a risk factor. '''
@@ -162,3 +165,11 @@ class RiskFactors(object):
             max_factor *= i + 1
         max_factor -= 1
         return max_factor
+
+    def add_category(self, name, val):
+        '''
+        Given a risk factor name and value add to the category
+        '''
+        for idx, rf in enumerate(self.risk_factors):
+            if rf.isclass(name):
+                self.cats[idx] = rf.get_category(val)
