@@ -420,7 +420,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             return False
         return True
 
-    def is_carrier_probs_viable(self,  target=None):
+    def is_carrier_probs_viable(self, target=None):
         """
         Return true if the target does not have a positive genetic test carrier probs
         cannot be calculated.
@@ -510,8 +510,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         f = open(filepath, "w")
 
         if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
-            raise PedigreeFileError(
-                    "Invalid batch file type.")
+            raise PedigreeFileError("Invalid batch file type.")
 
         if 'PALB2' in mutation_freq:
             model_settings = settings.BC_MODEL
