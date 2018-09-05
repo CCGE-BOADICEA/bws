@@ -71,29 +71,25 @@ class CanRiskHeader():
 
     def get_risk_factor_codes(self):
         ''' Get risk factor code and PRS from header lines. '''
-        bc_risk_factors = BCRiskFactors()
-        oc_risk_factors = OCRiskFactors()
-        bc_prs = 0
-        oc_prs = 0
+        bc_rfs = BCRiskFactors()
+        oc_rfs = OCRiskFactors()
+        bc_prs = oc_prs = 0
         for line in self.lines:
             try:
                 parts = line.split('=')
                 rfnam = parts[0][2:].lower().strip()    # risk factor name
                 rfval = parts[1].strip()                # risk factor value
-
-                if rfnam is 'prs_oc':
+                if rfnam is 'prs_oc':                   # get ovarian cancer prs
                     oc_prs = self.get_prs(rfval)
-                if rfnam is 'prs_bc':
+                elif rfnam is 'prs_bc':                 # get breast cancer prs
                     bc_prs = self.get_prs(rfval)
-                # lookup breast/ovarian cancer risk factors
-                bc_risk_factors.add_category(rfnam, rfval)
-                oc_risk_factors.add_category(rfnam, rfval)
-            except Exception as e:
+                else:                                   # lookup breast/ovarian cancer risk factors
+                    bc_rfs.add_category(rfnam, rfval)
+                    oc_rfs.add_category(rfnam, rfval)
+            except Exception:
                 logger.error("CanRisk header format contains an error.")
-                logger.error(e)
-                raise PedigreeFileError("CanRisk header format contains an error.")
-        return (BCRiskFactors.encode(bc_risk_factors.cats), OCRiskFactors.encode(oc_risk_factors.cats),
-                bc_prs, oc_prs)
+                raise PedigreeFileError("CanRisk header format contains an error in: "+line)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), bc_prs, oc_prs)
 
 
 class PedigreeFile(object):
