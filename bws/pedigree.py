@@ -11,7 +11,9 @@ from random import randint
 import abc
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
+import logging
 
+logger = logging.getLogger(__name__)
 
 # BOADICEA header
 REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
@@ -32,6 +34,14 @@ CANCER_RISKS = 1
 MUTATION_PROBS = 2
 
 
+class Prs(object):
+
+    def __init__(self, alpha, beta):
+        ''' Polygenic risk alpha and beta values calculated from VCF file. '''
+        self.alpha = alpha
+        self.beta = beta
+
+
 class CanRiskHeader():
     '''
     CanRisk File Format Header
@@ -44,22 +54,46 @@ class CanRiskHeader():
         ''' Append header line to the list of lines. '''
         self.lines.append(line)
 
+    def get_prs(self, val):
+        ''' Get a Prs object from a value containing e.g. alpha=float, beta=float'''
+        alpha = beta = None
+        parts = val.replace(" ", "").split(",")
+        for p1 in parts:
+            p2 = p1.split(':')
+            if len(p2) == 2:
+                if 'alpha' in p2[0]:
+                    alpha = float(p2[1])
+                if 'beta' in p2[0]:
+                    beta = float(p2[1])
+        if alpha is not None and beta is not None:
+            return Prs(alpha, beta)
+        return None
+
     def get_risk_factor_codes(self):
-        ''' Get risk factor code from header lines. '''
+        ''' Get risk factor code and PRS from header lines. '''
         bc_risk_factors = BCRiskFactors()
         oc_risk_factors = OCRiskFactors()
+        bc_prs = 0
+        oc_prs = 0
         for line in self.lines:
             try:
                 parts = line.split('=')
-                rfnam = parts[0][2:].lower()    # risk factor name
-                rfval = parts[1]                # risk factor value
+                rfnam = parts[0][2:].lower().strip()    # risk factor name
+                rfval = parts[1].strip()                # risk factor value
 
+                if rfnam is 'prs_oc':
+                    oc_prs = self.get_prs(rfval)
+                if rfnam is 'prs_bc':
+                    bc_prs = self.get_prs(rfval)
                 # lookup breast/ovarian cancer risk factors
                 bc_risk_factors.add_category(rfnam, rfval)
                 oc_risk_factors.add_category(rfnam, rfval)
             except Exception as e:
-                raise PedigreeFileError(e)
-        return BCRiskFactors.encode(bc_risk_factors.cats), OCRiskFactors.encode(oc_risk_factors.cats)
+                logger.error("CanRisk header format contains an error.")
+                logger.error(e)
+                raise PedigreeFileError("CanRisk header format contains an error.")
+        return (BCRiskFactors.encode(bc_risk_factors.cats), OCRiskFactors.encode(oc_risk_factors.cats),
+                bc_prs, oc_prs)
 
 
 class PedigreeFile(object):
@@ -75,6 +109,8 @@ class PedigreeFile(object):
         pid = 0
         famid = None
         file_type = None
+        bc_rfc = oc_rfc = 0
+        bc_prs = oc_prs = None
 
         for idx, line in enumerate(pedigree_data.splitlines()):
             if idx == 0:
@@ -129,13 +165,11 @@ class PedigreeFile(object):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type == 'canrisk':
-                try:
-                    bc_rfc, oc_rfc = canrisk_headers[i].get_risk_factor_codes()
-                except Exception:
-                    bc_rfc = 0
-                    oc_rfc = 0
-                self.pedigrees.append(CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
-                                                      bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc))
+                bc_rfc, oc_rfc, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
+                self.pedigrees.append(
+                    CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
+                                    bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
+                                    bc_prs=bc_prs, oc_prs=oc_prs))
 
     @classmethod
     def validate(cls, pedigrees):
@@ -164,11 +198,16 @@ class Pedigree(metaclass=abc.ABCMeta):
     """
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
-                 bc_risk_factor_code=None, oc_risk_factor_code=None):
+                 bc_risk_factor_code=None, oc_risk_factor_code=None,
+                 bc_prs=None, oc_prs=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
         @keyword file_type: file type is 'bwa' or 'canrisk'.
+        @keyword bc_risk_factor_code: breast cancer risk factor code
+        @keyword oc_risk_factor_code: ovarian cancer risk factor code
+        @keyword bc_prs: breast cancer PRS
+        @keyword oc_prs: ovarian cancer PRS
         """
         self.people = []
         if pedigree_records is not None:
@@ -208,6 +247,10 @@ class Pedigree(metaclass=abc.ABCMeta):
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
                 self.oc_risk_factor_code = oc_risk_factor_code
+            if bc_prs is not None:
+                self.bc_prs = bc_prs
+            if oc_prs is not None:
+                self.oc_prs = oc_prs
 
     def validate(self):
         """ Validation check for pedigree input.

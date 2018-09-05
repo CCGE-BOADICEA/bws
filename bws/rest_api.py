@@ -13,7 +13,7 @@ from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , Br
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
-from bws.pedigree import PedigreeFile, CanRiskPedigree
+from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
@@ -24,14 +24,6 @@ from bws.risk_factors.bc import BCRiskFactors
 
 
 logger = logging.getLogger(__name__)
-
-
-class Prs(object):
-
-    def __init__(self, alpha, beta):
-        ''' Polygenic risk alpha and beta values calculated from VCF file. '''
-        self.alpha = alpha
-        self.beta = beta
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
