@@ -816,11 +816,11 @@ class Person(object):
                                                           cols[BwaPedigree.get_column_idx(gene+'r')])
                                              for gene in settings.BC_MODEL['GENES']])
             pathology = PathologyTests(
-                            er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, cols[27]),
-                            pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, cols[28]),
-                            her2=PathologyTest(PathologyTest.HER2_TEST, cols[29]),
-                            ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
-                            ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
+                er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, cols[27]),
+                pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, cols[28]),
+                her2=PathologyTest(PathologyTest.HER2_TEST, cols[29]),
+                ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
+                ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
         else:
             genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][2:]
 
@@ -834,11 +834,11 @@ class Person(object):
 
             path = cols[len(CanRiskPedigree.COLUMNS)-1].split(':')
             pathology = PathologyTests(
-                            er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, path[0]),
-                            pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, path[1]),
-                            her2=PathologyTest(PathologyTest.HER2_TEST, path[2]),
-                            ck14=PathologyTest(PathologyTest.CK14_TEST, path[3]),
-                            ck56=PathologyTest(PathologyTest.CK56_TEST, path[4]))
+                er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, path[0]),
+                pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, path[1]),
+                her2=PathologyTest(PathologyTest.HER2_TEST, path[2]),
+                ck14=PathologyTest(PathologyTest.CK14_TEST, path[3]),
+                ck56=PathologyTest(PathologyTest.CK56_TEST, path[4]))
 
         if cols[6] == 'M':
             return Male(
