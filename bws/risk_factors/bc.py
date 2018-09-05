@@ -53,7 +53,7 @@ class MHT(RiskFactor):
         elif val == 'E' or val == 'current e-type':
             return 2
         elif val == 'C' or val == 'current other/unknown type (including combined type)':
-            return 2
+            return 3
         return 0
 
 
