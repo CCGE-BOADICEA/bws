@@ -141,7 +141,7 @@ class RemainingLifetimeBaselineRisk(Risk):
         t = self.predictions.pedi.get_target()
         if t.cancers.is_cancer_diagnosed():
             cancers = Cancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
-                              prc=Cancer(),  pac=Cancer())
+                              prc=Cancer(), pac=Cancer())
         else:
             cancers = Cancers()
 
