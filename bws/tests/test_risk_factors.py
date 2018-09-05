@@ -100,9 +100,67 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
         self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
 
-    def test_risk_factor_code(self):
+
+class RiskFactorsCodeTests(TestCase):
+
+    def test_BC_risk_factor_code(self):
         '''
-        Test the risk factor code generated
+        Test the breast cancer risk factor code generated
+        RFC =   menarch category +
+                parity category * 8 +
+                first birth category * 40 +
+                OC category * 200 +
+                MHT category * 800 +
+                BMI category * 3200 +
+                alcohol category * 16000 +
+                menopause category * 128000 +
+                density category * 768000 +
+                height category * 3840000
+        '''
+        bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
+        bc_risk_categories[0] = bc.MenarcheAge.get_category('12')
+        rfc = 3
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[1] = bc.Parity.get_category('1')
+        rfc += 2*8
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[2] = bc.AgeOfFirstLiveBirth.get_category('31')
+        rfc += 4*40
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[3] = bc.OralContraception.get_category('F:3')
+        rfc += 2*200
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[4] = bc.MHT.get_category('C')
+        rfc += 3*800
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[5] = bc.BMI.get_category(22.3)
+        rfc += 2*3200
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[6] = bc.AlcoholIntake.get_category(0)
+        rfc += 1*16000
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[7] = bc.AgeOfMenopause.get_category(52)
+        rfc += 4*128000
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[8] = bc.MammographicDensity.get_category('1')
+        rfc += 1*768000
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+        bc_risk_categories[9] = bc.Height.get_category('174.21')
+        rfc += 5*3840000
+        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
+
+    def test_OC_risk_factor_code(self):
+        '''
+        Test the ovarian cancer risk factor code generated
         RFC =    Parity category +
                  Oral Contraception category * 4 +
                  MHT category * 16 +
@@ -140,9 +198,6 @@ class RiskFactorsCategoryTests(TestCase):
         oc_risk_categories[6] = oc.Height.get_category(153)
         rfc += 2*2592
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
-
-
-class RiskFactorsTests(TestCase):
 
     def test_round_trip(self):
         ''' Test encoding of risk categories and decoding returns same risk categories. '''
