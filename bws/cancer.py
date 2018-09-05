@@ -137,7 +137,7 @@ class PathologyTest(object):
         if((not PathologyTest.REGEX_PATHOLOGY_TEST_OPTION.match(self.test_type)) or
            (not PathologyTest.REGEX_PATHOLOGY_STATUS.match(self.result))):
             raise PedigreeFileError(
-                    "Invalid BOADICEA import format pathology test option has unexpected characters.")
+                "Invalid BOADICEA import format pathology test option has unexpected characters.")
 
         if((self.test_type == PathologyTest.ESTROGEN_RECEPTOR_TEST) or
            (self.test_type == PathologyTest.PROGESTROGEN_RECEPTOR_TEST) or
