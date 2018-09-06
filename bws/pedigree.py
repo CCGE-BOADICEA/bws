@@ -693,6 +693,22 @@ class CanRiskPedigree(Pedigree):
                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
 
+    def get_prs(self, mname):
+        ''' Get the PRS for the given cancer model.  '''
+        if mname == 'BC' and hasattr(self, 'bc_prs'):
+            return self.bc_prs
+        elif mname == 'OC' and hasattr(self, 'oc_prs'):
+            return self.oc_prs
+        return None
+
+    def get_rfcode(self, mname):
+        ''' Get the risk factor code for the given cancer model.  '''
+        if mname == 'BC' and hasattr(self, 'bc_risk_factor_code'):
+            return self.bc_risk_factor_code
+        elif mname == 'OC' and hasattr(self, 'oc_risk_factor_code'):
+            return self.oc_risk_factor_code
+        return 0
+
 
 class Person(object):
     """ Person class. """
