@@ -21,6 +21,7 @@ from django.http.response import JsonResponse
 from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, OutputSerializer,\
     OwsExtendedInputSerializer, OwsInputSerializer
 from bws.risk_factors.bc import BCRiskFactors
+from bws.risk_factors.oc import OCRiskFactors
 
 
 logger = logging.getLogger(__name__)
@@ -73,9 +74,7 @@ class ModelWebServiceMixin():
                 if prs is not None:
                     output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
                     prs = Prs(prs.get('alpha'), prs.get('beta'))
-                factors = BCRiskFactors.decode(risk_factor_code)
-                keys = list(BCRiskFactors.categories.keys())
-                output['risk_factors'] = {keys[idx]: val for idx, val in enumerate(factors)}
+                output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
@@ -96,15 +95,15 @@ class ModelWebServiceMixin():
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
-
-                    # if canrisk format file check if risk factors set in the header
-                    if isinstance(pedi, CanRiskPedigree) and 'risk_factor_code' not in request.data.keys():
-                        if model_settings['NAME'] == 'BC' and hasattr(pedi, 'bc_risk_factor_code'):
-                            logger.debug('BC risk factor code '+str(pedi.bc_risk_factor_code))
-                            risk_factor_code = pedi.bc_risk_factor_code
-                        elif model_settings['NAME'] == 'OC' and hasattr(pedi, 'oc_risk_factor_code'):
-                            logger.debug('OC risk factor code '+str(pedi.oc_risk_factor_code))
-                            risk_factor_code = pedi.oc_risk_factor_code
+                    if request.user.has_perm('boadicea_auth.can_risk'):
+                        # if canrisk format file check if risk factors set in the header
+                        if isinstance(pedi, CanRiskPedigree) and 'risk_factor_code' not in request.data.keys():
+                            if model_settings['NAME'] == 'BC' and hasattr(pedi, 'bc_risk_factor_code'):
+                                risk_factor_code = pedi.bc_risk_factor_code
+                            elif model_settings['NAME'] == 'OC' and hasattr(pedi, 'oc_risk_factor_code'):
+                                risk_factor_code = pedi.oc_risk_factor_code
+                            logger.debug(model_settings['NAME']+' risk factor code '+str(risk_factor_code))
+                            output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
 
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
@@ -137,6 +136,13 @@ class ModelWebServiceMixin():
             return Response(output_serialiser.data, template_name='result_tab.html')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_risk_factors(self, model_settings, risk_factor_code):
+        ''' Get a dictionary of the decoded risk factor categories from the risk factor code. '''
+        rf_cls = BCRiskFactors if model_settings['NAME'] == 'BC' else OCRiskFactors
+        rfcats = rf_cls.decode(risk_factor_code)
+        rfs = rf_cls.risk_factors
+        return {rfs[idx].snake_name(): rfs[idx].cats[val] for idx, val in enumerate(rfcats)}
 
     def add_attr(self, attr_name, this_pedigree, calcs, output):
         ''' Utility to add attribute to calculation result. '''
