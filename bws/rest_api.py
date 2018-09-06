@@ -95,19 +95,18 @@ class ModelWebServiceMixin():
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
-                    if request.user.has_perm('boadicea_auth.can_risk'):
-                        # if canrisk format file check if risk factors and/or prs set in the header
-                        if isinstance(pedi, CanRiskPedigree):
-                            mname = model_settings['NAME']
-                            if 'risk_factor_code' not in request.data.keys():
-                                risk_factor_code = pedi.get_rfcode(mname)
-                                output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
-                                logger.debug(mname+' risk factor code '+str(risk_factor_code))
-                            if prs is None:
-                                prs = pedi.get_prs(mname)
-                                if prs is not None:
-                                    output['prs'] = {'alpha': prs.alpha, 'beta': prs.beta}
-                                    logger.debug(mname+' PRS alpha:' + str(output['prs']))
+                    if request.user.has_perm('boadicea_auth.can_risk') and isinstance(pedi, CanRiskPedigree):
+                        # for canrisk format files check if risk factors and/or prs set in the header
+                        mname = model_settings['NAME']
+                        if 'risk_factor_code' not in request.data.keys():
+                            risk_factor_code = pedi.get_rfcode(mname)
+                            output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
+                            logger.debug(mname+' risk factor code '+str(risk_factor_code))
+                        if prs is None:
+                            prs = pedi.get_prs(mname)
+                            if prs is not None:
+                                output['prs'] = {'alpha': prs.alpha, 'beta': prs.beta}
+                                logger.debug(mname+' PRS alpha:' + str(output['prs']))
 
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
