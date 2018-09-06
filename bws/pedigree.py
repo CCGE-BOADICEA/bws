@@ -35,9 +35,8 @@ MUTATION_PROBS = 2
 
 
 class Prs(object):
-
+    ''' Polygenic risk score - alpha and beta values. '''
     def __init__(self, alpha, beta):
-        ''' Polygenic risk alpha and beta values calculated from VCF file. '''
         self.alpha = alpha
         self.beta = beta
 
@@ -46,7 +45,6 @@ class CanRiskHeader():
     '''
     CanRisk File Format Header
     '''
-
     def __init__(self):
         self.lines = []
 
@@ -96,7 +94,6 @@ class PedigreeFile(object):
     """
     CanRisk and BOADICEA import pedigree file.
     """
-
     def __init__(self, pedigree_data):
         self.pedigree_data = pedigree_data
         pedigrees_records = [[]]
