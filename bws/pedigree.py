@@ -71,7 +71,7 @@ class CanRiskHeader():
         ''' Get breast and ovarian cancer risk factor code and PRS from header lines. '''
         bc_rfs = BCRiskFactors()
         oc_rfs = OCRiskFactors()
-        bc_prs = oc_prs = 0
+        bc_prs = oc_prs = None
         for line in self.lines:
             try:
                 parts = line.split('=', 1)
