@@ -57,7 +57,7 @@ class CanRiskHeader():
         alpha = beta = None
         parts = val.replace(" ", "").split(",")
         for p1 in parts:
-            p2 = p1.split(':')
+            p2 = p1.split('=')
             if len(p2) == 2:
                 if 'alpha' in p2[0]:
                     alpha = float(p2[1])
@@ -68,18 +68,18 @@ class CanRiskHeader():
         return None
 
     def get_risk_factor_codes(self):
-        ''' Get risk factor code and PRS from header lines. '''
+        ''' Get breast and ovarian cancer risk factor code and PRS from header lines. '''
         bc_rfs = BCRiskFactors()
         oc_rfs = OCRiskFactors()
         bc_prs = oc_prs = 0
         for line in self.lines:
             try:
-                parts = line.split('=')
+                parts = line.split('=', 1)
                 rfnam = parts[0][2:].lower().strip()    # risk factor name
                 rfval = parts[1].strip()                # risk factor value
-                if rfnam is 'prs_oc':                   # get ovarian cancer prs
+                if rfnam == 'prs_oc':                   # get ovarian cancer prs
                     oc_prs = self.get_prs(rfval)
-                elif rfnam is 'prs_bc':                 # get breast cancer prs
+                elif rfnam == 'prs_bc':                 # get breast cancer prs
                     bc_prs = self.get_prs(rfval)
                 else:                                   # lookup breast/ovarian cancer risk factors
                     bc_rfs.add_category(rfnam, rfval)
