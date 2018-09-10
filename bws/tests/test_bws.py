@@ -21,7 +21,7 @@ class BwsTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        ''' Create a user and set up the test client. '''
+        ''' Create a user, token and url. '''
         super(BwsTests, cls).setUpClass()
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
@@ -34,7 +34,7 @@ class BwsTests(TestCase):
         cls.url = reverse('bws')
 
     def setUp(self):
-        ''' Set up pedigree data. '''
+        ''' Set up test client and pedigree data. '''
         self.client = APIClient(enforce_csrf_checks=True)
         self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
 
