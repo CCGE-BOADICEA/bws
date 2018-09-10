@@ -1,7 +1,7 @@
 """ Ovarian web-service testing.  """
 
 from boadicea_auth.models import UserDetails
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.encoding import force_text
@@ -27,6 +27,7 @@ class OwsTests(TestCase):
         # add user details
         UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
                                    country='UK')
+        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
@@ -34,6 +35,10 @@ class OwsTests(TestCase):
 
     def setUp(self):
         self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+
+    def tearDown(self):
+        TestCase.tearDown(self)
+        self.pedigree_data.close()
 
     def test_ows_output(self):
         ''' Test output of POSTing to the OWS using token authentication. '''
@@ -94,3 +99,31 @@ class OwsTests(TestCase):
         content = json.loads(force_text(response.content))
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
+
+    def test_prs_in_canrisk_file(self):
+        '''
+        Test ovarian cancer PRS parameters defined in the header of CanRisk formatted file.
+        Calculate the cancer risk with and without a PRS and ensure that they are different.
+        '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
+        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        orisk1 = json.loads(force_text(response.content))
+
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        orisk2 = json.loads(force_text(response.content))
+
+        self.assertNotEqual(self.get_percent(orisk1, 80), self.get_percent(orisk2, 80),
+                            "ovarian cancer at 80 different values")
+
+    def get_percent(self, content, age):
+        ''' Utility to return cancer percentage given the response content and an age. '''
+        crisks = content["pedigree_result"][0]["cancer_risks"]
+        for or2 in crisks:
+            if or2['age'] == age:
+                return or2['ovarian cancer risk']['percent']
