@@ -84,16 +84,16 @@ class BwsTests(TestCase):
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
 
-#     def test_token_auth_err(self):
-#         ''' Test POSTing to the BWS using token authentication. '''
-#         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-#                 'pedigree_data': self.pedigree_data}
-#         self.client.credentials(HTTP_AUTHORIZATION='Token xxxxxxxxxx')
-#         response = self.client.post(BwsTests.url, data, format='multipart',
-#                                         HTTP_ACCEPT="application/json")
-#         self.assertNotEqual(response.status_code, status.HTTP_200_OK)
-#         content = json.loads(force_text(response.content))
-#         self.assertEqual(content['detail'], 'Invalid token.')
+    def test_token_auth_err(self):
+        ''' Test POSTing to the BWS using token authentication. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data}
+        self.client.credentials(HTTP_AUTHORIZATION='Token xxxxxxxxxx')
+        response = self.client.post(BwsTests.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertNotEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertEqual(content['detail'], 'Invalid token.')
 
     def test_force_auth_bws(self):
         ''' Test POSTing to the BWS bypassing authentication. '''
