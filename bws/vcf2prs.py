@@ -73,13 +73,13 @@ class Vcf2PrsView(APIView):
 
             sample_name = validated_data.get("sample_name", None)
             moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
-            prs_file_name = os.path.join(moduledir, "SNPs268wposition.chr_pos.txt")
+            prs_file_name = os.path.join(moduledir, "sample_data/BCAC_313_PRS_info_file_2018-08-06.prs")
             prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
 
             try:
-                load = prs.calculatePRS()
+                _raw, alpha, beta = prs.calculatePRS()
                 # NOTE:: PRS alpha value to be confirmed
-                prs_serializer = Vcf2PrsOutputSerializer({'alpha': 0.46, 'beta': load})
+                prs_serializer = Vcf2PrsOutputSerializer({'alpha': alpha, 'beta': beta})
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
             except Vcf2PrsError as ex:
