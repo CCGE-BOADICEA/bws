@@ -687,7 +687,7 @@ class BwaPedigree(Pedigree):
 
 class CanRiskPedigree(Pedigree):
     """
-    CanRisk pedigree
+    CanRisk data file, contains the pedigree and optionally risk factors and PRS.
     """
     COLUMNS = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
