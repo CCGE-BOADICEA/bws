@@ -118,7 +118,7 @@ class RiskTests(TestCase):
         calcs = Predictions(pedigree, cwd=self.cwd,
                             mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
                             mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'],
-                            model_settings=settings.OC_MODEL)
+                            model_settings=settings.OC_MODEL, calcs=[])
 
         # each gene should have a mutation probability plus a result for no mutations
         for mp in calcs.mutation_probabilties:

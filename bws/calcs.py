@@ -17,6 +17,7 @@ import os
 import resource
 import tempfile
 import time
+from rest_framework.exceptions import ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -242,7 +243,7 @@ class Predictions(object):
                  mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
                  cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
                  risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()),
-                 run_risks=True, model_settings=settings.BC_MODEL):
+                 run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
         @param pedi: L{Pedigree} used in prediction calculations
@@ -254,6 +255,8 @@ class Predictions(object):
         @keyword cwd: working directory
         @keyword request: HTTP request
         @keyword run_risks: run risk calculations, default True
+        @keyword model_settings: cancer model settings
+        @keyword calcs: list of calculations to run, e.g. ['carrier_probs', 'remaining_lifetime']
         """
         self.pedi = pedi
         self.mutation_frequency = mutation_frequency
@@ -264,6 +267,13 @@ class Predictions(object):
         self.risk_factor_code = risk_factor_code
         self.prs = prs
         self.model_settings = model_settings
+        self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
+
+        # check calculations are in the allowed list of calculations
+        for c in self.calcs:
+            if c not in settings.ALLOWED_CALCS:
+                raise ValidationError("Unknown calculation requested: "+c)
+
         if cwd is None:
             self.cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
         if isinstance(risk_factor_code, int):
@@ -271,13 +281,20 @@ class Predictions(object):
         if run_risks:
             self.run_risks()
 
+    def is_calculate(self, calc):
+        '''
+        Determine if a calculation is to be run.
+        @param calc: calculation name, e.g. 'carrier_probs', 'remaining_lifetime'
+        '''
+        return True if len(self.calcs) == 0 else (calc in self.calcs)
+
     def run_risks(self):
         ''' Run risk and mutation probability calculations '''
         self.niceness = Predictions._get_niceness(self.pedi)
         start = time.time()
 
         # mutation probability calculation
-        if self.pedi.is_carrier_probs_viable():
+        if self.pedi.is_carrier_probs_viable() and self.is_calculate('carrier_probs'):
             ped_file = self.pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
                                                      risk_factor_code=self.risk_factor_code,
                                                      prs=self.prs,
@@ -293,14 +310,24 @@ class Predictions(object):
 
         # cancer risk calculation
         if self.pedi.is_risks_calc_viable():
-            self.cancer_risks, self.version = RemainingLifetimeRisk(self).get_risk()
-            self.baseline_cancer_risks, _v = RemainingLifetimeBaselineRisk(self).get_risk()
-            self.lifetime_cancer_risk, _v = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
-            if self.lifetime_cancer_risk is not None:
-                self.baseline_lifetime_cancer_risk, _v = RangeRiskBaseline(self, 20, 80, "LIFETIME BASELINE").get_risk()
-            self.ten_yr_cancer_risk, _v = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
-            if self.ten_yr_cancer_risk is not None:
-                self.baseline_ten_yr_cancer_risk, _v = RangeRiskBaseline(self, 40, 50, "10YR RANGE BASELINE").get_risk()
+            # remaining lifetime risk
+            if self.is_calculate("remaining_lifetime"):
+                self.cancer_risks, self.version = RemainingLifetimeRisk(self).get_risk()
+                self.baseline_cancer_risks, _v = RemainingLifetimeBaselineRisk(self).get_risk()
+
+            # lifetime risk
+            if self.is_calculate("lifetime"):
+                self.lifetime_cancer_risk, _v = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
+                if self.lifetime_cancer_risk is not None:
+                    self.baseline_lifetime_cancer_risk, _v = RangeRiskBaseline(self, 20, 80,
+                                                                               "LIFETIME BASELINE").get_risk()
+
+            # ten year risk
+            if self.is_calculate("ten_year"):
+                self.ten_yr_cancer_risk, _v = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
+                if self.ten_yr_cancer_risk is not None:
+                    self.baseline_ten_yr_cancer_risk, _v = RangeRiskBaseline(self, 40, 50,
+                                                                             "10YR RANGE BASELINE").get_risk()
 
         if not isinstance(self.request.user, AnonymousUser):
             u = User.objects.get(username=self.request.user)
@@ -313,7 +340,7 @@ class Predictions(object):
                     "; IP=" + str(get_real_ip(self.request)) +
                     "; elapsed time=" + str(time.time() - start) +
                     "; pedigree size=" + str(len(self.pedi.people)) +
-                    "; version=" + (self.version if self.version else 'N/A'))
+                    "; version=" + (getattr(self, "version", "N/A")))
 
     @classmethod
     def _get_niceness(cls, pedi, factor=15):
