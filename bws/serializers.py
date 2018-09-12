@@ -130,3 +130,15 @@ class OutputSerializer(serializers.Serializer):
     risk_factors = serializers.DictField(read_only=True, required=False)
     warnings = serializers.ListField(read_only=True, required=False)
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
+
+
+class CombinedInputSerializer(serializers.Serializer):
+    ''' Results from both ovarian and breast cancer models. '''
+    ows_result = serializers.JSONField(required=True)
+    bws_result = serializers.JSONField(required=True)
+
+
+class CombinedOutputSerializer(serializers.Serializer):
+    """ Results from both ovarian and breast cancer models. """
+    ows_result = OutputSerializer(read_only=True)
+    bws_result = OutputSerializer(read_only=True)

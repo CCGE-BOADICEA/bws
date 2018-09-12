@@ -19,7 +19,8 @@ from rest_framework.exceptions import NotAcceptable, ValidationError
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 from django.http.response import JsonResponse
 from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, OutputSerializer,\
-    OwsExtendedInputSerializer, OwsInputSerializer
+    OwsExtendedInputSerializer, OwsInputSerializer, CombinedInputSerializer,\
+    CombinedOutputSerializer
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 
@@ -292,7 +293,7 @@ class OwsView(APIView, ModelWebServiceMixin):
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        Ovarian Web-Service (BWS) used to calculate the risks of ovarian cancer and the probability
+        Ovarian Web-Service (OWS) used to calculate the risks of ovarian cancer and the probability
         that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, RAD51D, RAD51C, BRIP1).
         As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
         for each the genes and the population to use for cancer incidence rates.
@@ -390,3 +391,46 @@ class OwsView(APIView, ModelWebServiceMixin):
         produces: ['application/json', 'application/xml']
         """
         return self.post_to_model(request, settings.OC_MODEL)
+
+
+class CombineModelResultsView(APIView):
+    """
+    Combine results from breast and ovarian models to produce HTML results tab.
+    """
+    renderer_classes = (TemplateHTMLRenderer, )
+    serializer_class = CombinedInputSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+
+    def post(self, request):
+        """
+        Web-service to combine results from the BOADICEA and Ovarian web-services to produce
+        HTML results.
+        ---
+        parameters_strategy: merge
+        response_serializer: OutputSerializer
+        parameters:
+           - name: ows_result
+             description: ovarian cancer web service result
+             ptype: OutputSerializer
+             required: true
+           - name: bws_result
+             description: breast cancer web service result
+             ptype: OutputSerializer
+             required: true
+
+        responseMessages:
+           - code: 401
+             message: Not authenticated
+
+        consumes:
+           - application/json
+           - application/xml
+        produces: ['application/json', 'application/xml']
+        """
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            validated_data = serializer.validated_data
+            output_serialiser = CombinedOutputSerializer(validated_data)
+            return Response(output_serialiser.data, template_name='result_tab.html')
