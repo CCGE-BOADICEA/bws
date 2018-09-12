@@ -46,7 +46,7 @@ class MHT(RiskFactor):
 class TubalLigation(RiskFactor):
     ''' Tubal ligation surgical procedure for sterilization '''
     cats = ['-', 'no', 'yes']
-    help_text = 'Tubal ligation surgical procedure for sterilization'
+    help_text = 'Tubal Ligation'
     synonyms = ['TL']
 
     @classmethod
@@ -62,6 +62,7 @@ class TubalLigation(RiskFactor):
 class Endometriosis(RiskFactor):
     ''' Endometriosis '''
     cats = ['-', 'no', 'yes']
+    help_text = 'Endometriosis'
     synonyms = ['Endo']
 
     @classmethod
