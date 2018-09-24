@@ -89,7 +89,7 @@ class MammographicDensity(RiskFactor):
 
     @classmethod
     def get_category(cls, val):
-        alt = ['NA', '1', '2', '3']
+        alt = ['NA', '1', '2', '3', '4']
         val = val.upper()
         for idx, cat in enumerate(cls.cats):
             if val == cat or val == alt[idx]:
