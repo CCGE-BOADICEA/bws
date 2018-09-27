@@ -63,7 +63,7 @@ class Endometriosis(RiskFactor):
     ''' Endometriosis '''
     cats = ['-', 'no', 'yes']
     help_text = 'Endometriosis'
-    synonyms = ['Endo']
+    synonyms = ['Endo', 'endo']
 
     @classmethod
     def get_category(cls, val):
