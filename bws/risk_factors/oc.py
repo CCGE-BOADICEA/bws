@@ -69,7 +69,7 @@ class Endometriosis(RiskFactor):
     def get_category(cls, val):
         alt = ['na', 'n', 'y']
         val = val.lower().strip()
-        for idx, cat in enumerate(TubalLigation.cats):
+        for idx, cat in enumerate(Endometriosis.cats):
             if val == cat or val == alt[idx]:
                 return idx
         return 0
