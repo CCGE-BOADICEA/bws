@@ -47,7 +47,7 @@ class TubalLigation(RiskFactor):
     ''' Tubal ligation surgical procedure for sterilization '''
     cats = ['-', 'no', 'yes']
     help_text = 'Tubal Ligation'
-    synonyms = ['TL']
+    synonyms = ['TL', 'tl']
 
     @classmethod
     def get_category(cls, val):
