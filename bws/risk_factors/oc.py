@@ -13,7 +13,7 @@ class Parity(RiskFactor):
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never', '<5', '>=5']
-    help_text = 'Oral Contraception Usage'
+    help_text = 'Duration of Oral Contraception Use'
     synonyms = ['oc_use']
 
     @classmethod
