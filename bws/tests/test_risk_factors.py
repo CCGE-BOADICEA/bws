@@ -1,14 +1,5 @@
-import json
-
-from django.contrib.auth.models import User, Permission
-from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.utils.encoding import force_text
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APIRequestFactory, APIClient
 
-from boadicea_auth.models import UserDetails
 from bws.exceptions import RiskFactorError
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors import bc, oc
@@ -241,51 +232,51 @@ class RiskFactorsCodeTests(TestCase):
         self.assertRaises(RiskFactorError, BCRiskFactors.decode, 'a')
 
 
-class RiskFactorsWebServices(TestCase):
-    ''' Test the risk factors webservice '''
-
-    def setUp(self):
-        ''' Create a user and set up the test client. '''
-        self.factory = APIRequestFactory()
-        self.client = APIClient(enforce_csrf_checks=True)
-        self.user = User.objects.create_user('testuser', email='testuser@test.com',
-                                             password='testing')
-        # add user details
-        UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
-                                   country='UK')
-        self.user.save()
-        self.permission = Permission.objects.get(name='Can risk')
-        self.user.user_permissions.add(self.permission)
-        self.token = Token.objects.create(user=self.user)
-        self.token.save()
-        self.url = reverse('internal_ws:risk_factors')
-
-    def test_risk_factors(self):
-        ''' Test POSTing to the risk factors using token authentication. '''
-        data = BCRiskFactors.categories
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.post(self.url, data, format='multipart',
-                                    HTTP_ACCEPT="application/json")
-        self.assertContains(response, "factor")
-        content = json.loads(force_text(response.content))
-        factor = BCRiskFactors.encode(list(data.values()))
-        self.assertEqual(content['factor'], factor, "compare result web-service to direct function call")
-
-    def test_risk_factors_bad_request(self):
-        ''' Test POSTing to the risk factors with an out of range category number. '''
-        ncat = BCRiskFactors.categories.get('menarche_age')+1
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
-                                    HTTP_ACCEPT="application/json")
-        self.assertContains(response, "Ensure this value is less than or equal to ",
-                            status_code=status.HTTP_400_BAD_REQUEST)
-
-    def test_risk_factors_permissions(self):
-        ''' Test POSTing to the risk factors without the correct permission. '''
-        self.user.user_permissions.remove(self.permission)
-        ncat = BCRiskFactors.categories.get('menarche_age')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-        response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
-                                    HTTP_ACCEPT="application/json")
-        self.assertContains(response, "Cancer risk factor permission not granted",
-                            status_code=status.HTTP_403_FORBIDDEN)
+# class RiskFactorsWebServices(TestCase):
+#     ''' Test the risk factors webservice '''
+#
+#     def setUp(self):
+#         ''' Create a user and set up the test client. '''
+#         self.factory = APIRequestFactory()
+#         self.client = APIClient(enforce_csrf_checks=True)
+#         self.user = User.objects.create_user('testuser', email='testuser@test.com',
+#                                              password='testing')
+#         # add user details
+#         UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
+#                                    country='UK')
+#         self.user.save()
+#         self.permission = Permission.objects.get(name='Can risk')
+#         self.user.user_permissions.add(self.permission)
+#         self.token = Token.objects.create(user=self.user)
+#         self.token.save()
+#         self.url = reverse('internal_ws:risk_factors')
+#
+#     def test_risk_factors(self):
+#         ''' Test POSTing to the risk factors using token authentication. '''
+#         data = BCRiskFactors.categories
+#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+#         response = self.client.post(self.url, data, format='multipart',
+#                                     HTTP_ACCEPT="application/json")
+#         self.assertContains(response, "factor")
+#         content = json.loads(force_text(response.content))
+#         factor = BCRiskFactors.encode(list(data.values()))
+#         self.assertEqual(content['factor'], factor, "compare result web-service to direct function call")
+#
+#     def test_risk_factors_bad_request(self):
+#         ''' Test POSTing to the risk factors with an out of range category number. '''
+#         ncat = BCRiskFactors.categories.get('menarche_age')+1
+#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+#         response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
+#                                     HTTP_ACCEPT="application/json")
+#         self.assertContains(response, "Ensure this value is less than or equal to ",
+#                             status_code=status.HTTP_400_BAD_REQUEST)
+#
+#     def test_risk_factors_permissions(self):
+#         ''' Test POSTing to the risk factors without the correct permission. '''
+#         self.user.user_permissions.remove(self.permission)
+#         ncat = BCRiskFactors.categories.get('menarche_age')
+#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+#         response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
+#                                     HTTP_ACCEPT="application/json")
+#         self.assertContains(response, "Cancer risk factor permission not granted",
+#                             status_code=status.HTTP_403_FORBIDDEN)
