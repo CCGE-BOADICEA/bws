@@ -87,6 +87,31 @@ class RiskFactor(object):
                 rfname == cls.snake_name().lower() or
                 (hasattr(cls, 'synonyms') and rfname in cls.synonyms))
 
+    @classmethod
+    def get_value(cls, cat):
+        ''' Given a category, e.g. <5 or 14.2-15.4, return a valid value within the category '''
+        if cat == '-':
+            return cat
+        if '-' in cat:
+            rng = cat.split("-")
+            try:
+                float(rng[0])
+                return rng[0]
+            except Exception:
+                return cat
+
+        if cat[0] in cls.OPS:
+            if cat[0:2] in cls.OPS:
+                return cat[2:]
+            try:
+                if cat[0] == '<':
+                    return str(int(cat[1:])-1)
+                elif cat[0] == '>':
+                    return str(int(cat[1:])+1)
+            except Exception:
+                return cat
+        return cat
+
 
 class RiskFactors(object):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
