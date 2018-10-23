@@ -28,10 +28,15 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
     tabix_file = FileField(required=False)
 
 
-class Vcf2PrsOutputSerializer(serializers.Serializer):
-    """ Vcf2Prs result. """
+class PrsSerializer(serializers.Serializer):
     alpha = serializers.FloatField()
     beta = serializers.FloatField()
+
+
+class Vcf2PrsOutputSerializer(serializers.Serializer):
+    """ Vcf2Prs result. """
+    breast_cancer_prs = PrsSerializer(read_only=True)
+    ovarian_cancer_prs = PrsSerializer(read_only=True)
 
 
 class Vcf2PrsView(APIView):
@@ -74,12 +79,18 @@ class Vcf2PrsView(APIView):
             sample_name = validated_data.get("sample_name", None)
             moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
             prs_file_name = os.path.join(moduledir, "sample_data/BCAC_313_PRS_info_file_2018-08-06.prs")
-            prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
 
             try:
-                _raw, alpha, beta = prs.calculatePRS()
-                # NOTE:: PRS alpha value to be confirmed
-                prs_serializer = Vcf2PrsOutputSerializer({'alpha': alpha, 'beta': beta})
+                breast_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
+                _raw, bc_alpha, bc_beta = breast_prs.calculatePRS()
+                # NOTE:: prs_file_name to be confirmed
+                ovarian_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
+                _raw, oc_alpha, oc_beta = ovarian_prs.calculatePRS()
+                data = {
+                    'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta},
+                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta}
+                }
+                prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
             except Vcf2PrsError as ex:
