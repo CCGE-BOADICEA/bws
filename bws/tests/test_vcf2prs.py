@@ -61,7 +61,7 @@ class Vcf2PrsWebServices(TestCase):
         content = json.loads(force_text(response.content))
         prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='SampleB')
         _raw, _alpha, beta = prs.calculatePRS()
-        self.assertEqual(beta, content['beta'], 'web-service and direct calculation')
+        self.assertEqual(beta, content['breast_cancer_prs']['beta'], 'web-service and direct calculation')
 
     def test_prs_err(self):
         ''' Test POSTing to the 400 returned without the vcf specified. '''
