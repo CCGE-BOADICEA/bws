@@ -9,7 +9,6 @@ from copy import deepcopy
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.http.request import HttpRequest
-from ipware.ip import get_real_ip
 from rest_framework.request import Request
 from subprocess import Popen, PIPE, TimeoutExpired
 import logging
@@ -332,12 +331,13 @@ class Predictions(object):
         if not isinstance(self.request.user, AnonymousUser):
             u = User.objects.get(username=self.request.user)
             job_title = u.userdetails.job_title
+            country = u.userdetails.country.name
         else:
             job_title = 'AnonymousUser'
-        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user) +
-                    "; end user id=" + self.request.data.get('user_id', 'end_user') +
-                    "; job=" + job_title +
-                    "; IP=" + str(get_real_ip(self.request)) +
+            country = 'unknown'
+        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: " +
+                    "job=" + job_title +
+                    "; country=" + country +
                     "; elapsed time=" + str(time.time() - start) +
                     "; pedigree size=" + str(len(self.pedi.people)) +
                     "; version=" + (getattr(self, "version", "N/A")))
@@ -410,8 +410,7 @@ class Predictions(object):
                     data = result_file.read()
                 logger.info(model.get('NAME', "") + " " +
                             ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            name + " CALCULATION: user=" + str(request.user) +
-                            "; elapsed time=" + str(time.time() - start))
+                            name + " CALCULATION: " + "elapsed time=" + str(time.time() - start))
                 return data
             else:
                 logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
