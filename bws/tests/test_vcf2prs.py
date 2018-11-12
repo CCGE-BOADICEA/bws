@@ -30,7 +30,7 @@ class Vcf2PrsWebServices(TestCase):
         cls.user.user_permissions.add(cls.permission)
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
-        cls.url = reverse('internal_ws:prs')
+        cls.url = reverse('prs')
         cls.moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
 
     def setUp(self):
