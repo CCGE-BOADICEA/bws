@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer   # , BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_xml.renderers import XMLRenderer
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.calcs import Predictions
 from rest_framework.exceptions import NotAcceptable, ValidationError
@@ -23,6 +22,8 @@ from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, Outp
     CombinedOutputSerializer
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
+from rest_framework.compat import coreapi, coreschema
+from rest_framework.schemas import ManualSchema
 
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,84 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class ModelWebServiceMixin():
+
+    # fields=[Field('pedigree_data', required=True, location='form',
+    #              description="BOADICEA pedigree data file"),
+    #       Field('mut_freq', required=True, location='form', description="Mutation frequency"),
+    #       Field('cancer_rates', required=True, location='form',
+    #              description="Cancer incidence rates"),
+    #       Field('brca1_mut_frequency', location='form',
+    #             description="BRCA1 mutation frequency (only available with mut_freq=Custom)"),
+    #       Field('brca2_mut_frequency', location='form',
+    #             description="BRCA2 mutation frequency (only available with mut_freq=Custom)"),
+    #       Field('palb2_mut_frequency', location='form',
+    #             description="PALB2 mutation frequency (only available with mut_freq=Custom)"),
+    #       Field('chek2_mut_frequency', location='form',
+    #              description="ATM mutation frequency (only available with mut_freq=Custom)"),
+    #       Field('atm_mut_frequency', location='form',
+    #            description="CHEK2 mutation frequency (only available with mut_freq=Custom)")]
+    fields = [
+                coreapi.Field(
+                    name="pedigree_data",
+                    required=True,
+                    location='form',
+                    schema=coreschema.String(
+                        title="Pedigree",
+                        description="BOADICEA v4 or CanRisk File",
+                        format='textarea',
+                    ),
+                ),
+                coreapi.Field(
+                    name="user_id",
+                    required=True,
+                    location='form',
+                    schema=coreschema.String(
+                        title="User ID",
+                        description="Unique end user ID",
+                    ),
+                ),
+                coreapi.Field(
+                    name="cancer_rates",
+                    required=False,
+                    location='form',
+                    schema=coreschema.Enum(
+                        list(settings.BC_MODEL['CANCER_RATES'].keys()),
+                        title="Cancer rates",
+                        description="Cancer incidence rates",
+                        default="UK",
+                    ),
+                ),
+                coreapi.Field(
+                    name="mut_freq",
+                    required=False,
+                    location='form',
+                    schema=coreschema.Enum(
+                        list(settings.BC_MODEL['MUTATION_FREQUENCIES'].keys()),
+                        title="Mutation frequency",
+                        description="Mutation frequency",
+                        default="UK",
+                    ),
+                ),
+                coreapi.Field(
+                    name="prs",
+                    required=False,
+                    location='form',
+                    schema=coreschema.Object(
+                        title="Polygenic risk score",
+                        description="PRS, e.g. {'alpha':0.45,'beta':2.652}",
+                        properties={'alpha': coreschema.Number, 'beta': coreschema.Number},
+                    ),
+                ),
+                # coreapi.Field(
+                #    name="risk_factor_code",
+                #    required=False,
+                #    location='form',
+                #    schema=coreschema.Integer(
+                #        minimum=0,
+                #        description="Risk factor code",
+                #    ),
+                # ),
+            ]
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
@@ -161,11 +240,16 @@ class ModelWebServiceMixin():
 
 
 class BwsView(APIView, ModelWebServiceMixin):
-    renderer_classes = (XMLRenderer, JSONRenderer, TemplateHTMLRenderer, )
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsExtendedInputSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+            fields=ModelWebServiceMixin.fields,
+            encoding="application/json",
+        )
 
     def get_serializer_class(self):
         if self.request.user.has_perm('boadicea_auth.can_risk'):
@@ -279,11 +363,16 @@ class OwsView(APIView, ModelWebServiceMixin):
     """
     Ovarian Model Web-Service
     """
-    renderer_classes = (XMLRenderer, JSONRenderer, TemplateHTMLRenderer, )
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = OwsExtendedInputSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+                fields=ModelWebServiceMixin.fields,
+                encoding="application/json",
+            )
 
     def get_serializer_class(self):
         if self.request.user.has_perm('boadicea_auth.can_risk'):
