@@ -100,7 +100,7 @@ class ModelWebServiceMixin():
                     location='form',
                     schema=coreschema.Object(
                         title="Polygenic risk score",
-                        description="PRS, e.g. {'alpha':0.45,'beta':2.652}",
+                        description='PRS, e.g. {"alpha":0.45,"beta":2.652}',
                         properties={'alpha': coreschema.Number, 'beta': coreschema.Number},
                     ),
                 ),
