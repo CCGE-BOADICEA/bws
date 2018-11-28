@@ -1,7 +1,7 @@
 import inspect
 import os
 
-from rest_framework import serializers, status
+from rest_framework import permissions, serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
 from rest_framework.exceptions import NotAcceptable
@@ -13,12 +13,18 @@ from rest_framework_xml.renderers import XMLRenderer
 from vcf2prs import Vcf2Prs, Vcf2PrsError
 
 from bws.serializers import FileField
-from bws.risk_factors_ws import CanRiskPermission
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 import time
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class CanRiskPermission(permissions.BasePermission):
+    message = 'Cancer risk factor permission not granted'
+
+    def has_permission(self, request, view):
+        return request.user.has_perm('boadicea_auth.can_risk')
 
 
 class Vcf2PrsInputSerializer(serializers.Serializer):
