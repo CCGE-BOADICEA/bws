@@ -98,7 +98,7 @@ class MammographicDensity(RiskFactor):
 
 
 class Height(RiskFactor):
-    cats = ['-', '<150.17', '150.17-158.26', '158.26-165.82', '165.82-173.91', '>173.91']
+    cats = ['-', '<=152.9', '152.91-<159.65', '159.65-<165.96', '165.96-<172.70', '>=172.70']
     help_text = 'Height (cm)'
 
     @classmethod
