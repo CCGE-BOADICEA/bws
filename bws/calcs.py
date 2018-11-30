@@ -97,7 +97,7 @@ class Risk(object):
                 continue
             if line.startswith('#Version:'):
                 version = line.replace('#Version:', '').strip()
-            else:
+            elif not line.startswith('#'):
                 parts = line.split(sep=",")
                 if self.predictions.model_settings['NAME'] == 'BC':
                     risks_arr.append(OrderedDict([
@@ -391,10 +391,8 @@ class Predictions(object):
             process = Popen(
                 [prog,
                  bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
-                 os.path.join(model['HOME'], "Data/locus.loc"),
-                 out+".stdout",
-                 out+".out",
-                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")],
+                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml"),
+                 out+".out"],
                 cwd=cwd,
                 stdout=PIPE,
                 stderr=PIPE,
@@ -440,7 +438,7 @@ class Predictions(object):
         for line in probs.splitlines():
             if line.startswith('#Version:'):
                 version = line.replace('#Version:', '').strip()
-            else:
+            elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
                 probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
                 for i, gene in enumerate(model_settings['GENES']):

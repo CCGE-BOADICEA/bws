@@ -12,6 +12,7 @@ import abc
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -553,16 +554,18 @@ class Pedigree(metaclass=abc.ABCMeta):
         elif 'RAD51D' in mutation_freq:
             model_settings = settings.OC_MODEL
 
+        print("2", file=f)
+        print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
         if batch_type == MUTATION_PROBS:
             print("3", file=f)
             print(pedigree_file_name, file=f)
-            print("8", file=f)
+            print("9", file=f)
             for gene in model_settings['GENES']:
                 print(mutation_freq[gene], file=f)
             for gene in model_settings['GENES']:
                 print(sensitivity[gene], file=f)
 
-            print("21", file=f)
+            print("22", file=f)
             print("no", file=f)
         elif batch_type == CANCER_RISKS:
             target = self.get_target()
@@ -586,14 +589,14 @@ class Pedigree(metaclass=abc.ABCMeta):
             print("3", file=f)
             print(pedigree_file_name, file=f)
             for i, age in enumerate(calc_ages):
-                print("8", file=f)
-                print((age-tage), file=f)
+                print("9", file=f)
                 for gene in model_settings['GENES']:
                     print(mutation_freq[gene], file=f)
                 for gene in model_settings['GENES']:
                     print(sensitivity[gene], file=f)
+                print((age-tage), file=f)
 
-                print("21", file=f)
+                print("22", file=f)
                 if i < len(calc_ages)-1:
                     print("yes", file=f)
                 else:
