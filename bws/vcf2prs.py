@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_xml.renderers import XMLRenderer
 from vcf2prs import Vcf2Prs, Vcf2PrsError
 
 from bws.serializers import FileField
@@ -46,7 +45,7 @@ class Vcf2PrsOutputSerializer(serializers.Serializer):
 
 
 class Vcf2PrsView(APIView):
-    renderer_classes = (XMLRenderer, JSONRenderer, BrowsableAPIRenderer, )
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = Vcf2PrsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, CanRiskPermission)
