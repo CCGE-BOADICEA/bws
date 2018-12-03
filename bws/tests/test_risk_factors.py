@@ -1,8 +1,18 @@
-from django.test import TestCase
+import json
+import os
 
+from django.contrib.auth.models import User, Permission
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.utils.encoding import force_text
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
+
+from boadicea_auth.models import UserDetails
 from bws.exceptions import RiskFactorError
-from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors import bc, oc
+from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 
 
@@ -233,51 +243,62 @@ class RiskFactorsCodeTests(TestCase):
         self.assertRaises(RiskFactorError, BCRiskFactors.decode, 'a')
 
 
-# class RiskFactorsWebServices(TestCase):
-#     ''' Test the risk factors webservice '''
-#
-#     def setUp(self):
-#         ''' Create a user and set up the test client. '''
-#         self.factory = APIRequestFactory()
-#         self.client = APIClient(enforce_csrf_checks=True)
-#         self.user = User.objects.create_user('testuser', email='testuser@test.com',
-#                                              password='testing')
-#         # add user details
-#         UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
-#                                    country='UK')
-#         self.user.save()
-#         self.permission = Permission.objects.get(name='Can risk')
-#         self.user.user_permissions.add(self.permission)
-#         self.token = Token.objects.create(user=self.user)
-#         self.token.save()
-#         self.url = reverse('internal_ws:risk_factors')
-#
-#     def test_risk_factors(self):
-#         ''' Test POSTing to the risk factors using token authentication. '''
-#         data = BCRiskFactors.categories
-#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-#         response = self.client.post(self.url, data, format='multipart',
-#                                     HTTP_ACCEPT="application/json")
-#         self.assertContains(response, "factor")
-#         content = json.loads(force_text(response.content))
-#         factor = BCRiskFactors.encode(list(data.values()))
-#         self.assertEqual(content['factor'], factor, "compare result web-service to direct function call")
-#
-#     def test_risk_factors_bad_request(self):
-#         ''' Test POSTing to the risk factors with an out of range category number. '''
-#         ncat = BCRiskFactors.categories.get('menarche_age')+1
-#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-#         response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
-#                                     HTTP_ACCEPT="application/json")
-#         self.assertContains(response, "Ensure this value is less than or equal to ",
-#                             status_code=status.HTTP_400_BAD_REQUEST)
-#
-#     def test_risk_factors_permissions(self):
-#         ''' Test POSTing to the risk factors without the correct permission. '''
-#         self.user.user_permissions.remove(self.permission)
-#         ncat = BCRiskFactors.categories.get('menarche_age')
-#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-#         response = self.client.post(self.url, {'menarche_age': ncat}, format='multipart',
-#                                     HTTP_ACCEPT="application/json")
-#         self.assertContains(response, "Cancer risk factor permission not granted",
-#                             status_code=status.HTTP_403_FORBIDDEN)
+class BwsRiskFactors(TestCase):
+    ''' Test the risk factors webservice '''
+    TEST_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
+
+    @classmethod
+    def setUpClass(cls):
+        ''' Create a user, token and url. '''
+        super(BwsRiskFactors, cls).setUpClass()
+
+        cls.user = User.objects.create_user('testuser', email='testuser@test.com',
+                                            password='testing')
+        # add user details
+        UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
+                                   country='UK')
+        cls.user.save()
+        cls.token = Token.objects.create(user=cls.user)
+        cls.token.save()
+        cls.url = reverse('bws')
+
+    def setUp(self):
+        ''' Set up test client and pedigree data. '''
+        self.client = APIClient(enforce_csrf_checks=True)
+        self.pedigree_data = open(os.path.join(BwsRiskFactors.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+
+    def test_bws_risk_factor(self):
+        ''' Test affect of including the risk factors. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX', 'risk_factor_code': 7}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsRiskFactors.token.key)
+        # no permissions to use the risk factors and so ignored
+        response = self.client.post(BwsRiskFactors.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+
+        # add permissions to enable use of the risk factors
+        data['pedigree_data'] = open(os.path.join(BwsRiskFactors.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        BwsRiskFactors.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        response = self.client.post(BwsRiskFactors.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
+                        cancer_risks1[0]['breast cancer risk']['decimal'])
+
+    def test_risk_factors_inconsistent(self):
+        ''' Test inconsistent risk factors, e.g. age of first birth specified with parity unobserved. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX', 'risk_factor_code': BCRiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0, 0])}
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsRiskFactors.token.key)
+        BwsRiskFactors.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        response = self.client.post(BwsRiskFactors.url, data, format='multipart',
+                                    HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('Model Error' in content)

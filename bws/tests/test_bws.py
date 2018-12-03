@@ -2,7 +2,7 @@
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework import status
@@ -10,9 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from django.utils.encoding import force_text
 import json
-from boadicea_auth.models import UserDetails
 from django.test.utils import override_settings
-from bws.risk_factors.bc import BCRiskFactors
 
 
 class BwsTests(TestCase):
@@ -23,11 +21,12 @@ class BwsTests(TestCase):
     def setUpClass(cls):
         ''' Create a user, token and url. '''
         super(BwsTests, cls).setUpClass()
+
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
-        UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
-                                   country='UK')
+        # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
+        #                            country='UK')
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
@@ -150,38 +149,6 @@ class BwsTests(TestCase):
         self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
-
-    def test_bws_risk_factor(self):
-        ''' Test affect of including the risk factors. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': 7}
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsTests.token.key)
-        # no permissions to use the risk factors and so ignored
-        response = self.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
-
-        # add permissions to enable use of the risk factors
-        data['pedigree_data'] = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
-        BwsTests.user.user_permissions.add(Permission.objects.get(name='Can risk'))
-        response = self.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
-        self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
-                        cancer_risks1[0]['breast cancer risk']['decimal'])
-
-    def test_risk_factors_inconsistent(self):
-        ''' Test inconsistent risk factors, e.g. age of first birth specified with parity unobserved. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': BCRiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0, 0])}
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsTests.token.key)
-        BwsTests.user.user_permissions.add(Permission.objects.get(name='Can risk'))
-        response = self.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        content = json.loads(force_text(response.content))
-        self.assertTrue('Model Error' in content)
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
