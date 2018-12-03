@@ -330,8 +330,12 @@ class Predictions(object):
 
         if not isinstance(self.request.user, AnonymousUser):
             u = User.objects.get(username=self.request.user)
-            job_title = u.userdetails.job_title
-            country = u.userdetails.country.name
+            try:
+                job_title = u.userdetails.job_title
+                country = u.userdetails.country.name
+            except Exception:
+                job_title = 'unknown'
+                country = 'unknown'
         else:
             job_title = 'AnonymousUser'
             country = 'unknown'
