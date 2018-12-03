@@ -11,7 +11,6 @@ from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
-from boadicea_auth.models import UserDetails
 
 
 class TestEndUserIDRateThrottle(EndUserIDRateThrottle):
@@ -41,9 +40,6 @@ class ThrottlingTests(TestCase):
         self.client = APIClient(enforce_csrf_checks=True)
         self.user = User.objects.create_user('testuser1', email='testuser@test.com',
                                              password='testing1')
-        # add user details
-        UserDetails.objects.create(user=self.user, job_title=UserDetails.CGEN,
-                                   country='UK')
         self.user.save()
 
     def test_requests_are_throttled(self):
