@@ -72,8 +72,20 @@ class AlcoholIntake(RiskFactor):
     synonyms = ['alcohol']
 
     @classmethod
-    def get_category(cls, val, isreal=True):
-        return super(AlcoholIntake, cls).get_category(val, isreal)
+    def get_category(cls, val):
+        try:
+            val = cls.round(float(val))
+        except Exception:
+            val = "NA"
+        return super(AlcoholIntake, cls).get_category(val)
+
+    @classmethod
+    def round(cls, val):
+        ''' Return the value rounded to nearest integer '''
+        if (val >= 0):
+            return int(val+.5)
+        else:
+            return int(val-.5)
 
 
 class AgeOfMenopause(RiskFactor):
