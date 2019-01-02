@@ -67,25 +67,14 @@ class BMI(RiskFactor):
 
 
 class AlcoholIntake(RiskFactor):
-    cats = ['-', '0', '<5', '5-14', '15-24', '25-34', '35-44', '>=45']
+    cats = ['-', '0', '<5', '5-<15', '15-<25', '25-<35', '35-<45', '>=45']
+
     help_text = 'Alcohol Intake (grams/day)'
     synonyms = ['alcohol']
 
     @classmethod
-    def get_category(cls, val):
-        try:
-            val = cls.round(float(val))
-        except Exception:
-            val = "NA"
-        return super(AlcoholIntake, cls).get_category(val)
-
-    @classmethod
-    def round(cls, val):
-        ''' Return the value rounded to nearest integer '''
-        if (val >= 0):
-            return int(val+.5)
-        else:
-            return int(val-.5)
+    def get_category(cls, val, isreal=True):
+        return super(AlcoholIntake, cls).get_category(val, isreal)
 
 
 class AgeOfMenopause(RiskFactor):

@@ -89,7 +89,7 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AlcoholIntake.get_category(3.5), 2)
         self.assertEqual(bc.AlcoholIntake.get_category(33.1), 5)
         self.assertEqual(bc.AlcoholIntake.get_category(44.4), 6)
-        self.assertEqual(bc.AlcoholIntake.get_category(44.5), 7)
+        self.assertEqual(bc.AlcoholIntake.get_category(44.5), 6)
         self.assertEqual(bc.AlcoholIntake.get_category(45), 7)
 
     def test_get_AgeOfMenopause_category(self):
