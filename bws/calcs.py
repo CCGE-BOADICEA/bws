@@ -339,8 +339,8 @@ class Predictions(object):
         else:
             job_title = 'AnonymousUser'
             country = 'unknown'
-        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: " +
-                    "job=" + job_title +
+        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user) +
+                    "; job=" + job_title +
                     "; country=" + country +
                     "; elapsed time=" + str(time.time() - start) +
                     "; pedigree size=" + str(len(self.pedi.people)) +
@@ -412,7 +412,8 @@ class Predictions(object):
                     data = result_file.read()
                 logger.info(model.get('NAME', "") + " " +
                             ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            name + " CALCULATION: " + "elapsed time=" + str(time.time() - start))
+                            name + " CALCULATION: user=" + str(request.user) +
+                            "; elapsed time=" + str(time.time() - start))
                 return data
             else:
                 logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
