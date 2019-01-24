@@ -132,9 +132,9 @@ class RiskFactors(object):
 
         # Check that the correct number of command line arguments have been supplied.
         if len(risk_categories) != len(n_categories):
-            raise RiskFactorError("Error: Incorrect number of command line arguments specified.\n" +
-                                  "This program takes {} arguments, {} supplied".format(len(n_categories),
-                                                                                        len(risk_categories)))
+            raise RiskFactorError("Incorrect number of risk factors specified.\n" +
+                                  "Expecting {} risk factors, {} supplied.".format(len(n_categories),
+                                                                                   len(risk_categories)))
         multiplicand = 1
         factor = 0
         for i in range(n_factors):
@@ -142,12 +142,12 @@ class RiskFactors(object):
             try:
                 category = int(float(risk_categories[i]))
             except Exception:
-                raise RiskFactorError("Error: Unable to convert command line argument number {}, '{}'," +
-                                      " to integer.\nThis program takes a list of integers" +
-                                      " as arguments".format(i + 1, risk_categories[i]))
+                raise RiskFactorError("The {} category '{}' cannot be converted to an integer.".format(
+                    cls.risk_factors[i].space_name(), risk_categories[i]))
             # Check that the category is in bounds.
             if category < 0 or category > n_categories[i]:
-                raise RiskFactorError("Error: factor {} out of range, {} > {}".format(i, category, n_categories[i]))
+                raise RiskFactorError("Risk factor ({}) out of range, {} > {}".format(cls.risk_factors[i].space_name(),
+                                                                                      category, n_categories[i]))
 
             # Encode the categories into a single factor
             factor += multiplicand * category
