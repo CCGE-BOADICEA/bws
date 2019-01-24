@@ -58,7 +58,7 @@ class MHT(RiskFactor):
 
 
 class BMI(RiskFactor):
-    cats = ['-', '<18.5', '18.5-24.9', '25-29.9', '>=30']
+    cats = ['-', '<18.5', '18.5-<25', '25-<30', '>=30']
     help_text = 'Body Mass Index'
 
     @classmethod
