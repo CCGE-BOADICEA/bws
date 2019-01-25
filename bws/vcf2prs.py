@@ -15,6 +15,9 @@ from bws.serializers import FileField
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 import time
 import logging
+import io
+import vcf
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -99,5 +102,20 @@ class Vcf2PrsView(APIView):
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
             except Vcf2PrsError as ex:
-                raise NotAcceptable(ex.args[0]['Vcf2PrsError'])
+                data = {
+                    'error': ex.args[0]['Vcf2PrsError'],
+                    'samples': self.get_samples(vcf_file)
+                }
+                raise NotAcceptable(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_samples(self, vcf_file):
+        """ Get the samples in the VCF file. """
+        try:
+            fsock = io.StringIO(vcf_file)
+            vcf_content = vcf.Reader(fsock)
+            samples = vcf_content.samples
+            fsock.close()
+            return samples
+        except Exception:
+            logging.warn(traceback.format_exc())
