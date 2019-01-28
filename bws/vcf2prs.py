@@ -94,6 +94,8 @@ class Vcf2PrsView(APIView):
                 # NOTE:: prs_file_name to be confirmed
                 ovarian_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
                 _raw, oc_alpha, oc_beta = ovarian_prs.calculatePRS()
+                oc_alpha = 0  # set to zero ovarian prs_file_name TBC
+                oc_beta = 0   # set to zero ovarian prs_file_name TBC
                 data = {
                     'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta},
                     'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta}
