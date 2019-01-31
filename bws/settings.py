@@ -84,7 +84,7 @@ BC_MODEL = {
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
         ('UK', 'UK'),
-        ('UK-version-1', 'UKold'),
+        # ('UK-version-1', 'UKold'),
         ('Australia', 'Australia'),
         ('Canada', 'Canada'),
         ('USA-white', 'USA'),
@@ -143,7 +143,7 @@ OC_MODEL = {
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
         ('UK', 'UK'),
-        ('UK-version-1', 'UKold'),
+        # ('UK-version-1', 'UKold'),
         ('Australia', 'Australia'),
         ('Canada', 'Canada'),
         ('USA-white', 'USA'),
