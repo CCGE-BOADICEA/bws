@@ -94,7 +94,8 @@ BC_MODEL = {
         ('New-Zealand', 'NewZealand'),
         ('Norway', 'Norway'),
         ('Spain', 'Spain'),
-        ('Sweden', 'Sweden')
+        ('Sweden', 'Sweden'),
+        ('Other', 'UK')
     ])
 }
 
@@ -153,7 +154,8 @@ OC_MODEL = {
         ('New-Zealand', 'NewZealand'),
         ('Norway', 'Norway'),
         ('Spain', 'Spain'),
-        ('Sweden', 'Sweden')
+        ('Sweden', 'Sweden'),
+        ('Other', 'UK')
     ])
 }
 
