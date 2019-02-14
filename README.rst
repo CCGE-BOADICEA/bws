@@ -41,5 +41,7 @@ pip install -e git+ssh://git@github.com/CCGE-BOADICEA/bws.git#egg=bws
 
 6. Run tests::
 
-    python manage.py test bws.tests.test_bws bws.tests.test_ows.OwsTests bws.tests.test_throttling bws.tests.tests_pedigree_validation
-
+    python manage.py test bws.tests.test_bws \
+                          bws.tests.test_ows.OwsTests \
+                          bws.tests.test_throttling \
+                          bws.tests.tests_pedigree_validation
