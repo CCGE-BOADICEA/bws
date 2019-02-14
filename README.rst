@@ -10,7 +10,7 @@ Quick start
 
 1. Installation::
 
-pip install -e git+ssh://git@github.com/CCGE-BOADICEA/bws.git#egg=bws
+    pip install -e git+ssh://git@github.com/CCGE-BOADICEA/bws.git#egg=bws
 
 2. Add "rest_framework", "rest_framework.authtoken" and "bws" to your ``INSTALLED_APPS`` in ``settings.py``::
 
