@@ -26,7 +26,7 @@ class OwsTests(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
-        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
