@@ -7,7 +7,7 @@ from bws.pedigree import BLANK_LINE
 
 def convert_boadicea_pedigree_v4(pedigree_file):
     """
-    Convert old BOADICEA import pedigree v1 and v2 files to v4.
+    Convert old BOADICEA import pedigree v1 and v2 files to v4
     @param pedigree_file: path to pedigree input file
     """
     fin = open(pedigree_file, 'r')
