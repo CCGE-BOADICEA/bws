@@ -4,6 +4,7 @@ import os
 # FORTRAN settings
 FORTRAN_HOME = "/home/MINTS/tjc29/boadicea_classic/"
 FORTRAN_TIMEOUT = 60*4   # seconds
+CWD_DIR = "/tmp"
 
 # Environment variables for OpenBLAS (http://www.openblas.net)
 FORTRAN_ENV = os.environ.copy()
@@ -164,3 +165,12 @@ OC_MODEL = {
 MIN_MUTATION_FREQ = 0.0001
 # Maximum mutation frequency is currently set to Ashkenazi BRCA1 mutation value
 MAX_MUTATION_FREQ = 0.008
+
+# rest framework throttle settings
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'sustained': '5000/day',
+        'burst': '60/min',
+        'enduser_burst': '50/min'
+    }
+}
