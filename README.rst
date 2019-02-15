@@ -3,7 +3,7 @@ bws
 ====
 
 
-bws is a Django app to run web-services for BOADICEA.
+bws is a Django app to run web-services for `BOADICEA <https://canrisk.org/about/>`_.
 
 Quick start
 -----------
