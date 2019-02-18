@@ -37,9 +37,14 @@ of the executables for the mutation probability and risk calculation.
   
 6. Add web-service endpoints to the ```urls.py``::
 
+     from bws import rest_api
+     from rest_framework.authtoken.views import ObtainAuthToken
+     ....
+     
 	 url_rest_patterns = [
 	     url(r'^boadicea/', rest_api.BwsView.as_view(), name='bws'),
 	     url(r'^ovarian/', rest_api.OwsView.as_view(), name='ows'),
+	     url(r'^auth-token/', ObtainAuthToken.as_view()),
 	 ]
 	 urlpatterns.extend(url_rest_patterns)
 
@@ -49,3 +54,11 @@ of the executables for the mutation probability and risk calculation.
                           bws.tests.test_ows.OwsTests \
                           bws.tests.test_throttling \
                           bws.tests.tests_pedigree_validation
+
+
+The ``run_webservice.py`` script takes a username and pedigree file and will prompt
+for the password and run the risk calculation via the web-service::
+
+    ${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
+    ${PATH_TO_BWS}/bws/scripts/run_webservice.py --url ${URL} -u ${USER} \
+                                                 -p ${PATH_TO_BWS}/bws/tests/data/pedigree_data.txt 
