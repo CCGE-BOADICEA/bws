@@ -59,6 +59,6 @@ of the executables for the mutation probability and risk calculation.
 The ``run_webservice.py`` script takes a username and pedigree file and will prompt
 for the password and run the risk calculation via the web-service::
 
-	${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
+    ${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --url ${URL} -u ${USER} \
                                                  -p ${PATH_TO_BWS}/bws/tests/data/pedigree_data.txt 
