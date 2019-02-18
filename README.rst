@@ -12,11 +12,7 @@ Quick start
 
     pip install -e git+ssh://git@github.com/CCGE-BOADICEA/bws.git#egg=bws
 
-2. Update the ``bws.settings.py``. In particular change the ``FORTRAN_HOME`` parameter to
-set the directory location for the cancer risk models. Depending on the file structure
-it may be necessary to also change the ``HOME`` location in ``BC_MODEL`` and ``OC_MODEL``
-in this file. These and the ``PROBS_EXE`` and ``RISKS_EXE`` parameters define the location
-of the executables for the mutation probability and risk calculation::
+2. Update the ``bws.settings.py``. In particular change the ``FORTRAN_HOME`` parameter to set the directory location for the cancer risk models. Depending on the file structure it may be necessary to also change the ``HOME`` location in ``BC_MODEL`` and ``OC_MODEL`` in this file. These and the ``PROBS_EXE`` and ``RISKS_EXE`` parameters define the location of the executables for the mutation probability and risk calculation::
 
     FORTRAN_HOME = "/usr/src/"
     ....
