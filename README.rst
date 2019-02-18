@@ -16,7 +16,19 @@ Quick start
 set the directory location for the cancer risk models. Depending on the file structure
 it may be necessary to also change the ``HOME`` location in ``BC_MODEL`` and ``OC_MODEL``
 in this file. These and the ``PROBS_EXE`` and ``RISKS_EXE`` parameters define the location
-of the executables for the mutation probability and risk calculation.
+of the executables for the mutation probability and risk calculation::
+
+    FORTRAN_HOME = "/usr/src/"
+    ....
+    
+    #
+    # BREAST CANCER MODEL
+    BC_MODEL = {
+        'NAME': 'BC',
+        'HOME': os.path.join(FORTRAN_HOME, 'boadicea'),
+        'PROBS_EXE': 'boadicea_probs.exe',
+        'RISKS_EXE': 'boadicea_risks.exe',
+    ....
 
 3. If you need to start a Django project::
 
