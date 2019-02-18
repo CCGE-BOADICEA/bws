@@ -3,7 +3,7 @@ bws
 ====
 
 
-bws is a Django app to run web-services for `BOADICEA <https://canrisk.org/about/>`_.
+BWS is a Django app to run web-services for `BOADICEA <https://canrisk.org/about/>`_.
 
 Quick start
 -----------
@@ -63,9 +63,11 @@ Quick start
                           bws.tests.test_throttling \
                           bws.tests.tests_pedigree_validation
 
+Note: To set-up the BWS web-services to use the polygenic risk score (PRS) and cancer risk factor
+components (i.e. used with BOADICEA v5 or higher) requires extra Django Permissions to be granted.
 
 The `run_webservice.py <https://github.com/CCGE-BOADICEA/bws/blob/master/bws/scripts/run_webservice.py>`_ 
-script can be used to submit requests to the bws web-service. It takes a username and
+script can be used to submit requests to the BWS web-service. It takes a username and
 pedigree file and will prompt for the password and run the risk calculation via the web-service::
 
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
