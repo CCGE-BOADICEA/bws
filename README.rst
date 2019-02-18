@@ -64,8 +64,9 @@ Quick start
                           bws.tests.tests_pedigree_validation
 
 
-The ``run_webservice.py`` script takes a username and pedigree file and will prompt
-for the password and run the risk calculation via the web-service::
+The `run_webservice.py <https://github.com/CCGE-BOADICEA/bws/blob/master/bws/scripts/run_webservice.py>`_ 
+script can be used to submit requests to the bws web-service. It takes a username and
+pedigree file and will prompt for the password and run the risk calculation via the web-service::
 
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --url ${URL} -u ${USER} \
