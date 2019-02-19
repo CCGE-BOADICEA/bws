@@ -74,9 +74,7 @@ class ModelWebServiceMixin():
                 risk_factor_code = validated_data.get('risk_factor_code', 0)
                 prs = validated_data.get('prs', None)
                 if prs is not None:
-                    output['prs'] = {'alpha': prs.get('alpha'), 'beta': prs.get('beta')}
                     prs = Prs(prs.get('alpha'), prs.get('beta'))
-                output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
@@ -97,22 +95,26 @@ class ModelWebServiceMixin():
             cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
-                    if request.user.has_perm('boadicea_auth.can_risk') and isinstance(pedi, CanRiskPedigree):
-                        # for canrisk format files check if risk factors and/or prs set in the header
-                        mname = model_settings['NAME']
-                        if 'risk_factor_code' not in request.data.keys():
-                            risk_factor_code = pedi.get_rfcode(mname)
-                            output['risk_factors'] = self.get_risk_factors(model_settings, risk_factor_code)
-                            logger.debug(mname+' risk factor code '+str(risk_factor_code))
-                        if prs is None:
-                            prs = pedi.get_prs(mname)
-                            if prs is not None:
-                                output['prs'] = {'alpha': prs.alpha, 'beta': prs.beta}
-                                logger.debug(mname+' PRS alpha:' + str(output['prs']))
-
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
+
+                    mname = model_settings['NAME']
+                    if request.user.has_perm('boadicea_auth.can_risk') and isinstance(pedi, CanRiskPedigree):
+                        # for canrisk format files check if risk factors and/or prs set in the header
+                        if 'risk_factor_code' not in request.data.keys():
+                            risk_factor_code = pedi.get_rfcode(mname)
+
+                        if prs is None or len(pf.pedigrees) > 1:
+                            prs = pedi.get_prs(mname)
+
+                    if request.user.has_perm('boadicea_auth.can_risk'):
+                        # add risk factors and prs used for this pedigree
+                        this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                        logger.debug(mname+' risk factor code '+str(risk_factor_code))
+                        if prs is not None:
+                            this_pedigree["prs"] = {'alpha': prs.alpha, 'beta': prs.beta}
+                            logger.debug(mname+' PRS alpha:' + str(this_pedigree["prs"]))
 
                     calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
                                         mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,

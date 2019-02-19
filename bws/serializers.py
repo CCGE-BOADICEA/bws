@@ -110,6 +110,8 @@ class PedigreeResultSerializer(serializers.Serializer):
     """ Cancer model risks and mutation probabilities for a pedigree. """
     family_id = serializers.CharField(read_only=True)
     proband_id = serializers.CharField(read_only=True)
+    risk_factors = serializers.DictField(read_only=True, required=False)
+    prs = serializers.DictField(read_only=True, required=False)
     cancer_risks = serializers.ListField(read_only=True, required=False)
     baseline_cancer_risks = serializers.ListField(read_only=True, required=False)
     lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
@@ -126,8 +128,6 @@ class OutputSerializer(serializers.Serializer):
     mutation_frequency = serializers.DictField(read_only=True)
     mutation_sensitivity = serializers.DictField(read_only=True)
     cancer_incidence_rates = serializers.CharField(read_only=True)
-    prs = serializers.DictField(read_only=True, required=False)
-    risk_factors = serializers.DictField(read_only=True, required=False)
     warnings = serializers.ListField(read_only=True, required=False)
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
 
