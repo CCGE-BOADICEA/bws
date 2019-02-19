@@ -170,7 +170,7 @@ MAX_MUTATION_FREQ = 0.008
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'sustained': '5000/day',
-        'burst': '60/min',
-        'enduser_burst': '50/min'
+        'burst': '80/min',
+        'enduser_burst': '60/min'
     }
 }
