@@ -1,0 +1,55 @@
+##CanRisk 1.0
+##Menarche=10
+##Parity=1
+##First_live_birth=24
+##OC_use=N
+##BMI=27.1
+##height=170
+##alcohol=5.1
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXX0    0       0       PM      0       0       F       0       1       55      1940    55      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX0    1       0       PF      0       0       M       0       0       78      1938    56      0       0       0       0       0       S:P     0:0     0:0     0:0     0:0     S:P     0:0     0:0     P:0:0:0:0
+XXX0    2       1       PB      PF      PM      F       0       0       40      1967    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+##Menarche=12
+##Parity=1
+##BMI=23.1
+##height=162
+##PRS_BC=alpha=0.45,beta=0.11
+XXX2    F1      1       1       3       2       F       0       0       23      1993    21      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX2    F2      0       2       0       0       F       0       0       55      1961    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX2    M2      0       3       0       0       M       0       0       53      1963    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+##CanRisk 1.0
+##menarche=14
+##parity=1
+##first_live_birth=22
+##oc_use=N
+##mht_use=N
+##BMI=21.8
+##alcohol=22.4
+##height=177.8
+##TL=N
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXXX	0	0	m21	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	1	0	f21	0	0	F	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	2	1	ch1	m21	f21	F	0	0	41	1977	0	0	0	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	3	0	HGkX	MERR	ch1	F	0	0	19	2000	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	4	0	MERR	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+##CanRisk 1.0
+##menarche=15
+##parity=2
+##first_live_birth=25
+##oc_use=N
+##mht_use=E
+##BMI=22.35
+##alcohol=2.2857142857142856
+##menopause=47
+##height=172.72
+##PRS_BC=alpha=0.45,beta=0.3
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXX3	0	0	m21	0	0	M	0	0	80	1939	0	0	0	79	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXX3	1	0	f21	0	0	F	0	0	77	1942	55	0	0	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXX3	2	1	ch1	m21	f21	F	0	0	56	1962	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXX3	3	0	wASs	RUDP	ch1	F	0	0	28	1991	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXX3	4	0	Rjdb	RUDP	ch1	M	0	0	31	1988	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXX3	5	0	RUDP	0	0	M	0	0	58	1961	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
