@@ -214,14 +214,20 @@ class RangeRiskBaseline(RangeRisk):
     """
     def _get_pedi(self):
         t = super()._get_pedi().get_target()
+        cancers = Cancers()
+        if self.predictions.model_settings['NAME'] == 'BC':
+            gtests = BWSGeneticTests.default_factory()
+        else:
+            gtests = CanRiskGeneticTests.default_factory()
+
         if t.sex() is "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
-                         dead="0", age=t.age, yob=t.yob, cancers=t.cancers,
-                         gtests=t.gtests)
+                         dead="0", age=t.age, yob=t.yob, cancers=cancers,
+                         gtests=gtests)
         else:
             new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target,
-                           dead="0", age=t.age, yob=t.yob, cancers=t.cancers,
-                           gtests=t.gtests)
+                           dead="0", age=t.age, yob=t.yob, cancers=cancers,
+                           gtests=gtests)
 
         if self.predictions.model_settings['NAME'] == 'BC':
             return BwaPedigree(people=[new_t])
