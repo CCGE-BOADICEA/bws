@@ -48,6 +48,7 @@ import getpass
 import requests
 import json
 import argparse
+import csv
 
 #
 # define optional command line arguments
@@ -71,7 +72,8 @@ parser.add_argument('--cancer_rates', default='UK',
 
 parser.add_argument('--url', default='https://canrisk.org/', help='Web-services URL')
 parser.add_argument('-u', '--user', help='Username')
-parser.add_argument('-p', '--pedigree', help='Pedigree file')
+parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file')
+parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
 
 args = parser.parse_args()
 data = {"user_id": "end_user_id"}
@@ -105,7 +107,7 @@ else:
     exit(1)
 
 # 2. run BOADICEA risk prediction for a given pedigree
-bwa = input("Pedigree (BOADICEA v4 file): ") if args.pedigree is None else args.pedigree
+bwa = input("Pedigree (BOADICEA v4 file): ") if args.ped is None else args.ped
 
 data["mut_freq"] = args.mut_freq
 data["cancer_rates"] = args.cancer_rates
@@ -114,7 +116,39 @@ r = requests.post(url+"boadicea/", data=data, files=files, auth=(user, pwd))
 
 # if successful print the results
 if r.status_code == 200:
-    print(json.dumps(r.json(), indent=4, sort_keys=True))
+    rjson = r.json()
+
+    # tab delimeted output file
+    if args.tab:
+        header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%    ", "OCRisk          ", "OCRisk%    "]
+        with open(args.tab, 'w') as csvfile:
+            writer = csv.writer(csvfile, delimiter='\t')
+            writer.writerow(["version", rjson["version"]])
+            writer.writerow(["timestamp", rjson["timestamp"]])
+            results = rjson["pedigree_result"]
+            for res in results:
+                famid = res["family_id"]
+                indivID = res["proband_id"]
+                cancer_risks = res["cancer_risks"]
+                bcancer_risks = res["baseline_cancer_risks"]
+
+                writer.writerow(header)
+                for idx, cr in enumerate(cancer_risks):
+                    bcr = bcancer_risks[idx]
+                    if bcr["age"] == cr["age"]:
+                        bc_dec = '{} ({})'.format(cr["breast cancer risk"]["decimal"],
+                                                  bcr["breast cancer risk"]["decimal"])
+                        bc_per = '{} ({})'.format(cr["breast cancer risk"]["percent"],
+                                                  bcr["breast cancer risk"]["percent"])
+                        oc_dec = '{} ({})'.format(cr["ovarian cancer risk"]["decimal"],
+                                                  bcr["ovarian cancer risk"]["decimal"])
+                        oc_per = '{} ({})'.format(cr["ovarian cancer risk"]["percent"],
+                                                  bcr["ovarian cancer risk"]["percent"])
+                        writer.writerow([famid, indivID, cr["age"], bc_dec, bc_per, oc_dec, oc_per])
+
+        csvfile.close()
+    else:
+        print(json.dumps(rjson, indent=4, sort_keys=True))
 else:
     print("Error status: "+str(r.status_code))
     print(r.json())
