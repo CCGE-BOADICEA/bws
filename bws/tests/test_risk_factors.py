@@ -170,10 +170,10 @@ class RiskFactorsCodeTests(TestCase):
         Test the ovarian cancer risk factor code generated
         RFC =    Parity category +
                  Oral Contraception category * 4 +
-                 MHT category * 16 +
-                 Tubal Ligation category * 48 +
-                 Endometriosis category * 144 +
-                 BMI category * 432 +
+                 MHT category * 24 +
+                 Tubal Ligation category * 72 +
+                 Endometriosis category * 216 +
+                 BMI category * 648 +
                  Height category * 2592
         '''
         oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
@@ -187,19 +187,19 @@ class RiskFactorsCodeTests(TestCase):
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[2] = oc.MHT.get_category('C')
-        rfc += 2*16
+        rfc += 2*24
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[3] = oc.TubalLigation.get_category('no')
-        rfc += 1*48
+        rfc += 1*72
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[4] = oc.Endometriosis.get_category('yes')
-        rfc += 2*144
+        rfc += 2*216
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[5] = oc.BMI.get_category(25)
-        rfc += 3*432
+        rfc += 2*648
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
         oc_risk_categories[6] = oc.Height.get_category(153)
