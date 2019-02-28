@@ -36,9 +36,10 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.BMI.get_category(" 22 "), 2)
         self.assertEqual(oc.BMI.get_category(22), 1)
         self.assertEqual(bc.BMI.get_category(25), 3)
-        self.assertEqual(oc.BMI.get_category(25), 3)
+
+        self.assertEqual(oc.BMI.get_category(25), 2)
         self.assertEqual(bc.BMI.get_category(30), 4)
-        self.assertEqual(oc.BMI.get_category(30), 5)
+        self.assertEqual(oc.BMI.get_category(30), 3)
 
     def test_get_Height_category(self):
         ''' Given a height value check the category is correctly assigned. '''
@@ -61,6 +62,8 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('Never'), 1)
         self.assertEqual(oc.OralContraception.get_category('C:4'), 2)
         self.assertEqual(oc.OralContraception.get_category('C:5'), 3)
+        self.assertEqual(oc.OralContraception.get_category('C:0.5'), 1)
+        self.assertEqual(oc.OralContraception.get_category('C:<1'), 1)
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
 
     def test_get_Endometriosis_category(self):
