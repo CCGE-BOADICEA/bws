@@ -12,7 +12,7 @@ class Parity(RiskFactor):
 
 
 class OralContraception(RiskFactor):
-    cats = ['-', 'never', '<5', '>=5']
+    cats = ['-', 'never or <1', '1-4', '5-9', '10-14', '>=15']
     help_text = 'Duration of Oral Contraception Use'
     synonyms = ['oc_use']
 
@@ -20,11 +20,21 @@ class OralContraception(RiskFactor):
     def get_category(cls, val, isreal=False):
         if val == '-':
             return 0
-        if val == 'N' or val.lower() == 'never':
+        if val == 'N' or val.lower() == 'never' or val.lower() == '<1':
             return 1
         if ':' not in val:
             return 0
         val = val.split(':')[1]
+
+        if val.strip() == '<1' or val.strip() == '< 1':
+            return 1
+        try:
+            val = cls.get_num(val, True)
+            if val < 1.:
+                return 1
+        except Exception as e:
+            print(e)
+
         return super(OralContraception, cls).get_category(val, isreal)
 
 
@@ -76,7 +86,7 @@ class Endometriosis(RiskFactor):
 
 
 class BMI(RiskFactor):
-    cats = ['-', '<22.5', '22.5-<25', '25-<27.5', '27.5-<30', '>=30']
+    cats = ['-', '<22.5', '22.5-<30', '>=30']
     help_text = 'Body Mass Index'
 
     @classmethod
