@@ -18,6 +18,7 @@ import logging
 import io
 import vcf
 import traceback
+from math import erf, sqrt
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
 class PrsSerializer(serializers.Serializer):
     alpha = serializers.FloatField()
     beta = serializers.FloatField()
+    percent = serializers.FloatField()
 
 
 class Vcf2PrsOutputSerializer(serializers.Serializer):
@@ -97,8 +99,8 @@ class Vcf2PrsView(APIView):
                 oc_alpha = 0  # set to zero ovarian prs_file_name TBC
                 oc_beta = 0   # set to zero ovarian prs_file_name TBC
                 data = {
-                    'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta},
-                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta}
+                    'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta, 'percent': self.get_percentage(bc_beta)},
+                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta, 'percent': self.get_percentage(bc_beta)}
                 }
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
@@ -110,6 +112,18 @@ class Vcf2PrsView(APIView):
                 }
                 raise NotAcceptable(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_percentage(self, load):
+        """
+        Use error function to compute cumulative standard normal distribution,
+        https://docs.python.org/3/library/math.html#math.erf
+        (alternative to scipy.stats.norm.cdf(load, mu, sigma) * 100.0) to get
+        percentage representation.
+        @param: standard normal PRS which is normally distributed in the general population with mean
+        of 0 and standard deviation of 1
+        @return: PRS represented as a percentage of those with a lower PRS
+        """
+        return ((1.0 + erf(load / sqrt(2.0))) / 2.0) * 100.0
 
     def get_samples(self, vcf_file):
         """ Get the samples in the VCF file. """
