@@ -29,12 +29,6 @@ from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRat
 logger = logging.getLogger(__name__)
 
 
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-
-    def enforce_csrf(self, request):
-        return  # To not perform the csrf check previously happening
-
-
 class ModelWebServiceMixin():
 
     def post_to_model(self, request, model_settings):
@@ -262,7 +256,7 @@ class BwsView(APIView, ModelWebServiceMixin):
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsExtendedInputSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
@@ -392,7 +386,7 @@ class OwsView(APIView, ModelWebServiceMixin):
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = OwsExtendedInputSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.OC_MODEL
@@ -522,7 +516,7 @@ class CombineModelResultsView(APIView):
     """
     renderer_classes = (TemplateHTMLRenderer, )
     serializer_class = CombinedInputSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
