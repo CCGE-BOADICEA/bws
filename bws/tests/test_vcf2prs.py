@@ -14,7 +14,7 @@ import os
 
 
 class Vcf2PrsWebServices(TestCase):
-    ''' Test the risk factors webservice '''
+    ''' Test the VCF to PRS webservice '''
 
     @classmethod
     def setUpClass(cls):

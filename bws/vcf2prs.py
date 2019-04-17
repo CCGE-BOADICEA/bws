@@ -88,7 +88,7 @@ class Vcf2PrsView(APIView):
 
             sample_name = validated_data.get("sample_name", None)
             moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
-            prs_file_name = os.path.join(moduledir, "sample_data/BCAC_313_PRS_info_file_2018-08-06.prs")
+            prs_file_name = os.path.join(moduledir, "PRS_files/BCAC_313_PRS.prs")
 
             try:
                 breast_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
