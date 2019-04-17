@@ -35,10 +35,10 @@ class Vcf2PrsWebServices(TestCase):
 
     def setUp(self):
         ''' Create a user and set up the test client. '''
-        self.vcf_file = os.path.join(Vcf2PrsWebServices.moduledir, "sample_data/sample_BCAC_313.vcf")
+        self.vcf_file = os.path.join(Vcf2PrsWebServices.moduledir, "sample_VCF_files/sample_BCAC_313.vcf")
         self.vcf_data = open(self.vcf_file, "r")
         self.prs_file_name = os.path.join(Vcf2PrsWebServices.moduledir,
-                                          "sample_data/BCAC_313_PRS_info_file_2018-08-06.prs")
+                                          "PRS_files/BCAC_313_PRS.prs")
 
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
