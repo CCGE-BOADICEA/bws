@@ -30,7 +30,7 @@ class ErrorTests(object):
 
 
 class PedigreeFileTests(TestCase, ErrorTests):
-    """ Tests related to individuals in the pedigree. """
+    """ Tests related to format of the pedigree (BOADICEA and CanRisk files). """
 
     def setUp(self):
         ''' Read in pedigree data. '''
