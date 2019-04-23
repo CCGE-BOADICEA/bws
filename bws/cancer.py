@@ -35,9 +35,9 @@ class PathologyTest(object):
         return PathologyTests(
             er=PathologyTest(cls.ESTROGEN_RECEPTOR_TEST, "0", "Estrogen Receptor"),
             pr=PathologyTest(cls.PROGESTROGEN_RECEPTOR_TEST, "0", "Progestrogen Receptor"),
-            her2=PathologyTest(cls.HER2_TEST, "0", "Human Epidermal Growth Factor 2"),
+            her2=PathologyTest(cls.HER2_TEST, "0", "HER2"),
             ck14=PathologyTest(cls.CK14_TEST, "0", "Cytokeratin 14"),
-            ck56=PathologyTest(cls.CK56_TEST, "0", "Cytokeratin 56"))
+            ck56=PathologyTest(cls.CK56_TEST, "0", "Cytokeratin 5/6"))
 
     @classmethod
     def write(cls, tests):
