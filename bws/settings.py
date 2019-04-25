@@ -97,6 +97,10 @@ BC_MODEL = {
         ('Spain', 'Spain'),
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
+    ]),
+    'PRS_REFERENCE_FILES': OrderedDict([
+        ('BCAC 313', 'BCAC_313_PRS.prs'),
+        ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs')
     ])
 }
 
@@ -157,7 +161,8 @@ OC_MODEL = {
         ('Spain', 'Spain'),
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
-    ])
+    ]),
+    'PRS_REFERENCE_FILES': OrderedDict()
 }
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if

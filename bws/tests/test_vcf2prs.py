@@ -37,12 +37,12 @@ class Vcf2PrsWebServices(TestCase):
         ''' Create a user and set up the test client. '''
         self.vcf_file = os.path.join(Vcf2PrsWebServices.moduledir, "sample_VCF_files/sample_BCAC_313.vcf")
         self.vcf_data = open(self.vcf_file, "r")
-        self.prs_file_name = os.path.join(Vcf2PrsWebServices.moduledir,
-                                          "PRS_files/BCAC_313_PRS.prs")
+        self.prs_reference_file = "BCAC_313_PRS.prs"
+        self.prs_file_name = os.path.join(Vcf2PrsWebServices.moduledir, "PRS_files", self.prs_reference_file)
 
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
-        data = {'vcf_file': self.vcf_data, 'sample_name': 'SampleA'}
+        data = {'vcf_file': self.vcf_data, 'sample_name': 'SampleA', 'bc_prs_reference_file': self.prs_reference_file}
         Vcf2PrsWebServices.client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
@@ -53,7 +53,7 @@ class Vcf2PrsWebServices(TestCase):
     def test_prs_v_direct(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score and
         compare with the direct call to calculate a PRS. '''
-        data = {'vcf_file': self.vcf_data, 'sample_name': 'SampleB'}
+        data = {'vcf_file': self.vcf_data, 'sample_name': 'SampleB', 'bc_prs_reference_file': self.prs_reference_file}
         Vcf2PrsWebServices.client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")

@@ -4,7 +4,7 @@ import os
 from rest_framework import permissions, serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
-from rest_framework.exceptions import NotAcceptable
+from rest_framework.exceptions import NotAcceptable, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -34,7 +34,8 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
     ''' Vcf2Prs input. '''
     sample_name = serializers.CharField(min_length=1, max_length=40, required=False)
     vcf_file = FileField(required=True)
-    tabix_file = FileField(required=False)
+    bc_prs_reference_file = serializers.CharField(min_length=1, max_length=40, required=False)
+    oc_prs_reference_file = serializers.CharField(min_length=1, max_length=40, required=False)
 
 
 class PrsSerializer(serializers.Serializer):
@@ -86,18 +87,32 @@ class Vcf2PrsView(APIView):
             validated_data = serializer.validated_data
             vcf_file = validated_data.get("vcf_file")
 
-            sample_name = validated_data.get("sample_name", None)
             moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
-            prs_file_name = os.path.join(moduledir, "PRS_files/BCAC_313_PRS.prs")
+            bc_prs_ref_file = validated_data.get("bc_prs_reference_file", None)
+            oc_prs_ref_file = validated_data.get("oc_prs_reference_file", None)
+            if bc_prs_ref_file is None and oc_prs_ref_file is None:
+                raise ValidationError('No breast or ovarian cancer PRS reference file provided')
+            elif bc_prs_ref_file is not None:
+                bc_prs_ref_file = os.path.join(moduledir, "PRS_files", bc_prs_ref_file)
+            elif oc_prs_ref_file is not None:
+                oc_prs_ref_file = os.path.join(moduledir, "PRS_files", oc_prs_ref_file)
+
+            sample_name = validated_data.get("sample_name", None)
 
             try:
-                breast_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
-                _raw, bc_alpha, bc_beta = breast_prs.calculatePRS()
-                # NOTE:: prs_file_name to be confirmed
-                ovarian_prs = Vcf2Prs(prs_file_name=prs_file_name, geno_content=vcf_file, sample_name=sample_name)
-                _raw, oc_alpha, oc_beta = ovarian_prs.calculatePRS()
-                oc_alpha = 0  # set to zero ovarian prs_file_name TBC
-                oc_beta = 0   # set to zero ovarian prs_file_name TBC
+                if bc_prs_ref_file is not None:
+                    breast_prs = Vcf2Prs(prs_file_name=bc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
+                    _raw, bc_alpha, bc_beta = breast_prs.calculatePRS()
+                else:
+                    bc_alpha = 0
+                    bc_beta = 0
+
+                if oc_prs_ref_file is not None:
+                    ovarian_prs = Vcf2Prs(prs_file_name=oc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
+                    _raw, oc_alpha, oc_beta = ovarian_prs.calculatePRS()
+                else:
+                    oc_alpha = 0
+                    oc_beta = 0
                 data = {
                     'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta, 'percent': self.get_percentage(bc_beta)},
                     'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta, 'percent': self.get_percentage(bc_beta)}
