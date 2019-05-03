@@ -59,7 +59,7 @@ class Vcf2PrsWebServices(TestCase):
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
-        prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='SampleB')
+        prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='High')
         _raw, _alpha, beta = prs.calculatePRS()
         self.assertEqual(beta, content['breast_cancer_prs']['beta'], 'web-service and direct calculation')
 
