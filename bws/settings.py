@@ -140,11 +140,11 @@ OC_MODEL = {
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.7,
-        "BRCA2": 0.8,
-        "RAD51D": 0.8,
-        "RAD51C": 0.8,
-        "BRIP1": 0.8
+        "BRCA1": 0.9,
+        "BRCA2": 0.9,
+        "RAD51D": 0.9,
+        "RAD51C": 0.9,
+        "BRIP1": 0.9
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
