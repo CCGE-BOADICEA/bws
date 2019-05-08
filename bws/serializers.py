@@ -130,6 +130,7 @@ class OutputSerializer(serializers.Serializer):
     cancer_incidence_rates = serializers.CharField(read_only=True)
     warnings = serializers.ListField(read_only=True, required=False)
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True)
+    nocalc = serializers.CharField(read_only=True)
 
 
 class CombinedInputSerializer(serializers.Serializer):
