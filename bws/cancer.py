@@ -331,7 +331,7 @@ class Cancers():
             diagnoses_age = diagnoses[idx].age
             # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'
             # and is within range i.e. 0-110 (zero for unaffected)
-            if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU') or
+            if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU' and diagnoses_age != '-1') or
                (REGEX_AGE.match(diagnoses_age) and int(diagnoses_age) > settings.MAX_AGE)):
                     raise CancerError("Family member '" + person.pid + "' has an age at cancer diagnosis (" + ctype +
                                       ")specified as '"+diagnoses_age+"'. Age at cancer diagnosis " +
@@ -339,18 +339,18 @@ class Cancers():
                                       "specified with an integer in the range 1-"+str(settings.MAX_AGE)+".")
 
             # Check that the age at last follow up is greater or equal to that of all cancer diagnoses
-            if(diagnoses_age != 'AU' and diagnoses_age != '0' and int(person.age) < int(diagnoses_age)):
+            if(diagnoses_age != 'AU' and diagnoses_age != '-1' and int(person.age) < int(diagnoses_age)):
                 raise CancerError("Family member '" + person.pid + "' has been assigned an age at cancer " +
                                   "diagnosis that exceeds age at last follow up. An age at cancer " +
                                   "diagnosis must not exceed an age at last follow up.")
 
             # Check that males don't have an ovarian cancer diagnosis
-            if ctype == 'oc' and person.sex() == 'M' and diagnoses_age != '0':
+            if ctype == 'oc' and person.sex() == 'M' and diagnoses_age != '-1':
                 raise CancerError("Family member '" + person.pid + "' is male but has been assigned an " +
                                   "ovarian cancer diagnosis.")
 
             # Check that females don't have a prostate cancer diagnosis
-            if ctype == 'prc' and person.sex() == 'F' and diagnoses_age != '0':
+            if ctype == 'prc' and person.sex() == 'F' and diagnoses_age != '-1':
                 raise CancerError("Family member '" + person.pid + "' is female but has been assigned an " +
                                   "prostate cancer diagnosis.")
 
@@ -368,8 +368,8 @@ class Cancers():
         bc1 = getattr(cancers.diagnoses, "bc1", None)
         bc2 = getattr(cancers.diagnoses, "bc2", None)
         if bc1 is not None and bc2 is not None:
-            if(REGEX_AGE.match(bc2.age) and bc2.age != '0'):
-                if bc1.age == '0':
+            if(REGEX_AGE.match(bc2.age) and bc2.age != '-1'):
+                if bc1.age == '-1':
                     raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                                       "but the age at diagnosis of the first breast cancer is missing.")
                 elif(REGEX_AGE.match(bc1.age) and int(bc1.age) > int(bc2.age)):
@@ -378,7 +378,7 @@ class Cancers():
                                       "of the second breast cancer.")
 
             # Check that a 2BC set to affected unknown (AU) is accompanied by a 1BC
-            if(bc2.age == 'AU' and bc1.age == '0'):
+            if(bc2.age == 'AU' and bc1.age == '-1'):
                 raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                                   "but the age at diagnosis of the first breast cancer is missing.")
 
