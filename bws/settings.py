@@ -109,9 +109,9 @@ BC_MODEL = {
 OC_MODEL = {
     'NAME': 'OC',
     'HOME': os.path.join(FORTRAN_HOME, 'ovarian'),
-    'PROBS_EXE': 'ovarian_probs_v1.exe',
-    'RISKS_EXE': 'ovarian_risks_v1.exe',
-    'CANCERS': ['oc', 'bc1'],                                   # NOTE: order used by fortran pedigree file
+    'PROBS_EXE': 'ovarian_probs.exe',
+    'RISKS_EXE': 'ovarian_risks.exe',
+    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1'],   # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
