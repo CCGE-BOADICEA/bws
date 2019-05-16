@@ -230,15 +230,16 @@ class GeneticTest(object):
     def get_genetic_test_data(self):
         """
         Get genetic test data in 'Mendel'/Fortran input format.
-        @return: 1 mutation test, mutation detected
+        @return: 0 mutation test, no mutation detected
+                 1 mutation test, mutation detected
                  2 gene test, no mutation detected
                  3 gene test, mutation detected
-                 4 untested
+                 9 untested, unknown or not applicable
         """
         ttype = self.test_type
         result = self.result
         if((ttype == '0') and (result == '0')):
-            return 4  # untested
+            return 9  # untested
 
         # Invalid genetic test type and genetic test result
         if(((ttype == 'S') and (result == '0')) or   # (S,0) 'S' for mutation search
@@ -295,7 +296,7 @@ class Cancer(object):
     """
     Basic object for cancer.
     """
-    def __init__(self, age="0"):
+    def __init__(self, age="-1"):
         self.age = age
 
 
@@ -386,7 +387,7 @@ class Cancers():
         Returns a string of cancer ages used in the input pedigree file for fortran.
         """
         d = self.diagnoses
-        ages = ["%3s " % getattr(d, c).age for c in cancers]
+        ages = ["%3s " % (getattr(d, c).age if getattr(d, c).age != "0" else "-1") for c in cancers]
         return "".join(ages)
 
     def is_cancer_diagnosed(self):
@@ -395,7 +396,7 @@ class Cancers():
         """
         d = self.diagnoses
         for c in d:
-            if(c.age != "0"):
+            if(c.age != "0" and c.age != "-1"):
                 return True
         return False
 
