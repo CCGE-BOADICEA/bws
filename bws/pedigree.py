@@ -451,7 +451,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         d = target.cancers.diagnoses
         if ((target is None or
              isinstance(target, Male) or
-             (d.bc2.age != "0") or (d.pac.age != "0") or (d.oc.age != "0") or
+             (d.bc2.age != "-1") or (d.pac.age != "-1") or (d.oc.age != "-1") or
              (int(target.age) > settings.MAX_AGE_FOR_RISK_CALCS) or
              (int(target.yob) < settings.MIN_YEAR_OF_BIRTH))):
             return False
@@ -506,9 +506,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                        genotype, '   '), file=f, end="")
 
                 print(p.cancers.write(model_settings['CANCERS']), file=f, end="")
-
-                iage = int(p.age)
-                print("%3s " % (iage if iage <= 80 else 80), file=f, end="")
+                print("%3s " % p.age, file=f, end="")
 
                 # Gene Tests
                 gtests = p.gtests
@@ -523,8 +521,8 @@ class Pedigree(metaclass=abc.ABCMeta):
                 fmt = "%1s %"+risk_factor_str_len+"s %6.5f %6.5f"
 
                 print(fmt % (proband_status, (risk_factor_code if p.target != "0" else 0),
-                             prs.alpha if prs is not None and prs.alpha else 0,
-                             prs.beta if prs is not None and prs.beta else 0,), file=f)
+                             prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
+                             prs.beta if p.target != "0" and prs is not None and prs.beta else 0,), file=f)
         f.close()
         return filepath
 
@@ -625,7 +623,11 @@ class Pedigree(metaclass=abc.ABCMeta):
 
             d = person.cancers.diagnoses
             print("%-3s\t%-3s\t%-3s\t%-3s\t%-3s\t" %
-                  (d.bc1.age, d.bc2.age, d.oc.age, d.prc.age, d.pac.age),
+                  (d.bc1.age if d.bc1.age != "-1" else "0",
+                   d.bc2.age if d.bc2.age != "-1" else "0",
+                   d.oc.age if d.oc.age != "-1" else "0",
+                   d.prc.age if d.prc.age != "-1" else "0",
+                   d.pac.age if d.pac.age != "-1" else "0"),
                   file=bwa_file, end="")
 
             record = [person.ashkn]
@@ -859,8 +861,11 @@ class Person(object):
         famid = cols[0]
         name = cols[1]
         pid = cols[3]
-        cancers = Cancers(bc1=Cancer(cols[11]), bc2=Cancer(cols[12]), oc=Cancer(cols[13]),
-                          prc=Cancer(cols[14]), pac=Cancer(cols[15]))
+        cancers = Cancers(bc1=Cancer(cols[11] if cols[11] != "0" else "-1"),
+                          bc2=Cancer(cols[12] if cols[12] != "0" else "-1"),
+                          oc=Cancer(cols[13] if cols[13] != "0" else "-1"),
+                          prc=Cancer(cols[14] if cols[14] != "0" else "-1"),
+                          pac=Cancer(cols[15] if cols[15] != "0" else "-1"))
 
         # use column headers to get gene test type and result
         if file_type == 'bwa':
