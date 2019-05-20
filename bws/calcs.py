@@ -345,12 +345,13 @@ class Predictions(object):
         else:
             job_title = 'AnonymousUser'
             country = 'unknown'
+
         logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user) +
                     "; job=" + job_title +
                     "; country=" + country +
                     "; elapsed time=" + str(time.time() - start) +
                     "; pedigree size=" + str(len(self.pedi.people)) +
-                    "; version=" + (getattr(self, "version", "N/A")))
+                    "; version=" + str(getattr(self, "version", "N/A")))
 
     @classmethod
     def _get_niceness(cls, pedi, factor=15):
@@ -400,9 +401,11 @@ class Predictions(object):
 
             process = Popen(
                 [prog,
-                 bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
-                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml"),
-                 out+".out"],
+                 '-r', out+".out",       # results file
+                 '-v',                   # include model version
+                 bat_file,
+                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")
+                 ],
                 cwd=cwd,
                 stdout=PIPE,
                 stderr=PIPE,

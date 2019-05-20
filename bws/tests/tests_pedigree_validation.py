@@ -217,7 +217,7 @@ class PersonTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         m2 = pedigree_file.pedigrees[0].get_person_by_name('M2')
         m2.age = "0"
-        m2.cancers.diagnoses.prc.age = "0"
+        m2.cancers.diagnoses.prc.age = "-1"
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "year of birth and age at last follow up must be specified")
 
@@ -529,7 +529,7 @@ class CancerTests(TestCase, ErrorTests):
         """ Test an error is raised if the age of a second breast cancer is present but age of first is missing. """
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
-        f1.cancers.diagnoses.bc1.age = "0"
+        f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "21"
         with self.assertRaisesRegex(CancerError, r"contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
@@ -539,7 +539,7 @@ class CancerTests(TestCase, ErrorTests):
         """ Test an error is raised if the age of a second breast cancer is AU but age of first is missing. """
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
-        f1.cancers.diagnoses.bc1.age = "0"
+        f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "AU"
         with self.assertRaisesRegex(CancerError, r"contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
