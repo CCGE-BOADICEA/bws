@@ -30,7 +30,7 @@ BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS = 26
 MAX_LENGTH_PEDIGREE_NUMBER_STR = 13
 MIN_FAMILY_ID_STR_LENGTH = 1
 MAX_FAMILY_ID_STR_LENGTH = 7
-MAX_AGE = 110
+MAX_AGE = 99
 MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY = 20
 MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB = 12
 MAX_NUMBER_MZ_TWIN_PAIRS = 10
@@ -109,9 +109,9 @@ BC_MODEL = {
 OC_MODEL = {
     'NAME': 'OC',
     'HOME': os.path.join(FORTRAN_HOME, 'ovarian'),
-    'PROBS_EXE': 'ovarian_probs_v1.exe',
-    'RISKS_EXE': 'ovarian_risks_v1.exe',
-    'CANCERS': ['oc', 'bc1'],                                   # NOTE: order used by fortran pedigree file
+    'PROBS_EXE': 'ovarian_probs.exe',
+    'RISKS_EXE': 'ovarian_risks.exe',
+    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1'],   # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
