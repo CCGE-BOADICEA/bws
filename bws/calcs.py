@@ -401,8 +401,9 @@ class Predictions(object):
 
             process = Popen(
                 [prog,
-                 '-r', out+".out",
-                 bat_file,  # "Sample_Pedigrees/risks_single_person.bat",
+                 '-r', out+".out",       # results file
+                 '-v',                   # include model version
+                 bat_file,
                  os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")
                  ],
                 cwd=cwd,
