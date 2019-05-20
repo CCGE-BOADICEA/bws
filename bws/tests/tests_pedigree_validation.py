@@ -618,7 +618,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         """ Check that pathology test results are only provided for family members with a first breast cancer """
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
-        f1.cancers.diagnoses.bc1.age = "0"
+        f1.cancers.diagnoses.bc1.age = "-1"
         f1.pathology.er.result = "P"
         with self.assertRaisesRegex(PathologyError, "Pathology test results can only be assigned to family " +
                                     "members who have developed breast cancer."):
