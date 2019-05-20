@@ -64,14 +64,14 @@ class PathologyTest(object):
                 raise PathologyError("Family member '" + person.pid + "' has been assigned an invalid " + t.test_type +
                                      " status. It must be 'N' for negative, 'P' for positive, or '0' for unknown.")
             # Check that pathology test results are only provided for family members with a first breast cancer
-            if t.result != '0' and person.cancers.diagnoses.bc1.age == '0':
+            if t.result != '0' and person.cancers.diagnoses.bc1.age == '-1':
                 raise PathologyError("Family member '" + person.pid + "' has not developed breast cancer but has " +
                                      "been assigned a breast cancer pathology test result (" + t.test_type + "). " +
                                      "Pathology test results can only be assigned to family members who have " +
                                      "developed breast cancer.")
 
         # if the individual has had breast cancer
-        if person.cancers.diagnoses.bc1.age != "0":
+        if person.cancers.diagnoses.bc1.age != "-1":
             rules = "Please note the following rules for breast cancer pathology data: " \
                     "(1) if an individual's ER status is unspecified, no pathology information for that individual " \
                     "will be taken into account in the calculation; " \
@@ -330,7 +330,7 @@ class Cancers():
         for idx, ctype in enumerate(cancer_types):
             diagnoses_age = diagnoses[idx].age
             # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'
-            # and is within range i.e. 0-110 (zero for unaffected)
+            # and is within range i.e. 0-110 (-1 for unaffected)
             if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU' and diagnoses_age != '-1') or
                (REGEX_AGE.match(diagnoses_age) and int(diagnoses_age) > settings.MAX_AGE)):
                     raise CancerError("Family member '" + person.pid + "' has an age at cancer diagnosis (" + ctype +
@@ -387,7 +387,7 @@ class Cancers():
         Returns a string of cancer ages used in the input pedigree file for fortran.
         """
         d = self.diagnoses
-        ages = ["%3s " % (getattr(d, c).age if getattr(d, c).age != "0" else "-1") for c in cancers]
+        ages = ["%3s " % getattr(d, c).age for c in cancers]
         return "".join(ages)
 
     def is_cancer_diagnosed(self):
@@ -396,7 +396,7 @@ class Cancers():
         """
         d = self.diagnoses
         for c in d:
-            if(c.age != "0" and c.age != "-1"):
+            if c.age != "-1":
                 return True
         return False
 
