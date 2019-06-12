@@ -45,6 +45,9 @@
 #
 # run_webservice.py -u username -p bws/bws/tests/data/canrisk_multi4x.txt -c both -t example.tab
 #
+# run_webservice.py -u username -p boadicea/tests_selenium/canrisk_format_data/canrisk_data1.txt \
+#       --vcf sample_data/sample_BCAC_313.vcf -s SampleA --bc_prs_reference_file BCAC_313_PRS.prs
+
 
 import getpass
 import requests
@@ -100,13 +103,22 @@ def output_tab(tabf, cmodel, rjson, bwa):
     csvfile.close()
 
 
-def runws(args, data, bwa, cancers):
+def runws(args, data, bwa, cancers, prs=None):
     ''' Call web-services '''
     data["mut_freq"] = args.mut_freq
     data["cancer_rates"] = args.cancer_rates
 
     for cmodel in cancers:
         files = {'pedigree_data': open(bwa, 'rb')}
+
+        if 'prs' in data:
+            del data['prs']
+        if prs is not None:
+            if cmodel == 'boadicea' and 'breast_cancer_prs' in prs and prs['breast_cancer_prs']['alpha'] != 0.0:
+                data['prs'] = json.dumps(prs['breast_cancer_prs'])
+            elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
+                data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
+
         r = requests.post(url+cmodel+'/', data=data, files=files, auth=(user, pwd))
         if r.status_code == 200:
             rjson = r.json()
@@ -125,6 +137,17 @@ def runws(args, data, bwa, cancers):
 parser = argparse.ArgumentParser('run a risk prediction via the web-service')
 parser.add_argument('-c', '--can', default='boadicea', choices=['boadicea', 'ovarian', 'both'],
                     help='Cancer risk models')
+
+# VCF to PRS
+group1 = parser.add_argument_group('Polygenic Risk Score (PRS)')
+group1.add_argument('-v', '--vcf', help='Variant Call Format (VCF) file')
+group1.add_argument('-s', '--sample', help='sample name')
+group1.add_argument('--bc_prs_reference_file', help='breast cancer prs reference file', default=None,
+                    choices=[None, 'BCAC_313_PRS.prs', 'PERSPECTIVE_295_PRS.prs'])
+group1.add_argument('--oc_prs_reference_file', help='ovarian cancer prs reference file', default=None,
+                    choices=[None])
+
+# Mutation frequencies
 parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
                     help='Mutation Frequencies (default: %(default)s)')
 
@@ -150,8 +173,8 @@ parser.add_argument('-u', '--user', help='Username')
 parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
 parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
 
+#######################################################
 args = parser.parse_args()
-
 if args.can == "both":
     cancers = ['boadicea', 'ovarian']
     genes = list(set(bc_genes + oc_genes))
@@ -175,7 +198,7 @@ for gene in genes:
     if args.__dict__[gene+"_mut_sensitivity"] is not None:
         data[gene+"_mut_sensitivity"] = args.__dict__[gene+"_mut_sensitivity"]
 
-#
+#######################################################
 # prompt for required inputs
 if args.user is None:
     user = input("Username: ")
@@ -184,6 +207,7 @@ else:
 pwd = getpass.getpass()
 url = args.url
 
+#######################################################
 # 1. request an authentication token
 r = requests.post(url+"auth-token/", data={"username": user, "password": pwd})
 if r.status_code == 200:
@@ -192,15 +216,39 @@ else:
     print("Error status: "+str(r.status_code))
     exit(1)
 
-# 2. run risk prediction for a given pedigree or all files in a directory
+#######################################################
+# 2. optionally get PRS from VCF
+prs = None
+if args.vcf is not None:
+    prs_data = {}
+    if args.sample is None:
+        parser.error('The vcf argument requires the sample name option [-s or --sample]')
+    prs_data['sample_name'] = args.sample
+    if args.bc_prs_reference_file is None and args.oc_prs_reference_file is None:
+        parser.error('The vcf argument requires the breast and/or ovarian PRS reference ' +
+                     'file option [--bc_prs_reference_file, --oc_prs_reference_file]')
+
+    if args.bc_prs_reference_file is not None:
+        prs_data['bc_prs_reference_file'] = args.bc_prs_reference_file
+    if args.oc_prs_reference_file is not None:
+        prs_data['oc_prs_reference_file'] = args.oc_prs_reference_file
+
+    files = {'vcf_file': open(args.vcf, 'rb')}
+    r = requests.post(url+'vcf2prs/', data=prs_data, files=files, auth=(user, pwd))
+    if r.status_code == 200:
+        prs = r.json()
+
+#######################################################
+# 3. run risk prediction for a given pedigree or all files in a directory
 bwa = input("Pedigree (BOADICEA v4/CanRisk file) or path to directory of pedigrees: ") if args.ped is None else args.ped
 
 # if bwa is a directory then get files in directory
-if os.path.isdir(bwa):
-    bwas = [join(bwa, f) for f in listdir(bwa) if isfile(join(bwa, f))]
-else:
-    bwas = [bwa]
+bwas = [join(bwa, f) for f in listdir(bwa) if isfile(join(bwa, f))] if os.path.isdir(bwa) else [bwa]
+
+if prs is not None and len(bwas) > 1:
+    print("The --vcf option generates a PRS code that is expected to be used with a single pedigree file.")
+    exit(1)
 
 for bwa in bwas:
     print(bwa)
-    runws(args, data, bwa, cancers)
+    runws(args, data, bwa, cancers, prs)
