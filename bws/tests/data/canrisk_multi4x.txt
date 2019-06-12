@@ -8,7 +8,7 @@
 ##alcohol=5.1
 ##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
 XXX0    0       0       PM      0       0       F       0       1       55      1940    55      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
-XXX0    1       0       PF      0       0       M       0       0       78      1938    56      0       0       0       0       0       S:P     0:0     0:0     0:0     0:0     S:P     0:0     0:0     P:0:0:0:0
+XXX0    1       0       PF      0       0       M       0       0       78      1938    56      0       0       0       0       0       S:P     0:0     0:0     0:0     0:0     S:P     0:0     0:0     0:0:0:0:0
 XXX0    2       1       PB      PF      PM      F       0       0       40      1967    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
 ##Menarche=12
 ##Parity=1
