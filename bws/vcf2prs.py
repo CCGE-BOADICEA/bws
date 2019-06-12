@@ -4,10 +4,12 @@ import os
 from rest_framework import permissions, serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
+from rest_framework.compat import coreapi, coreschema
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
+from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 from vcf2prs import Vcf2Prs, Vcf2PrsError
 
@@ -19,6 +21,7 @@ import io
 import vcf
 import traceback
 from math import erf, sqrt
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +59,54 @@ class Vcf2PrsView(APIView):
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, CanRiskPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+            fields=[
+                coreapi.Field(
+                    name="vcf_file",
+                    required=True,
+                    location='form',
+                    schema=coreschema.String(
+                        title="VCF",
+                        description="VCF File Format",
+                        format='textarea',
+                    ),
+                ),
+                coreapi.Field(
+                    name="sample_name",
+                    required=True,
+                    location='form',
+                    schema=coreschema.String(
+                        title="Sample Name",
+                        description="Sample Name",
+                    ),
+                ),
+                coreapi.Field(
+                    name="bc_prs_reference_file",
+                    location='form',
+                    schema=coreschema.Enum(
+                        list(settings.BC_MODEL['PRS_REFERENCE_FILES'].values()),
+                        title="Breast cancer PRS reference file",
+                        description="Breast cancer PRS reference file",
+                        default=None,
+                    ),
+                ),
+                coreapi.Field(
+                    name="oc_prs_reference_file",
+                    location='form',
+                    schema=coreschema.Enum(
+                        list(settings.OC_MODEL['PRS_REFERENCE_FILES'].values()),
+                        title="Ovarian cancer PRS reference file",
+                        description="Ovarian cancer PRS reference file",
+                        default=None,
+                    ),
+                ),
+            ],
+            encoding="application/json",
+            description="""
+Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
+"""
+        )
 
     def post(self, request):
         """
@@ -115,7 +166,7 @@ class Vcf2PrsView(APIView):
                     oc_beta = 0
                 data = {
                     'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta, 'percent': self.get_percentage(bc_beta)},
-                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta, 'percent': self.get_percentage(bc_beta)}
+                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta, 'percent': self.get_percentage(oc_beta)}
                 }
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
