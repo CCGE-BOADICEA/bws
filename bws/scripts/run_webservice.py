@@ -106,7 +106,7 @@ def output_tab(tabf, cmodel, rjson, bwa):
     csvfile.close()
 
 
-def runws(args, data, bwa, cancers, prs=None):
+def runws(args, data, bwa, cancers, token, prs=None):
     ''' Call web-services '''
     data["mut_freq"] = args.mut_freq
     data["cancer_rates"] = args.cancer_rates
@@ -122,7 +122,7 @@ def runws(args, data, bwa, cancers, prs=None):
             elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
                 data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
 
-        r = requests.post(url+cmodel+'/', data=data, files=files, auth=(user, pwd))
+        r = requests.post(url+cmodel+'/', data=data, files=files, headers={'Authorization': "Token "+token})
         if r.status_code == 200:
             rjson = r.json()
             if args.tab:
@@ -133,6 +133,25 @@ def runws(args, data, bwa, cancers, prs=None):
             print("Error status: "+str(r.status_code))
             print(r.json())
             exit(1)
+
+
+def get_auth_token(args):
+    ''' Returns an authentication token. '''
+    if args.token is None:
+        if args.user is None:
+            user = input("Username: ")
+        else:
+            user = args.user
+        pwd = getpass.getpass()
+
+        r = requests.post(url+"auth-token/", data={"username": user, "password": pwd})
+        if r.status_code == 200:
+            return r.json()['token']
+        else:
+            print("Error status: "+str(r.status_code))
+            exit(1)
+    else:
+        return args.token
 
 
 #
@@ -175,6 +194,7 @@ parser.add_argument('--url', default='https://canrisk.org/', help='Web-services 
 parser.add_argument('-u', '--user', help='Username')
 parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
 parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
+parser.add_argument('--token', help='authentication token')
 
 #######################################################
 args = parser.parse_args()
@@ -201,23 +221,12 @@ for gene in genes:
     if args.__dict__[gene+"_mut_sensitivity"] is not None:
         data[gene+"_mut_sensitivity"] = args.__dict__[gene+"_mut_sensitivity"]
 
-#######################################################
-# prompt for required inputs
-if args.user is None:
-    user = input("Username: ")
-else:
-    user = args.user
-pwd = getpass.getpass()
 url = args.url
 
 #######################################################
 # 1. request an authentication token
-r = requests.post(url+"auth-token/", data={"username": user, "password": pwd})
-if r.status_code == 200:
-    token = r.json()['token']
-else:
-    print("Error status: "+str(r.status_code))
-    exit(1)
+
+token = get_auth_token(args)
 
 #######################################################
 # 2. optionally get PRS from VCF
@@ -237,7 +246,7 @@ if args.vcf is not None:
         prs_data['oc_prs_reference_file'] = args.oc_prs_reference_file
 
     files = {'vcf_file': open(args.vcf, 'rb')}
-    r = requests.post(url+'vcf2prs/', data=prs_data, files=files, auth=(user, pwd))
+    r = requests.post(url+'vcf2prs/', data=prs_data, files=files, headers={'Authorization': "Token "+token})
     if r.status_code == 200:
         prs = r.json()
 
@@ -254,4 +263,4 @@ if prs is not None and len(bwas) > 1:
 
 for bwa in bwas:
     print(bwa)
-    runws(args, data, bwa, cancers, prs)
+    runws(args, data, bwa, cancers, token, prs)
