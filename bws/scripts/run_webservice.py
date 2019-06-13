@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 #
+# Requirements: requests module
+#    https://pypi.org/project/requests/
+#
 # Run risk predictions via the web-service.
 #
 # optional arguments:
