@@ -56,6 +56,7 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.OralContraception.get_category('Never'), 1)
         self.assertEqual(bc.OralContraception.get_category('F'), 2)
         self.assertEqual(bc.OralContraception.get_category('C:4'), 3)
+        self.assertEqual(bc.OralContraception.get_category('C'), 3)
 
         self.assertEqual(oc.OralContraception.get_category('-'), 0)
         self.assertEqual(oc.OralContraception.get_category('N'), 1)
@@ -65,6 +66,7 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('C:0.5'), 1)
         self.assertEqual(oc.OralContraception.get_category('C:<1'), 1)
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
+        self.assertEqual(oc.OralContraception.get_category('F'), 0)
 
     def test_get_Endometriosis_category(self):
         ''' Given a endometriosis value check the category is correctly assigned. '''
