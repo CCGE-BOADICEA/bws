@@ -53,13 +53,26 @@
 
 
 import getpass
-import requests
 import json
 import argparse
 import csv
 import os
+import sys
+try:
+    import grequests
+except ImportError as e:
+    import requests
+
 from os import listdir
 from os.path import join, isfile
+
+
+def post_requests(url, **kwargs):
+    ''' Post requests via <code>grequests</code> if installed otherwise via <code>requests</code>. '''
+    if 'grequests' in sys.modules:
+        r = grequests.post(url, **kwargs)
+        return grequests.map([r])[0]
+    return requests.post(url, **kwargs)
 
 
 def output_tab(tabf, cmodel, rjson, bwa):
@@ -111,28 +124,56 @@ def runws(args, data, bwa, cancers, token, prs=None):
     data["mut_freq"] = args.mut_freq
     data["cancer_rates"] = args.cancer_rates
 
-    for cmodel in cancers:
-        files = {'pedigree_data': open(bwa, 'rb')}
+    if 'grequests' in sys.modules:
+        print("ASYNC")
+        reqs = []
+        for cmodel in cancers:
+            files = {'pedigree_data': open(bwa, 'rb')}
 
-        if 'prs' in data:
-            del data['prs']
-        if prs is not None:
-            if cmodel == 'boadicea' and 'breast_cancer_prs' in prs and prs['breast_cancer_prs']['alpha'] != 0.0:
-                data['prs'] = json.dumps(prs['breast_cancer_prs'])
-            elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
-                data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
+            if 'prs' in data:
+                del data['prs']
+            if prs is not None:
+                if cmodel == 'boadicea' and 'breast_cancer_prs' in prs and prs['breast_cancer_prs']['alpha'] != 0.0:
+                    data['prs'] = json.dumps(prs['breast_cancer_prs'])
+                elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
+                    data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
 
-        r = requests.post(url+cmodel+'/', data=data, files=files, headers={'Authorization': "Token "+token})
-        if r.status_code == 200:
-            rjson = r.json()
-            if args.tab:
-                output_tab(args.tab, cmodel, rjson, bwa)
-            else:
-                print(json.dumps(rjson, indent=4, sort_keys=True))
+            reqs.append(grequests.post(url+cmodel+'/', data=data, files=files,
+                                       headers={'Authorization': "Token "+token}))
+        res = grequests.map(reqs)
+
+        for idx, cmodel in enumerate(cancers):
+            handle_response(args, cmodel, res[idx])
+        return
+    else:
+        print("SYNC")
+        for cmodel in cancers:
+            files = {'pedigree_data': open(bwa, 'rb')}
+
+            if 'prs' in data:
+                del data['prs']
+            if prs is not None:
+                if cmodel == 'boadicea' and 'breast_cancer_prs' in prs and prs['breast_cancer_prs']['alpha'] != 0.0:
+                    data['prs'] = json.dumps(prs['breast_cancer_prs'])
+                elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
+                    data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
+
+            r = requests.post(url+cmodel+'/', data=data, files=files, headers={'Authorization': "Token "+token})
+            handle_response(args, cmodel, r)
+
+
+def handle_response(args, cmodel, r):
+    ''' Handle response from web-service '''
+    if r.status_code == 200:
+        rjson = r.json()
+        if args.tab:
+            output_tab(args.tab, cmodel, rjson, bwa)
         else:
-            print("Error status: "+str(r.status_code))
-            print(r.json())
-            exit(1)
+            print(json.dumps(rjson, indent=4, sort_keys=True))
+    else:
+        sys.stderr.write("Error status: "+str(r.status_code))
+        sys.stderr.write(r.text)
+        exit(1)
 
 
 def get_auth_token(args):
@@ -144,7 +185,7 @@ def get_auth_token(args):
             user = args.user
         pwd = getpass.getpass()
 
-        r = requests.post(url+"auth-token/", data={"username": user, "password": pwd})
+        r = post_requests(url+"auth-token/", data={"username": user, "password": pwd})
         if r.status_code == 200:
             return r.json()['token']
         else:
@@ -246,7 +287,7 @@ if args.vcf is not None:
         prs_data['oc_prs_reference_file'] = args.oc_prs_reference_file
 
     files = {'vcf_file': open(args.vcf, 'rb')}
-    r = requests.post(url+'vcf2prs/', data=prs_data, files=files, headers={'Authorization': "Token "+token})
+    r = post_requests(url+'vcf2prs/', data=prs_data, files=files, headers={'Authorization': "Token "+token})
     if r.status_code == 200:
         prs = r.json()
 
