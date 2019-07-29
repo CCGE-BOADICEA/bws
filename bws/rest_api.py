@@ -101,10 +101,13 @@ class ModelWebServiceMixin():
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
                     if pedi.is_ashkn():
                         if not REGEX_ASHKN.match(population):
+                            msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
+                                  'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                             logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
-                            output['warnings'].append(
-                                'mutation frequencies set to Ashkenazi Jewish population values ' +
-                                'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.')
+                            if 'warnings' in output:
+                                output['warnings'].append(msg)
+                            else:
+                                output['warnings'] = [msg]
                             this_population = 'Ashkenazi'
                             this_mutation_frequency = model_settings['MUTATION_FREQUENCIES'][this_population]
 
