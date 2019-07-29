@@ -68,6 +68,8 @@ class MutFreqTests(TestCase):
                     c80_aj2 = c80
 
         self.assertGreater(c80_aj1, c80_aj2)
+        self.assertTrue('mutation frequencies set to Ashkenazi Jewish population values for family (XX_AJ) as a ' +
+                        'family member has Ashkenazi Jewish status.' in content['warnings'])
 
 
 class BwsTests(TestCase):
