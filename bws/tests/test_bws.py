@@ -13,6 +13,63 @@ import json
 from django.test.utils import override_settings
 
 
+class MutFreqTests(TestCase):
+    TEST_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
+
+    @classmethod
+    def setUpClass(cls):
+        ''' Create a user, token and url. '''
+        super(MutFreqTests, cls).setUpClass()
+
+        cls.user = User.objects.create_user('testuser', email='testuser@test.com',
+                                            password='testing')
+        # add user details
+        # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
+        #                            country='UK')
+        cls.user.save()
+        cls.token = Token.objects.create(user=cls.user)
+        cls.token.save()
+        cls.url = reverse('bws')
+
+    def test_ashkn_mut_freq(self):
+        '''
+        Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
+        Check mutation frequencies are correctly set in each case.
+        '''
+        client = APIClient(enforce_csrf_checks=True)
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_multi4xAJ.txt"), "r")
+
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pedigree_data,
+                'user_id': 'test_XXX'}
+        client.credentials(HTTP_AUTHORIZATION='Token ' + MutFreqTests.token.key)
+        response = client.post(MutFreqTests.url, data, format='multipart',
+                               HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("mutation_frequency" in content)
+        self.assertTrue("pedigree_result" in content)
+        self.assertEqual(len(content['pedigree_result']), 4, "four results")
+
+        family_ids = ["XXX2", "XX_AJ", "XX_NAJ", "XXX3"]
+        for res in content['pedigree_result']:
+            self.assertTrue(res['family_id'] in family_ids)
+
+            if res['family_id'] == "XX_AJ" or res['family_id'] == "XX_NAJ":
+                for r in res['cancer_risks']:
+                    if r['age'] == 80:
+                        c80 = r['breast cancer risk']['decimal']
+                if res['family_id'] == "XX_AJ":
+                    self.assertTrue("Ashkenazi" in res['mutation_frequency'])
+                    c80_aj1 = c80
+                elif res['family_id'] == "XX_NAJ":
+                    self.assertTrue("UK" in res['mutation_frequency'])
+                    c80_aj2 = c80
+
+        self.assertGreater(c80_aj1, c80_aj2)
+
+
 class BwsTests(TestCase):
     TEST_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
     TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
