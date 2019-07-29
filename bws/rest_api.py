@@ -104,7 +104,7 @@ class ModelWebServiceMixin():
                             logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
                             output['warnings'].append(
                                 'mutation frequencies set to Ashkenazi Jewish population values ' +
-                                'as a family member has Ashkenazi Jewish status.')
+                                'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.')
                             this_population = 'Ashkenazi'
                             this_mutation_frequency = model_settings['MUTATION_FREQUENCIES'][this_population]
 
