@@ -24,9 +24,12 @@ from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, Outp
     OwsExtendedInputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
+import re
 
 
 logger = logging.getLogger(__name__)
+
+REGEX_ASHKN = re.compile("^(Ashkenazi)$")
 
 
 class ModelWebServiceMixin():
@@ -93,6 +96,18 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
 
+                    this_mutation_frequency = mutation_frequency
+                    this_population = population
+                    # check if Ashkenazi Jewish status set & correct mutation frequencies
+                    if pedi.is_ashkn():
+                        if not REGEX_ASHKN.match(population):
+                            logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
+                            output['warnings'].append(
+                                'mutation frequencies set to Ashkenazi Jewish population values ' +
+                                'as a family member has Ashkenazi Jewish status.')
+                            this_population = 'Ashkenazi'
+                            this_mutation_frequency = model_settings['MUTATION_FREQUENCIES'][this_population]
+
                     mname = model_settings['NAME']
                     if request.user.has_perm('boadicea_auth.can_risk') and isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
@@ -110,11 +125,12 @@ class ModelWebServiceMixin():
                             this_pedigree["prs"] = {'alpha': prs.alpha, 'beta': prs.beta}
                             logger.debug(mname+' PRS alpha:' + str(this_pedigree["prs"]))
 
-                    calcs = Predictions(pedi, mutation_frequency=mutation_frequency,
+                    calcs = Predictions(pedi, mutation_frequency=this_mutation_frequency,
                                         mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,
                                         risk_factor_code=risk_factor_code, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
+                    this_pedigree["mutation_frequency"] = {this_population: this_mutation_frequency}
                     self.add_attr("version", output, calcs, output)
                     self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
                     self.add_attr("cancer_risks", this_pedigree, calcs, output)

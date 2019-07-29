@@ -367,6 +367,16 @@ class Pedigree(metaclass=abc.ABCMeta):
                 return p
         return None
 
+    def is_ashkn(self):
+        """
+        Does the pedigree have Ashkenazi Jewish ancestry
+        @return: True if Ashkenazi Jewish ancestry
+        """
+        for p in self.people:
+            if p.ashkn == "1":
+                return True
+        return False
+
     def get_siblings(self, person):
         """
         Get a list of the siblings of the given person.
