@@ -138,7 +138,7 @@ def runws(args, data, bwa, cancers, token, prs=None):
                 elif cmodel == 'ovarian' and 'ovarian_cancer_prs' in prs and prs['ovarian_cancer_prs']['alpha'] != 0.0:
                     data['prs'] = json.dumps(prs['ovarian_cancer_prs'])
 
-            reqs.append(grequests.post(url+cmodel+'/', data=data, files=files,
+            reqs.append(grequests.post(url+cmodel+'/', data=data.copy(), files=files,
                                        headers={'Authorization': "Token "+token}))
         res = grequests.map(reqs)
 
@@ -209,6 +209,7 @@ group1.add_argument('--bc_prs_reference_file', help='breast cancer prs reference
                     choices=[None, 'BCAC_313_PRS.prs', 'PERSPECTIVE_295_PRS.prs'])
 group1.add_argument('--oc_prs_reference_file', help='ovarian cancer prs reference file', default=None,
                     choices=[None])
+group1.add_argument('--vcfonly', help='Only run VCF to PRS')
 
 # Mutation frequencies
 parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
@@ -290,6 +291,9 @@ if args.vcf is not None:
     r = post_requests(url+'vcf2prs/', data=prs_data, files=files, headers={'Authorization': "Token "+token})
     if r.status_code == 200:
         prs = r.json()
+    if args.vcfonly is not None:
+        print(prs)
+        exit(0)
 
 #######################################################
 # 3. run risk prediction for a given pedigree or all files in a directory
