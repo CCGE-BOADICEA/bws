@@ -84,16 +84,17 @@ class AgeOfMenopause(RiskFactor):
 
 
 class MammographicDensity(RiskFactor):
-    cats = ['-', 'BI-RADS 1', 'BI-RADS 2', 'BI-RADS 3', 'BI-RADS 4']
+    cats = ['-', 'BI-RADS a', 'BI-RADS b', 'BI-RADS c', 'BI-RADS d']
     help_text = 'Mammographic Density'
     synonyms = ['birads']
 
     @classmethod
     def get_category(cls, val):
-        alt = ['NA', '1', '2', '3', '4']
-        val = val.upper()
-        for idx, cat in enumerate(cls.cats):
-            if val == cat or val == alt[idx]:
+        alt1 = ['NA', 'a', 'b', 'c', 'd']
+        alt2 = ['NA', '1', '2', '3', '4']
+        val = val.lower().replace('bi-rads ', '')
+        for idx, _cat in enumerate(cls.cats):
+            if val == alt1[idx] or val == alt2[idx]:
                 return idx
         return 0
 
