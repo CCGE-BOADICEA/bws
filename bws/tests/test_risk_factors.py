@@ -108,6 +108,9 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.MammographicDensity.get_category('-'), 0)
         self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
         self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
+        self.assertEqual(bc.MammographicDensity.get_category('c'), 3)
+        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS c"), 3)
+        self.assertEqual(bc.MammographicDensity.get_category('a'), 1)
 
 
 class RiskFactorsCodeTests(TestCase):
