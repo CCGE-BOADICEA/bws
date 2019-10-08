@@ -382,12 +382,13 @@ class Cancers():
                 raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
                                   "but the age at diagnosis of the first breast cancer is missing.")
 
-    def write(self, cancers=None):
+    def write(self, cancers=None, age=-1):
         """
         Returns a string of cancer ages used in the input pedigree file for fortran.
+        Affected Unknown (AU) are set to the age of last followup to avoid underestimation of risk.
         """
         d = self.diagnoses
-        ages = ["%3s " % getattr(d, c).age for c in cancers]
+        ages = ["%3s " % (getattr(d, c).age if getattr(d, c).age != 'AU' else age) for c in cancers]
         return "".join(ages)
 
     def is_cancer_diagnosed(self):
