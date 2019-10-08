@@ -515,7 +515,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                        p.mztwin if p.mztwin != "0" else '',
                        genotype, '   '), file=f, end="")
 
-                print(p.cancers.write(model_settings['CANCERS']), file=f, end="")
+                print(p.cancers.write(model_settings['CANCERS'], p.age), file=f, end="")
                 print("%3s " % p.age, file=f, end="")
 
                 # Gene Tests
