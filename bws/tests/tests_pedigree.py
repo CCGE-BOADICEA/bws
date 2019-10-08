@@ -209,6 +209,26 @@ class RiskTests(TestCase):
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                             [79, 80])
 
+    def test_affected_unknown(self):
+        """ Test including affected unknown for mother of target to show it increases breast cancer risk. """
+        pedigree = deepcopy(self.pedigree)
+        target = pedigree.get_target()
+        mother = pedigree.get_person(target.mothid)
+        mother.yob = str(self.year-55)
+        mother.age = "55"
+        calcs1 = Predictions(pedigree, cwd=self.cwd)
+
+        def get_c80(calcs):
+            for c in calcs.cancer_risks:
+                if c.get('age') == 80:
+                    return c['breast cancer risk']['decimal']
+            return None
+
+        # add affected unknown to mother
+        mother.cancers = Cancers(bc1=Cancer("AU"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
+        calcs2 = Predictions(pedigree, cwd=self.cwd)
+        self.assertGreater(get_c80(calcs2), get_c80(calcs1), 'Mother affected unknown increases BC risk in target')
+
     def test_mutation_frequencies(self):
         """ Test prediction of cancer risk and mutation probability for different mutation frequencies. """
         pedigree = deepcopy(self.pedigree)
