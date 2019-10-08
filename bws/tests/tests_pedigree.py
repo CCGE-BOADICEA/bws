@@ -227,7 +227,6 @@ class RiskTests(TestCase):
         # add affected unknown to mother
         mother.cancers = Cancers(bc1=Cancer("AU"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
         calcs2 = Predictions(pedigree, cwd=self.cwd)
-        print(get_c80(calcs1))
         self.assertGreater(get_c80(calcs2), get_c80(calcs1), 'Mother affected unknown increases BC risk in target')
 
     def test_mutation_frequencies(self):
