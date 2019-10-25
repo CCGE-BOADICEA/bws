@@ -71,7 +71,7 @@ class ModelWebServiceMixin():
                 risk_factor_code = validated_data.get('risk_factor_code', 0)
                 prs = validated_data.get('prs', None)
                 if prs is not None:
-                    prs = Prs(prs.get('alpha'), prs.get('beta'))
+                    prs = Prs(prs.get('alpha'), prs.get('zscore'))
             else:
                 if validated_data.get('risk_factor_code', 0) > 0:
                     logger.warning('risk factor code parameter provided without the correct permissions')
@@ -125,7 +125,7 @@ class ModelWebServiceMixin():
                         this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
                         logger.debug(mname+' risk factor code '+str(risk_factor_code))
                         if prs is not None:
-                            this_pedigree["prs"] = {'alpha': prs.alpha, 'beta': prs.beta}
+                            this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                             logger.debug(mname+' PRS alpha:' + str(this_pedigree["prs"]))
 
                     calcs = Predictions(pedi, mutation_frequency=this_mutation_frequency,
@@ -226,8 +226,8 @@ class ModelWebServiceMixin():
                 location='form',
                 schema=coreschema.Object(
                     title="Polygenic risk score",
-                    description='PRS, e.g. {"alpha":0.45,"beta":2.652}',
-                    properties={'alpha': coreschema.Number, 'beta': coreschema.Number},
+                    description='PRS, e.g. {"alpha":0.45,"zscore":2.652}',
+                    properties={'alpha': coreschema.Number, 'zscore': coreschema.Number},
                 ),
             ),
             # coreapi.Field(

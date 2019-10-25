@@ -1,4 +1,3 @@
-import inspect
 import os
 
 from rest_framework import permissions, serializers, status
@@ -22,6 +21,7 @@ import vcf
 import traceback
 from math import erf, sqrt
 from django.conf import settings
+import vcf2prs
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
 
 class PrsSerializer(serializers.Serializer):
     alpha = serializers.FloatField()
-    beta = serializers.FloatField()
+    zscore = serializers.FloatField()
     percent = serializers.FloatField()
 
 
@@ -138,7 +138,7 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
             validated_data = serializer.validated_data
             vcf_file = validated_data.get("vcf_file")
 
-            moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
+            moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
             bc_prs_ref_file = validated_data.get("bc_prs_reference_file", None)
             oc_prs_ref_file = validated_data.get("oc_prs_reference_file", None)
             if bc_prs_ref_file is None and oc_prs_ref_file is None:
@@ -153,20 +153,22 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
             try:
                 if bc_prs_ref_file is not None:
                     breast_prs = Vcf2Prs(prs_file_name=bc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
-                    _raw, bc_alpha, bc_beta = breast_prs.calculatePRS()
+                    _raw, bc_alpha, bc_zscore = breast_prs.calculatePRS()
                 else:
                     bc_alpha = 0
-                    bc_beta = 0
+                    bc_zscore = 0
 
                 if oc_prs_ref_file is not None:
                     ovarian_prs = Vcf2Prs(prs_file_name=oc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
-                    _raw, oc_alpha, oc_beta = ovarian_prs.calculatePRS()
+                    _raw, oc_alpha, oc_zscore = ovarian_prs.calculatePRS()
                 else:
                     oc_alpha = 0
-                    oc_beta = 0
+                    oc_zscore = 0
                 data = {
-                    'breast_cancer_prs': {'alpha': bc_alpha, 'beta': bc_beta, 'percent': self.get_percentage(bc_beta)},
-                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'beta': oc_beta, 'percent': self.get_percentage(oc_beta)}
+                    'breast_cancer_prs': {'alpha': bc_alpha, 'zscore': bc_zscore,
+                                          'percent': self.get_percentage(bc_zscore)},
+                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'zscore': oc_zscore,
+                                           'percent': self.get_percentage(oc_zscore)}
                 }
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))

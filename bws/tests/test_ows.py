@@ -133,7 +133,7 @@ class OwsTestsPRS(TestCase):
         orisk1 = json.loads(force_text(response.content))
 
         ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
-        pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
+        pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,zscore=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -141,6 +141,18 @@ class OwsTestsPRS(TestCase):
 
         self.assertNotEqual(self.get_percent(orisk1, 80), self.get_percent(orisk2, 80),
                             "ovarian cancer at 80 different values")
+        ped.close()
+
+        # test with DEPRECATED beta instead of zscore
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        orisk3 = json.loads(force_text(response.content))
+
+        self.assertEqual(self.get_percent(orisk3, 80), self.get_percent(orisk2, 80),
+                         "ovarian cancer at 80 different values")
 
     def get_percent(self, content, age):
         ''' Utility to return cancer percentage given the response content and an age. '''

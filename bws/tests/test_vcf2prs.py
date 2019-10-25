@@ -8,9 +8,9 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 from vcf2prs import Vcf2Prs
-import inspect
 import json
 import os
+import vcf2prs
 
 
 class Vcf2PrsWebServices(TestCase):
@@ -31,7 +31,7 @@ class Vcf2PrsWebServices(TestCase):
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.url = reverse('prs')
-        cls.moduledir = os.path.dirname(inspect.getfile(Vcf2Prs().__class__))
+        cls.moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
 
     def setUp(self):
         ''' Create a user and set up the test client. '''
@@ -48,7 +48,7 @@ class Vcf2PrsWebServices(TestCase):
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, "alpha")
-        self.assertContains(response, "beta")
+        self.assertContains(response, "zscore")
 
     def test_prs_v_direct(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score and
@@ -60,8 +60,8 @@ class Vcf2PrsWebServices(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='High')
-        _raw, _alpha, beta = prs.calculatePRS()
-        self.assertEqual(beta, content['breast_cancer_prs']['beta'], 'web-service and direct calculation')
+        _raw, _alpha, zscore = prs.calculatePRS()
+        self.assertEqual(zscore, content['breast_cancer_prs']['zscore'], 'web-service and direct calculation')
 
     def test_prs_err(self):
         ''' Test POSTing to the 400 returned without the vcf specified. '''
