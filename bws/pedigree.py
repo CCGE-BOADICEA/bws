@@ -36,10 +36,10 @@ MUTATION_PROBS = 2
 
 
 class Prs(object):
-    ''' Polygenic risk score - alpha and beta values. '''
-    def __init__(self, alpha, beta):
+    ''' Polygenic risk score - alpha and zscore values. '''
+    def __init__(self, alpha, zscore):
         self.alpha = alpha
-        self.beta = beta
+        self.zscore = zscore
 
 
 class CanRiskHeader():
@@ -54,18 +54,20 @@ class CanRiskHeader():
         self.lines.append(line)
 
     def get_prs(self, val):
-        ''' Get a Prs object from a value containing e.g. alpha=float, beta=float'''
-        alpha = beta = None
+        ''' Get a Prs object from a value containing e.g. alpha=float, zscore=float'''
+        alpha = zscore = None
         parts = val.replace(" ", "").split(",")
         for p1 in parts:
             p2 = p1.split('=')
             if len(p2) == 2:
                 if 'alpha' in p2[0]:
                     alpha = float(p2[1])
-                if 'beta' in p2[0]:
-                    beta = float(p2[1])
-        if alpha is not None and beta is not None:
-            return Prs(alpha, beta)
+                if 'zscore' in p2[0]:
+                    zscore = float(p2[1])
+                if 'beta' in p2[0]:       # deprecated
+                    zscore = float(p2[1])
+        if alpha is not None and zscore is not None:
+            return Prs(alpha, zscore)
         return None
 
     def get_risk_factor_codes(self):
@@ -532,7 +534,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
                 print(fmt % (proband_status, (risk_factor_code if p.target != "0" else 0),
                              prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
-                             prs.beta if p.target != "0" and prs is not None and prs.beta else 0,), file=f)
+                             prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,), file=f)
         f.close()
         return filepath
 
