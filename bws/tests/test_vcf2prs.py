@@ -1,6 +1,6 @@
 from boadicea_auth.models import UserDetails
 from django.contrib.auth.models import User, Permission
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_text

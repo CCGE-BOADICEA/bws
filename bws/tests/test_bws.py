@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -46,6 +46,7 @@ class MutFreqTests(TestCase):
         client.credentials(HTTP_AUTHORIZATION='Token ' + MutFreqTests.token.key)
         response = client.post(MutFreqTests.url, data, format='multipart',
                                HTTP_ACCEPT="application/json")
+        pedigree_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertTrue("mutation_frequency" in content)
@@ -96,6 +97,10 @@ class BwsTests(TestCase):
         self.client = APIClient(enforce_csrf_checks=True)
         self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
 
+    def tearDown(self):
+        TestCase.tearDown(self)
+        self.pedigree_data.close()
+
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
@@ -125,6 +130,7 @@ class BwsTests(TestCase):
         family_ids = ["XXX0", "XXX1"]
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
+        multi_pedigree_data.close()
 
     def test_canrisk_format_bws(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
@@ -141,6 +147,7 @@ class BwsTests(TestCase):
         genes = settings.BC_MODEL['GENES']
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
+        canrisk_data.close()
 
     def test_token_auth_err(self):
         ''' Test POSTing to the BWS using token authentication. '''
@@ -221,6 +228,7 @@ class BwsTests(TestCase):
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_text(response.content))
+        ped.close()
         self.assertTrue('Person Error' in content)
         self.assertTrue('year of birth' in content['Person Error'])
 
