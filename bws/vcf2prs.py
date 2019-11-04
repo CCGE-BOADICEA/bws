@@ -143,10 +143,11 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
             oc_prs_ref_file = validated_data.get("oc_prs_reference_file", None)
             if bc_prs_ref_file is None and oc_prs_ref_file is None:
                 raise ValidationError('No breast or ovarian cancer PRS reference file provided')
-            elif bc_prs_ref_file is not None:
-                bc_prs_ref_file = os.path.join(moduledir, "PRS_files", bc_prs_ref_file)
-            elif oc_prs_ref_file is not None:
-                oc_prs_ref_file = os.path.join(moduledir, "PRS_files", oc_prs_ref_file)
+            else:
+                if bc_prs_ref_file is not None:
+                    bc_prs_ref_file = os.path.join(moduledir, "PRS_files", bc_prs_ref_file)
+                if oc_prs_ref_file is not None:
+                    oc_prs_ref_file = os.path.join(moduledir, "PRS_files", oc_prs_ref_file)
 
             sample_name = validated_data.get("sample_name", None)
 
