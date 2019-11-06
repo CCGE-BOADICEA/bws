@@ -1,5 +1,22 @@
 from collections import OrderedDict
 import os
+import vcf2prs
+from vcf2prs import SnpFile, Vcf2PrsError
+
+
+def get_alpha(ref_file):
+    ''' Get PRS alpha from a reference file header. '''
+    moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
+    ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+    try:
+        snp_file = open(ref_file, 'r')
+        alpha = SnpFile.extractAlpha(snp_file.__next__())
+    except (IOError, UnicodeDecodeError, StopIteration):
+        raise Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
+    finally:
+        snp_file.close()
+    return alpha
+
 
 # FORTRAN settings
 FORTRAN_HOME = "/home/MINTS/tjc29/boadicea_classic/"
@@ -104,6 +121,7 @@ BC_MODEL = {
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs')
     ])
 }
+BC_MODEL['PRS_ALPHA'] = [get_alpha(value) for key, value in BC_MODEL['PRS_REFERENCE_FILES'].items()]
 
 #
 # OVARIAN CANCER MODEL
@@ -165,6 +183,8 @@ OC_MODEL = {
     ]),
     'PRS_REFERENCE_FILES': OrderedDict()
 }
+OC_MODEL['PRS_ALPHA'] = [get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()]
+
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if
 # there is a mutation it will give an inconsistency, and we know that zero is unrealistic.
