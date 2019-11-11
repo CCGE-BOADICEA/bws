@@ -42,6 +42,7 @@ try:
     args.tab = os.path.join(cwd, 'webservice.tab')
     runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea'], token, url)
 
+    # get risk factor names and values plus PRS
     rfsnames = []
     rfs = {}
     f = open(bwa, "r")
@@ -52,6 +53,10 @@ try:
                 if zscore is not None:
                     rfsnames.append(['PRS_BC', 'PRS'])
                     rfs['PRS_BC'] = zscore[2]
+            else:
+                line = line.replace("##", "").strip().split("=")
+                rfsnames.append([line[0], line[0].capitalize()])
+                rfs[line[0]] = line[1]
     f.close()
 
     csvfile = os.path.join(cwd, "ped.csv")
@@ -92,5 +97,5 @@ try:
     else:
         print("NOT A MATCH!!!!! "+bc_80_ws+" "+bc_80_batch)
 finally:
-    print(cwd)
+    # print(cwd)
     shutil.rmtree(cwd)
