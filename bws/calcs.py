@@ -399,6 +399,8 @@ class Predictions(object):
             except OSError:
                 pass
 
+            # logger.debug(prog + ' -r ' + out+".out -v " + bat_file + " " +
+            #              os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml"))
             process = Popen(
                 [prog,
                  '-r', out+".out",       # results file
