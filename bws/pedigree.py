@@ -501,7 +501,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         risk_factor_str_len = str(len(risk_factor_code))
 
         print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X),5(A1,X),A4," +
-              "6(X,A1),X,A"+risk_factor_str_len+",2(X,A6))", file=f)
+              "6(X,A1),X,A"+risk_factor_str_len+",2(X,A7))", file=f)
 
         for gt in range(pcount):
             print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
