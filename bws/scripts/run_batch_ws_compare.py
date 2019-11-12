@@ -68,7 +68,7 @@ for bwa in bwalist:
                     zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
                     if zscore is not None:
                         rfsnames.append(['PRS_BC', 'PRS'])
-                        rfs['PRS_BC'] = zscore[2]
+                        rfs['PRS_BC'] = zscore.group(2)
                 else:
                     line = line.replace("##", "").strip().split("=")
 
@@ -110,14 +110,14 @@ for bwa in bwalist:
         for line in f:
             risks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
             if risks:
-                bc_80_ws = risks[2]
+                bc_80_ws = risks.group(2)
         f.close()
 
         f = open(BATCH_RESULT, "r")
         for line in f:
             risks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
             if risks:
-                bc_80_batch = risks[2]
+                bc_80_batch = risks.group(2)
         f.close()
 
         if bc_80_ws and bc_80_batch and math.isclose(float(bc_80_ws), float(bc_80_batch)):
