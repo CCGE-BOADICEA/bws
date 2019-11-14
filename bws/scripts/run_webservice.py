@@ -58,6 +58,7 @@ import argparse
 import csv
 import os
 import sys
+from pathlib import Path
 try:
     import grequests
 except ImportError as e:
@@ -171,7 +172,7 @@ def handle_response(args, cmodel, r, bwa):
         else:
             print(json.dumps(rjson, indent=4, sort_keys=True))
     else:
-        sys.stderr.write("Error status: "+str(r.status_code))
+        sys.stderr.write("Web-services error status: "+str(r.status_code))
         sys.stderr.write(r.text)
         exit(1)
 
@@ -189,7 +190,8 @@ def get_auth_token(args, url):
         if r.status_code == 200:
             return r.json()['token']
         else:
-            print("Error status: "+str(r.status_code))
+            print("Authentication error status: "+str(r.status_code))
+            print(r.text)
             exit(1)
     else:
         return args.token
@@ -241,6 +243,12 @@ if __name__ == "__main__":
 
     #######################################################
     args = parser.parse_args()
+    if args.tab:
+        tabout = Path(args.tab)
+        if tabout.exists():
+            print("Output tab "+args.tab+" file already exists!")
+            exit(1)
+
     if args.can == "both":
         cancers = ['boadicea', 'ovarian']
         genes = list(set(bc_genes + oc_genes))
