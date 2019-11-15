@@ -80,7 +80,7 @@ BC_MODEL = {
         "BRCA2": 0.9,
         "PALB2": 0.9,
         "ATM": 0.9,
-        "CHEK2": 0.999999,
+        "CHEK2": 1.0,
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
