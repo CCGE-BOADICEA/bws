@@ -116,6 +116,23 @@ def output_tab(tabf, cmodel, rjson, bwa):
                             writer.writerow([famid, indivID, cr["age"], bc_dec, bc_per, oc_dec, oc_per])
                         else:
                             writer.writerow([famid, indivID, cr["age"], oc_dec, oc_per])
+
+            # report lifetime cancer risks
+            if "lifetime_cancer_risk" in res:
+                cr = res['lifetime_cancer_risk'][0]
+                bcr = res['baseline_lifetime_cancer_risk'][0]
+
+                bc_dec = '{} ({})'.format(cr["breast cancer risk"]["decimal"],
+                                          bcr["breast cancer risk"]["decimal"])
+                bc_per = '{} ({})'.format(cr["breast cancer risk"]["percent"],
+                                          bcr["breast cancer risk"]["percent"])
+                oc_dec = '{} ({})'.format(cr["ovarian cancer risk"]["decimal"],
+                                          bcr["ovarian cancer risk"]["decimal"])
+                oc_per = '{} ({})'.format(cr["ovarian cancer risk"]["percent"],
+                                          bcr["ovarian cancer risk"]["percent"])
+                writer.writerow(["Breast Cancer Lifetime Risk", bc_dec, bc_per])
+                writer.writerow(["Ovarian Cancer Lifetime Risk", oc_dec, oc_per])
+
             writer.writerow([])
     csvfile.close()
 
@@ -188,6 +205,9 @@ def get_auth_token(args, url):
 
         r = post_requests(url+"auth-token/", data={"username": user, "password": pwd})
         if r.status_code == 200:
+            if args.showtoken:
+                print(r.json()['token'])
+                exit(0)
             return r.json()['token']
         else:
             print("Authentication error status: "+str(r.status_code))
@@ -240,6 +260,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
     parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
     parser.add_argument('--token', help='authentication token')
+    parser.add_argument('--showtoken', help='display the authentication token', action='store_true')
 
     #######################################################
     args = parser.parse_args()
