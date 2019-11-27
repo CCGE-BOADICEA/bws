@@ -76,6 +76,55 @@ def post_requests(url, **kwargs):
     return requests.post(url, **kwargs)
 
 
+def summary_output_tab(tabf, cmodel, rjson, bwa):
+    ''' Tab delimeted output file '''
+    if cmodel == "boadicea":
+        header = ["FamID", "IndivID", "Age",
+                  "+5 BC Risk", "+10 BC Risk", "80 BC Risk", "BC Lifetime"]
+        ctype = "breast cancer risk"
+    else:
+        header = ["FamID", "IndivID", "Age",
+                  "+5 OC Risk", "+10 OC Risk", "80 OC Risk", "OC Lifetime"]
+        ctype = "ovarian cancer risk"
+
+    with open(tabf, 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter='\t')
+        writer.writerow(["pedigree", bwa, "version", rjson["version"], "timestamp", rjson["timestamp"],
+                         "cancer incidence rates", rjson["cancer_incidence_rates"]])
+        writer.writerow(header)
+        results = rjson["pedigree_result"]
+        for res in results:
+            famid = res["family_id"]
+            indivID = res["proband_id"]
+
+            age = "-"
+            c5, c10, c80, clt = "-", "-", "-", "-"
+
+            if "cancer_risks" in res:
+                cancer_risks = res["cancer_risks"]
+                for cr in cancer_risks:
+                    if age == "-" or int(cr["age"]) < age:
+                        age = int(cr["age"]) - 1
+
+                for cr in cancer_risks:
+                    crage = int(cr["age"])
+                    if crage == (age + 5):
+                        c5 = cr[ctype]["decimal"]
+                    elif crage == (age + 10):
+                        c10 = cr[ctype]["decimal"]
+                    if crage == 80:
+                        c80 = cr[ctype]["decimal"]
+
+            # report lifetime cancer risks
+            if "lifetime_cancer_risk" in res and res["lifetime_cancer_risk"] is not None:
+                cr = res['lifetime_cancer_risk'][0]
+                clt = cr["breast cancer risk"]["decimal"]
+
+            writer.writerow([famid, indivID, age, c5, c10, c80, clt])
+        writer.writerow([])
+    csvfile.close()
+
+
 def output_tab(tabf, cmodel, rjson, bwa):
     ''' Tab delimeted output file '''
     if cmodel == "boadicea":
@@ -116,6 +165,23 @@ def output_tab(tabf, cmodel, rjson, bwa):
                             writer.writerow([famid, indivID, cr["age"], bc_dec, bc_per, oc_dec, oc_per])
                         else:
                             writer.writerow([famid, indivID, cr["age"], oc_dec, oc_per])
+
+            # report lifetime cancer risks
+            if "lifetime_cancer_risk" in res and res["lifetime_cancer_risk"] is not None:
+                cr = res['lifetime_cancer_risk'][0]
+                bcr = res['baseline_lifetime_cancer_risk'][0]
+
+                bc_dec = '{} ({})'.format(cr["breast cancer risk"]["decimal"],
+                                          bcr["breast cancer risk"]["decimal"])
+                bc_per = '{} ({})'.format(cr["breast cancer risk"]["percent"],
+                                          bcr["breast cancer risk"]["percent"])
+                oc_dec = '{} ({})'.format(cr["ovarian cancer risk"]["decimal"],
+                                          bcr["ovarian cancer risk"]["decimal"])
+                oc_per = '{} ({})'.format(cr["ovarian cancer risk"]["percent"],
+                                          bcr["ovarian cancer risk"]["percent"])
+                writer.writerow(["Breast Cancer Lifetime Risk", bc_dec, bc_per])
+                writer.writerow(["Ovarian Cancer Lifetime Risk", oc_dec, oc_per])
+
             writer.writerow([])
     csvfile.close()
 
@@ -169,6 +235,8 @@ def handle_response(args, cmodel, r, bwa):
         rjson = r.json()
         if args.tab:
             output_tab(args.tab, cmodel, rjson, bwa)
+        elif args.summary:
+            summary_output_tab(args.summary, cmodel, rjson, bwa)
         else:
             print(json.dumps(rjson, indent=4, sort_keys=True))
     else:
@@ -188,6 +256,9 @@ def get_auth_token(args, url):
 
         r = post_requests(url+"auth-token/", data={"username": user, "password": pwd})
         if r.status_code == 200:
+            if args.showtoken:
+                print(r.json()['token'])
+                exit(0)
             return r.json()['token']
         else:
             print("Authentication error status: "+str(r.status_code))
@@ -239,14 +310,16 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--user', help='Username')
     parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
     parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
+    parser.add_argument('--summary', help='Tab delimeted summary output file name')
     parser.add_argument('--token', help='authentication token')
+    parser.add_argument('--showtoken', help='display the authentication token', action='store_true')
 
     #######################################################
     args = parser.parse_args()
-    if args.tab:
-        tabout = Path(args.tab)
+    if args.tab or args.summary:
+        tabout = Path(args.tab if args.tab else args.summary)
         if tabout.exists():
-            print("Output tab "+args.tab+" file already exists!")
+            print("Output file already exists!")
             exit(1)
 
     if args.can == "both":
