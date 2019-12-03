@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '>1']
-    help_text = 'Number of Births (live and still births)'
+    help_text = 'Number of Children'
 
 
 class OralContraception(RiskFactor):
