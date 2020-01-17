@@ -14,7 +14,7 @@ class MenarcheAge(RiskFactor):
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '2', '>2']
-    help_text = 'Number of Births (live and still births)'
+    help_text = 'Number of Children'
 
 
 class AgeOfFirstLiveBirth(RiskFactor):
