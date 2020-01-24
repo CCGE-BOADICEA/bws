@@ -121,7 +121,7 @@ BC_MODEL = {
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs')
     ])
 }
-BC_MODEL['PRS_ALPHA'] = [get_alpha(value) for key, value in BC_MODEL['PRS_REFERENCE_FILES'].items()]
+BC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in BC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 #
 # OVARIAN CANCER MODEL
@@ -183,7 +183,7 @@ OC_MODEL = {
     ]),
     'PRS_REFERENCE_FILES': OrderedDict()
 }
-OC_MODEL['PRS_ALPHA'] = [get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()]
+OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if
