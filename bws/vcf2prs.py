@@ -167,9 +167,9 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                     oc_zscore = 0
                 data = {
                     'breast_cancer_prs': {'alpha': bc_alpha, 'zscore': bc_zscore,
-                                          'percent': self.get_percentage(bc_zscore)},
+                                          'percent': Zscore2PercentView.get_percentage(bc_zscore)},
                     'ovarian_cancer_prs': {'alpha': oc_alpha, 'zscore': oc_zscore,
-                                           'percent': self.get_percentage(oc_zscore)}
+                                           'percent': Zscore2PercentView.get_percentage(oc_zscore)}
                 }
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
@@ -182,18 +182,6 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                 raise NotAcceptable(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_percentage(self, load):
-        """
-        Use error function to compute cumulative standard normal distribution,
-        https://docs.python.org/3/library/math.html#math.erf
-        (alternative to scipy.stats.norm.cdf(load, mu, sigma) * 100.0) to get
-        percentage representation.
-        @param: standard normal PRS which is normally distributed in the general population with mean
-        of 0 and standard deviation of 1
-        @return: PRS represented as a percentage of those with a lower PRS
-        """
-        return ((1.0 + erf(load / sqrt(2.0))) / 2.0) * 100.0
-
     def get_samples(self, vcf_file):
         """ Get the samples in the VCF file. """
         try:
@@ -204,3 +192,78 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
             return samples
         except Exception:
             logging.warn(traceback.format_exc())
+
+
+class ZscoreInputSerializer(serializers.Serializer):
+    ''' Zscore2Percent input. '''
+    zscore = serializers.FloatField(required=True)
+
+
+class ZscoreOutputSerializer(serializers.Serializer):
+    """ PRS represented as a percentage of those with a lower PRS. """
+    percent = serializers.FloatField(min_value=0, max_value=100, read_only=True)
+
+
+class Zscore2PercentView(APIView):
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
+    serializer_class = ZscoreInputSerializer
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated, CanRiskPermission)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+            fields=[
+                coreapi.Field(
+                    name="sample_name",
+                    required=True,
+                    location='form',
+                    schema=coreschema.Number(
+                        title="z-score",
+                        description="Standard normal PRS",
+                    ),
+                ),
+            ],
+            encoding="application/json",
+            description="""
+Returns PRS represented as a percentage of those with a lower PRS.
+"""
+        )
+
+    def post(self, request):
+        """
+        Returns PRS represented as a percentage of those with a lower PRS.
+        ---
+        response_serializer: Vcf2PrsOutputSerializer
+        parameters:
+           - name: z-score
+             description: Standard normal PRS
+             type: number
+             required: true
+
+        responseMessages:
+           - code: 401
+             message: Not authenticated
+
+        consumes:
+           - application/json
+           - application/xml
+        produces: ['application/json', 'application/xml']
+        """
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            zscore = serializer.validated_data.get("zscore")
+            return Response(ZscoreOutputSerializer({"percent": Zscore2PercentView.get_percentage(zscore)}).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @classmethod
+    def get_percentage(cls, load):
+        """
+        Use error function to compute cumulative standard normal distribution,
+        https://docs.python.org/3/library/math.html#math.erf
+        (alternative to scipy.stats.norm.cdf(load, mu, sigma) * 100.0) to get
+        percentage representation.
+        @param: standard normal PRS which is normally distributed in the general population with mean
+        of 0 and standard deviation of 1
+        @return: PRS represented as a percentage of those with a lower PRS
+        """
+        return ((1.0 + erf(load / sqrt(2.0))) / 2.0) * 100.0
