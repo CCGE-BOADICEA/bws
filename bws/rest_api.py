@@ -89,7 +89,8 @@ class ModelWebServiceMixin():
                 return JsonResponse(e.detail, content_type="application/json",
                                     status=status.HTTP_400_BAD_REQUEST)
 
-            cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir=settings.CWD_DIR)
+            # note limit username string length used here to avoid paths to long for model code
+            cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
                     this_pedigree = {}
