@@ -10,7 +10,7 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='bws',
-    version='1.0.0-rc12',
+    version='v1.0.4',
     packages=find_packages(),
     package_data={'bws': ['tests/data/*txt'], },
     include_package_data=True,
