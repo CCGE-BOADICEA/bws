@@ -154,7 +154,7 @@ class ModelWebServiceMixin():
                    not request.user.has_perm('boadicea_auth.evaluation1b')):
                     shutil.rmtree(cwd)
             output_serialiser = OutputSerializer(output)
-            return Response(output_serialiser.data, template_name='result_tab.html')
+            return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
