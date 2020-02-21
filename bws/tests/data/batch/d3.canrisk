@@ -8,7 +8,6 @@
 ##alcohol=44.8
 ##menopause=42
 ##height=180.34
-##birads=a
 ##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
 XXXX	NA	0	hxmB	0	0	M	0	0	45	1974	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
 XXXX	me	1	ch1	m21	f21	F	0	0	42	1977	0	0	0	0	0	1	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
