@@ -42,7 +42,7 @@ class Vcf2PrsWebServices(TestCase):
 
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
-        data = {'vcf_file': self.vcf_data, 'sample_name': 'Mod', 'bc_prs_reference_file': self.prs_reference_file}
+        data = {'vcf_file': self.vcf_data, 'sample_name': '0.5', 'bc_prs_reference_file': self.prs_reference_file}
         Vcf2PrsWebServices.client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
@@ -53,13 +53,13 @@ class Vcf2PrsWebServices(TestCase):
     def test_prs_v_direct(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score and
         compare with the direct call to calculate a PRS. '''
-        data = {'vcf_file': self.vcf_data, 'sample_name': 'High', 'bc_prs_reference_file': self.prs_reference_file}
+        data = {'vcf_file': self.vcf_data, 'sample_name': '0.9', 'bc_prs_reference_file': self.prs_reference_file}
         Vcf2PrsWebServices.client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
-        prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='High')
+        prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='0.9')
         _raw, _alpha, zscore = prs.calculatePRS()
         self.assertEqual(zscore, content['breast_cancer_prs']['zscore'], 'web-service and direct calculation')
 
