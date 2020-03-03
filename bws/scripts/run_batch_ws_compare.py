@@ -64,11 +64,15 @@ for bwa in bwalist:
         f = open(bwa, "r")
         for line in f:
             if line.startswith("##") and "##CanRisk" not in line and "##FamID" not in line:
-                if "PRS_BC" in line:
+                if "PRS_BC" in line:      # alpha=0.45,zscore=0.1234
                     zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
+                    alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
                     if zscore is not None:
-                        rfsnames.append(['PRS_BC', 'PRS'])
-                        rfs['PRS_BC'] = zscore.group(2)
+                        rfsnames.append(['PRS_BC_z', 'BC_PRS_z'])
+                        rfs['PRS_BC_z'] = zscore.group(2)
+                    if alpha is not None:
+                        rfsnames.append(['PRS_BC_alpha', 'BC_PRS_alpha'])
+                        rfs['PRS_BC_alpha'] = alpha.group(2)
                 else:
                     line = line.replace("##", "").strip().split("=")
 
