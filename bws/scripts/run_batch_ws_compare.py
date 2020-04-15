@@ -37,7 +37,7 @@ url = args.url
 
 # batch fortran home
 FORTRAN = args.fortran
-if not os.path.exists(os.path.join(FORTRAN, 'batch_BOADICEA.sh')):
+if not os.path.exists(os.path.join(FORTRAN, 'batch_run.sh')):
     print("Error: check path to fortran : "+FORTRAN)
     exit(1)
 
@@ -56,7 +56,7 @@ for bwa in bwalist:
 
         # run webservice
         args.tab = os.path.join(cwd, 'webservice.tab')
-        runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea'], token, url)
+        runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea', 'ovarian'], token, url)
 
         # get risk factor names and values plus PRS
         rfsnames = []
@@ -82,6 +82,9 @@ for bwa in bwalist:
                         name = 'MHT_use'
                     elif line[0] == 'oc_use':
                         name = 'OC_Use'
+                        if line[1] == "N":
+                            rfsnames.append(['OC_Duration', 'OC_Duration'])
+                            rfs['OC_Duration'] = '0'
                     elif line[0] == 'birads':
                         name = 'BIRADS'
                     else:
@@ -98,9 +101,9 @@ for bwa in bwalist:
         BATCH_RESULT = os.path.join(cwd, "batch_result.out")
 
         process = Popen(
-            [FORTRAN+"batch_BOADICEA.sh",
+            [FORTRAN+"batch_run.sh",
              "-r", BATCH_RESULT,
-             "-s", FORTRAN+"BOADICEA_settings.ini",
+             "-s", FORTRAN+"settings.ini",
              "-l", os.path.join(cwd, "runlog.log"),
              csvfile],
             cwd=FORTRAN,
@@ -112,22 +115,36 @@ for bwa in bwalist:
         # compare webservice.tab with batch_result.out
         f = open(args.tab, "r")
         for line in f:
-            risks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
-            if risks:
-                bc_80_ws = risks.group(2)
+            bcrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*\).*\).*\).*\)", line)
+            ocrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
+            if bcrisks:
+                bc_80_ws = bcrisks.group(2)
+            if ocrisks:
+                oc_80_ws = ocrisks.group(2)
         f.close()
 
-        f = open(BATCH_RESULT, "r")
-        for line in f:
-            risks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
-            if risks:
-                bc_80_batch = risks.group(2)
-        f.close()
+        def get_80(fname):
+            f = open(fname, "r")
+            for line in f:
+                crisks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
+                if crisks:
+                    c_80_batch = crisks.group(2)
+            f.close()
+            return c_80_batch
+
+        bc_80_batch = get_80(BATCH_RESULT+"_boadicea.csv")
+        oc_80_batch = get_80(BATCH_RESULT+"_ovarian.csv")
 
         if bc_80_ws and bc_80_batch and math.isclose(float(bc_80_ws), float(bc_80_batch)):
-            print("EXACT MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
+            print("BC EXACT MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
         else:
-            print("NOT A MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
+            print("BC NOT A MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
+            exact_matches += 1
+
+        if oc_80_ws and oc_80_batch and math.isclose(float(oc_80_ws), float(oc_80_batch)):
+            print("OC EXACT MATCH ::: "+bwa+"    webservice: "+oc_80_ws+" batch: "+oc_80_batch)
+        else:
+            print("OC NOT A MATCH ::: "+bwa+"    webservice: "+oc_80_ws+" batch: "+oc_80_batch)
             exact_matches += 1
     finally:
         shutil.rmtree(cwd)
