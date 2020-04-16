@@ -2,6 +2,8 @@
 #
 # Test script to compare results from BC webservice and batch script
 # bws/scripts/run_batch_ws_compare.py -u USERNAME -p bws/tests/data/canrisk_prs.txt
+# bws/scripts/run_batch_ws_compare.py -u USERNAME -p bws/tests/data/batch/ --url http://0.0.0.0:8000/ \
+#                                     --fortran /home/xxxx/Model-Batch-Processing --cancer_rates Spain
 #
 
 import argparse
@@ -24,12 +26,20 @@ parser.add_argument('--url', default='https://canrisk.org/', help='Web-services 
 parser.add_argument('-u', '--user', help='Username')
 parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
 parser.add_argument('-f', '--fortran', help='Path to BOADICEA model code',
-                    default=os.path.join(expanduser("~"), "boadicea_classic/github/BOADICEA-Model-v5.0.0/"))
+                    default=os.path.join(expanduser("~"), "boadicea_classic/github/Model-Batch-Processing/"))
+parser.add_argument('--cancer_rates', default='UK',
+                    choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Finland',
+                             'Iceland', 'New-Zealand', 'Norway', 'Spain', 'Sweden'],
+                    help='Cancer incidence rates (default: %(default)s)')
 parser.add_argument('--token', help='authentication token')
 
 args = parser.parse_args()
 args.mut_freq = 'UK'
-args.cancer_rates = 'UK'
+
+
+irates = "BOADICEA-Model/Data/incidence_rates_"+args.cancer_rates+".nml"
+print('Cancer Incidence Rates: '+args.cancer_rates)
+
 url = args.url
 
 # batch fortran home
@@ -120,6 +130,7 @@ for bwa in bwalist:
             [FORTRAN+"batch_run.sh",
              "-r", BATCH_RESULT,
              "-s", FORTRAN+"settings.ini",
+             "-i", irates,
              "-l", os.path.join(cwd, "runlog.log"),
              csvfile],
             cwd=FORTRAN,
