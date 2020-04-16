@@ -19,13 +19,10 @@ import math
 #
 # define optional command line arguments
 parser = argparse.ArgumentParser('run a risk prediction via the web-service')
-parser.add_argument('-c', '--can', default='boadicea', choices=['boadicea', 'ovarian', 'both'],
-                    help='Cancer risk models')
 
 parser.add_argument('--url', default='https://canrisk.org/', help='Web-services URL')
 parser.add_argument('-u', '--user', help='Username')
 parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
-parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
 parser.add_argument('-f', '--fortran', help='Path to BOADICEA model code',
                     default=os.path.join(expanduser("~"), "boadicea_classic/github/BOADICEA-Model-v5.0.0/"))
 parser.add_argument('--token', help='authentication token')
@@ -48,6 +45,25 @@ if os.path.isfile(bwa):
 else:
     bwalist = [os.path.join(bwa, f) for f in os.listdir(bwa) if os.path.isfile(os.path.join(bwa, f))]
 
+
+def add_prs(line, cancer, rfsnames, rfs):
+    '''
+    Add PRS arrays for csv batch input file parameters.
+    @param line: CanRisk PRS header e.g. PRS_BC=alpha=0.444,zscore=1.12
+    @param cancer: string donating cancer type, i.e. 'BC' or 'OC'
+    @param rfsnames: array of risk factor names
+    @param rfs: risk factor values
+    '''
+    zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
+    alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
+    if zscore is not None:
+        rfsnames.append(['PRS_'+cancer+'_z', cancer+'_PRS_z'])
+        rfs['PRS_'+cancer+'_z'] = zscore.group(2)
+    if alpha is not None:
+        rfsnames.append(['PRS_'+cancer+'_alpha', cancer+'_PRS_alpha'])
+        rfs['PRS_'+cancer+'_alpha'] = alpha.group(2)
+
+
 # loop over canrisk files and compare results from webservices with those from the batch script
 exact_matches = 0
 for bwa in bwalist:
@@ -65,19 +81,17 @@ for bwa in bwalist:
         for line in f:
             if line.startswith("##") and "##CanRisk" not in line and "##FamID" not in line:
                 if "PRS_BC" in line:      # alpha=0.45,zscore=0.1234
-                    zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
-                    alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
-                    if zscore is not None:
-                        rfsnames.append(['PRS_BC_z', 'BC_PRS_z'])
-                        rfs['PRS_BC_z'] = zscore.group(2)
-                    if alpha is not None:
-                        rfsnames.append(['PRS_BC_alpha', 'BC_PRS_alpha'])
-                        rfs['PRS_BC_alpha'] = alpha.group(2)
+                    add_prs(line, 'BC', rfsnames, rfs)
+                elif "PRS_OC" in line:    # alpha=0.45,zscore=0.1234
+                    add_prs(line, 'OC', rfsnames, rfs)
                 else:
                     line = line.replace("##", "").strip().split("=")
 
                     if line[0].isupper():
-                        name = line[0]
+                        if line[0] == 'TL':
+                            name = 'Tubal_Ligation'
+                        else:
+                            name = line[0]
                     elif line[0] == 'mht_use':
                         name = 'MHT_use'
                     elif line[0] == 'oc_use':
@@ -87,6 +101,8 @@ for bwa in bwalist:
                             rfs['OC_Duration'] = '0'
                     elif line[0] == 'birads':
                         name = 'BIRADS'
+                    elif line[0] == 'endo':
+                        name = 'Endometriosis'
                     else:
                         name = line[0].capitalize()
 
