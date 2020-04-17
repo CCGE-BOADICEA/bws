@@ -1,0 +1,15 @@
+##CanRisk 1.0
+##menarche=15
+##parity=1
+##first_live_birth=22
+##oc_use=N
+##mht_use=N
+##BMI=23.01
+##alcohol=44.8
+##menopause=42
+##birads=b
+##height=180.34
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXXX	NA	0	gyma	hxmB	ch1	F	0	0	19	2000	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	me	1	ch1	0	0	F	0	0	42	1977	0	0	0	0	0	1	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX	NA	0	hxmB	0	0	M	0	0	45	1974	0	0	0	44	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0

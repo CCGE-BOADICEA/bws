@@ -1,0 +1,11 @@
+##CanRisk 1.0
+##menarche=12
+##mht_use=E
+##BMI=27.01
+##alcohol=18
+##height=156.34
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXXX	father	0	m21	0	0	M	0	0	68	1951	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXX    mother  0       f21     0       0       F       0       0       67      1952    58      0       0       0       0       0       S:N     S:N     S:P     S:N     S:N     0:0     0:0     0:0     N:N:N:0:0
+XXXX    twin-me 1       ch1     m21     f21     F       1       0       44      1975    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXXX    twin-si 0       qrGZ    m21     f21     F       1       0       44      1975    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
