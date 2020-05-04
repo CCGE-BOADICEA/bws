@@ -151,6 +151,10 @@ for bwa in bwalist:
         f.close()
 
         def get_80(fname):
+            if not os.path.isfile(fname):
+                print(outs)
+                print(errs)
+
             f = open(fname, "r")
             for line in f:
                 crisks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
