@@ -18,7 +18,7 @@ setup(
     url='https://github.com/CCGE-BOADICEA/bws',
     description='A Django app for web-services for BOADICEA.',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
-    install_requires=["requests>=2.22.0", "Django>=2.2.11,<3.0", "djangorestframework==3.11.0",
+    install_requires=["requests>=2.22.0", "Django>=2.2.13,<3.0", "djangorestframework==3.11.0",
                       "coreapi==2.3.3"],
     classifiers=[
         'Environment :: Web Environment',
