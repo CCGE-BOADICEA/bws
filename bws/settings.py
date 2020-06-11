@@ -181,7 +181,9 @@ OC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict()
+    'PRS_REFERENCE_FILES': OrderedDict([
+        ('OCAC 36', 'OCAC_36_PRS.prs')
+    ])
 }
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
 
