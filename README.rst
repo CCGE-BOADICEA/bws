@@ -26,11 +26,32 @@ Quick start
         'RISKS_EXE': 'boadicea_risks.exe',
     ....
 
-3. If you need to start a Django project::
+3. If you do not have access to the vcf2prs module, then comment out the related imports in the ``bws.settings.py``:
+
+    #import vcf2prs
+    #from vcf2prs import SnpFile, Vcf2PrsError
+
+and change the get_alpha function to return as follows:
+
+    def get_alpha(ref_file):
+    ''' Get PRS alpha from a reference file header. '''
+     return
+    #    moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
+    #    ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+    #    try:
+    #        snp_file = open(ref_file, 'r')
+    #        alpha = SnpFile.extractAlpha(snp_file.__next__())
+    #    except (IOError, UnicodeDecodeError, StopIteration):
+    #        raise Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
+    #    finally:
+    #        snp_file.close()
+    #    return alpha
+
+4. If you need to start a Django project::
 
     django-admin startproject [project_name]
 
-4. Add "rest_framework", "rest_framework.authtoken" and "bws" to your ``INSTALLED_APPS`` in ``settings.py``::
+5. Add "rest_framework", "rest_framework.authtoken" and "bws" to your ``INSTALLED_APPS`` in ``settings.py``::
 
     INSTALLED_APPS = (
         ...
@@ -39,24 +60,24 @@ Quick start
         'bws',
     )
 
-5. Import the bws settings in ``settings.py``::
+6. Import the bws settings in ``settings.py``::
 
     from bws.settings import *
   
-6. Add web-service endpoints to the ```urls.py``::
+7. Add web-service endpoints to the ```urls.py``::
 
      from bws import rest_api
      from rest_framework.authtoken.views import ObtainAuthToken
      ....
      
 	 url_rest_patterns = [
-	     url(r'^boadicea/', rest_api.BwsView.as_view(), name='bws'),
-	     url(r'^ovarian/', rest_api.OwsView.as_view(), name='ows'),
-	     url(r'^auth-token/', ObtainAuthToken.as_view()),
+	     path(r'^boadicea/', rest_api.BwsView.as_view(), name='bws'),
+	     path(r'^ovarian/', rest_api.OwsView.as_view(), name='ows'),
+	     path(r'^auth-token/', ObtainAuthToken.as_view()),
 	 ]
 	 urlpatterns.extend(url_rest_patterns)
 
-7. Run tests::
+8. Run tests::
 
     python manage.py test bws.tests.test_bws \
                           bws.tests.test_ows.OwsTests \
