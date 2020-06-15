@@ -68,12 +68,13 @@ and change the get_alpha function to return as follows::
 
      from bws import rest_api
      from rest_framework.authtoken.views import ObtainAuthToken
+     from django.conf.urls import include, url
      ....
      
 	 url_rest_patterns = [
-	     path(r'^boadicea/', rest_api.BwsView.as_view(), name='bws'),
-	     path(r'^ovarian/', rest_api.OwsView.as_view(), name='ows'),
-	     path(r'^auth-token/', ObtainAuthToken.as_view()),
+	     url(r'^boadicea/', rest_api.BwsView.as_view(), name='bws'),    # breast cancer risk model
+	     url(r'^ovarian/', rest_api.OwsView.as_view(), name='ows'),     # ovarian cancer risk model
+	     url(r'^auth-token/', ObtainAuthToken.as_view()),
 	 ]
 	 urlpatterns.extend(url_rest_patterns)
 
