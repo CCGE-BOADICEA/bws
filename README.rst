@@ -26,12 +26,12 @@ Quick start
         'RISKS_EXE': 'boadicea_risks.exe',
     ....
 
-3. If you do not have access to the vcf2prs module, then comment out the related imports in the ``bws.settings.py``:
+3. If you do not have access to the vcf2prs module, then comment out the related imports in the ``bws.settings.py``::
 
     #import vcf2prs
     #from vcf2prs import SnpFile, Vcf2PrsError
 
-and change the get_alpha function to return as follows:
+and change the get_alpha function to return as follows::
 
     def get_alpha(ref_file):
     ''' Get PRS alpha from a reference file header. '''
