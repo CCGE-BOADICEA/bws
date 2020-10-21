@@ -4,16 +4,17 @@ Ovarian cancer risk factors.
 
 from bws.risk_factors.rfs import RiskFactor, RiskFactors
 from collections import OrderedDict
+from django.utils.translation import gettext_lazy as _
 
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '>1']
-    help_text = 'Number of Children'
+    help_text = _('Number of Children')
 
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never or <1', '1-4', '5-9', '10-14', '>=15']
-    help_text = 'Duration of Oral Contraception Use'
+    help_text = _('Duration of Oral Contraception Use')
     synonyms = ['oc_use']
 
     @classmethod
@@ -41,7 +42,7 @@ class OralContraception(RiskFactor):
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
     cats = ['-', 'never', 'ever']
-    help_text = 'Hormone Replacement Therapy'
+    help_text = _('Hormone Replacement Therapy')
     synonyms = ['mht_use']
 
     @classmethod
@@ -56,7 +57,7 @@ class MHT(RiskFactor):
 class TubalLigation(RiskFactor):
     ''' Tubal ligation surgical procedure for sterilization '''
     cats = ['-', 'no', 'yes']
-    help_text = 'Tubal Ligation'
+    help_text = _('Tubal Ligation')
     synonyms = ['TL', 'tl']
 
     @classmethod
@@ -72,7 +73,7 @@ class TubalLigation(RiskFactor):
 class Endometriosis(RiskFactor):
     ''' Endometriosis '''
     cats = ['-', 'no', 'yes']
-    help_text = 'Endometriosis'
+    help_text = _('Endometriosis')
     synonyms = ['Endo', 'endo']
 
     @classmethod
@@ -87,7 +88,7 @@ class Endometriosis(RiskFactor):
 
 class BMI(RiskFactor):
     cats = ['-', '<22.5', '22.5-<30', '>=30']
-    help_text = 'Body Mass Index'
+    help_text = _('Body Mass Index')
 
     @classmethod
     def get_category(cls, val, isreal=True):
@@ -96,7 +97,7 @@ class BMI(RiskFactor):
 
 class Height(RiskFactor):
     cats = ['-', '<152.91', '152.91-<159.65', '159.65-<165.96', '165.96-<172.70', '>=172.70']
-    help_text = 'Height (cm)'
+    help_text = _('Height (cm)')
 
     @classmethod
     def get_category(cls, val, isreal=True):

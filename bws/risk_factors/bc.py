@@ -4,28 +4,29 @@ Breast cancer risk factors.
 
 from bws.risk_factors.rfs import RiskFactor, RiskFactors
 from collections import OrderedDict
+from django.utils.translation import gettext_lazy as _
 
 
 class MenarcheAge(RiskFactor):
     cats = ['-', '<11', '11', '12', '13', '14', '15', '>15']
-    help_text = 'Age at First Occurrence of Menstruation'
+    help_text = _('Age at First Occurrence of Menstruation')
     synonyms = ['menarche']
 
 
 class Parity(RiskFactor):
     cats = ['-', '0', '1', '2', '>2']
-    help_text = 'Number of Children'
+    help_text = _('Number of Children')
 
 
 class AgeOfFirstLiveBirth(RiskFactor):
     cats = ['-', '<20', '20-24', '25-29', '>29']
-    help_text = 'Age of First Live Birth'
+    help_text = _('Age of First Live Birth')
     synonyms = ['first_live_birth']
 
 
 class OralContraception(RiskFactor):
     cats = ['-', 'never', 'former', 'current']
-    help_text = 'Oral Contraception Usage'
+    help_text = _('Oral Contraception Usage')
     synonyms = ['oc_use']
 
     @classmethod
@@ -43,7 +44,7 @@ class OralContraception(RiskFactor):
 class MHT(RiskFactor):
     ''' Menopause hormone replacement '''
     cats = ['-', 'never/former', 'current e-type', 'current other/unknown type (including combined type)']
-    help_text = 'Hormone Replacement Therapy'
+    help_text = _('Hormone Replacement Therapy')
     synonyms = ['mht_use']
 
     @classmethod
@@ -59,7 +60,7 @@ class MHT(RiskFactor):
 
 class BMI(RiskFactor):
     cats = ['-', '<18.5', '18.5-<25', '25-<30', '>=30']
-    help_text = 'Body Mass Index'
+    help_text = _('Body Mass Index')
 
     @classmethod
     def get_category(cls, val, isreal=True):
@@ -69,7 +70,7 @@ class BMI(RiskFactor):
 class AlcoholIntake(RiskFactor):
     cats = ['-', '0', '<5', '5-<15', '15-<25', '25-<35', '35-<45', '>=45']
 
-    help_text = 'Alcohol Intake (grams/day)'
+    help_text = _('Alcohol Intake (grams/day)')
     synonyms = ['alcohol']
 
     @classmethod
@@ -79,13 +80,13 @@ class AlcoholIntake(RiskFactor):
 
 class AgeOfMenopause(RiskFactor):
     cats = ['-', '<40', '40-44', '45-49', '50-54', '>54']
-    help_text = 'Age of Menopause'
+    help_text = _('Age of Menopause')
     synonyms = ['menopause']
 
 
 class MammographicDensity(RiskFactor):
     cats = ['-', 'BI-RADS a', 'BI-RADS b', 'BI-RADS c', 'BI-RADS d']
-    help_text = 'Mammographic Density'
+    help_text = _('Mammographic Density')
     synonyms = ['birads']
 
     @classmethod
@@ -101,7 +102,7 @@ class MammographicDensity(RiskFactor):
 
 class Height(RiskFactor):
     cats = ['-', '<152.91', '152.91-<159.65', '159.65-<165.96', '165.96-<172.70', '>=172.70']
-    help_text = 'Height (cm)'
+    help_text = _('Height (cm)')
 
     @classmethod
     def get_category(cls, val, isreal=True):
