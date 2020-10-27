@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-21 09:56+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: bws/exceptions.py:90
+msgid "Request has timed out."
+msgstr ""
+
+#: bws/risk_factors/bc.py:12
+msgid "Age at First Occurrence of Menstruation"
+msgstr ""
+
+#: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
+msgid "Number of Children"
+msgstr ""
+
+#: bws/risk_factors/bc.py:23
+msgid "Age of First Live Birth"
+msgstr ""
+
+#: bws/risk_factors/bc.py:29
+msgid "Oral Contraception Usage"
+msgstr ""
+
+#: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
+msgid "Hormone Replacement Therapy"
+msgstr ""
+
+#: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
+msgid "Body Mass Index"
+msgstr ""
+
+#: bws/risk_factors/bc.py:73
+msgid "Alcohol Intake (grams/day)"
+msgstr ""
+
+#: bws/risk_factors/bc.py:83
+msgid "Age of Menopause"
+msgstr ""
+
+#: bws/risk_factors/bc.py:89
+msgid "Mammographic Density"
+msgstr ""
+
+#: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
+msgid "Height (cm)"
+msgstr ""
+
+#: bws/risk_factors/oc.py:17
+msgid "Duration of Oral Contraception Use"
+msgstr ""
+
+#: bws/risk_factors/oc.py:60
+msgid "Tubal Ligation"
+msgstr ""
+
+#: bws/risk_factors/oc.py:76
+msgid "Endometriosis"
+msgstr ""
