@@ -20,56 +20,56 @@ msgstr ""
 
 #: bws/exceptions.py:90
 msgid "Request has timed out."
-msgstr "Délai d’attente de la demande dépassé."
+msgstr ""
 
 #: bws/risk_factors/bc.py:12
 msgid "Age at First Occurrence of Menstruation"
-msgstr "Âge à la première apparition des règles"
+msgstr ""
 
 #: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
 msgid "Number of Children"
-msgstr "Nombre d’enfants"
+msgstr ""
 
 #: bws/risk_factors/bc.py:23
 msgid "Age of First Live Birth"
-msgstr "Âge à la première naissance vivante"
+msgstr ""
 
 #: bws/risk_factors/bc.py:29
 msgid "Oral Contraception Usage"
-msgstr "Recours à une contraception orale"
+msgstr ""
 
 #: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
 msgid "Hormone Replacement Therapy"
-msgstr "Traitement hormonal substitutif"
+msgstr ""
 
 #: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
 msgid "Body Mass Index"
-msgstr "Indice de masse corporelle"
+msgstr ""
 
 #: bws/risk_factors/bc.py:73
 msgid "Alcohol Intake (grams/day)"
-msgstr "Consommation d’alcool (grammes/jour)"
+msgstr ""
 
 #: bws/risk_factors/bc.py:83
 msgid "Age of Menopause"
-msgstr "Âge de la ménopause"
+msgstr ""
 
 #: bws/risk_factors/bc.py:89
 msgid "Mammographic Density"
-msgstr "Densité mammographique"
+msgstr ""
 
 #: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
 msgid "Height (cm)"
-msgstr "Hauteur (cm)"
+msgstr ""
 
 #: bws/risk_factors/oc.py:17
 msgid "Duration of Oral Contraception Use"
-msgstr "Durée d’utilisation de la contraception orale"
+msgstr ""
 
 #: bws/risk_factors/oc.py:60
 msgid "Tubal Ligation"
-msgstr "Ligature tubaire"
+msgstr ""
 
 #: bws/risk_factors/oc.py:76
 msgid "Endometriosis"
-msgstr "Endométriose"
+msgstr ""
