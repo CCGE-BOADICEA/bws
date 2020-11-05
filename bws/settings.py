@@ -196,6 +196,7 @@ MAX_MUTATION_FREQ = 0.008
 
 # rest framework throttle settings
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_THROTTLE_RATES': {
         'sustained': '5000/day',
         'burst': '300/min',
