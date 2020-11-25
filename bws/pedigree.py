@@ -13,6 +13,7 @@ from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 import logging
 import os
+from django.utils.translation import gettext_lazy as _
 
 logger = logging.getLogger(__name__)
 
@@ -178,8 +179,8 @@ class PedigreeFile(object):
 
             for p in people:
                 if not p.is_complete():
-                    warnings.append("year of birth and age at last follow up must be specified in order for " +
-                                    p.pid + " to be included in a calculation")
+                    warnings.append(_('year of birth and age at last follow up must be specified in order for ' +
+                                      '%(id)s to be included in a calculation') % {'id': p.pid})
                 p.validate(pedigree)                        # Validate person data
                 type(p.cancers).validate(p)                 # Validate cancer diagnoses
                 warnings.extend(PathologyTest.validate(p))  # Validate pathology status
