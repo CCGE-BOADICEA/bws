@@ -5,6 +5,7 @@ import re
 from bws.exceptions import GeneticTestError, PedigreeFileError, PathologyError, CancerError
 from collections import namedtuple
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 # BC pathology tests stored in named tuple
 PATHOLOGY_TESTS = ['er', 'pr', 'her2', 'ck14', 'ck56']
@@ -72,59 +73,64 @@ class PathologyTest(object):
 
         # if the individual has had breast cancer
         if person.cancers.diagnoses.bc1.age != "-1":
-            rules = "Please note the following rules for breast cancer pathology data: " \
-                    "(1) if an individual's ER status is unspecified, no pathology information for that individual " \
-                    "will be taken into account in the calculation; " \
-                    "(2) if a breast cancer is ER positive, no other pathology information for that individual will " \
-                    "be taken into account in the calculation; " \
-                    "(3) if a breast cancer is ER negative, information on PR and HER2 for that individual will only " \
-                    "be taken into account in the calculation if both PR and HER2 are specified; and " \
-                    "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation if " \
-                    "both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR " \
-                    "negative and HER2 negative). "
+            rules = _("Please note the following rules for breast cancer pathology data: "
+                      "(1) if an individual's ER status is unspecified, no pathology information for that individual "
+                      "will be taken into account in the calculation; "
+                      "(2) if a breast cancer is ER positive, no other pathology information for that individual will "
+                      "be taken into account in the calculation; "
+                      "(3) if a breast cancer is ER negative, information on PR and HER2 for that individual will only "
+                      "be taken into account in the calculation if both PR and HER2 are specified; and "
+                      "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation if "
+                      "both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR "
+                      "negative and HER2 negative). ")
             # If ER is unspecified but another pathology parameter has been specified,
             # report that no pathology data will be used
             if(tests.er.result == "0" and (tests.pr.result != "0" or tests.her2.result != "0" or
                                            tests.ck14.result != "0" or tests.ck56.result != "0")):
                 warnings.append(
-                    "Incomplete data record in the pedigree: family member '" + person.pid + "' has an unspecified ER "
-                    "status, but another pathology parameter (PR, HER2, CK14 or CK5/6) has been specified. " + rules +
-                    "As a result, this individual's pathology information will not be taken into account in this case.")
+                    _("Incomplete data record in the pedigree: family member %(id)s has an unspecified ER status, but "
+                      "another pathology parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
+                      "result, this individual's pathology information will not be taken into account in this case.")
+                    % {'id': person.pid, 'rules': rules})
 
             # If ER negative and PR status is specified but HER2 status is unspecified (or vice versa) report a warning
             if(tests.er.result == "N" and
                (tests.pr.result != "0" and tests.her2.result == "0") or
                (tests.pr.result == "0" and tests.her2.result != "0")):
                 warnings.append(
-                    "Incomplete data record in the pedigree: family member '" + person.pid + "' has a breast cancer "
-                    "pathology where PR status is specified but HER2 status is unspecified (or vice versa). " + rules +
-                    "As a result, PR and HER2 status will not be taken into account in this case.")
+                    _("Incomplete data record in the pedigree: family member %(id)s has a breast cancer "
+                      "pathology where PR status is specified but HER2 status is unspecified (or vice versa). %(rules)s"
+                      "As a result, PR and HER2 status will not be taken into account in this case.")
+                    % {'id': person.pid, 'rules': rules})
 
             # If either CK14 or CK5/6 has been specified (one without the other) generate a warning
             if((tests.ck14.result != "0" and tests.ck56.result == "0") or
                (tests.ck14.result == "0" and tests.ck56.result != "0")):
                 warnings.append(
-                    "Incomplete data record in the pedigree: family member '" + person.pid + "' has a breast cancer "
-                    "pathology where only CK14 or CK5/6 status has been specified. " + rules + "As a result, CK14 and "
-                    "CK5/6 status will not be taken into account in this case.")
+                    _("Incomplete data record in the pedigree: family member %(id)s has a breast cancer "
+                      "pathology where only CK14 or CK5/6 status has been specified. %(rules)s As a result, CK14 and "
+                      "CK5/6 status will not be taken into account in this case.")
+                    % {'id': person.pid, 'rules': rules})
 
             # If not Triple Negative but CK14 and CK5/6 are specified generate a warning
             if((tests.er.result != "N" or tests.pr.result != "N" or tests.her2.result != "N") and
                (tests.ck14.result != "0" and tests.ck56.result != "0")):
                 warnings.append(
-                    "Incomplete data record in your pedigree: family member '" + person.pid + "' has a breast cancer "
-                    "pathology where CK14 or CK5/6 status is specified but the breast cancer pathology is not triple "
-                    "negative (ER negative, PR negative and HER2 negative). " + rules + "As a result, CK14 and CK5/6 "
-                    "status will not be taken into account in this case.")
+                    _("Incomplete data record in your pedigree: family member %(id)s has a breast cancer "
+                      "pathology where CK14 or CK5/6 status is specified but the breast cancer pathology is not triple "
+                      "negative (ER negative, PR negative and HER2 negative). %(rules)s As a result, CK14 and CK5/6 "
+                      "status will not be taken into account in this case.")
+                    % {'id': person.pid, 'rules': rules})
 
             # If ER positive, and PR or HER2 or CK14 or CK5/6 specified generate a warning
             if(tests.er.result == "P" and (tests.pr.result != "0" or tests.her2.result != "0" or
                                            tests.ck14.result != "0" or tests.ck56.result != "0")):
                 warnings.append(
-                    "Incomplete data record in your pedigree: family member '" + person.pid + "' has a breast cancer "
-                    "pathology that is ER positive, where an additional pathology parameter (PR, HER2, CK14 or CK5/6) "
-                    "has been specified. " + rules + "As a result, only ER positive status will be taken into account "
-                    "in this case.")
+                    _("Incomplete data record in your pedigree: family member %(id)s has a breast cancer pathology"
+                      "that is ER positive, where an additional pathology parameter (PR, HER2, CK14 or CK5/6) "
+                      "has been specified. %(rules)s As a result, only ER positive status will be taken into account "
+                      "in this case.")
+                    % {'id': person.pid, 'rules': rules})
 
         return warnings
 
