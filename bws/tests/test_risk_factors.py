@@ -278,27 +278,27 @@ class BwsRiskFactors(TestCase):
         self.client = APIClient(enforce_csrf_checks=True)
         self.pedigree_data = open(os.path.join(BwsRiskFactors.TEST_DATA_DIR, "pedigree_data.txt"), "r")
 
-    def test_bws_risk_factor(self):
-        ''' Test affect of including the risk factors. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': 7}
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsRiskFactors.token.key)
-        # no permissions to use the risk factors and so ignored
-        response = self.client.post(BwsRiskFactors.url, data, format='multipart',
-                                    HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
-
-        # add permissions to enable use of the risk factors
-        data['pedigree_data'] = open(os.path.join(BwsRiskFactors.TEST_DATA_DIR, "pedigree_data.txt"), "r")
-        BwsRiskFactors.user.user_permissions.add(Permission.objects.get(name='Can risk'))
-        response = self.client.post(BwsRiskFactors.url, data, format='multipart',
-                                    HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
-        self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
-                        cancer_risks1[0]['breast cancer risk']['decimal'])
+#     def test_bws_risk_factor(self):
+#         ''' Test affect of including the risk factors. '''
+#         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+#                 'pedigree_data': self.pedigree_data,
+#                 'user_id': 'test_XXX', 'risk_factor_code': 7}
+#         self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsRiskFactors.token.key)
+#         # no permissions to use the risk factors and so ignored
+#         response = self.client.post(BwsRiskFactors.url, data, format='multipart',
+#                                     HTTP_ACCEPT="application/json")
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+#
+#         # add permissions to enable use of the risk factors
+#         data['pedigree_data'] = open(os.path.join(BwsRiskFactors.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+#         BwsRiskFactors.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+#         response = self.client.post(BwsRiskFactors.url, data, format='multipart',
+#                                     HTTP_ACCEPT="application/json")
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+#         self.assertLess(cancer_risks2[0]['breast cancer risk']['decimal'],
+#                         cancer_risks1[0]['breast cancer risk']['decimal'])
 
     def test_risk_factors_inconsistent(self):
         ''' Test inconsistent risk factors, e.g. age of first birth specified with parity unobserved. '''

@@ -3,7 +3,8 @@ from datetime import date
 from django.test import TestCase
 from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree
 from copy import deepcopy
-from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline
+from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline,\
+    ModelParams
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
 from django.conf import settings
 import tempfile
@@ -115,9 +116,9 @@ class RiskTests(TestCase):
         # parents
         (_father, _mother) = pedigree.add_parents(target, gtests=CanRiskGeneticTests.default_factory())
         PedigreeFile.validate(pedigree)
-        calcs = Predictions(pedigree, cwd=self.cwd,
-                            mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
-                            mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'],
+        params = ModelParams(mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
+                             mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'])
+        calcs = Predictions(pedigree, cwd=self.cwd, model_params=params,
                             model_settings=settings.OC_MODEL, calcs=[])
 
         # each gene should have a mutation probability plus a result for no mutations
@@ -200,7 +201,8 @@ class RiskTests(TestCase):
         crates = settings.BC_MODEL['CANCER_RATES']
 
         for cancer_rates in crates.values():
-            calcs = Predictions(pedigree, cwd=self.cwd, cancer_rates=cancer_rates)
+            params = ModelParams(cancer_rates=cancer_rates)
+            calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
             self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
@@ -240,8 +242,8 @@ class RiskTests(TestCase):
         for mf in mutation_frequencies.keys():
             if mf == 'Custom':
                 continue
-            calcs = Predictions(pedigree, cwd=self.cwd,
-                                mutation_frequency=mutation_frequencies[mf])
+            params = ModelParams(mutation_frequency=mutation_frequencies[mf])
+            calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
             self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)

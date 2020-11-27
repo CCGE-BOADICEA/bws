@@ -1,25 +1,70 @@
 """ Risk and mutation probability calculations, for details
 see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
-from bws import pedigree
-from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
-from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
-from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
 from copy import deepcopy
-from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
-from django.http.request import HttpRequest
-from rest_framework.request import Request
-from subprocess import Popen, PIPE, TimeoutExpired
 import logging
 import os
 import resource
+from subprocess import Popen, PIPE, TimeoutExpired
 import tempfile
 import time
-from rest_framework.exceptions import ValidationError
+
+from django.conf import settings
+from django.contrib.auth.models import User, AnonymousUser
+from django.http.request import HttpRequest
+from rest_framework.exceptions import ValidationError, NotAcceptable
+from rest_framework.request import Request
+
+from bws import pedigree
+from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
+from bws.exceptions import TimeOutException, ModelError
+from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
 
 
 logger = logging.getLogger(__name__)
+
+
+class ModelParams():
+
+    def __init__(self, population="UK", mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
+                 mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                 cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK")):
+        """
+        Cancer risk model parameters and population.
+        @keyword population: population setting
+        @keyword mutation_frequrency: mutation frequencies used in model
+        @keyword mutation_sensitivity: mutation search sensitivities
+        @keyword cancer_rates: cancer incidence rates used in risk calculation
+        """
+        self.population = population
+        self.cancer_rates = cancer_rates
+        self.mutation_frequency = mutation_frequency
+        self.mutation_sensitivity = mutation_sensitivity
+
+    @classmethod
+    def factory(cls, data, model_settings):
+        """
+        Generate ModelParams from web-service validated data
+        """
+        population = data.get('mut_freq', 'UK')
+        crates = model_settings['CANCER_RATES'].get(data.get('cancer_rates'))
+
+        if population != 'Custom':
+            mut_freq = model_settings['MUTATION_FREQUENCIES'][population]
+        else:
+            mut_freq = {}
+            for gene in model_settings['GENES']:
+                try:
+                    mut_freq[gene] = float(data.get(gene.lower() + '_mut_frequency'))
+                except TypeError:
+                    raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
+
+        gts = model_settings['GENETIC_TEST_SENSITIVITY']
+        mut_sens = {
+            k: float(data.get(k.lower() + "_mut_sensitivity", gts[k]))
+            for k in gts.keys()
+        }
+        return ModelParams(population, cancer_rates=crates, mutation_frequency=mut_freq, mutation_sensitivity=mut_sens)
 
 
 class Risk(object):
@@ -74,11 +119,11 @@ class Risk(object):
                                             model_settings=self.predictions.model_settings)
         bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                          filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.bat"),
-                                         mutation_freq=self.predictions.mutation_frequency,
-                                         sensitivity=self.predictions.mutation_sensitivity,
+                                         mutation_freq=self.predictions.model_params.mutation_frequency,
+                                         sensitivity=self.predictions.model_params.mutation_sensitivity,
                                          calc_ages=self.risk_age)
         risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
-                                cancer_rates=self.predictions.cancer_rates, cwd=self.predictions.cwd,
+                                cancer_rates=self.predictions.model_params.cancer_rates, cwd=self.predictions.cwd,
                                 niceness=self.predictions.niceness, name=self._get_name(),
                                 model=self.predictions.model_settings)
         return self._parse_risks_output(risks)
@@ -243,18 +288,13 @@ class RangeRiskBaseline(RangeRisk):
 
 class Predictions(object):
 
-    def __init__(self, pedi,
-                 mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
-                 mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
-                 cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
+    def __init__(self, pedi, model_params=ModelParams(),
                  risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()),
                  run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
         @param pedi: L{Pedigree} used in prediction calculations
-        @keyword mutation_frequrency: mutation frequencies used in model
-        @keyword mutation_sensitivity: mutation search sensitivities
-        @keyword cancer_rates: cancer incidence rates used in risk calculation
+        @keyword model_params: model parameters
         @keyword risk_factor_code: risk factor code
         @keyword prs: polygenic risk alpha & beta values calculated from VCF file
         @keyword cwd: working directory
@@ -264,9 +304,7 @@ class Predictions(object):
         @keyword calcs: list of calculations to run, e.g. ['carrier_probs', 'remaining_lifetime']
         """
         self.pedi = pedi
-        self.mutation_frequency = mutation_frequency
-        self.mutation_sensitivity = mutation_sensitivity
-        self.cancer_rates = cancer_rates
+        self.model_params = model_params
         self.request = request
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
@@ -307,9 +345,10 @@ class Predictions(object):
                                                      model_settings=self.model_settings)
             bat_file = self.pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                                   filepath=os.path.join(self.cwd, "test_prob.bat"),
-                                                  mutation_freq=self.mutation_frequency,
-                                                  sensitivity=self.mutation_sensitivity)
-            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, cancer_rates=self.cancer_rates,
+                                                  mutation_freq=self.model_params.mutation_frequency,
+                                                  sensitivity=self.model_params.mutation_sensitivity)
+            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file,
+                             cancer_rates=self.model_params.cancer_rates,
                              cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
             self.mutation_probabilties, self.version = self._parse_probs_output(probs, self.model_settings)
 

@@ -1,6 +1,8 @@
 ''' API for the BWS/OWS REST resources. '''
+from copy import deepcopy
 import datetime
 import logging
+import re
 import shutil
 import tempfile
 
@@ -9,14 +11,14 @@ from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.compat import coreapi, coreschema
-from rest_framework.exceptions import NotAcceptable, ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer  # , BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calcs import Predictions
+from bws.calcs import Predictions, ModelParams
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
@@ -24,7 +26,6 @@ from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, Outp
     OwsExtendedInputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-import re
 
 
 logger = logging.getLogger(__name__)
@@ -38,47 +39,21 @@ class ModelWebServiceMixin():
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
-            pedigree_data = validated_data.get('pedigree_data')
-            pf = PedigreeFile(pedigree_data)
-            population = validated_data.get('mut_freq', 'UK')
-            cancer_rates = model_settings['CANCER_RATES'].get(validated_data.get('cancer_rates'))
-
-            if population != 'Custom':
-                mutation_frequency = model_settings['MUTATION_FREQUENCIES'][population]
-            else:
-                mutation_frequency = {}
-                for gene in model_settings['GENES']:
-                    try:
-                        mutation_frequency[gene] = float(validated_data.get(gene.lower() + '_mut_frequency'))
-                    except TypeError:
-                        raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
-
-            gts = model_settings['GENETIC_TEST_SENSITIVITY']
-            mutation_sensitivity = {
-                k: float(validated_data.get(k.lower() + "_mut_sensitivity", gts[k]))
-                for k in gts.keys()
-            }
+            pf = PedigreeFile(validated_data.get('pedigree_data'))
+            params = ModelParams.factory(validated_data, model_settings)
 
             output = {
                 "timestamp": datetime.datetime.now(),
-                "mutation_frequency": {population: mutation_frequency},
-                "mutation_sensitivity": mutation_sensitivity,
-                "cancer_incidence_rates": cancer_rates,
+                "mutation_frequency": {params.population: params.mutation_frequency},
+                "mutation_sensitivity": params.mutation_sensitivity,
+                "cancer_incidence_rates": params.cancer_rates,
                 "pedigree_result": []
             }
 
-            if request.user.has_perm('boadicea_auth.can_risk'):
-                risk_factor_code = validated_data.get('risk_factor_code', 0)
-                prs = validated_data.get('prs', None)
-                if prs is not None:
-                    prs = Prs(prs.get('alpha'), prs.get('zscore'))
-            else:
-                if validated_data.get('risk_factor_code', 0) > 0:
-                    logger.warning('risk factor code parameter provided without the correct permissions')
-                if validated_data.get('prs', 0) != 0:
-                    logger.warning('polygenic risk score parameter provided without the correct permissions')
-                risk_factor_code = 0
-                prs = None
+            risk_factor_code = validated_data.get('risk_factor_code', 0)
+            prs = validated_data.get('prs', None)
+            if prs is not None:
+                prs = Prs(prs.get('alpha'), prs.get('zscore'))
 
             try:
                 warnings = PedigreeFile.validate(pf.pedigrees)
@@ -86,55 +61,45 @@ class ModelWebServiceMixin():
                     output['warnings'] = warnings
             except ValidationError as e:
                 logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json",
-                                    status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse(e.detail, content_type="application/json", status=status.HTTP_400_BAD_REQUEST)
 
-            # note limit username string length used here to avoid paths to long for model code
+            # note limit username string length used here to avoid paths too long for model code
             cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
-                    this_pedigree = {}
-                    this_pedigree["family_id"] = pedi.famid
-                    this_pedigree["proband_id"] = pedi.get_target().pid
-
-                    this_mutation_frequency = mutation_frequency
-                    this_population = population
+                    this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn():
-                        if not REGEX_ASHKN.match(population):
-                            msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
-                                  'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
-                            logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
-                            if 'warnings' in output:
-                                output['warnings'].append(msg)
-                            else:
-                                output['warnings'] = [msg]
-                            this_population = 'Ashkenazi'
-                            this_mutation_frequency = model_settings['MUTATION_FREQUENCIES'][this_population]
+                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                        msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
+                              'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
+                        logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
+                        if 'warnings' in output:
+                            output['warnings'].append(msg)
+                        else:
+                            output['warnings'] = [msg]
+                        this_params.population = 'Ashkenazi'
+                        this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
-                    mname = model_settings['NAME']
-                    if request.user.has_perm('boadicea_auth.can_risk') and isinstance(pedi, CanRiskPedigree):
+                    if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
+                        mname = model_settings['NAME']
                         if 'risk_factor_code' not in request.data.keys():
                             risk_factor_code = pedi.get_rfcode(mname)
 
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
-                    if request.user.has_perm('boadicea_auth.can_risk'):
-                        # add risk factors and prs used for this pedigree
-                        this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
-                        logger.debug(mname+' risk factor code '+str(risk_factor_code))
-                        if prs is not None:
-                            this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
-                            logger.debug(mname+' PRS alpha:' + str(this_pedigree["prs"]))
-
-                    calcs = Predictions(pedi, mutation_frequency=this_mutation_frequency,
-                                        mutation_sensitivity=mutation_sensitivity, cancer_rates=cancer_rates,
+                    calcs = Predictions(pedi, model_params=this_params,
                                         risk_factor_code=risk_factor_code, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
-                    this_pedigree["mutation_frequency"] = {this_population: this_mutation_frequency}
+                    this_pedigree = {}
+                    this_pedigree["family_id"] = pedi.famid
+                    this_pedigree["proband_id"] = pedi.get_target().pid
+                    this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    if prs is not None:
+                        this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
+                    this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
                     self.add_attr("version", output, calcs, output)
                     self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
                     self.add_attr("cancer_risks", this_pedigree, calcs, output)
@@ -150,9 +115,7 @@ class ModelWebServiceMixin():
                 return JsonResponse(e.detail, content_type="application/json",
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
-                if(not request.user.has_perm('boadicea_auth.evaluation') and
-                   not request.user.has_perm('boadicea_auth.evaluation1b')):
-                    shutil.rmtree(cwd)
+                shutil.rmtree(cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
