@@ -45,6 +45,9 @@ class ModelParams():
     def factory(cls, data, model_settings):
         """
         Generate ModelParams from web-service validated data
+        @keyword data: validated request data
+        @keyword model_settings: model settings
+        @return: ModelParams
         """
         population = data.get('mut_freq', 'UK')
         crates = model_settings['CANCER_RATES'].get(data.get('cancer_rates'))
