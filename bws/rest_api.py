@@ -583,7 +583,10 @@ for each the genes and the population to use for cancer incidence rates.
                                         cwd=cwd, request=request, model_settings=model_settings)
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
-                    calcs.ten_yr_cancer_risk, _v = RangeRisk(calcs, 40, 50, "10 YR RANGE").get_risk()
+                    calcs.ten_yr_cancer_risk = []
+                    for tenyr in tenyr_ranges:
+                        ten_yr_risk, _v = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
+                        calcs.ten_yr_cancer_risk.append(ten_yr_risk)
 
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
