@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-21 09:56+0100\n"
+"POT-Creation-Date: 2021-01-14 09:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,110 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: bws/cancer.py:76
+msgid ""
+"Please note the following rules for breast cancer pathology data: (1) if an "
+"individual's ER status is unspecified, no pathology information for that "
+"individual will be taken into account in the calculation; (2) if a breast "
+"cancer is ER positive, no other pathology information for that individual "
+"will be taken into account in the calculation; (3) if a breast cancer is ER "
+"negative, information on PR and HER2 for that individual will only be taken "
+"into account in the calculation if both PR and HER2 are specified; and (4) "
+"an individual's CK14 and CK5/6 status will only be taken into account in the "
+"calculation if both CK14 and CK5/6 are specified and the breast cancer is "
+"triple negative (ER negative, PR negative and HER2 negative). "
+msgstr ""
+"Por favor, tenga en cuenta las normas siguientes relacionadas con los datos "
+"patológicos del cáncer de mama: (1) si el estado ER de un sujeto no está "
+"especificado, no se tendrá en cuenta en el cálculo ningún tipo de "
+"información patológica para dicho individuo; (2) si en cáncer de mama es ER "
+"positivo, no se tendrá en cuenta en el cálculo ningún otro tipo de "
+"información patológica; (3) si el cáncer de mama es ER negativo, la "
+"información sobre PR y HER2 de dicho sujeto solamente será considerada en el "
+"cálculo si se especifican tanto PR como HER2; y (4) el estado CK14 y CK5/6 "
+"de un sujeto solamente será considerado en el cálculo si tanto CK14 como "
+"CK5/6 son especificados y si el cáncer de mama es triple negativo (ER "
+"negativo, PR negativo y HER2 negativo)."
+
+#: bws/cancer.py:91
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has an "
+"unspecified ER status, but another pathology parameter (PR, HER2, CK14 or "
+"CK5/6) has been specified. %(rules)s As a result, this individual's "
+"pathology information will not be taken into account in this case."
+msgstr ""
+"Datos incompletos en el árbol genealógico: un familiar %(id)s tiene un "
+"estado ER no especificado, sin embargo, se ha especificado otro parámetro "
+"patológico (PR, HER2, CK14 o CK5/6). %(rules)s La información patológica del "
+"sujeto no se tendrá en cuenta en dicho caso."
+
+#: bws/cancer.py:101
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has a breast "
+"cancer pathology where PR status is specified but HER2 status is unspecified "
+"(or vice versa). %(rules)sAs a result, PR and HER2 status will not be taken "
+"into account in this case."
+msgstr ""
+"Registro de datos incompleto en el árbol genealógico: un familiar %(id)s "
+"tiene cáncer de mama con el estado ER especificado, sin embargo, no se ha "
+"especificado el estado HER2 (o viceversa). %(rules)sLos estados PR y HER2 no "
+"se tendrán en cuenta en dicho caso."
+
+#: bws/cancer.py:110
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has a breast "
+"cancer pathology where only CK14 or CK5/6 status has been specified. "
+"%(rules)s As a result, CK14 and CK5/6 status will not be taken into account "
+"in this case."
+msgstr ""
+"Registro de datos incompleto en el árbol genealógico: un familiar %(id)s "
+"tiene cáncer de mama en donde únicamente se ha especificado el estado CK14 o "
+"CK5/6. %(rules)s Los estados CK14 y CK5/6 no se tendrán en cuenta en dicho "
+"caso."
+
+#: bws/cancer.py:119
+#, python-format
+msgid ""
+"Incomplete data record in your pedigree: family member %(id)s has a breast "
+"cancer pathology where CK14 or CK5/6 status is specified but the breast "
+"cancer pathology is not triple negative (ER negative, PR negative and HER2 "
+"negative). %(rules)s As a result, CK14 and CK5/6 status will not be taken "
+"into account in this case."
+msgstr ""
+"Registro de datos incompleto en su árbol genealógico: un familiar %(id)s "
+"tiene cáncer de mama con el estado CK14 o CK5/6 especificado, sin embargo, "
+"el cáncer de mama no es triple negativo (ER negativo, PR negativo y HER2 "
+"negativo). %(rules)s Los estados CK14 y CK5/6 no se tendrán en cuenta en "
+"dicho caso."
+
+#: bws/cancer.py:129
+#, python-format
+msgid ""
+"Incomplete data record in your pedigree: family member %(id)s has a breast "
+"cancer pathologythat is ER positive, where an additional pathology parameter "
+"(PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a result, only ER "
+"positive status will be taken into account in this case."
+msgstr ""
+"Registro de datos incompleto en su árbol genealógico: un familiar %(id)s "
+"tiene cáncer de mama ER positivo y se han especificado otros parámetros "
+"patológicos adicionales (PR, HER2, CK14 o CK5/6). %(rules)s Solamente se "
+"tendrá en cuenta el estado ER positivo."
+
 #: bws/exceptions.py:90
 msgid "Request has timed out."
 msgstr "La solicitud ha expirado."
+
+#: bws/pedigree.py:182
+#, python-format
+msgid ""
+"year of birth and age at last follow up must be specified in order for "
+"%(id)s to be included in a calculation"
+msgstr ""
+"Debe especificar el año de nacimiento y la edad en el momento del último "
+"chequeo para poder incluir %(id)s en un cálculo"
 
 #: bws/risk_factors/bc.py:12
 msgid "Age at First Occurrence of Menstruation"
