@@ -101,7 +101,7 @@ class BwsExtendedInputSerializer(BwsInputSerializer):
 
 
 class BCTenYrSerializer(BwsExtendedInputSerializer):
-    tenyr_ranges = serializers.CharField(validators=[int_list_validator], min_length=3, max_length=10)
+    tenyr_ages = serializers.CharField(validators=[int_list_validator], min_length=3, max_length=10)
 
 
 class OwsExtendedInputSerializer(OwsInputSerializer):

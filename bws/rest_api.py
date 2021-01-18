@@ -527,9 +527,9 @@ for each the genes and the population to use for cancer incidence rates.
             model_settings = settings.BC_MODEL
             params = ModelParams.factory(validated_data, model_settings)
 
-            tenyr_ranges = re.sub("[\[\]]", "", validated_data.get('tenyr_ranges'))
-            tenyr_ranges = [int(item.strip()) for item in tenyr_ranges.split(',')]
-            logger.debug(tenyr_ranges)
+            tenyr_ages = re.sub("[\[\]]", "", validated_data.get('tenyr_ages'))
+            tenyr_ages = [int(item.strip()) for item in tenyr_ages.split(',')]
+            logger.debug(tenyr_ages)
 
             output = {
                 "timestamp": datetime.datetime.now(),
@@ -584,9 +584,9 @@ for each the genes and the population to use for cancer incidence rates.
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
                     calcs.ten_yr_cancer_risk = []
-                    for tenyr in tenyr_ranges:
+                    for tenyr in tenyr_ages:
                         ten_yr_risk, _v = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
-                        calcs.ten_yr_cancer_risk.append(ten_yr_risk)
+                        calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
 
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
