@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-15 11:33+0000\n"
+"POT-Creation-Date: 2021-01-25 15:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -154,11 +154,11 @@ msgstr "Alkoholkonsum (Gramm/Tag)"
 
 #: bws/risk_factors/bc.py:83
 msgid "Age of Menopause"
-msgstr "Alter bei Menopause"
+msgstr "Alter bei der Menopause"
 
 #: bws/risk_factors/bc.py:89
 msgid "Mammographic Density"
-msgstr "Mammographisch ermittelte Brustdichte"
+msgstr "Mammographisch ermittelte Brustdrüsendichte"
 
 #: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
 msgid "Height (cm)"
