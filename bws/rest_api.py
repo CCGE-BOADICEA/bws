@@ -150,9 +150,7 @@ class ModelWebServiceMixin():
                 return JsonResponse(e.detail, content_type="application/json",
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
-                if(not request.user.has_perm('boadicea_auth.evaluation') and
-                   not request.user.has_perm('boadicea_auth.evaluation1b')):
-                    shutil.rmtree(cwd)
+                shutil.rmtree(cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
