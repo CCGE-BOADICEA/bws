@@ -363,8 +363,9 @@ class Predictions(object):
         @return: niceness: priority
         """
         (siblings, _siblings_same_yob) = pedi.get_siblings(pedi.get_target())
-        if len(siblings) > 0:
-            return 19
+        nsiblings = len(siblings)
+        if nsiblings > 0:
+            return nsiblings if nsiblings < 19 else 19
 
         pedigree_size = len(pedi.people)
         niceness = int(pedigree_size/factor)
