@@ -19,7 +19,7 @@ def get_alpha(ref_file):
 
 
 # FORTRAN settings
-FORTRAN_HOME = "/home/MINTS/tjc29/boadicea_classic/"
+FORTRAN_HOME = "/home/tim/boadicea/"
 FORTRAN_TIMEOUT = 60*4   # seconds
 CWD_DIR = "/tmp"
 

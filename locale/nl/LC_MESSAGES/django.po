@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-17 14:25+0000\n"
+"POT-Creation-Date: 2020-12-17 13:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,17 +31,17 @@ msgid ""
 "calculation if both CK14 and CK5/6 are specified and the breast cancer is "
 "triple negative (ER negative, PR negative and HER2 negative). "
 msgstr ""
-"Veuillez noter les règles suivantes pour les données sur la pathologie du "
-"cancer du sein : 1) si le statut ER d'une personne n'est pas spécifié, "
-"aucune information pathologique pour cette personne ne sera prise en compte "
-"dans le calcul; 2) si un cancer du sein est ER positif, aucune autre "
-"information pathologique pour cette personne ne sera prise en compte dans le "
-"calcul; 3) si un cancer du sein est ER négatif, les informations sur PR et "
-"HER2 pour cette personne ne seront prises en compte dans le calcul que si PR "
-"et HER2 sont spécifiés; et 4) le statut CK14 et CK5/6 d'une personne ne sera "
-"pris en compte dans le calcul que si CK14 et CK5/6 sont tous deux spécifiés "
-"et que le cancer du sein est triple négatif (ER négatif, PR négatif et HER2 "
-"négatif)."
+"Wij wijzen u op de volgende regels voor borstkankerpathologiegegevens: (1) "
+"als de ER-status van een individu niet is gespecificeerd, wordt er bij de "
+"berekening geen rekening gehouden met pathologiegegevens voor dat individu; "
+"(2) als een borstkanker ER-positief is, wordt er bij de berekening geen "
+"rekening gehouden met andere pathologiegegevens voor het individu; (3)  als "
+"een borstkanker ER-negatief is, dan wordt er bij de berekening alleen "
+"rekening gehouden met informatie over PR en HER2 voor het individu als zowel "
+"PR als HER2 zijn gespecificeerd; en (4) er wordt bij de berekening alleen "
+"rekening gehouden met de status CK14 en CK5/6  van individuen als zowel CK14 "
+"als CK5/6 zijn gespecificeerd en de borstkanker driemaal negatief is (ER-"
+"negatief, PR-negatief en HER2-negatief). "
 
 #: bws/cancer.py:91
 #, python-format
@@ -51,11 +51,10 @@ msgid ""
 "CK5/6) has been specified. %(rules)s As a result, this individual's "
 "pathology information will not be taken into account in this case."
 msgstr ""
-"Données incomplètes sur la généalogie : un membre de la famille %(id)s a un "
-"statut ER non spécifié, mais un autre paramètre de pathologie (PR, HER2, "
-"CK14 ou CK5/6) a été spécifié. %(rules)s Par conséquent, les informations "
-"sur la pathologie de cette personne ne seront pas prises en compte dans ce "
-"cas."
+"Onvolledige gegevens in de stamboom: familielid %(id)s heeft een niet "
+"gespecificeerde ER-status, maar een andere pathologieparameter (PR, HER2, "
+"CK14 of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval geen "
+"rekening gehouden met de pathologiegegevens van dit individu."
 
 #: bws/cancer.py:101
 #, python-format
@@ -65,10 +64,10 @@ msgid ""
 "(or vice versa). %(rules)sAs a result, PR and HER2 status will not be taken "
 "into account in this case."
 msgstr ""
-"Données incomplètes sur la généalogie : un membre de la famille %(id)s a une "
-"pathologie du cancer du sein où le statut PR est spécifié mais le statut "
-"HER2 n'est pas spécifié (ou vice versa). %(rules)sPar conséquent, les "
-"statuts PR et HER2 ne seront pas pris en compte dans ce cas."
+"Onvolledige gegevens in de stamboom: familielid %(id)s heeft borstkanker "
+"waarbij de PR-status is gespecificeerd maar de HER2-status is niet "
+"gespecificeerd (of omgekeerd). %(rules)sDaarom wordt in dit geval geen "
+"rekening gehouden met de PR-status en HER2-status."
 
 #: bws/cancer.py:110
 #, python-format
@@ -78,10 +77,9 @@ msgid ""
 "%(rules)s As a result, CK14 and CK5/6 status will not be taken into account "
 "in this case."
 msgstr ""
-"Données incomplètes sur la généalogie : un membre de la famille %(id)s a un "
-"statut ER non spécifié, mais un autre paramètre de pathologie CK14 CK14 ou "
-"CK5/6) a été spécifié. %(rules)s Par conséquent, les informations sur la "
-"pathologie de cette personne ne seront pas prises en compte dans ce cas."
+"Onvolledige gegevens in de stamboom: familielid %(id)s heeft borstkanker "
+"waarbij alleen de status CK14 of CK5/6 is gespecificeerd. %(rules)s Daarom "
+"wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
 #: bws/cancer.py:119
 #, python-format
@@ -92,10 +90,11 @@ msgid ""
 "negative). %(rules)s As a result, CK14 and CK5/6 status will not be taken "
 "into account in this case."
 msgstr ""
-"Données incomplètes sur la généalogie : un membre de la famille %(id)s a une "
-"pathologie du cancer du sein où le statut PR est spécifié mais le statut "
-"HER2 n'est pas spécifié (ou vice versa). %(rules)sPar conséquent, les "
-"statuts CK14 et CK5 ne seront pas pris en compte dans ce cas."
+"Onvolledige gegevens in de stamboom: familielid %(id)s heeft borstkanker "
+"waarbij de status CK14 of CK5/ 6 is gespecificeerd maar de borstkanker is "
+"niet driemaal negatief (ER-negatief, PR-negatief en HER2-negatief). "
+"%(rules)s Daarom wordt in dit geval geen rekening gehouden met de status "
+"CK14 of CK5/6."
 
 #: bws/cancer.py:129
 #, python-format
@@ -105,14 +104,14 @@ msgid ""
 "(PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a result, only ER "
 "positive status will be taken into account in this case."
 msgstr ""
-"Données incomplètes sur votre généalogie : un membre de la famille %(id)s a "
-"une pathologie du cancer du sein ER positif, où  un autres paramètre de "
-"pathologie (PR, CK14 ou CK5/6) a été spécifié. %(rules)s Par conséquent, "
-"seul le statut ER positif sera pris en compte dans ce cas."
+"Onvolledige gegevens in de stamboom: familielid %(id)s heeft borstkanker met "
+"de status ER-positief, waarbij een extra pathologieparameter (PR, HER2, CK14 "
+"of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval alleen "
+"rekening gehouden met de status ER-positief."
 
 #: bws/exceptions.py:90
 msgid "Request has timed out."
-msgstr "Délai d’attente de la demande dépassé."
+msgstr "Time-out bij verzoek."
 
 #: bws/pedigree.py:182
 #, python-format
@@ -120,57 +119,57 @@ msgid ""
 "year of birth and age at last follow up must be specified in order for "
 "%(id)s to be included in a calculation"
 msgstr ""
-"l'année de naissance et l'âge au dernier suivi doivent être spécifiés pour "
-"que %(id)s soit inclus dans le calcul"
+"Geboortejaar en leeftijd ten tijde van laatste follow-up moet worden "
+"gespecificeerd voor %(id)s opname in een berekening"
 
 #: bws/risk_factors/bc.py:12
 msgid "Age at First Occurrence of Menstruation"
-msgstr "Âge aux premières règles"
+msgstr "Leeftijd ten tijde van eerste menstruatie"
 
 #: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
 msgid "Number of Children"
-msgstr "Nombre d’enfants"
+msgstr "Aantal kinderen"
 
 #: bws/risk_factors/bc.py:23
 msgid "Age of First Live Birth"
-msgstr "Âge à la première naissance"
+msgstr "Leeftijd bij eerste levend geboren kind"
 
 #: bws/risk_factors/bc.py:29
 msgid "Oral Contraception Usage"
-msgstr "Recours à une contraception orale"
+msgstr "Gebruik van orale anticonceptiemiddelen"
 
 #: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
 msgid "Hormone Replacement Therapy"
-msgstr "Traitement hormonal substitutif"
+msgstr "Hormoonvervangende medicatie (HRT)"
 
 #: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
 msgid "Body Mass Index"
-msgstr "Indice de masse corporelle"
+msgstr "Body Mass Index/Queteletindex"
 
 #: bws/risk_factors/bc.py:73
 msgid "Alcohol Intake (grams/day)"
-msgstr "Consommation d’alcool (grammes/jour)"
+msgstr "Alcoholconsumptie (gram/dag)"
 
 #: bws/risk_factors/bc.py:83
 msgid "Age of Menopause"
-msgstr "Âge à la ménopause"
+msgstr "Leeftijd bij overgang"
 
 #: bws/risk_factors/bc.py:89
 msgid "Mammographic Density"
-msgstr "Densité mammaire"
+msgstr "Borstdensiteit"
 
 #: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
 msgid "Height (cm)"
-msgstr "Taille (cm)"
+msgstr "Lengte (cm)"
 
 #: bws/risk_factors/oc.py:17
 msgid "Duration of Oral Contraception Use"
-msgstr "Durée d’utilisation de la contraception orale"
+msgstr "Duur van gebruik van orale anticonceptiemiddelen"
 
 #: bws/risk_factors/oc.py:60
 msgid "Tubal Ligation"
-msgstr "Ligature des trompes"
+msgstr "Afgebonden eileiders"
 
 #: bws/risk_factors/oc.py:76
 msgid "Endometriosis"
-msgstr "Endométriose"
+msgstr "Endometriose"

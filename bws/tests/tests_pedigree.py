@@ -272,4 +272,4 @@ class RiskTests(TestCase):
         sister = Female("FAM1", "F01", "0011", target.fathid, target.mothid, age="22",
                         yob=str(self.year-23), cancers=Cancers(bc1=Cancer("20")))
         pedigree.people.append(sister)
-        self.assertEqual(Predictions._get_niceness(pedigree), 19)
+        self.assertEqual(Predictions._get_niceness(pedigree), 1)
