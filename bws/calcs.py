@@ -7,7 +7,6 @@ from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
 from copy import deepcopy
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
 from django.http.request import HttpRequest
 from rest_framework.request import Request
 from subprocess import Popen, PIPE, TimeoutExpired
@@ -334,21 +333,7 @@ class Predictions(object):
                     self.baseline_ten_yr_cancer_risk, _v = RangeRiskBaseline(self, 40, 50,
                                                                              "10YR RANGE BASELINE").get_risk()
 
-        if not isinstance(self.request.user, AnonymousUser):
-            u = User.objects.get(username=self.request.user)
-            try:
-                job_title = u.userdetails.job_title
-                country = u.userdetails.country.name
-            except Exception:
-                job_title = 'unknown'
-                country = 'unknown'
-        else:
-            job_title = 'AnonymousUser'
-            country = 'unknown'
-
-        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user) +
-                    "; job=" + job_title +
-                    "; country=" + country +
+        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user.id) +
                     "; elapsed time=" + str(time.time() - start) +
                     "; pedigree size=" + str(len(self.pedi.people)) +
                     "; version=" + str(getattr(self, "version", "N/A")))
@@ -424,7 +409,7 @@ class Predictions(object):
                     data = result_file.read()
                 logger.info(model.get('NAME', "") + " " +
                             ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            name + " CALCULATION: user=" + str(request.user) +
+                            name + " CALCULATION: user=" + str(request.user.id) +
                             "; elapsed time=" + str(time.time() - start))
                 return data
             else:
