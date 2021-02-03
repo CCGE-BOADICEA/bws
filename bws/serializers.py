@@ -6,6 +6,7 @@ from rest_framework import serializers
 from django.conf import settings
 from django.core.files.base import File
 from bws.risk_factors.bc import BCRiskFactors
+from django.core.validators import int_list_validator
 
 
 class FileField(serializers.Field):
@@ -97,6 +98,10 @@ class BwsExtendedInputSerializer(BwsInputSerializer):
     risk_factor_code = serializers.IntegerField(max_value=BCRiskFactors.get_max_factor(),
                                                 min_value=0, default=0)
     prs = serializers.JSONField(required=False)
+
+
+class BCTenYrSerializer(BwsExtendedInputSerializer):
+    tenyr_ages = serializers.CharField(validators=[int_list_validator], min_length=3, max_length=30)
 
 
 class OwsExtendedInputSerializer(OwsInputSerializer):
