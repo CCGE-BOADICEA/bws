@@ -216,23 +216,29 @@ class TenYrTests(BwsMixin):
     def test_tenyr_40(self):
         ''' Test 10 year risk from 40 same as BWS. '''
 
-        # 1. 10 yr risk web-service for 40-50
-        tenyr_ages = "[40]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
-                'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
-        response = TenYrTests.client.post(reverse('bcten'), data, format='multipart', HTTP_ACCEPT="application/json")
-        canrisk_data.close()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
-        ten_yr_cancer_risk1 = content["pedigree_result"][0]["ten_yr_cancer_risk"][0]
+        bcten_url = reverse('bcten')
+        bws_url = reverse('bws')
+        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v2.txt")]
 
-        # 2. use BWS to geet 10 yr risk from 40 for comparison
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        response = TenYrTests.client.post(TenYrTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
-        canrisk_data.close()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
-        ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
-        self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
+        for df in dfs:
+            # 1. 10 yr risk web-service for 40-50
+            tenyr_ages = "[40]"
+            canrisk_data = open(df, "r")
+            data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
+                    'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
+            response = TenYrTests.client.post(bcten_url, data, format='multipart', HTTP_ACCEPT="application/json")
+            canrisk_data.close()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            content = json.loads(force_text(response.content))
+            ten_yr_cancer_risk1 = content["pedigree_result"][0]["ten_yr_cancer_risk"][0]
+
+            # 2. use BWS to get 10 yr risk from 40 for comparison
+            canrisk_data = open(df, "r")
+            data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+            response = TenYrTests.client.post(bws_url, data, format='multipart', HTTP_ACCEPT="application/json")
+            canrisk_data.close()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            content = json.loads(force_text(response.content))
+            ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
+            self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
