@@ -1,0 +1,175 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-03-04 10:18+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: bws/cancer.py:76
+msgid ""
+"Please note the following rules for breast cancer pathology data: (1) if an "
+"individual's ER status is unspecified, no pathology information for that "
+"individual will be taken into account in the calculation; (2) if a breast "
+"cancer is ER positive, no other pathology information for that individual "
+"will be taken into account in the calculation; (3) if a breast cancer is ER "
+"negative, information on PR and HER2 for that individual will only be taken "
+"into account in the calculation if both PR and HER2 are specified; and (4) "
+"an individual's CK14 and CK5/6 status will only be taken into account in the "
+"calculation if both CK14 and CK5/6 are specified and the breast cancer is "
+"triple negative (ER negative, PR negative and HER2 negative). "
+msgstr ""
+"Tenha em atenção as seguintes normas relativas aos dados de patologia do "
+"cancro da mama: (1) se o estado RE de um indivíduo não for especificado, "
+"nenhuma informação patológica desse indivíduo será tida em consideração para "
+"os cálculos; (2) se um cancro da mama for RE positivo, não será tida em "
+"consideração para os cálculos qualquer outra informação patológica; (3) se "
+"um cancro da mama for RE negativo, a informação sobre o RP e HER2 desse "
+"indivíduo só será tida em consideração se forem especificados tanto o RP "
+"como o HER2, e (4) o estado de CK14 e de CK5/6 de um indivíduo só será tido "
+"em consideração nos cálculos se CK14 e CK5/6 forem especificados e o cancro "
+"da mama for triplo negativo (RE negativo, RP negativo e HER2 negativo)."
+
+#: bws/cancer.py:91
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has an "
+"unspecified ER status, but another pathology parameter (PR, HER2, CK14 or "
+"CK5/6) has been specified. %(rules)s As a result, this individual's "
+"pathology information will not be taken into account in this case."
+msgstr ""
+"Registo incompleto de dados da genealogia: um membro da família %(id)s tem "
+"um estado RE não especificado, mas foi especificado outro parâmetro "
+"patológico (RP, HER2, CK14 ou CK5/6). %(rules)s Em consequência, neste caso "
+"não será tida em consideração a informação patológica sobre este indivíduo."
+
+#: bws/cancer.py:101
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has a breast "
+"cancer pathology where PR status is specified but HER2 status is unspecified "
+"(or vice versa). %(rules)sAs a result, PR and HER2 status will not be taken "
+"into account in this case."
+msgstr ""
+"Registo incompleto de dados da genealogia: um membro da família %(id)s tem "
+"patologia do cancro da mama na qual o estado RP é especificado, mas o estado "
+"HER2 não é especificado (ou vice versa). %(rules)s Em consequência, neste "
+"caso não será tido em consideração o estado de RP e de HER2."
+
+#: bws/cancer.py:110
+#, python-format
+msgid ""
+"Incomplete data record in the pedigree: family member %(id)s has a breast "
+"cancer pathology where only CK14 or CK5/6 status has been specified. "
+"%(rules)s As a result, CK14 and CK5/6 status will not be taken into account "
+"in this case."
+msgstr ""
+"Registo incompleto de dados da genealogia: um membro da família %(id)s tem "
+"patologia do cancro da mama na qual apenas o estado de CK14 ou de CK5/6 foi "
+"especificado. %(rules)s Em consequência, neste caso não será tido em "
+"consideração o estado de CK14 e de CK5/6."
+
+#: bws/cancer.py:119
+#, python-format
+msgid ""
+"Incomplete data record in your pedigree: family member %(id)s has a breast "
+"cancer pathology where CK14 or CK5/6 status is specified but the breast "
+"cancer pathology is not triple negative (ER negative, PR negative and HER2 "
+"negative). %(rules)s As a result, CK14 and CK5/6 status will not be taken "
+"into account in this case."
+msgstr ""
+"Registo incompleto de dados da sua genealogia: um membro da família %(id)s "
+"tem patologia de cancro da mama na qual apenas o estado de CK14 ou de CK5/6 "
+"é especificado, mas a patologia de cancro da mama não é triplo negativo (RE "
+"negativo, RP negativo e HER2 negativo). %(rules)s Em consequência, neste "
+"caso não será tido em consideração o estado de CK14 e de CK5/6."
+
+#: bws/cancer.py:129
+#, python-format
+msgid ""
+"Incomplete data record in your pedigree: family member %(id)s has a breast "
+"cancer pathologythat is ER positive, where an additional pathology parameter "
+"(PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a result, only ER "
+"positive status will be taken into account in this case."
+msgstr ""
+"Registo incompleto de dados da sua genealogia: um membro da família %(id)s "
+"tem patologia de cancro da mama que é RE positivo, na qual foi especificado "
+"um parâmetro patológico adicional (RP, HER2, CK14 ou CK5/6). %(rules)s Em "
+"consequência, neste caso será tido em consideração o estado RE positivo."
+
+#: bws/exceptions.py:90
+msgid "Request has timed out."
+msgstr "O seu pedido expirou."
+
+#: bws/pedigree.py:182
+#, python-format
+msgid ""
+"year of birth and age at last follow up must be specified in order for "
+"%(id)s to be included in a calculation"
+msgstr ""
+"o ano de nascimento e a idade no último seguimento têm de ser especificados "
+"a fim de %(id)s para ser incluído num cálculo"
+
+#: bws/risk_factors/bc.py:12
+msgid "Age at First Occurrence of Menstruation"
+msgstr "Idade na altura da primeira menstruação"
+
+#: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
+msgid "Number of Children"
+msgstr "Número de filhos"
+
+#: bws/risk_factors/bc.py:23
+msgid "Age of First Live Birth"
+msgstr "Idade ao primeiro nado-vivo"
+
+#: bws/risk_factors/bc.py:29
+msgid "Oral Contraception Usage"
+msgstr "Uso de contraceção oral"
+
+#: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
+msgid "Hormone Replacement Therapy"
+msgstr "Terapêutica hormonal de substituição"
+
+#: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
+msgid "Body Mass Index"
+msgstr "Índice de massa corporal"
+
+#: bws/risk_factors/bc.py:73
+msgid "Alcohol Intake (grams/day)"
+msgstr "Consumo de álcool (gramas/dia)"
+
+#: bws/risk_factors/bc.py:83
+msgid "Age of Menopause"
+msgstr "Idade da menopausa"
+
+#: bws/risk_factors/bc.py:89
+msgid "Mammographic Density"
+msgstr "Densidade mamográfica"
+
+#: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
+msgid "Height (cm)"
+msgstr "Altura (cm)"
+
+#: bws/risk_factors/oc.py:17
+msgid "Duration of Oral Contraception Use"
+msgstr "Duração do uso de contraceção oral"
+
+#: bws/risk_factors/oc.py:60
+msgid "Tubal Ligation"
+msgstr "Laqueação das trompas"
+
+#: bws/risk_factors/oc.py:76
+msgid "Endometriosis"
+msgstr "Endometriose"
