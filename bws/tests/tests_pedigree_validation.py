@@ -489,7 +489,7 @@ class CancerTests(TestCase, ErrorTests):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
         f1.cancers.diagnoses.bc1.age = "199"
-        with self.assertRaisesRegex(CancerError, r"Age at cancer diagnosis"):
+        with self.assertRaisesRegex(CancerError, f1.pid+"*. Age at cancer diagnosis"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_cancer_age2(self):
@@ -498,7 +498,7 @@ class CancerTests(TestCase, ErrorTests):
         m2 = pedigree_file.pedigrees[0].get_person_by_name('M2')
         m2.cancers.diagnoses.bc1.age = "59"
         m2.age = "53"
-        with self.assertRaisesRegex(CancerError, r"diagnosis that exceeds age at last follow up"):
+        with self.assertRaisesRegex(CancerError, m2.pid+"*. diagnosis that exceeds age at last follow up"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_cancer_yob(self):
@@ -506,7 +506,7 @@ class CancerTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         m2 = pedigree_file.pedigrees[0].get_person_by_name('M2')
         m2.yob = "0"
-        with self.assertRaisesRegex(CancerError, r"diagnosed with cancer but has no year of birth specified"):
+        with self.assertRaisesRegex(CancerError, m2.pid+"*. diagnosed with cancer but has no year of birth specified"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_male_with_ovarian_cancer(self):
@@ -514,7 +514,7 @@ class CancerTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         m2 = pedigree_file.pedigrees[0].get_person_by_name('M2')
         m2.cancers.diagnoses.oc.age = "45"
-        with self.assertRaisesRegex(CancerError, r"male but has been assigned an ovarian"):
+        with self.assertRaisesRegex(CancerError, m2.pid+"*. male but has been assigned an ovarian"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_female_with_prostate_cancer(self):
@@ -522,7 +522,7 @@ class CancerTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.prc.age = "21"
-        with self.assertRaisesRegex(CancerError, r"female but has been assigned an prostate"):
+        with self.assertRaisesRegex(CancerError, f1.pid+"*. female but has been assigned an prostate"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_bc1_missing(self):
@@ -531,7 +531,7 @@ class CancerTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "21"
-        with self.assertRaisesRegex(CancerError, r"contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
@@ -541,7 +541,7 @@ class CancerTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "AU"
-        with self.assertRaisesRegex(CancerError, r"contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
@@ -551,7 +551,7 @@ class CancerTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "22"
         f1.cancers.diagnoses.bc2.age = "21"
-        with self.assertRaisesRegex(CancerError, r"contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
                                     "age at diagnosis of the first breast cancer exceeds"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
@@ -568,7 +568,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "X"
-        with self.assertRaisesRegex(GeneticTestError, "invalid genetic test type"):
+        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* invalid genetic test type"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_type_specified(self):
@@ -577,7 +577,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "0"
         f1.gtests.brca1.result = "P"
-        with self.assertRaisesRegex(GeneticTestError, "genetic test type has not been specified"):
+        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* genetic test type has not been specified"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_result(self):
@@ -586,7 +586,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "X"
-        with self.assertRaisesRegex(GeneticTestError, "invalid genetic test result"):
+        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* invalid genetic test result"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_result_specified(self):
@@ -595,7 +595,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "0"
-        with self.assertRaisesRegex(GeneticTestError, "corresponding test result has not been specified"):
+        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* corresponding test result has not been specified"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
 

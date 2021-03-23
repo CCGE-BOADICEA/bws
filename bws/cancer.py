@@ -197,22 +197,26 @@ class GeneticTest(object):
         for t in gtests:
             # Check that the genetic test type is valid
             if not GeneticTest.REGEX_GENETIC_TEST_TYPE.match(t.test_type):
-                raise GeneticTestError("Family member '" + person.pid + "' has been assigned an invalid "
-                                       "genetic test type. It must be specified with '0' for untested, "
-                                       "'S' for mutation search or 'T' for direct gene test.")
+                raise GeneticTestError(_("Family member %(id)s has been assigned an invalid "
+                                         "genetic test type. It must be specified with '0' for untested, "
+                                         "'S' for mutation search or 'T' for direct gene test.")
+                                       % {'id': person.pid})
             # Check that the mutation status is valid
             if not GeneticTest.REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT.match(t.result):
-                raise GeneticTestError("Family member '" + person.pid + "' has been assigned an invalid "
-                                       "genetic test result. Genetic test results must be '0' for untested, "
-                                       "'N' for no mutation, 'P' mutation detected.")
+                raise GeneticTestError(_("Family member %(id)s has been assigned an invalid "
+                                         "genetic test result. Genetic test results must be '0' for untested, "
+                                         "'N' for no mutation, 'P' mutation detected.")
+                                       % {'id': person.pid})
             # If tested, check that there us a test result
             if t.test_type != "0" and t.result == '0':
-                raise GeneticTestError("Family member '" + person.pid + "' has had a genetic test but the "
-                                       "corresponding test result has not been specified.")
+                raise GeneticTestError(_("Family member %(id)s has had a genetic test but the "
+                                         "corresponding test result has not been specified.")
+                                       % {'id': person.pid})
             # If there is a genetic test result check the test type is specified
             if t.test_type == "0" and t.result != '0':
-                raise GeneticTestError("Family member '" + person.pid + "' has been assigned a genetic test " +
+                raise GeneticTestError(_("Family member %(id)s has been assigned a genetic test " +
                                        "result, but the corresponding genetic test type has not been specified.")
+                                       % {'id': person.pid})
 
     @classmethod
     def compareTestResults(cls, person1, person2):
@@ -339,36 +343,42 @@ class Cancers():
             # and is within range i.e. 0-110 (-1 for unaffected)
             if((not REGEX_AGE.match(diagnoses_age) and diagnoses_age != 'AU' and diagnoses_age != '-1') or
                (REGEX_AGE.match(diagnoses_age) and int(diagnoses_age) > settings.MAX_AGE)):
-                    raise CancerError("Family member '" + person.pid + "' has an age at cancer diagnosis (" + ctype +
-                                      ")specified as '"+diagnoses_age+"'. Age at cancer diagnosis " +
-                                      "must be set to '0' for unaffected, 'AU' for affected at unknown age, or " +
-                                      "specified with an integer in the range 1-"+str(settings.MAX_AGE)+".")
+                    raise CancerError(_("Family member %(id)s has an age at cancer diagnosis (%(ctype)s) "
+                                        "specified as %(dage)s. Age at cancer diagnosis " +
+                                        "must be set to '0' for unaffected, 'AU' for affected at unknown age, or " +
+                                        "specified with an integer in the range 1-%(max_age)s.")
+                                      % {'id': person.pid, 'ctype': ctype, 'dage': diagnoses_age,
+                                         'max_age': settings.MAX_AGE})
 
             # Check that the age at last follow up is greater or equal to that of all cancer diagnoses
             if(diagnoses_age != 'AU' and diagnoses_age != '-1' and int(person.age) < int(diagnoses_age)):
-                raise CancerError("Family member '" + person.pid + "' has been assigned an age at cancer " +
-                                  "diagnosis that exceeds age at last follow up. An age at cancer " +
-                                  "diagnosis must not exceed an age at last follow up.")
+                raise CancerError(_("Family member %(id)s has been assigned an age at cancer " +
+                                    "diagnosis that exceeds age at last follow up. An age at cancer " +
+                                    "diagnosis must not exceed an age at last follow up.")
+                                  % {'id': person.pid})
 
             # Check that males don't have an ovarian cancer diagnosis
             if ctype == 'oc' and person.sex() == 'M' and diagnoses_age != '-1':
-                raise CancerError("Family member '" + person.pid + "' is male but has been assigned an " +
-                                  "ovarian cancer diagnosis.")
+                raise CancerError(_("Family member %(id)s is male but has been assigned an " +
+                                    "ovarian cancer diagnosis.")
+                                  % {'id': person.pid})
 
             # Check that females don't have a prostate cancer diagnosis
             if ctype == 'prc' and person.sex() == 'F' and diagnoses_age != '-1':
-                raise CancerError("Family member '" + person.pid + "' is female but has been assigned an " +
-                                  "prostate cancer diagnosis.")
+                raise CancerError(_("Family member %(id)s is female but has been assigned an " +
+                                    "prostate cancer diagnosis.")
+                                  % {'id': person.pid})
 
         # Check that individuals who have cancer have both a valid age at last follow up and year of birth
         cancers = person.cancers
         if cancers.is_cancer_diagnosed():
             if person.yob == '0':
-                raise CancerError("Family member '" + person.pid + "' has been diagnosed with cancer but " +
-                                  "has no year of birth specified. All family members with cancer must " +
-                                  "have a valid year of birth. If an affected family member's year of " +
-                                  "birth is unknown, it is always better to provide some estimate of " +
-                                  "it so that risks are not underestimated.")
+                raise CancerError(_("Family member %(id)s has been diagnosed with cancer but " +
+                                    "has no year of birth specified. All family members with cancer must " +
+                                    "have a valid year of birth. If an affected family member's year of " +
+                                    "birth is unknown, it is always better to provide some estimate of " +
+                                    "it so that risks are not underestimated.")
+                                  % {'id': person.pid})
 
         # Check that the age of a second breast cancer exceeds that of the first.
         bc1 = getattr(cancers.diagnoses, "bc1", None)
@@ -376,17 +386,20 @@ class Cancers():
         if bc1 is not None and bc2 is not None:
             if(REGEX_AGE.match(bc2.age) and bc2.age != '-1'):
                 if bc1.age == '-1':
-                    raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
-                                      "but the age at diagnosis of the first breast cancer is missing.")
+                    raise CancerError(_("Family member %(id)s has had contralateral breast cancer, " +
+                                        "but the age at diagnosis of the first breast cancer is missing.")
+                                      % {'id': person.pid})
                 elif(REGEX_AGE.match(bc1.age) and int(bc1.age) > int(bc2.age)):
-                    raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
-                                      "but the age at diagnosis of the first breast cancer exceeds that " +
-                                      "of the second breast cancer.")
+                    raise CancerError(_("Family member %(id)s has had contralateral breast cancer, " +
+                                        "but the age at diagnosis of the first breast cancer exceeds that " +
+                                        "of the second breast cancer.")
+                                      % {'id': person.pid})
 
             # Check that a 2BC set to affected unknown (AU) is accompanied by a 1BC
             if(bc2.age == 'AU' and bc1.age == '-1'):
-                raise CancerError("Family member '" + person.pid + "' has had contralateral breast cancer, " +
-                                  "but the age at diagnosis of the first breast cancer is missing.")
+                raise CancerError(_("Family member %(id)s has had contralateral breast cancer, " +
+                                    "but the age at diagnosis of the first breast cancer is missing.")
+                                  % {'id': person.pid})
 
     def write(self, cancers=None, age=-1):
         """
