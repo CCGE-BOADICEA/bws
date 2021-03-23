@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-23 10:07+0000\n"
+"POT-Creation-Date: 2021-03-23 14:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,16 +111,16 @@ msgstr ""
 #: bws/cancer.py:346
 #, python-format
 msgid ""
-"Family member %(id)s has an age at cancer diagnosis (%(ctype)s) specified as "
-"%(dage)s. Age at cancer diagnosis must be set to '0' for unaffected, 'AU' "
-"for affected at unknown age, or specified with an integer in the range 1-"
-"%(max_age)s."
+"Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
+"specified as %(dage)s. Age at cancer diagnosis must be set to '0' for "
+"unaffected, 'AU' for affected at unknown age, or specified with an integer "
+"in the range 1-%(max_age)s."
 msgstr ""
 
 #: bws/cancer.py:355
 #, python-format
 msgid ""
-"Family member %(id)s has been assigned an age at cancer diagnosis that "
+"Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
 "exceeds age at last follow up. An age at cancer diagnosis must not exceed an "
 "age at last follow up."
 msgstr ""
@@ -128,37 +128,37 @@ msgstr ""
 #: bws/cancer.py:362
 #, python-format
 msgid ""
-"Family member %(id)s is male but has been assigned an ovarian cancer "
+"Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
 "diagnosis."
 msgstr ""
 
 #: bws/cancer.py:368
 #, python-format
 msgid ""
-"Family member %(id)s is female but has been assigned an prostate cancer "
+"Family member \"%(id)s\" is female but has been assigned an prostate cancer "
 "diagnosis."
 msgstr ""
 
 #: bws/cancer.py:376
 #, python-format
 msgid ""
-"Family member %(id)s has been diagnosed with cancer but has no year of birth "
-"specified. All family members with cancer must have a valid year of birth. "
-"If an affected family member's year of birth is unknown, it is always better "
-"to provide some estimate of it so that risks are not underestimated."
+"Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
+"birth specified. All family members with cancer must have a valid year of "
+"birth. If an affected family member's year of birth is unknown, it is always "
+"better to provide some estimate of it so that risks are not underestimated."
 msgstr ""
 
 #: bws/cancer.py:389 bws/cancer.py:400
 #, python-format
 msgid ""
-"Family member %(id)s has had contralateral breast cancer, but the age at "
+"Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
 "diagnosis of the first breast cancer is missing."
 msgstr ""
 
 #: bws/cancer.py:393
 #, python-format
 msgid ""
-"Family member %(id)s has had contralateral breast cancer, but the age at "
+"Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
 "diagnosis of the first breast cancer exceeds that of the second breast "
 "cancer."
 msgstr ""
