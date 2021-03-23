@@ -568,7 +568,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "X"
-        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* invalid genetic test type"):
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test type"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_type_specified(self):
@@ -577,7 +577,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "0"
         f1.gtests.brca1.result = "P"
-        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* genetic test type has not been specified"):
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* genetic test type has not been specified"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_result(self):
@@ -586,7 +586,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "X"
-        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* invalid genetic test result"):
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test result"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_result_specified(self):
@@ -595,7 +595,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "0"
-        with self.assertRaisesRegex(GeneticTestError, f1.pid+" .* corresponding test result has not been specified"):
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* corresponding test result has not been specified"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
 

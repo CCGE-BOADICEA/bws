@@ -88,8 +88,8 @@ class PathologyTest(object):
             if(tests.er.result == "0" and (tests.pr.result != "0" or tests.her2.result != "0" or
                                            tests.ck14.result != "0" or tests.ck56.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in the pedigree: family member %(id)s has an unspecified ER status, but "
-                      "another pathology parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
+                    _("Incomplete data record in the pedigree: family member \"%(id)s\" has an unspecified ER status, "
+                      "but another pathology parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
                       "result, this individual's pathology information will not be taken into account in this case.")
                     % {'id': person.pid, 'rules': rules})
 
@@ -98,7 +98,7 @@ class PathologyTest(object):
                (tests.pr.result != "0" and tests.her2.result == "0") or
                (tests.pr.result == "0" and tests.her2.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in the pedigree: family member %(id)s has a breast cancer "
+                    _("Incomplete data record in the pedigree: family member \"%(id)s\" has a breast cancer "
                       "pathology where PR status is specified but HER2 status is unspecified (or vice versa). %(rules)s"
                       "As a result, PR and HER2 status will not be taken into account in this case.")
                     % {'id': person.pid, 'rules': rules})
@@ -107,7 +107,7 @@ class PathologyTest(object):
             if((tests.ck14.result != "0" and tests.ck56.result == "0") or
                (tests.ck14.result == "0" and tests.ck56.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in the pedigree: family member %(id)s has a breast cancer "
+                    _("Incomplete data record in the pedigree: family member \"%(id)s\" has a breast cancer "
                       "pathology where only CK14 or CK5/6 status has been specified. %(rules)s As a result, CK14 and "
                       "CK5/6 status will not be taken into account in this case.")
                     % {'id': person.pid, 'rules': rules})
@@ -116,7 +116,7 @@ class PathologyTest(object):
             if((tests.er.result != "N" or tests.pr.result != "N" or tests.her2.result != "N") and
                (tests.ck14.result != "0" and tests.ck56.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in your pedigree: family member %(id)s has a breast cancer "
+                    _("Incomplete data record in your pedigree: family member \"%(id)s\" has a breast cancer "
                       "pathology where CK14 or CK5/6 status is specified but the breast cancer pathology is not triple "
                       "negative (ER negative, PR negative and HER2 negative). %(rules)s As a result, CK14 and CK5/6 "
                       "status will not be taken into account in this case.")
@@ -126,7 +126,7 @@ class PathologyTest(object):
             if(tests.er.result == "P" and (tests.pr.result != "0" or tests.her2.result != "0" or
                                            tests.ck14.result != "0" or tests.ck56.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in your pedigree: family member %(id)s has a breast cancer pathology"
+                    _("Incomplete data record in your pedigree: family member \"%(id)s\" has a breast cancer pathology"
                       "that is ER positive, where an additional pathology parameter (PR, HER2, CK14 or CK5/6) "
                       "has been specified. %(rules)s As a result, only ER positive status will be taken into account "
                       "in this case.")
@@ -197,24 +197,24 @@ class GeneticTest(object):
         for t in gtests:
             # Check that the genetic test type is valid
             if not GeneticTest.REGEX_GENETIC_TEST_TYPE.match(t.test_type):
-                raise GeneticTestError(_("Family member %(id)s has been assigned an invalid "
+                raise GeneticTestError(_("Family member \"%(id)s\" has been assigned an invalid "
                                          "genetic test type. It must be specified with '0' for untested, "
                                          "'S' for mutation search or 'T' for direct gene test.")
                                        % {'id': person.pid})
             # Check that the mutation status is valid
             if not GeneticTest.REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT.match(t.result):
-                raise GeneticTestError(_("Family member %(id)s has been assigned an invalid "
+                raise GeneticTestError(_("Family member \"%(id)s\" has been assigned an invalid "
                                          "genetic test result. Genetic test results must be '0' for untested, "
                                          "'N' for no mutation, 'P' mutation detected.")
                                        % {'id': person.pid})
             # If tested, check that there us a test result
             if t.test_type != "0" and t.result == '0':
-                raise GeneticTestError(_("Family member %(id)s has had a genetic test but the "
+                raise GeneticTestError(_("Family member \"%(id)s\" has had a genetic test but the "
                                          "corresponding test result has not been specified.")
                                        % {'id': person.pid})
             # If there is a genetic test result check the test type is specified
             if t.test_type == "0" and t.result != '0':
-                raise GeneticTestError(_("Family member %(id)s has been assigned a genetic test " +
+                raise GeneticTestError(_("Family member \"%(id)s\" has been assigned a genetic test " +
                                        "result, but the corresponding genetic test type has not been specified.")
                                        % {'id': person.pid})
 
