@@ -193,7 +193,7 @@ class RemainingLifetimeBaselineRisk(Risk):
 
     def _get_pedi(self):
         t = self.predictions.pedi.get_target()
-        if self.predictions.model_settings['NAME'] == 'BC' and t.cancers.is_cancer_diagnosed():
+        if t.cancers.is_cancer_diagnosed():
             cancers = Cancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
                               prc=Cancer(), pac=Cancer())
         else:
@@ -221,17 +221,6 @@ class RemainingLifetimeBaselineRisk(Risk):
 
     def _get_prs(self):
         return None
-
-    def _get_mutation_frequency(self):
-        """
-        Return mutation frequencies. If AJ ancestry then use UK population mutation
-        frequencies for baseline calculations.
-        @return: mutation frequencies
-        """
-        if super()._get_pedi().is_ashkn():
-            logger.debug("ASHKENAZI ANCESTRY: use UK population mutation frequencies for "+self._get_name())
-            return self.predictions.model_settings['MUTATION_FREQUENCIES']["UK"]
-        return self.predictions.model_params.mutation_frequency
 
     def _get_name(self):
         return "REMAINING LIFETIME BASELINE"
@@ -304,17 +293,6 @@ class RangeRiskBaseline(RangeRisk):
 
     def _get_prs(self):
         return None
-
-    def _get_mutation_frequency(self):
-        """
-        Return mutation frequencies. If AJ ancestry then use UK population mutation
-        frequencies for baseline calculations.
-        @return: mutation frequencies
-        """
-        if super()._get_pedi().is_ashkn():
-            logger.debug("ASHKENAZI ANCESTRY: use UK population mutation frequencies for "+self._get_name())
-            return self.predictions.model_settings['MUTATION_FREQUENCIES']["UK"]
-        return self.predictions.model_params.mutation_frequency
 
 
 class Predictions(object):
