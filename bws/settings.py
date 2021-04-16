@@ -61,33 +61,43 @@ ALLOWED_CALCS = ['carrier_probs', 'remaining_lifetime', "lifetime", "ten_year"]
 # BREAST CANCER MODEL
 BC_MODEL = {
     'NAME': 'BC',
-    'HOME': os.path.join(FORTRAN_HOME, 'boadicea'),
+    'HOME': os.path.join(FORTRAN_HOME, 'BOADICEA-Model-V6'),
     'PROBS_EXE': 'boadicea_probs.exe',
     'RISKS_EXE': 'boadicea_risks.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],          # NOTE: order used by fortran pedigree file
-    'GENES': ['BRCA1', 'BRCA2', 'PALB2', 'CHEK2', 'ATM'],   # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA1', 'BRCA2', 'PALB2', 'CHEK2',           # NOTE: order used by fortran pedigree file
+              'ATM', 'BARD1', 'RAD51C', 'RAD51D'],
     'CALCS': ALLOWED_CALCS,
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
             'BRCA1': 0.0006394,
             'BRCA2': 0.00102,
-            'PALB2': 0.000575,
-            'ATM': 0.001921,
-            'CHEK2': 0.002614
+            'PALB2': 0.00064,
+            'ATM': 0.0018,
+            'CHEK2': 0.00373,
+            'BARD1': 0.00043,
+            'RAD51C': 0.00041,
+            'RAD51D': 0.00040
         }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
             'BRCA2': 0.006,
-            'PALB2': 0.000575,
-            'ATM': 0.001921,
-            'CHEK2': 0.002614
+            'PALB2': 0.00064,
+            'ATM': 0.0018,
+            'CHEK2': 0.00373,
+            'BARD1': 0.00043,
+            'RAD51C': 0.00041,
+            'RAD51D': 0.00040
         }),
         ('Iceland', {
             'BRCA1': 0.0006394,
             'BRCA2': 0.003,
-            'PALB2': 0.000575,
-            'ATM': 0.001921,
-            'CHEK2': 0.002614
+            'PALB2': 0.00064,
+            'ATM': 0.0018,
+            'CHEK2': 0.00373,
+            'BARD1': 0.00043,
+            'RAD51C': 0.00041,
+            'RAD51D': 0.00040
         }),
         ('Custom', {})
     ]),
@@ -98,6 +108,9 @@ BC_MODEL = {
         "PALB2": 0.9,
         "ATM": 0.9,
         "CHEK2": 1.0,
+        "BARD1": 1.0,
+        "RAD51C": 1.0,
+        "RAD51D": 1.0,
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([

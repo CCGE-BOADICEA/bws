@@ -294,7 +294,7 @@ class BWSGeneticTests(namedtuple('BWSGeneticTests', ' '.join([gene.lower() for g
 
 class CanRiskGeneticTests(namedtuple('CanRiskGeneticTests',
                                      ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]) + ' ' +
-                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][2:]])
+                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][4:]])
                                      ),
                           GeneticTestsMixin):
     """
