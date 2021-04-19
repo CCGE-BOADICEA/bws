@@ -18,9 +18,12 @@ from bws import pedigree
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.exceptions import TimeOutException, ModelError
 from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
+import re
 
 
 logger = logging.getLogger(__name__)
+
+REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 
 
 class ModelParams():
@@ -146,23 +149,26 @@ class Risk(object):
         lines = risks.split(sep="\n")
         risks_arr = []
         version = None
-        for line in lines:
+        for idx, line in enumerate(lines):
             if pedigree.BLANK_LINE.match(line):
                 continue
-            if line.startswith('#Version:'):
+            if idx == 0:
                 version = line.replace('#Version:', '').strip()
+            elif REGEX_ALPHANUM_COMMAS.match(line):
+                pass
             elif not line.startswith('#'):
+                logger.debug(line)
                 parts = line.split(sep=",")
                 if self.predictions.model_settings['NAME'] == 'BC':
                     risks_arr.append(OrderedDict([
                         ("age", int(parts[0])),
                         ("breast cancer risk", {
                             "decimal": float(parts[1]),
-                            "percent": float(parts[2])
+                            "percent": float(parts[1])*100
                         }),
                         ("ovarian cancer risk", {
-                            "decimal": float(parts[3]),
-                            "percent": float(parts[4])
+                            "decimal": float(parts[2]),
+                            "percent": float(parts[2])*100
                         })
                     ]))
                 else:
@@ -441,7 +447,7 @@ class Predictions(object):
                  '-r', out+".out",       # results file
                  '-v',                   # include model version
                  bat_file,
-                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")
+                 model['INCIDENCE'] + cancer_rates + ".nml"
                  ],
                 cwd=cwd,
                 stdout=PIPE,
@@ -486,14 +492,27 @@ class Predictions(object):
         """
         probs_arr = []
         version = None
-        for line in probs.splitlines():
-            if line.startswith('#Version:'):
+
+        for idx, line in enumerate(probs.splitlines()):
+            logger.debug(str(idx)+" "+line)
+            if idx == 0:
                 version = line.replace('#Version:', '').strip()
+            elif REGEX_ALPHANUM_COMMAS.match(line):
+                pass
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
-                probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
-                for i, gene in enumerate(model_settings['GENES']):
-                    probs_arr.append({gene:
-                                      {"decimal": float(parts[((i*2)+2)]),
-                                       "percent": float(parts[(i*2)+3])}})
+
+                if model_settings.get('NAME', "") == "BC":
+                    probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[0])*100}})
+                    for i, gene in enumerate(model_settings['GENES']):
+                        logger.debug(probs_arr)
+                        probs_arr.append({gene:
+                                          {"decimal": float(parts[i+1]),
+                                           "percent": float(parts[i+1])*100}})
+                else:
+                    probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
+                    for i, gene in enumerate(model_settings['GENES']):
+                        probs_arr.append({gene:
+                                          {"decimal": float(parts[((i*2)+2)]),
+                                           "percent": float(parts[(i*2)+3])}})
         return probs_arr, version

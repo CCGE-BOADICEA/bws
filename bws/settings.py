@@ -44,6 +44,7 @@ MAX_AGE_FOR_RISK_CALCS = 79
 MIN_YEAR_OF_BIRTH = 1850
 BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS = 32
 BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS = 26
+BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS = 27
 MAX_LENGTH_PEDIGREE_NUMBER_STR = 13
 MIN_FAMILY_ID_STR_LENGTH = 1
 MAX_FAMILY_ID_STR_LENGTH = 7
@@ -134,6 +135,7 @@ BC_MODEL = {
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs')
     ])
 }
+BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
 BC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in BC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 #
@@ -198,6 +200,7 @@ OC_MODEL = {
         ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
+OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidence_rates_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 
