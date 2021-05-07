@@ -504,14 +504,12 @@ class Pedigree(metaclass=abc.ABCMeta):
             elif model_settings['NAME'] == "OC":
                 pcount = 2
 
-        risk_factor_str_len = str(len(risk_factor_code))
-
         if model_settings['NAME'] == "BC":
             print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),X,A"+risk_factor_str_len+",3(X,A7))", file=f)
+                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),4(X,A8))", file=f)
         elif model_settings['NAME'] == "OC":
             print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),X,A"+risk_factor_str_len+",2(X,A7))", file=f)
+                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),4(X,A8))", file=f)
 
         for gt in range(pcount):
             print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
@@ -540,17 +538,17 @@ class Pedigree(metaclass=abc.ABCMeta):
                 print(PathologyTest.write(p.pathology), file=f, end="")
 
                 # ProbandStatus RiskFactor
-                fmt = "%1s %"+risk_factor_str_len+"s "
-
-                print(fmt % (proband_status, (risk_factor_code if p.target != "0" else 0)), file=f, end="")
+                print("%1s %8s " % (proband_status, (risk_factor_code if p.target != "0" else "00000000")),
+                      file=f, end="")
 
                 if model_settings['NAME'] == "BC":
                     # Height
-                    print("%6.5f " % (-1), file=f, end="")
+                    print("%8s " % (-1), file=f, end="")
 
                 # PolygStanDev PolygLoad
-                print("%6.5f %6.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
-                             prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,), file=f)
+                print("%7.6f %7.6f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
+                                       prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,),
+                      file=f)
 
         f.close()
         return filepath
