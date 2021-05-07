@@ -164,11 +164,11 @@ class Risk(object):
                         ("age", int(parts[0])),
                         ("breast cancer risk", {
                             "decimal": float(parts[1]),
-                            "percent": float(parts[1])*100
+                            "percent": round(float(parts[1])*100, 1)
                         }),
                         ("ovarian cancer risk", {
                             "decimal": float(parts[2]),
-                            "percent": float(parts[2])*100
+                            "percent": round(float(parts[2])*100, 1)
                         })
                     ]))
                 else:
