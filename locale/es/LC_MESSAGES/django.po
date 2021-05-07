@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-14 09:25+0000\n"
+"POT-Creation-Date: 2021-04-26 08:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,69 +46,186 @@ msgstr ""
 #: bws/cancer.py:91
 #, python-format
 msgid ""
-"Incomplete data record in the pedigree: family member %(id)s has an "
+"Incomplete data record in the pedigree: family member \"%(id)s\" has an "
 "unspecified ER status, but another pathology parameter (PR, HER2, CK14 or "
 "CK5/6) has been specified. %(rules)s As a result, this individual's "
 "pathology information will not be taken into account in this case."
 msgstr ""
-"Datos incompletos en el árbol genealógico: un familiar %(id)s tiene un "
-"estado ER no especificado, sin embargo, se ha especificado otro parámetro "
-"patológico (PR, HER2, CK14 o CK5/6). %(rules)s La información patológica del "
-"sujeto no se tendrá en cuenta en dicho caso."
+"Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
+"tiene un estado ER no especificado, sin embargo, se ha especificado otro "
+"parámetro patológico (PR, HER2, CK14 o CK5/6). %(rules)s Como resultado, la "
+"información patológica de este individuo no será considerada en este caso."
 
 #: bws/cancer.py:101
 #, python-format
 msgid ""
-"Incomplete data record in the pedigree: family member %(id)s has a breast "
-"cancer pathology where PR status is specified but HER2 status is unspecified "
-"(or vice versa). %(rules)sAs a result, PR and HER2 status will not be taken "
-"into account in this case."
+"Incomplete data record in the pedigree: family member \"%(id)s\" has a "
+"breast cancer pathology where PR status is specified but HER2 status is "
+"unspecified (or vice versa). %(rules)sAs a result, PR and HER2 status will "
+"not be taken into account in this case."
 msgstr ""
-"Registro de datos incompleto en el árbol genealógico: un familiar %(id)s "
-"tiene cáncer de mama con el estado ER especificado, sin embargo, no se ha "
-"especificado el estado HER2 (o viceversa). %(rules)sLos estados PR y HER2 no "
-"se tendrán en cuenta en dicho caso."
+"Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
+"tiene una patología de cáncer de mama en donde se especifica el estado PR "
+"pero no se especifica el estado HER2 (o viceversa). %(rules)sComo resultado, "
+"los estados PR y HER2 no serán considerados en este caso."
 
 #: bws/cancer.py:110
 #, python-format
 msgid ""
-"Incomplete data record in the pedigree: family member %(id)s has a breast "
-"cancer pathology where only CK14 or CK5/6 status has been specified. "
+"Incomplete data record in the pedigree: family member \"%(id)s\" has a "
+"breast cancer pathology where only CK14 or CK5/6 status has been specified. "
 "%(rules)s As a result, CK14 and CK5/6 status will not be taken into account "
 "in this case."
 msgstr ""
-"Registro de datos incompleto en el árbol genealógico: un familiar %(id)s "
-"tiene cáncer de mama en donde únicamente se ha especificado el estado CK14 o "
-"CK5/6. %(rules)s Los estados CK14 y CK5/6 no se tendrán en cuenta en dicho "
-"caso."
+"Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
+"tiene una patología de cáncer de mama en donde solamente los estados CK14 o "
+"CK5/6 han sido especificados. %(rules)s Como resultado, los estados CK14 y "
+"CK5/6 no serán considerados en este caso."
 
 #: bws/cancer.py:119
 #, python-format
 msgid ""
-"Incomplete data record in your pedigree: family member %(id)s has a breast "
-"cancer pathology where CK14 or CK5/6 status is specified but the breast "
-"cancer pathology is not triple negative (ER negative, PR negative and HER2 "
-"negative). %(rules)s As a result, CK14 and CK5/6 status will not be taken "
-"into account in this case."
+"Incomplete data record in your pedigree: family member \"%(id)s\" has a "
+"breast cancer pathology where CK14 or CK5/6 status is specified but the "
+"breast cancer pathology is not triple negative (ER negative, PR negative and "
+"HER2 negative). %(rules)s As a result, CK14 and CK5/6 status will not be "
+"taken into account in this case."
 msgstr ""
-"Registro de datos incompleto en su árbol genealógico: un familiar %(id)s "
-"tiene cáncer de mama con el estado CK14 o CK5/6 especificado, sin embargo, "
-"el cáncer de mama no es triple negativo (ER negativo, PR negativo y HER2 "
-"negativo). %(rules)s Los estados CK14 y CK5/6 no se tendrán en cuenta en "
-"dicho caso."
+"Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
+"tiene una patología de cáncer de mama en donde los estados CK14 o CK5/6 han "
+"sido especificados pero la patología de cáncer de mama no es triple negativo "
+"(ER negativo, PR negativo y HER2 negativo). %(rules)s Como resultado, los "
+"estados CK14 y CK5/6 no serán considerados en este caso."
 
 #: bws/cancer.py:129
 #, python-format
 msgid ""
-"Incomplete data record in your pedigree: family member %(id)s has a breast "
-"cancer pathologythat is ER positive, where an additional pathology parameter "
-"(PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a result, only ER "
-"positive status will be taken into account in this case."
+"Incomplete data record in your pedigree: family member \"%(id)s\" has a "
+"breast cancer pathologythat is ER positive, where an additional pathology "
+"parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
+"result, only ER positive status will be taken into account in this case."
 msgstr ""
-"Registro de datos incompleto en su árbol genealógico: un familiar %(id)s "
-"tiene cáncer de mama ER positivo y se han especificado otros parámetros "
-"patológicos adicionales (PR, HER2, CK14 o CK5/6). %(rules)s Solamente se "
-"tendrá en cuenta el estado ER positivo."
+"Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
+"tiene una patología de cáncer de mama ER positivo y se ha especificado un "
+"parámetro patológico adicional (PR, HER2, CK14 o CK5/6). %(rules)s Como "
+"resultado, solamente el estado ER positivo será considerado en este caso."
+
+#: bws/cancer.py:200
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has been assigned an invalid genetic test type. It "
+"must be specified with '0' for untested, 'S' for mutation search or 'T' for "
+"direct gene test."
+msgstr ""
+"El pariente \"%(id)s\" ha recibido asignado un tipo de prueba genética "
+"inválida. Debe especificarse con '0' para no sometido a prueba, 'S' para "
+"búsqueda de mutación o 'T' para prueba de gen directo."
+
+#: bws/cancer.py:206
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has been assigned an invalid genetic test result. "
+"Genetic test results must be '0' for untested, 'N' for no mutation, 'P' "
+"mutation detected."
+msgstr ""
+"El pariente \"%(id)s\" ha recibido asignado un resultado de prueba genética "
+"inválido. Los resultados de la prueba genética deben ser '0' para no "
+"sometido a prueba, 'N' para sin mutación y 'P' para mutación detectada."
+
+#: bws/cancer.py:212
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has had a genetic test but the corresponding test "
+"result has not been specified."
+msgstr ""
+"El pariente \"%(id)s\" ha recibido una prueba genética pero el resultado de "
+"la prueba correspondiente no ha sido especificado."
+
+#: bws/cancer.py:217
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has been assigned a genetic test result, but the "
+"corresponding genetic test type has not been specified."
+msgstr ""
+"El pariente \"%(id)s\" ha recibido asignado un resultado de prueba genética "
+"pero el tipo de prueba genética correspondiente no ha sido especificado."
+
+#: bws/cancer.py:346
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
+"specified as %(dage)s. Age at cancer diagnosis must be set to '0' for "
+"unaffected, 'AU' for affected at unknown age, or specified with an integer "
+"in the range 1-%(max_age)s."
+msgstr ""
+"La edad del pariente \"%(id)s\" en el momento del diagnóstico del cáncer "
+"(%(ctype)s) ha sido especificada como %(dage)s. La edad en el momento de "
+"diagnóstico del cáncer debe ser '0' para no afectado, 'AU' para afectado a "
+"edad desconocida o especificarse con un número entero dentro del intervalo "
+"de 1-%(max_age)s."
+
+#: bws/cancer.py:355
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
+"exceeds age at last follow up. An age at cancer diagnosis must not exceed an "
+"age at last follow up."
+msgstr ""
+"El pariente \"%(id)s\" ha recibido asignada una edad en el momento del "
+"diagnóstico del cáncer que excedía la edad del último chequeo. La edad del "
+"diagnóstico del cáncer no debe exceder la edad del último chequeo."
+
+#: bws/cancer.py:362
+#, python-format
+msgid ""
+"Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
+"diagnosis."
+msgstr ""
+"El pariente \"%(id)s\" es hombre pero ha recibido asignado un diagnóstico de "
+"cáncer de ovario."
+
+#: bws/cancer.py:368
+#, python-format
+msgid ""
+"Family member \"%(id)s\" is female but has been assigned an prostate cancer "
+"diagnosis."
+msgstr ""
+"El pariente \"%(id)s\" es mujer pero ha recibido asignado un diagnóstico de "
+"cáncer de próstata."
+
+#: bws/cancer.py:376
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
+"birth specified. All family members with cancer must have a valid year of "
+"birth. If an affected family member's year of birth is unknown, it is always "
+"better to provide some estimate of it so that risks are not underestimated."
+msgstr ""
+"El pariente \"%(id)s\" ha sido diagnosticado con cáncer pero no se ha "
+"indicado la fecha de nacimiento. Todos los parientes con cáncer deben "
+"indicar una fecha de nacimiento válida. Si se desconoce la fecha de "
+"nacimiento de un pariente con cáncer se recomienda indicar una aproximación "
+"de modo que no se subestimen los riesgos."
+
+#: bws/cancer.py:389 bws/cancer.py:400
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
+"diagnosis of the first breast cancer is missing."
+msgstr ""
+"El pariente \"%(id)s\" tiene cáncer de mama contralateral pero la edad del "
+"diagnóstico del primer cáncer no aparece indicada."
+
+#: bws/cancer.py:393
+#, python-format
+msgid ""
+"Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
+"diagnosis of the first breast cancer exceeds that of the second breast "
+"cancer."
+msgstr ""
+"El pariente \"%(id)s\" tiene cáncer de mama contralateral pero la edad del "
+"diagnóstico del primer cáncer de mama es superior a la del segundo cáncer de "
+"mama."
 
 #: bws/exceptions.py:90
 msgid "Request has timed out."
