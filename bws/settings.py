@@ -62,7 +62,7 @@ ALLOWED_CALCS = ['carrier_probs', 'remaining_lifetime', "lifetime", "ten_year"]
 # BREAST CANCER MODEL
 BC_MODEL = {
     'NAME': 'BC',
-    'HOME': os.path.join(FORTRAN_HOME, 'BOADICEA-Model-V6'),
+    'HOME': os.path.join(FORTRAN_HOME, 'boadicea-v6'),
     'PROBS_EXE': 'boadicea_probs.exe',
     'RISKS_EXE': 'boadicea_risks.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],          # NOTE: order used by fortran pedigree file
