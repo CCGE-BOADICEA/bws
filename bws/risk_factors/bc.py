@@ -100,15 +100,6 @@ class MammographicDensity(RiskFactor):
         return 0
 
 
-class Height(RiskFactor):
-    cats = ['-', '<152.91', '152.91-<159.65', '159.65-<165.96', '165.96-<172.70', '>=172.70']
-    help_text = _('Height (cm)')
-
-    @classmethod
-    def get_category(cls, val, isreal=True):
-        return super(Height, cls).get_category(val, isreal)
-
-
 class BCRiskFactors(RiskFactors):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
         If a factor is unobserved, missing or not applicable, it is assigned category 0,
@@ -126,8 +117,7 @@ class BCRiskFactors(RiskFactors):
         BMI,
         AlcoholIntake,
         AgeOfMenopause,
-        MammographicDensity,
-        Height
+        MammographicDensity
     ]
 
     # dictionary of risk factor name and number of categories
