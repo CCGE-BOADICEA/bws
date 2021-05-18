@@ -90,7 +90,7 @@ class ModelWebServiceMixin():
                             prs = pedi.get_prs(mname)
 
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs,
+                                        risk_factor_code=risk_factor_code, hgt=pedi.hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
@@ -529,7 +529,6 @@ for each the genes and the population to use for cancer incidence rates.
 
             tenyr_ages = re.sub("[\[\]]", "", validated_data.get('tenyr_ages'))
             tenyr_ages = [int(item.strip()) for item in tenyr_ages.split(',')]
-            logger.debug(tenyr_ages)
 
             output = {
                 "timestamp": datetime.datetime.now(),
