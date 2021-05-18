@@ -97,6 +97,13 @@ class Risk(object):
         """
         return self.predictions.risk_factor_code
 
+    def _get_hgt(self):
+        """
+        Get the height.
+        @return: height
+        """
+        return self.predictions.hgt
+
     def _get_mutation_frequency(self):
         """
         Get the mutation frequencies.
@@ -120,12 +127,13 @@ class Risk(object):
 
     def get_risk(self):
         """
-        Calulate the risk and return the parsed output as a list.
+        Calculate the risk and return the parsed output as a list.
         @return: list of risks for each age
         """
         pedi = self._get_pedi()
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
+                                            hgt=self._get_hgt(),
                                             prs=self._get_prs(),
                                             filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.ped"),
                                             model_settings=self.predictions.model_settings)
@@ -157,7 +165,6 @@ class Risk(object):
             elif REGEX_ALPHANUM_COMMAS.match(line):
                 pass
             elif not line.startswith('#'):
-                logger.debug(line)
                 parts = line.split(sep=",")
                 if self.predictions.model_settings['NAME'] == 'BC':
                     risks_arr.append(OrderedDict([
@@ -165,10 +172,6 @@ class Risk(object):
                         ("breast cancer risk", {
                             "decimal": float(parts[1]),
                             "percent": round(float(parts[1])*100, 1)
-                        }),
-                        ("ovarian cancer risk", {
-                            "decimal": float(parts[2]),
-                            "percent": round(float(parts[2])*100, 1)
                         })
                     ]))
                 else:
@@ -224,6 +227,9 @@ class RemainingLifetimeBaselineRisk(Risk):
 
     def _get_risk_factor_code(self):
         return '0'
+
+    def _get_hgt(self):
+        return -1
 
     def _get_prs(self):
         return None
@@ -297,6 +303,9 @@ class RangeRiskBaseline(RangeRisk):
     def _get_risk_factor_code(self):
         return '0'
 
+    def _get_hgt(self):
+        return -1
+
     def _get_prs(self):
         return None
 
@@ -304,7 +313,7 @@ class RangeRiskBaseline(RangeRisk):
 class Predictions(object):
 
     def __init__(self, pedi, model_params=ModelParams(),
-                 risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()),
+                 risk_factor_code=0, hgt=-1, prs=None, cwd=None, request=Request(HttpRequest()),
                  run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
@@ -323,6 +332,7 @@ class Predictions(object):
         self.request = request
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
+        self.hgt = hgt
         self.prs = prs
         self.model_settings = model_settings
         self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
@@ -355,6 +365,7 @@ class Predictions(object):
         if self.pedi.is_carrier_probs_viable() and self.is_calculate('carrier_probs'):
             ped_file = self.pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
                                                      risk_factor_code=self.risk_factor_code,
+                                                     hgt=self.hgt,
                                                      prs=self.prs,
                                                      filepath=os.path.join(self.cwd, "test_prob.ped"),
                                                      model_settings=self.model_settings)
@@ -491,24 +502,25 @@ class Predictions(object):
         @return: list of containing dictionaries of the mutaion probability results
         """
         probs_arr = []
+        gene_columns = []
         version = None
 
         for idx, line in enumerate(probs.splitlines()):
-            logger.debug(str(idx)+" "+line)
             if idx == 0:
                 version = line.replace('#Version:', '').strip()
             elif REGEX_ALPHANUM_COMMAS.match(line):
-                pass
+                gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
 
                 if model_settings.get('NAME', "") == "BC":
-                    probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[0])*100}})
-                    for i, gene in enumerate(model_settings['GENES']):
-                        logger.debug(probs_arr)
+                    probs_arr.append({"no mutation": {"decimal": float(parts[0]),
+                                                      "percent": round(float(parts[0])*100, 2)}})
+                    for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
+                        assert gene == gene_columns[i], "MUTATION CARRIER PROBABILITY - RESULTS COLUMN MISMATCH FOUND"
                         probs_arr.append({gene:
-                                          {"decimal": float(parts[i+1]),
-                                           "percent": float(parts[i+1])*100}})
+                                          {"decimal": float(parts[i]),
+                                           "percent": round(float(parts[i])*100, 2)}})
                 else:
                     probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
                     for i, gene in enumerate(model_settings['GENES']):
