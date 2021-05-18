@@ -76,6 +76,7 @@ class CanRiskHeader():
         bc_rfs = BCRiskFactors()
         oc_rfs = OCRiskFactors()
         bc_prs = oc_prs = None
+        hgt = -1
         for line in self.lines:
             try:
                 parts = line.split('=', 1)
@@ -86,12 +87,14 @@ class CanRiskHeader():
                 elif rfnam == 'prs_bc':                 # get breast cancer prs
                     bc_prs = self.get_prs(rfval)
                 else:                                   # lookup breast/ovarian cancer risk factors
+                    if rfnam == 'height':
+                        hgt = float(rfval)
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception:
                 logger.error("CanRisk header format contains an error.")
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), bc_prs, oc_prs)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, bc_prs, oc_prs)
 
 
 class PedigreeFile(object):
@@ -167,11 +170,11 @@ class PedigreeFile(object):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type.startswith('canrisk'):
-                bc_rfc, oc_rfc, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
+                bc_rfc, oc_rfc, hgt, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
                     CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
-                                    bc_prs=bc_prs, oc_prs=oc_prs))
+                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt))
 
     @classmethod
     def validate(cls, pedigrees):
@@ -201,7 +204,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None):
+                 bc_prs=None, oc_prs=None, hgt=-1):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -245,6 +248,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             raise PedigreeError("Pedigree (" + self.famid + ") has unexpected number of family members " +
                                 str(pedigree_size))
         if file_type is not None and file_type.startswith('canrisk'):
+            self.hgt = hgt
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
@@ -489,7 +493,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                 return False
         return True
 
-    def write_pedigree_file(self, file_type, risk_factor_code='0', prs=None, filepath="/tmp/test.ped",
+    def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
         """
         Write input pedigree file for fortran.
@@ -499,10 +503,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         if file_type == MUTATION_PROBS:
             pcount = (len(model_settings['GENES'])+1)
         else:
-            if model_settings['NAME'] == "BC":
-                pcount = 3
-            elif model_settings['NAME'] == "OC":
-                pcount = 2
+            pcount = 2
 
         if model_settings['NAME'] == "BC":
             print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
@@ -543,7 +544,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
                 if model_settings['NAME'] == "BC":
                     # Height
-                    print("%8s " % (-1), file=f, end="")
+                    print("%8s " % (hgt if p.target != "0" else -1), file=f, end="")
 
                 # PolygStanDev PolygLoad
                 print("%7.6f %7.6f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
