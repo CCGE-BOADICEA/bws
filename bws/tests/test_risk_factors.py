@@ -43,10 +43,7 @@ class RiskFactorsCategoryTests(TestCase):
 
     def test_get_Height_category(self):
         ''' Given a height value check the category is correctly assigned. '''
-        self.assertEqual(bc.Height.get_category(" 152.91 "), 2)
         self.assertEqual(oc.Height.get_category(" 152.4 "), 1)
-        self.assertEqual(bc.Height.get_category(159.65), 3)
-        self.assertEqual(bc.Height.get_category(172.68), 4)
         self.assertEqual(oc.Height.get_category(173), 5)
 
     def test_get_OralContraception_category(self):
@@ -166,8 +163,8 @@ class RiskFactorsCodeTests(TestCase):
         rfc += 1*768000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
-        bc_risk_categories[9] = bc.Height.get_category('174.21')
-        rfc += 5*3840000
+        # bc_risk_categories[9] = bc.Height.get_category('174.21')
+        # rfc += 5*3840000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
     def test_OC_risk_factor_code(self):
