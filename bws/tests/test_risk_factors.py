@@ -301,7 +301,7 @@ class BwsRiskFactors(TestCase):
         ''' Test inconsistent risk factors, e.g. age of first birth specified with parity unobserved. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': BCRiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0, 0])}
+                'user_id': 'test_XXX', 'risk_factor_code': BCRiskFactors.encode([0, 0, 1, 0, 0, 0, 0, 0, 0])}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + BwsRiskFactors.token.key)
         BwsRiskFactors.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         response = self.client.post(BwsRiskFactors.url, data, format='multipart',
