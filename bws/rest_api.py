@@ -89,8 +89,9 @@ class ModelWebServiceMixin():
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, hgt=pedi.hgt, prs=prs,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
