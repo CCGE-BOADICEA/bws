@@ -20,8 +20,10 @@ logger = logging.getLogger(__name__)
 # BOADICEA header
 REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
     re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
-REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE = \
-    re.compile("^(##CanRisk\\s[1|2](.0)*)$")
+REGEX_CANRISK1_PEDIGREE_FILE_HEADER = \
+    re.compile("^(##CanRisk\\s1(.0)*)$")
+REGEX_CANRISK2_PEDIGREE_FILE_HEADER = \
+    re.compile("^(##CanRisk\\s2(.0)*)$")
 REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")
 REGEX_ONLY_HYPHENS = re.compile("^([\-]+)$")
 REGEX_ONLY_ZEROS = re.compile("^[0]+$")
@@ -114,8 +116,10 @@ class PedigreeFile(object):
 
         for idx, line in enumerate(pedigree_data.splitlines()):
             if idx == 0:
-                if REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE.match(line):
-                    file_type = 'canrisk'
+                if REGEX_CANRISK1_PEDIGREE_FILE_HEADER.match(line):
+                    file_type = 'canrisk1'
+                elif REGEX_CANRISK2_PEDIGREE_FILE_HEADER.match(line):
+                    file_type = 'canrisk2'
                 elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                 else:
@@ -148,21 +152,21 @@ class PedigreeFile(object):
                     pid += 1
                 famid = record[0]
 
-                if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
+                if file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS:
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "BOADICEA format 4 pedigree files should have " +
                                             str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) +
                                             " data items per line.")
-                elif file_type == 'canrisk':
-                    if len(record) == settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
-                        file_type += "1"
-                    elif len(record) == settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS:
-                        file_type += "2"
-                    else:
-                        raise PedigreeFileError("A data record has an unexpected number of data items. " +
-                                                "CanRisk format 2 pedigree files should have " +
-                                                str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
-                                                " data items per line.")
+                elif file_type == 'canrisk1' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "CanRisk format 1 pedigree files should have " +
+                                            str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
+                                            " data items per line.")
+                elif file_type == 'canrisk2' and len(record) != settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS:
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "CanRisk format 2 pedigree files should have " +
+                                            str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
+                                            " data items per line.")
                 pedigrees_records[pid].append(line)
 
         self.pedigrees = []
@@ -665,7 +669,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             # NOTE: order is different to settings.BC_MODEL['GENES'] so use column header
             idx = type(self).get_column_idx('Ashkn') + 1
             columns = self.get_columns()
-            ngene_test_columns = len(settings.BC_MODEL['GENES'])*2
+            ngene_test_columns = 5*2
             for i in range(idx, idx+ngene_test_columns, 2):
                 gene = columns[i][:-1].lower()
                 gtest = getattr(gt, gene)
@@ -929,14 +933,16 @@ class Person(object):
             genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:]
 
             def get_genetic_test(cols, gene):
-                idx = CanRiskPedigree.get_column_idx(gene)
+                idx = CanRiskPedigree.get_column_idx(gene, file_type)
                 if idx < 0:
+                    if gene == "BARD1" and file_type == "canrisk1":
+                        return GeneticTest()
                     raise PedigreeError("Genetic test column for '" + gene + "not found.")
                 gt = cols[idx].split(':')
                 return GeneticTest(gt[0], gt[1])
             gtests = CanRiskGeneticTests.factory([get_genetic_test(cols, gene) for gene in genes])
 
-            path = cols[len(CanRiskPedigree.COLUMNS2)-1].split(':')
+            path = cols[CanRiskPedigree.get_column_idx("ER:PR:HER2:CK14:CK56", file_type)].split(':')
             pathology = PathologyTests(
                 er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, path[0]),
                 pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, path[1]),
