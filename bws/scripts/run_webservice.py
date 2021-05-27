@@ -77,7 +77,7 @@ def post_requests(url, **kwargs):
 
 
 def summary_output_tab(tabf, cmodel, rjson, bwa):
-    ''' Tab delimeted output file '''
+    ''' Tab delimited output file '''
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age",
                   "+5 BC Risk", "+10 BC Risk", "80 BC Risk", "BC Lifetime"]
@@ -126,7 +126,7 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
 
 
 def output_tab(tabf, cmodel, rjson, bwa):
-    ''' Tab delimeted output file '''
+    ''' Tab delimited output file '''
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%    ",
                   "OCRisk          ", "OCRisk%"]
@@ -280,10 +280,10 @@ if __name__ == "__main__":
     group1.add_argument('-v', '--vcf', help='Variant Call Format (VCF) file')
     group1.add_argument('-s', '--sample', help='sample name')
     group1.add_argument('--bc_prs_reference_file', help='breast cancer prs reference file', default=None,
-                        choices=[None, 'BCAC_313_PRS.prs', 'PERSPECTIVE_295_PRS.prs'])
+                        choices=[None, 'BCAC_313_PRS.prs', 'PERSPECTIVE_295_PRS.prs', 'BRIDGES_306_PRS.prs'])
     group1.add_argument('--oc_prs_reference_file', help='ovarian cancer prs reference file', default=None,
-                        choices=[None])
-    group1.add_argument('--vcfonly', help='Only run VCF to PRS')
+                        choices=[None, 'OCAC_36_PRS.prs'])
+    group1.add_argument('--vcfonly', help='Only run VCF to PRS', action='store_true')
 
     # Mutation frequencies
     parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
