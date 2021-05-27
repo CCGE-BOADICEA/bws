@@ -77,7 +77,7 @@ def post_requests(url, **kwargs):
 
 
 def summary_output_tab(tabf, cmodel, rjson, bwa):
-    ''' Tab delimeted output file '''
+    ''' Tab delimited output file '''
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age",
                   "+5 BC Risk", "+10 BC Risk", "80 BC Risk", "BC Lifetime"]
@@ -126,7 +126,7 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
 
 
 def output_tab(tabf, cmodel, rjson, bwa):
-    ''' Tab delimeted output file '''
+    ''' Tab delimited output file '''
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%    ",
                   "OCRisk          ", "OCRisk%"]
