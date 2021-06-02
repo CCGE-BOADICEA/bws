@@ -166,22 +166,16 @@ class Risk(object):
                 pass
             elif not line.startswith('#'):
                 parts = line.split(sep=",")
-                if self.predictions.model_settings['NAME'] == 'BC':
-                    risks_arr.append(OrderedDict([
-                        ("age", int(parts[0])),
-                        ("breast cancer risk", {
-                            "decimal": float(parts[1]),
-                            "percent": round(float(parts[1])*100, 1)
-                        })
-                    ]))
-                else:
-                    risks_arr.append(OrderedDict([
-                        ("age", int(parts[0])),
-                        ("ovarian cancer risk", {
-                            "decimal": float(parts[1]),
-                            "percent": float(parts[2])
-                        })
-                    ]))
+                ctype = "breast" if self.predictions.model_settings['NAME'] == 'BC' else "ovarian"
+
+                risks_arr.append(OrderedDict([
+                    ("age", int(parts[0])),
+                    (ctype+" cancer risk", {
+                        "decimal": float(parts[1]),
+                        "percent": round(float(parts[1])*100, 1)
+                    })
+                ]))
+
         return risks_arr, version
 
 
@@ -451,12 +445,11 @@ class Predictions(object):
             except OSError:
                 pass
 
-            # logger.debug(prog + ' -r ' + out+".out -v " + bat_file + " " +
-            #              os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml"))
+            # logger.debug(prog + ' -o ' + out+".out " + bat_file + " " +
+            #              model['INCIDENCE'] + cancer_rates + ".nml")
             process = Popen(
                 [prog,
-                 '-r', out+".out",       # results file
-                 '-v',                   # include model version
+                 '-o', out+".out",       # results file
                  bat_file,
                  model['INCIDENCE'] + cancer_rates + ".nml"
                  ],
@@ -506,25 +499,18 @@ class Predictions(object):
         version = None
 
         for idx, line in enumerate(probs.splitlines()):
-            if idx == 0:
+            if idx == 0 and line.startswith('#'):
                 version = line.replace('#Version:', '').strip()
             elif REGEX_ALPHANUM_COMMAS.match(line):
                 gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
 
-                if model_settings.get('NAME', "") == "BC":
-                    probs_arr.append({"no mutation": {"decimal": float(parts[0]),
-                                                      "percent": round(float(parts[0])*100, 2)}})
-                    for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
-                        assert gene == gene_columns[i], "MUTATION CARRIER PROBABILITY - RESULTS COLUMN MISMATCH FOUND"
-                        probs_arr.append({gene:
-                                          {"decimal": float(parts[i]),
-                                           "percent": round(float(parts[i])*100, 2)}})
-                else:
-                    probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
-                    for i, gene in enumerate(model_settings['GENES']):
-                        probs_arr.append({gene:
-                                          {"decimal": float(parts[((i*2)+2)]),
-                                           "percent": float(parts[(i*2)+3])}})
+                probs_arr.append({"no mutation": {"decimal": float(parts[0]),
+                                                  "percent": round(float(parts[0])*100, 2)}})
+                for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
+                    assert gene == gene_columns[i], "MUTATION CARRIER PROBABILITY - RESULTS COLUMN MISMATCH FOUND"
+                    probs_arr.append({gene:
+                                      {"decimal": float(parts[i]),
+                                       "percent": round(float(parts[i])*100, 2)}})
         return probs_arr, version
