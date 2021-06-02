@@ -41,11 +41,6 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.BMI.get_category(30), 4)
         self.assertEqual(oc.BMI.get_category(30), 3)
 
-    def test_get_Height_category(self):
-        ''' Given a height value check the category is correctly assigned. '''
-        self.assertEqual(oc.Height.get_category(" 152.4 "), 1)
-        self.assertEqual(oc.Height.get_category(173), 5)
-
     def test_get_OralContraception_category(self):
         ''' Given a Oral Contraception value check the category is correctly assigned. '''
         self.assertEqual(bc.OralContraception.get_category('-'), 0)
@@ -175,8 +170,7 @@ class RiskFactorsCodeTests(TestCase):
                  MHT category * 24 +
                  Tubal Ligation category * 72 +
                  Endometriosis category * 216 +
-                 BMI category * 648 +
-                 Height category * 2592
+                 BMI category * 648
         '''
         oc_risk_categories = [0 for _k in OCRiskFactors.categories.keys()]
 
@@ -202,10 +196,6 @@ class RiskFactorsCodeTests(TestCase):
 
         oc_risk_categories[5] = oc.BMI.get_category(25)
         rfc += 2*648
-        self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
-
-        oc_risk_categories[6] = oc.Height.get_category(153)
-        rfc += 2*2592
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
     def test_round_trip(self):

@@ -2,7 +2,7 @@
 Cancer, pathology and genetic testing
 """
 import re
-from bws.exceptions import GeneticTestError, PedigreeFileError, PathologyError, CancerError
+from bws.exceptions import GeneticTestError, PathologyError, CancerError
 from collections import namedtuple
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -47,12 +47,26 @@ class PathologyTest(object):
         @type tests: PathologyTests
         @keyword tests: pathology tests
         """
-        return ("%1s %1s %1s %1s %1s " %
-                (tests.er.get_pathology_data(),
-                 tests.pr.get_pathology_data(),
-                 tests.her2.get_pathology_data(),
-                 tests.ck14.get_pathology_data(),
-                 tests.ck56.get_pathology_data()))
+        pcode = -1                  # unknown or NA
+        if tests.er.result == "P":
+            pcode = 0               # ER+
+        if tests.er.result == "N":
+            if tests.pr.result == "0" or tests.her2.result == "0":
+                pcode = 1           # ER-, triple negative (TN) unknown
+            elif tests.pr.result == "P" or tests.her2.result == "P":
+                pcode = 2           # ER-, not TN
+            elif tests.pr.result == "N" and tests.her2.result == "N":
+                if tests.ck14.result == "0" or tests.ck56.result == "0":
+                    pcode = 3       # TN and CK14 and/or CK56 unknown
+                elif tests.ck14.result == "N" and tests.ck56.result == "N":
+                    pcode = 4       # TN and CK14- and CK56-
+                elif tests.ck14.result == "P" and tests.ck56.result == "P":
+                    pcode = 6       # TN and CK14+ and CK56+
+                elif tests.ck14.result == "P" and tests.ck56.result == "N":
+                    pcode = 5   # TN and either but not both CK14+ or CK56+
+                elif tests.ck14.result == "N" and tests.ck56.result == "P":
+                    pcode = 5   # TN and either but not both CK14+ or CK56+
+        return ("%2s " % pcode)
 
     @classmethod
     def validate(cls, person):
@@ -134,41 +148,6 @@ class PathologyTest(object):
 
         return warnings
 
-    def get_pathology_data(self):
-        """
-        Get pathology test result: '0' for untested, 'N' for negative or 'P' for positive
-        @return: ER, PROG, HER2 status: neg = 1, pos = 0, unknown = 9
-                 CK14, CK56 status: pos = 1, neg = 0, unknown = 9
-        """
-        if((not PathologyTest.REGEX_PATHOLOGY_TEST_OPTION.match(self.test_type)) or
-           (not PathologyTest.REGEX_PATHOLOGY_STATUS.match(self.result))):
-            raise PedigreeFileError(
-                "Invalid BOADICEA import format pathology test option has unexpected characters.")
-
-        if((self.test_type == PathologyTest.ESTROGEN_RECEPTOR_TEST) or
-           (self.test_type == PathologyTest.PROGESTROGEN_RECEPTOR_TEST) or
-           (self.test_type == PathologyTest.HER2_TEST)):
-            if self.result == "0":
-                return "9"    # individual is untested
-            elif self.result == "N":
-                return "1"    # individual has tested negative
-            elif self.result == "P":
-                return "0"    # individual has tested positive
-            else:
-                raise PedigreeFileError(
-                    "Program string has unexpected value")
-        elif((self.test_type == PathologyTest.CK14_TEST) or (self.test_type == PathologyTest.CK56_TEST)):
-            if self.result == "0":
-                return "9"    # individual is untested
-            elif self.result == "N":
-                return "0"    # individual has tested negative
-            elif self.result == "P":
-                return "1"    # individual has tested positive
-            else:
-                raise PedigreeFileError("Program string has unexpected value")
-
-        raise PedigreeFileError("Program string has unexpected value")
-
 
 class GeneticTest(object):
     """
@@ -244,12 +223,12 @@ class GeneticTest(object):
                  1 mutation test, mutation detected
                  2 gene test, no mutation detected
                  3 gene test, mutation detected
-                 9 untested, unknown or not applicable
+                -1 untested, unknown or not applicable
         """
         ttype = self.test_type
         result = self.result
         if((ttype == '0') and (result == '0')):
-            return 9  # untested
+            return -1  # untested
 
         # Invalid genetic test type and genetic test result
         if(((ttype == 'S') and (result == '0')) or   # (S,0) 'S' for mutation search
@@ -294,7 +273,7 @@ class BWSGeneticTests(namedtuple('BWSGeneticTests', ' '.join([gene.lower() for g
 
 class CanRiskGeneticTests(namedtuple('CanRiskGeneticTests',
                                      ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]) + ' ' +
-                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][4:]])
+                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][4:5]])
                                      ),
                           GeneticTestsMixin):
     """

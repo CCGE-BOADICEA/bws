@@ -117,6 +117,7 @@ class ModelWebServiceMixin():
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print(model_settings['NAME']+" :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
@@ -578,8 +579,9 @@ for each the genes and the population to use for cancer incidence rates.
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs, run_risks=False,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs, run_risks=False,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
@@ -607,6 +609,7 @@ for each the genes and the population to use for cancer incidence rates.
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print("BCTenYr :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 

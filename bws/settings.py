@@ -36,7 +36,7 @@ FORTRAN_ENV['OMP_STACKSIZE'] = '2G'
 
 MAX_PEDIGREE_SIZE = 275
 MIN_BASELINE_PEDIGREE_SIZE = 1
-MENDEL_NULL_YEAR_OF_BIRTH = 9999
+MENDEL_NULL_YEAR_OF_BIRTH = -1
 
 # Maximum age for risk calculation
 MAX_AGE_FOR_RISK_CALCS = 79
@@ -121,10 +121,14 @@ BC_MODEL = {
         ('Canada', 'Canada'),
         ('USA', 'USA'),
         ('Denmark', 'Denmark'),
+        ('Estonia', 'Estonia'),
         ('Finland', 'Finland'),
+        ('France', 'France'),
         ('Iceland', 'Iceland'),
-        ('New-Zealand', 'NewZealand'),
+        ('Netherlands', 'Netherlands'),
+        ('New-Zealand', 'New_Zealand'),
         ('Norway', 'Norway'),
+        ('Slovenia', 'Slovenia'),
         ('Spain', 'Spain'),
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
@@ -142,33 +146,36 @@ BC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in BC_MODEL['PRS_R
 # OVARIAN CANCER MODEL
 OC_MODEL = {
     'NAME': 'OC',
-    'HOME': os.path.join(FORTRAN_HOME, 'ovarian'),
+    'HOME': os.path.join(FORTRAN_HOME, 'ovarian-v2'),
     'PROBS_EXE': 'ovarian_probs.exe',
     'RISKS_EXE': 'ovarian_risks.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
-    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1'],   # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1', 'PALB2'],   # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
             'BRCA1': 0.0007947,
             'BRCA2': 0.002576,
-            'RAD51D': 0.00026,
-            'RAD51C': 0.00022,
-            'BRIP1': 0.00044
+            'RAD51D': 0.00040,
+            'RAD51C': 0.00041,
+            'BRIP1': 0.00071,
+            'PALB2': 0.00064
         }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
             'BRCA2': 0.006,
-            'RAD51D': 0.00026,
-            'RAD51C': 0.00022,
-            'BRIP1': 0.00044
+            'RAD51D': 0.00040,
+            'RAD51C': 0.00041,
+            'BRIP1': 0.00071,
+            'PALB2': 0.00064
         }),
         ('Iceland', {
             'BRCA1': 0.0007947,
             'BRCA2': 0.003,
-            'RAD51D': 0.00026,
-            'RAD51C': 0.00022,
-            'BRIP1': 0.00044
+            'RAD51D': 0.00040,
+            'RAD51C': 0.00041,
+            'BRIP1': 0.00071,
+            'PALB2': 0.00064
         }),
         ('Custom', {})
     ]),
@@ -178,7 +185,8 @@ OC_MODEL = {
         "BRCA2": 0.9,
         "RAD51D": 0.9,
         "RAD51C": 0.9,
-        "BRIP1": 0.9
+        "BRIP1": 0.9,
+        "PALB2": 0.9
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -188,10 +196,14 @@ OC_MODEL = {
         ('Canada', 'Canada'),
         ('USA', 'USA'),
         ('Denmark', 'Denmark'),
+        ('Estonia', 'Estonia'),
         ('Finland', 'Finland'),
+        ('France', 'France'),
         ('Iceland', 'Iceland'),
-        ('New-Zealand', 'NewZealand'),
+        ('Netherlands', 'Netherlands'),
+        ('New-Zealand', 'New_Zealand'),
         ('Norway', 'Norway'),
+        ('Slovenia', 'Slovenia'),
         ('Spain', 'Spain'),
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
@@ -200,7 +212,7 @@ OC_MODEL = {
         ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
-OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidence_rates_"
+OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 

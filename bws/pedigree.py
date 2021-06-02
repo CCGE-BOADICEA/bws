@@ -509,12 +509,8 @@ class Pedigree(metaclass=abc.ABCMeta):
         else:
             pcount = 2
 
-        if model_settings['NAME'] == "BC":
-            print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),4(X,A8))", file=f)
-        elif model_settings['NAME'] == "OC":
-            print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-                  str(len(model_settings['GENES'])) + "(A1,X),A4," + "6(X,A1),4(X,A8))", file=f)
+        print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
+              str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1,4(X,A8))", file=f)
 
         for gt in range(pcount):
             print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
@@ -522,7 +518,6 @@ class Pedigree(metaclass=abc.ABCMeta):
             for p in self.people:
                 # IndivID FathID MothID Sex MZ Genotype, Polygene 1BC 2BC OC
                 genotype = gt if (p.target != "0" and file_type == MUTATION_PROBS) else ''
-                proband_status = (gt+1) if (p.target != "0" and file_type == CANCER_RISKS) else p.target
                 print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
                       (p.pid,
                        p.fathid if p.fathid != "0" else '',
@@ -536,19 +531,18 @@ class Pedigree(metaclass=abc.ABCMeta):
                 # Gene Tests
                 gtests = p.gtests
                 for g in model_settings['GENES']:
-                    print("%1s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                    print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
 
                 print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
 
                 print(PathologyTest.write(p.pathology), file=f, end="")
 
                 # ProbandStatus RiskFactor
-                print("%1s %8s " % (proband_status, (risk_factor_code if p.target != "0" else "00000000")),
+                print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
                       file=f, end="")
 
-                if model_settings['NAME'] == "BC":
-                    # Height
-                    print("%8s " % (hgt if p.target != "0" else -1), file=f, end="")
+                # Height
+                print("%8s " % (hgt if p.target != "0" else -1), file=f, end="")
 
                 # PolygStanDev PolygLoad
                 print("%7.6f %7.6f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
@@ -576,7 +570,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
             raise PedigreeFileError("Invalid batch file type.")
 
-        if 'PALB2' in mutation_freq:
+        if 'CHEK2' in mutation_freq:
             model_settings = settings.BC_MODEL
         elif 'BRIP1' in mutation_freq:
             model_settings = settings.OC_MODEL
@@ -930,7 +924,7 @@ class Person(object):
                 ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
                 ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
         else:
-            genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:]
+            genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]
 
             def get_genetic_test(cols, gene):
                 idx = CanRiskPedigree.get_column_idx(gene, file_type)
