@@ -214,12 +214,13 @@ class Pedigree(metaclass=abc.ABCMeta):
                 p = Person.factory(record, file_type=file_type)
                 if p.target != '0' and p.target != '1':
                     raise PedigreeError("A value in the Target data column has been set to '" + p.target +
-                                        "'. Target column parameters must be set to '0' or '1'.")
+                                        "'. Target column parameters must be set to '0' or '1'.", p.famid)
                 if p.is_target():
                     self.target = p
 
                 if p.pid in ids:
-                    raise PedigreeError("Individual ID '" + p.pid + "' appears more than once in the pedigree file.")
+                    raise PedigreeError("Individual ID '" + p.pid +
+                                        "' appears more than once in the pedigree file.", p.famid)
                 else:
                     ids.append(p.pid)
                 self.people.append(p)
@@ -235,10 +236,10 @@ class Pedigree(metaclass=abc.ABCMeta):
         pedigree_size = len(self.people)
         if ntarget != 1:
             raise PedigreeError("Pedigree (" + self.famid + ") has either no index or more than 1 " +
-                                "index individuals. Only one target can be specified.")
+                                "index individuals. Only one target can be specified.", self.famid)
         if pedigree_size > settings.MAX_PEDIGREE_SIZE or pedigree_size < settings.MIN_BASELINE_PEDIGREE_SIZE:
             raise PedigreeError("Pedigree (" + self.famid + ") has unexpected number of family members " +
-                                str(pedigree_size))
+                                str(pedigree_size), self.famid)
         if file_type == 'canrisk':
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
@@ -260,21 +261,21 @@ class Pedigree(metaclass=abc.ABCMeta):
             raise PedigreeError(
                 "Family ID (1st data column) has been set to '" + self.famid +
                 "'. Family IDs must be specified with between 1 and "+str(settings.MAX_LENGTH_PEDIGREE_NUMBER_STR) +
-                " non-zero number or alphanumeric characters.")
+                " non-zero number or alphanumeric characters.", self.famid)
 
         unconnected = self.unconnected()
         if len(unconnected) > 0:
             raise PedigreeError("Pedigree (" + self.famid + ") family members are not physically " +
-                                "connected to the target: " + str(unconnected))
+                                "connected to the target: " + str(unconnected), self.famid)
 
         # Check that the index's parameters are valid
         target = self.get_target()
         if target.yob == '0':
             raise PedigreeError("The target's year of birth has been set to '" + target.yob +
-                                "'. This person must be assigned a valid year of birth.")
+                                "'. This person must be assigned a valid year of birth.", target.famid)
         if target.age == '0':
             raise PedigreeError("The target's age has been set to '" + target.age +
-                                "'. This person must be assigned an age.")
+                                "'. This person must be assigned an age.", target.famid)
 
         # Check that carrier probabilities / cancer risks can be computed
         carrier_probs = self.is_carrier_probs_viable(target=target)
@@ -285,7 +286,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                 "' has a positive genetic test. Also BOADICEA cannot compute breast and ovarian cancer "
                 "risks because the target is: (1) over " + str(settings.MAX_AGE_FOR_RISK_CALCS) +
                 " years old or (2) male, or (3) an affected female who has developed contralateral "
-                "breast cancer, ovarian cancer or pancreatic cancer.")
+                "breast cancer, ovarian cancer or pancreatic cancer.", target.famid)
 
         #
         # Check monozygotic (MZ) twin data
@@ -297,41 +298,44 @@ class Pedigree(metaclass=abc.ABCMeta):
             if len(twins) != 2:
                 raise PedigreeError(
                     "MZ twin identifier '" + str(twins[0].pid) + "' does not appear twice in the pedigree file. "
-                    "Only MZ twins are permitted in the pedigree, MZ triplets or quads are not allowed.")
+                    "Only MZ twins are permitted in the pedigree, MZ triplets or quads are not allowed.",
+                    twins[0].famid)
 
             # Check MZ twin characters are valid
             if len(t) != 1 or t not in settings.UNIQUE_TWIN_IDS:
                 raise PedigreeError("Invalid MZ twin character '" + t + "'. MZ twins must be identified using one " +
-                                    "of the following ASCII characters: " + str(settings.UNIQUE_TWIN_IDS) + ".")
+                                    "of the following ASCII characters: " + str(settings.UNIQUE_TWIN_IDS) + ".",
+                                    twins[0].famid)
 
             # Check that monozygotic (MZ) twin data are consistent
             if(twins[0].mothid != twins[1].mothid or
                twins[0].fathid != twins[1].fathid):
                 raise PedigreeError("Monozygotic (MZ) twins identified with the character '" + t + "' have different "
-                                    "parents. MZ twins must have the same parents.")
+                                    "parents. MZ twins must have the same parents.", twins[0].famid)
             if(twins[0].yob != twins[1].yob):
                 raise PedigreeError("Monozygotic (MZ) twins identified with the character '" + t + "' have different "
-                                    "years of birth. MZ twins must have the same year of birth.")
+                                    "years of birth. MZ twins must have the same year of birth.", twins[0].famid)
 
             # Check that living MZ twins have the same age at last follow up
             if(twins[0].dead == '0' and twins[1].dead == '0' and twins[0].age != twins[1].age):
                 raise PedigreeError("Monozygotic (MZ) twins identified with the character '" + t + "' have different "
-                                    "ages. If both MZ twins are alive, they must have the same age at last follow up.")
+                                    "ages. If both MZ twins are alive, they must have the same age at last follow up.",
+                                    twins[0].famid)
 
             if twins[0].sex() != twins[1].sex():
                 raise PedigreeError("Monozygotic (MZ) twins identified with the character '" + t + "' have a different "
-                                    "sex. MZ twins must have the same sex.")
+                                    "sex. MZ twins must have the same sex.", twins[0].famid)
 
             # Check that the MZ twins have the same genetic status
             if not GeneticTest.compareTestResults(twins[0], twins[1]):
                 raise PedigreeError("Monozygotic (MZ) twins have both had a genetic test, but the genetic test results "
                                     "for these individuals are different. Under these circumstances, the genetic test "
-                                    "results must be the same.")
+                                    "results must be the same.", twins[0].famid)
 
         # Check to ensure that the maximum number of MZ twin pairs per pedigree has not been exceeded
         if len(twin_store.keys()) > settings.MAX_NUMBER_MZ_TWIN_PAIRS:
             raise PedigreeError("Maximum number of MZ twin pairs has been exceeded. Input pedigrees must have a "
-                                "maximum of " + str(settings.MAX_NUMBER_MZ_TWIN_PAIRS) + " MZ twin pairs.")
+                                "maximum of " + str(settings.MAX_NUMBER_MZ_TWIN_PAIRS) + " MZ twin pairs.", self.famid)
 
     def add_parents(self, person, gtests=BWSGeneticTests.default_factory()):
         """
@@ -781,7 +785,7 @@ class Person(object):
         """
         if(self.name == '' or
            not REGEX_ALPHANUM_HYPHENS.match(self.name)):
-            raise PersonError("A name '"+self.name+"' is unspecified or is not an alphanumeric string.")
+            raise PersonError("A name '"+self.name+"' is unspecified or is not an alphanumeric string.", self.famid)
 
         if(len(self.pid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.pid) > settings.MAX_FAMILY_ID_STR_LENGTH or
@@ -789,51 +793,52 @@ class Person(object):
            not REGEX_ALPHANUM_HYPHENS.match(self.pid)):
             raise PersonError("An individual identifier (IndivID column) was specified as '" + self.pid +
                               ". Individual identifiers must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH)+"characters.")
+                              str(settings.MAX_FAMILY_ID_STR_LENGTH)+"characters.", self.famid)
 
         if(len(self.fathid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.fathid) > settings.MAX_FAMILY_ID_STR_LENGTH or
            not REGEX_ALPHANUM_HYPHENS.match(self.fathid)):
             raise PersonError("Father identifier ('" + self.fathid + "', FathID column) has unexpected characters. "
                               "It must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters")
+                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
 
         if(len(self.mothid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.mothid) > settings.MAX_FAMILY_ID_STR_LENGTH or
            not REGEX_ALPHANUM_HYPHENS.match(self.mothid)):
             raise PersonError("Mother identifier ('" + self.mothid + "', MothID column) has unexpected characters. "
                               "It must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters")
+                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
 
         if(self.fathid == '0' and self.mothid != '0') or (self.fathid != '0' and self.mothid == '0'):
             raise PersonError("Family member '"+self.name+"' has only one parent specified. All family members must "
-                              "have no parents specified (i.e. they must be founders) or both parents specified.")
+                              "have no parents specified (i.e. they must be founders) or both parents specified.",
+                              self.famid)
 
         # check for missing parents
         if self.mothid != '0' and pedigree.get_person(self.mothid) is None:
             raise PersonError("The mother '"+self.mothid+"' of family member '" + self.pid +
-                              "' is missing from the pedigree.")
+                              "' is missing from the pedigree.", self.famid)
         elif self.fathid != '0' and pedigree.get_person(self.fathid) is None:
             raise PersonError("The father '"+self.fathid+"' of family member '" + self.pid +
-                              "' is missing from the pedigree.")
+                              "' is missing from the pedigree.", self.famid)
 
         # check all fathers are male
         if self.fathid != '0' and pedigree.get_person(self.fathid).sex() != 'M':
             raise PersonError("The father of family member '" + self.pid + "' is not specified as male. " +
-                              "All fathers in the pedigree must have sex specified as 'M'.")
+                              "All fathers in the pedigree must have sex specified as 'M'.", self.famid)
         # check all mothers are female
         if self.mothid != '0' and pedigree.get_person(self.mothid).sex() != 'F':
             raise PersonError("The mother of family member '" + self.pid + "' is not specified as female. " +
-                              "All mothers in the pedigree must have sex specified as 'F'.")
+                              "All mothers in the pedigree must have sex specified as 'F'.", self.famid)
         # check if the dead attribute has been correctly set
         if self.dead != '0' and self.dead != '1':
             raise PersonError("The family member '" + self.pid + "' has an invalid vital status " +
-                              "(alive must be specified as '0', and dead specified as '1')")
+                              "(alive must be specified as '0', and dead specified as '1')", self.famid)
         # check that age of last follow up set to either 0 (unknown) or in range 1-110
         if not REGEX_AGE.match(self.age) or int(self.age) > settings.MAX_AGE:
             raise PersonError("The age specified for family member '" + self.pid + "' has unexpected " +
                               "characters. Ages must be specified with as '0' for unknown, or in the " +
-                              "range 1-" + str(settings.MAX_AGE))
+                              "range 1-" + str(settings.MAX_AGE), self.famid)
 
         # validate year of birth
         current_year = date.today().year
