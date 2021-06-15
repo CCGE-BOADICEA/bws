@@ -4,74 +4,67 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 
-class PersonError(ValidationError):
+class CanRiskError(ValidationError):
+
+    def __init__(self, detail, famid=None):
+        detail = ('['+famid+'] - ' if famid is not None and not "XXXX" else '') + detail
+        super().__init__({self.__class__.err: detail})
+
+
+class PersonError(CanRiskError):
     """
     PersonError raised for errors in the individuals input.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Person Error': detail})
+    err = 'Person Error'
 
 
-class CancerError(ValidationError):
+class CancerError(CanRiskError):
     """
     CancerError raised for errors in the cancer diagnosis input.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Cancer Error': detail})
+    err = 'Cancer Error'
 
 
-class PathologyError(ValidationError):
+class PathologyError(CanRiskError):
     """
     PathologyError raised for errors in the pathology.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Pathology Error': detail})
+    err = 'Pathology Error'
 
 
-class PedigreeFileError(ValidationError):
+class PedigreeFileError(CanRiskError):
     """
     PedigreeFileError raised for errors in the input file.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Pedigree File Error': detail})
+    err = 'Pedigree File Error'
 
 
-class PedigreeError(ValidationError):
+class PedigreeError(CanRiskError):
     """
     PedigreeError raised for errors in the pedigree.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Pedigree Error': detail})
+    err = 'Pedigree Error'
 
 
-class GeneticTestError(ValidationError):
+class GeneticTestError(CanRiskError):
     """
     GeneticTestError raised for an error in a gene test.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Gene Test Error': detail})
+    err = 'Gene Test Error'
 
 
-class RiskFactorError(ValidationError):
+class RiskFactorError(CanRiskError):
     """
     RiskFactorError raised for an error in a gene test.
     @param detail: explanation of the error
     """
-
-    def __init__(self, detail):
-        super().__init__({'Risk Factor Error': detail})
+    err = 'Risk Factor Error'
 
 
 class ModelError(ValidationError):
