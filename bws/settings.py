@@ -63,8 +63,7 @@ ALLOWED_CALCS = ['carrier_probs', 'remaining_lifetime', "lifetime", "ten_year"]
 BC_MODEL = {
     'NAME': 'BC',
     'HOME': os.path.join(FORTRAN_HOME, 'boadicea-v6'),
-    'PROBS_EXE': 'boadicea_probs.exe',
-    'RISKS_EXE': 'boadicea_risks.exe',
+    'EXE': 'boadicea.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],          # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'PALB2', 'CHEK2',           # NOTE: order used by fortran pedigree file
               'ATM', 'BARD1', 'RAD51C', 'RAD51D'],
@@ -147,8 +146,7 @@ BC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in BC_MODEL['PRS_R
 OC_MODEL = {
     'NAME': 'OC',
     'HOME': os.path.join(FORTRAN_HOME, 'ovarian-v2'),
-    'PROBS_EXE': 'ovarian_probs.exe',
-    'RISKS_EXE': 'ovarian_risks.exe',
+    'EXE': 'ovarian.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1', 'PALB2'],   # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
