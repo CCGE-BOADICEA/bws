@@ -160,13 +160,10 @@ class Risk(object):
         """
         lines = risks.split(sep="\n")
         risks_arr = []
-        version = None
-        for idx, line in enumerate(lines):
+        for _idx, line in enumerate(lines):
             if pedigree.BLANK_LINE.match(line):
                 continue
-            if idx == 0:
-                version = line.replace('#Version:', '').strip()
-            elif REGEX_ALPHANUM_COMMAS.match(line):
+            if REGEX_ALPHANUM_COMMAS.match(line):
                 pass
             elif not line.startswith('#'):
                 parts = line.split(sep=",")
@@ -180,7 +177,7 @@ class Risk(object):
                     })
                 ]))
 
-        return risks_arr, version
+        return risks_arr
 
 
 class RemainingLifetimeRisk(Risk):
@@ -356,9 +353,9 @@ class Predictions(object):
 
     def run_risks(self):
         ''' Run risk and mutation probability calculations '''
+        self.version = Predictions.get_version(model=self.model_settings, cwd=self.cwd)
         self.niceness = Predictions._get_niceness(self.pedi)
         start = time.time()
-
         # mutation probability calculation
         if self.pedi.is_carrier_probs_viable() and self.is_calculate('carrier_probs'):
             ped_file = self.pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
@@ -377,28 +374,26 @@ class Predictions(object):
             probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, params=params,
                              cancer_rates=self.model_params.cancer_rates,
                              cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
-            self.mutation_probabilties, self.version = self._parse_probs_output(probs, self.model_settings)
+            self.mutation_probabilties = self._parse_probs_output(probs, self.model_settings)
 
         # cancer risk calculation
         if self.pedi.is_risks_calc_viable():
             # remaining lifetime risk
             if self.is_calculate("remaining_lifetime"):
-                self.cancer_risks, self.version = RemainingLifetimeRisk(self).get_risk()
-                self.baseline_cancer_risks, _v = RemainingLifetimeBaselineRisk(self).get_risk()
+                self.cancer_risks = RemainingLifetimeRisk(self).get_risk()
+                self.baseline_cancer_risks = RemainingLifetimeBaselineRisk(self).get_risk()
 
             # lifetime risk
             if self.is_calculate("lifetime"):
-                self.lifetime_cancer_risk, _v = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
+                self.lifetime_cancer_risk = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
                 if self.lifetime_cancer_risk is not None:
-                    self.baseline_lifetime_cancer_risk, _v = RangeRiskBaseline(self, 20, 80,
-                                                                               "LIFETIME BASELINE").get_risk()
+                    self.baseline_lifetime_cancer_risk = RangeRiskBaseline(self, 20, 80, "LIFETIME BASELINE").get_risk()
 
             # ten year risk
             if self.is_calculate("ten_year"):
-                self.ten_yr_cancer_risk, _v = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
+                self.ten_yr_cancer_risk = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
                 if self.ten_yr_cancer_risk is not None:
-                    self.baseline_ten_yr_cancer_risk, _v = RangeRiskBaseline(self, 40, 50,
-                                                                             "10YR RANGE BASELINE").get_risk()
+                    self.baseline_ten_yr_cancer_risk = RangeRiskBaseline(self, 40, 50, "10YR RANGE BASELINE").get_risk()
 
         logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user.id) +
                     "; elapsed time=" + str(time.time() - start) +
@@ -426,8 +421,42 @@ class Predictions(object):
         return niceness
 
     @classmethod
-    def run(cls, request, process_type, bat_file, params=None, cancer_rates="UK", cwd="/tmp", niceness=0, name="",
-            model=settings.BC_MODEL):
+    def get_version(cls, model=settings.BC_MODEL, cwd="/tmp"):
+        """
+        Get the model version.
+        @keyword model_settings: cancer model settings
+        @keyword cwd: working directory
+        """
+        try:
+            process = Popen(
+                [os.path.join(model['HOME'], model['EXE']), "-v"],
+                cwd=cwd,
+                stdout=PIPE,
+                stderr=PIPE)
+
+            (outs, errs) = process.communicate(timeout=settings.FORTRAN_TIMEOUT)   # timeout in seconds
+            exit_code = process.wait()
+
+            if exit_code == 0:
+                return outs.decode("utf-8").replace('.exe', '').replace('\n', '')
+            else:
+                logger.error(outs)
+                errs = errs.decode("utf-8").replace('\n', '')
+                logger.error(errs)
+                raise ModelError(errs)
+        except TimeoutExpired as to:
+            process.terminate()
+            logger.error(model.get('NAME', "")+" PROCESS TIMED OUT.")
+            logger.error(to)
+            raise TimeOutException()
+        except Exception as e:
+            logger.error(model.get('NAME', "")+' PROCESS EXCEPTION: '+cwd)
+            logger.error(e)
+            raise
+
+    @classmethod
+    def run(cls, request, process_type, bat_file, params=None, cancer_rates="UK", cwd="/tmp",
+            niceness=0, name="", model=settings.BC_MODEL):
         """
         Run a process.
         @param request: HTTP request
@@ -502,12 +531,9 @@ class Predictions(object):
         """
         probs_arr = []
         gene_columns = []
-        version = None
 
-        for idx, line in enumerate(probs.splitlines()):
-            if idx == 0 and line.startswith('#'):
-                version = line.replace('#Version:', '').strip()
-            elif REGEX_ALPHANUM_COMMAS.match(line):
+        for _idx, line in enumerate(probs.splitlines()):
+            if REGEX_ALPHANUM_COMMAS.match(line):
                 gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
@@ -519,4 +545,4 @@ class Predictions(object):
                     probs_arr.append({gene:
                                       {"decimal": float(parts[i]),
                                        "percent": round(float(parts[i])*100, 2)}})
-        return probs_arr, version
+        return probs_arr

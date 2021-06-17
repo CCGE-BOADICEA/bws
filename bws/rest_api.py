@@ -587,7 +587,7 @@ for each the genes and the population to use for cancer incidence rates.
 
                     calcs.ten_yr_cancer_risk = []
                     for tenyr in tenyr_ages:
-                        ten_yr_risk, _v = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
+                        ten_yr_risk = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
                         if ten_yr_risk is not None:
                             calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
 
