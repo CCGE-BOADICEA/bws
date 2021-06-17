@@ -556,17 +556,35 @@ class Pedigree(metaclass=abc.ABCMeta):
         f.close()
         return filepath
 
-    def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
+    def write_param_file(self, filepath="/tmp/params",
+                         model_settings=settings.BC_MODEL,
                          mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
-                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
-                         calc_ages=None):
+                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY']):
+        """
+        Write model parameters file.
+        @param filepath: path to write the model parameters file to
+        @param model_settings: model settings
+        @param mutation_freq: mutation frequencies
+        @param sensitivity: genetic test sensitivity
+        """
+        f = open(filepath, "w")
+        print("&settings", file=f, end='\n\n')
+        for idx, gene in enumerate(model_settings['GENES'], start=1):
+            print("PEDIGREE_ALLELE_FRQ( "+str(idx)+" ) = "+str(mutation_freq[gene]), file=f)
+        for idx, gene in enumerate(model_settings['GENES'], start=1):
+            print("SCREENING_SENSITIVITIES( "+str(idx)+" ) = "+str(sensitivity[gene]), file=f)
+        print("/", file=f)
+        f.close()
+        return filepath
+
+    def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
+                         model_settings=settings.BC_MODEL, calc_ages=None):
         """
         Write fortran input batch file.
         @param batch_type: compute MUTATION_PROBS or CANCER_RISKS
         @param pedigree_file_name: path to fortran pedigree file
         @param filepath: path to write the batch file to
-        @param mutation_freq: mutation frequencies
-        @param sensitivity: genetic test sensitivity
+        @param model_settings: model settings
         @param calc_ages: list of ages to calculate a cancer risk at
         """
         f = open(filepath, "w")
@@ -574,21 +592,11 @@ class Pedigree(metaclass=abc.ABCMeta):
         if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
             raise PedigreeFileError("Invalid batch file type.")
 
-        if 'CHEK2' in mutation_freq:
-            model_settings = settings.BC_MODEL
-        elif 'BRIP1' in mutation_freq:
-            model_settings = settings.OC_MODEL
-
         print("2", file=f)
         print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
         if batch_type == MUTATION_PROBS:
             print("3", file=f)
             print(pedigree_file_name, file=f)
-            print("9", file=f)
-            for gene in model_settings['GENES']:
-                print(mutation_freq[gene], file=f)
-            for gene in model_settings['GENES']:
-                print(sensitivity[gene], file=f)
             print("0", file=f)
 
             print("22", file=f)
@@ -616,10 +624,6 @@ class Pedigree(metaclass=abc.ABCMeta):
             print(pedigree_file_name, file=f)
             for i, age in enumerate(calc_ages):
                 print("9", file=f)
-                for gene in model_settings['GENES']:
-                    print(mutation_freq[gene], file=f)
-                for gene in model_settings['GENES']:
-                    print(sensitivity[gene], file=f)
                 print((age-tage), file=f)
 
                 print("22", file=f)

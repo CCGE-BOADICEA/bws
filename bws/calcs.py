@@ -139,10 +139,14 @@ class Risk(object):
                                             model_settings=self.predictions.model_settings)
         bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
                                          filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.bat"),
-                                         mutation_freq=self._get_mutation_frequency(),
-                                         sensitivity=self.predictions.model_params.mutation_sensitivity,
+                                         model_settings=self.predictions.model_settings,
                                          calc_ages=self.risk_age)
+        params = pedi.write_param_file(filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.params"),
+                                       model_settings=self.predictions.model_settings,
+                                       mutation_freq=self._get_mutation_frequency(),
+                                       sensitivity=self.predictions.model_params.mutation_sensitivity)
         risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
+                                params=params,
                                 cancer_rates=self.predictions.model_params.cancer_rates, cwd=self.predictions.cwd,
                                 niceness=self.predictions.niceness, name=self._get_name(),
                                 model=self.predictions.model_settings)
@@ -365,9 +369,12 @@ class Predictions(object):
                                                      model_settings=self.model_settings)
             bat_file = self.pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                                   filepath=os.path.join(self.cwd, "test_prob.bat"),
-                                                  mutation_freq=self.model_params.mutation_frequency,
-                                                  sensitivity=self.model_params.mutation_sensitivity)
-            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file,
+                                                  model_settings=self.model_settings)
+            params = self.pedi.write_param_file(filepath=os.path.join(self.cwd, "test_prob.params"),
+                                                model_settings=self.model_settings,
+                                                mutation_freq=self.model_params.mutation_frequency,
+                                                sensitivity=self.model_params.mutation_sensitivity)
+            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, params=params,
                              cancer_rates=self.model_params.cancer_rates,
                              cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
             self.mutation_probabilties, self.version = self._parse_probs_output(probs, self.model_settings)
@@ -419,7 +426,7 @@ class Predictions(object):
         return niceness
 
     @classmethod
-    def run(cls, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp", niceness=0, name="",
+    def run(cls, request, process_type, bat_file, params=None, cancer_rates="UK", cwd="/tmp", niceness=0, name="",
             model=settings.BC_MODEL):
         """
         Run a process.
@@ -431,28 +438,27 @@ class Predictions(object):
         @keyword niceness: niceness value
         @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
+        cmd = [os.path.join(model['HOME'], model['EXE'])]
         if process_type == pedigree.MUTATION_PROBS:
-            prog = os.path.join(model['HOME'], model['PROBS_EXE'])
-            out = "can_probs"
+            out = "can_probs.out"
+            cmd.append("-p")
         else:
-            prog = os.path.join(model['HOME'], model['RISKS_EXE'])
-            out = "can_risks"
+            out = "can_risks.out"
+        if params is not None:
+            cmd.extend(["-s", params])
+
+        cmd.extend(["-o", out, bat_file, model['INCIDENCE'] + cancer_rates + ".nml"])
 
         start = time.time()
         try:
             try:
-                os.remove(os.path.join(cwd, out+".out"))  # ensure output file doesn't exist
+                os.remove(os.path.join(cwd, out))  # ensure output file doesn't exist
             except OSError:
                 pass
 
-            # logger.debug(prog + ' -o ' + out+".out " + bat_file + " " +
-            #              model['INCIDENCE'] + cancer_rates + ".nml")
+            # logger.debug(' '.join(cmd))
             process = Popen(
-                [prog,
-                 '-o', out+".out",       # results file
-                 bat_file,
-                 model['INCIDENCE'] + cancer_rates + ".nml"
-                 ],
+                cmd,
                 cwd=cwd,
                 stdout=PIPE,
                 stderr=PIPE,
@@ -464,7 +470,7 @@ class Predictions(object):
             exit_code = process.wait()
 
             if exit_code == 0:
-                with open(os.path.join(cwd, out+".out"), 'r') as result_file:
+                with open(os.path.join(cwd, out), 'r') as result_file:
                     data = result_file.read()
                 logger.info(model.get('NAME', "") + " " +
                             ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
