@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 class CanRiskError(ValidationError):
 
     def __init__(self, detail, famid=None):
-        detail = ('['+famid+'] - ' if famid is not None and not "XXXX" else '') + detail
+        detail = ('['+famid+'] - ' if famid != "XXXX" and famid is not None else '') + detail
         super().__init__({self.__class__.err: detail})
 
 
