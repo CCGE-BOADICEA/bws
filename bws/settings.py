@@ -88,8 +88,7 @@ BC_MODEL = {
             'PALB2': 0.000575,
             'ATM': 0.001921,
             'CHEK2': 0.002614
-        }),
-        ('Custom', {})
+        })
     ]),
     # Default genetic test sensitivities; updated BRCA1/2 as agreed with AA 10/04/17
     'GENETIC_TEST_SENSITIVITY': {
@@ -154,8 +153,7 @@ OC_MODEL = {
             'RAD51D': 0.00026,
             'RAD51C': 0.00022,
             'BRIP1': 0.00044
-        }),
-        ('Custom', {})
+        })
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
