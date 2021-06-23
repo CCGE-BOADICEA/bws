@@ -98,8 +98,7 @@ BC_MODEL = {
             'BARD1': 0.00043,
             'RAD51C': 0.00041,
             'RAD51D': 0.00040
-        }),
-        ('Custom', {})
+        })
     ]),
     # Default genetic test sensitivities; updated BRCA1/2 as agreed with AA 10/04/17
     'GENETIC_TEST_SENSITIVITY': {
@@ -174,8 +173,7 @@ OC_MODEL = {
             'RAD51C': 0.00041,
             'BRIP1': 0.00071,
             'PALB2': 0.00064
-        }),
-        ('Custom', {})
+        })
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
