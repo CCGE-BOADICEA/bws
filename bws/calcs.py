@@ -256,7 +256,7 @@ class RangeRisk(Risk):
     def get_risk(self):
         t = self.predictions.pedi.get_target()
         if t.cancers.is_cancer_diagnosed():   # not calculated for affected indivual's
-            return (None, None)
+            return None
         return super().get_risk()
 
     def _get_pedi(self):
