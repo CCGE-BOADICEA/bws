@@ -432,7 +432,8 @@ class Predictions(object):
                 [os.path.join(model['HOME'], model['EXE']), "-v"],
                 cwd=cwd,
                 stdout=PIPE,
-                stderr=PIPE)
+                stderr=PIPE,
+                env=settings.FORTRAN_ENV)
 
             (outs, errs) = process.communicate(timeout=settings.FORTRAN_TIMEOUT)   # timeout in seconds
             exit_code = process.wait()
