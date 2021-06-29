@@ -27,8 +27,8 @@ CWD_DIR = "/tmp"
 FORTRAN_ENV = os.environ.copy()
 FORTRAN_ENV['LD_LIBRARY_PATH'] = (FORTRAN_ENV['LD_LIBRARY_PATH']
                                   if 'LD_LIBRARY_PATH' in FORTRAN_ENV else "") + ":/usr/local/lib"
-FORTRAN_ENV['OMP_STACKSIZE'] = '2G'
-# FORTRAN_ENV['OPENBLAS_NUM_THREADS'] = '1'
+FORTRAN_ENV['OMP_STACKSIZE'] = '10M'
+FORTRAN_ENV['OPENBLAS_NUM_THREADS'] = '1'
 
 # wkhtmltopdf executable used to generate PDF from HTML
 # WKHTMLTOPDF = '/usr/bin/wkhtmltopdf'
@@ -107,9 +107,9 @@ BC_MODEL = {
         "PALB2": 0.9,
         "ATM": 0.9,
         "CHEK2": 1.0,
-        "BARD1": 1.0,
-        "RAD51C": 1.0,
-        "RAD51D": 1.0,
+        "BARD1": 0.9,
+        "RAD51C": 0.9,
+        "RAD51D": 0.9,
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -222,8 +222,8 @@ MAX_MUTATION_FREQ = 0.008
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_THROTTLE_RATES': {
-        'sustained': '5000/day',
-        'burst': '300/min',
-        'enduser_burst': '300/min'
+        'sustained': '6000/day',
+        'burst': '250/min',
+        'enduser_burst': '150/min'
     }
 }
