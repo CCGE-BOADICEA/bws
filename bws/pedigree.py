@@ -125,12 +125,9 @@ class PedigreeFile(object):
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
-                        "The first header record must be 'BOADICEA import pedigree file format 4'.")
-            elif line.startswith('##'):
-                if '=' in line:                     # risk factor declaration line
-                    canrisk_header.add_line(line)
-            elif idx == 1:
-                self.column_names = line.split()
+                        "The first header record must be '##CanRisk 2.0'.")
+            elif (idx == 1 and file_type == 'bwa') or line.startswith('##FamID'):
+                self.column_names = line.replace("##FamID", "FamID").split()
                 if (((self.column_names[0] != 'FamID') or
                      (self.column_names[2] != 'Target') or
                      (self.column_names[3] != 'IndivID') or
@@ -140,6 +137,9 @@ class PedigreeFile(object):
                         "Column headers in the pedigree file contains unexpected characters. " +
                         "It must include the 'FamID', 'Target', 'IndivID','FathID' and 'MothID' " +
                         "in columns 1, 3, 4, 5 and 6 respectively.")
+            elif line.startswith('##'):
+                if '=' in line:                     # risk factor declaration line
+                    canrisk_header.add_line(line)
             elif BLANK_LINE.match(line):
                 continue
             else:
