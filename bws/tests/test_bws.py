@@ -102,7 +102,7 @@ class BwsTests(BwsMixin):
 
     def test_canrisk_format_bws(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
-        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -111,6 +111,22 @@ class BwsTests(BwsMixin):
         genes = settings.BC_MODEL['GENES']
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
+        canrisk_data.close()
+
+    def test_canrisk_v2_format_bws(self):
+        ''' Test POSTing canrisk format pedigree to the BWS. '''
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("pedigree_result" in content)
+        genes = settings.BC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
+        self.assertDictEqual(settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
+        self.assertEqual(content['cancer_incidence_rates'], 'France')
         canrisk_data.close()
 
     def test_token_auth_err(self):
@@ -202,7 +218,7 @@ class TenYrTests(BwsMixin):
         ''' Test POSTing multiple ages to the 10 year web service. '''
 
         tenyr_ages = "[30,40,45]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
                 'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
 
@@ -218,8 +234,8 @@ class TenYrTests(BwsMixin):
 
         bcten_url = reverse('bcten')
         bws_url = reverse('bws')
-        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v2.txt")]
+        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1.txt"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1_prs.txt")]
 
         for df in dfs:
             # 1. 10 yr risk web-service for 40-50
