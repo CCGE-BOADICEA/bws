@@ -1,17 +1,18 @@
 """ BOADICEA pedigree validation testing.  """
-import os
 from copy import deepcopy
+import copy
 from datetime import date
+import os
+import random
+import re
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
-from bws.exceptions import PathologyError, PedigreeError, GeneticTestError,\
+from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
+from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
 from bws.pedigree import PedigreeFile, Male, Female
-from django.test.utils import override_settings
-from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
-import copy
-import re
 
 
 class ErrorTests(object):
@@ -24,8 +25,15 @@ class ErrorTests(object):
             self.pedigree_data = f.read()
         f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r") as f:
+
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r") as f:
             self.canrisk_data = f.read()
+        f.close()
+        self.canrisk_v1_file = PedigreeFile(self.canrisk_data)
+
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r") as f:
+            self.canrisk_data2 = f.read()
+        self.canrisk_v2_file = PedigreeFile(self.canrisk_data2)
         f.close()
 
 
@@ -563,40 +571,46 @@ class GeneticTestTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    def get_pedigree_file(self):
+        ''' Randomly select a pedigree file.  '''
+        pfs = [self.canrisk_v2_file, self.pedigree_file, self.canrisk_v1_file]
+        return deepcopy(random.choice(pfs))
+
     def test_type(self):
         """ Check that the genetic test type is valid. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "X"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test type"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_type_specified(self):
         """ Check if there is a genetic test result check the test type is specified. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "0"
         f1.gtests.brca1.result = "P"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* genetic test type has not been specified"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_result(self):
         """ Check that the mutation status is valid. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "X"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test result"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_result_specified(self):
         """ Check that the mutation status is specified if tested. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "0"
-        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* corresponding test result has not been specified"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid +
+                                    "\" .* corresponding test result has not been specified"):
+            PedigreeFile.validate(pfile.pedigrees)
 
 
 class PathologyTestTests(TestCase, ErrorTests):
