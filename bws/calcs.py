@@ -208,7 +208,7 @@ class RemainingLifetimeBaselineRisk(Risk):
         else:
             gtests = CanRiskGeneticTests.default_factory()
 
-        if t.sex() is "M":
+        if t.sex() == "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
                          age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
         else:
@@ -281,7 +281,7 @@ class RangeRiskBaseline(RangeRisk):
         else:
             gtests = CanRiskGeneticTests.default_factory()
 
-        if t.sex() is "M":
+        if t.sex() == "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
                          dead="0", age=t.age, yob=t.yob, cancers=cancers,
                          gtests=gtests)
