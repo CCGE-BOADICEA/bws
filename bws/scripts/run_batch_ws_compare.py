@@ -17,6 +17,7 @@ import tempfile
 from boadicea.scripts.boadicea_2_csv import convert2csv
 from bws.scripts.run_webservice import get_auth_token, runws
 import math
+from bws.pedigree import PedigreeFile
 
 #
 # define optional command line arguments
@@ -37,7 +38,7 @@ args = parser.parse_args()
 args.mut_freq = 'UK'
 
 
-irates = "BOADICEA-Model/Data/incidence_rates_"+args.cancer_rates+".nml"
+irates = "BOADICEA-Model-V6/Data/incidences_"+args.cancer_rates+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
 
 url = args.url
@@ -54,6 +55,24 @@ if os.path.isfile(bwa):
     bwalist = [bwa]
 else:
     bwalist = [os.path.join(bwa, f) for f in os.listdir(bwa) if os.path.isfile(os.path.join(bwa, f))]
+
+
+def run_batch(cwd, csvfile, ofile, irates, ashkn=False, model='BC'):
+    ''' Run batch processing script. '''
+    setting = FORTRAN+"settings_"+model+("_AJ" if ashkn else "")+".ini"
+    cmd = [FORTRAN+"batch_run.sh",
+           "-r", ofile,
+           "-i", irates,
+           "-s", setting,
+           "-l", os.path.join(cwd, model+"runlog.log")]
+    if model == 'OC':
+        cmd.append('-o')
+    cmd.append(csvfile)
+
+    process = Popen(cmd, cwd=FORTRAN, stdout=PIPE, stderr=PIPE)
+    (outs, errs) = process.communicate()
+    _exit_code = process.wait()
+    return outs, errs
 
 
 def add_prs(line, cancer, rfsnames, rfs):
@@ -124,30 +143,29 @@ for bwa in bwalist:
         convert2csv(bwa, csvfile, rfsnames, rfs)
 
         # run batch script
-        BATCH_RESULT = os.path.join(cwd, "batch_result.out")
+        with open(bwa, 'r') as f:
+            pedigree_data = f.read()
+        pedigree = PedigreeFile(pedigree_data).pedigrees[0]
 
-        process = Popen(
-            [FORTRAN+"batch_run.sh",
-             "-r", BATCH_RESULT,
-             "-s", FORTRAN+"settings.ini",
-             "-i", irates,
-             "-l", os.path.join(cwd, "runlog.log"),
-             csvfile],
-            cwd=FORTRAN,
-            stdout=PIPE,
-            stderr=PIPE)
-        (outs, errs) = process.communicate()
-        exit_code = process.wait()
+        BC_BATCH_RESULT = os.path.join(cwd, "batch_boadicea_result.out")
+        outs, errs = run_batch(cwd, csvfile, BC_BATCH_RESULT, irates, ashkn=pedigree.is_ashkn())
+        OC_BATCH_RESULT = os.path.join(cwd, "batch_ovarian_result.out")
+        outs, errs = run_batch(cwd, csvfile, OC_BATCH_RESULT, irates, ashkn=pedigree.is_ashkn(), model='OC')
 
         # compare webservice.tab with batch_result.out
         f = open(args.tab, "r")
+        model = 'BC'
         for line in f:
-            bcrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*\).*\).*\).*\)", line)
-            ocrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
-            if bcrisks:
-                bc_80_ws = bcrisks.group(2)
-            if ocrisks:
-                oc_80_ws = ocrisks.group(2)
+            if 'boadicea model' in line:
+                model = 'BC'
+            elif 'ovarian model' in line:
+                model = 'OC'
+            crisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
+            if crisks:
+                if model == 'BC':
+                    bc_80_ws = crisks.group(2)
+                elif model == 'OC':
+                    oc_80_ws = crisks.group(2)
         f.close()
 
         def get_80(fname):
@@ -157,14 +175,14 @@ for bwa in bwalist:
 
             f = open(fname, "r")
             for line in f:
-                crisks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
-                if crisks:
-                    c_80_batch = crisks.group(2)
+                crisks = line.split(',')
+                if len(crisks) == 4 and not line.startswith('file'):
+                    c_80_batch = crisks[3]
             f.close()
             return c_80_batch
 
-        bc_80_batch = get_80(BATCH_RESULT+"_boadicea.csv")
-        oc_80_batch = get_80(BATCH_RESULT+"_ovarian.csv")
+        bc_80_batch = get_80(BC_BATCH_RESULT)
+        oc_80_batch = get_80(OC_BATCH_RESULT)
 
         if bc_80_ws and bc_80_batch and math.isclose(float(bc_80_ws), float(bc_80_batch)):
             print("BC EXACT MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
