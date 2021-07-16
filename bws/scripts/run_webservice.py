@@ -61,6 +61,22 @@ def post_requests(url, **kwargs):
     return requests.post(url, **kwargs)
 
 
+def mutation_probability_output(res, writer):
+    ''' Write out mutation carrier probabilities '''
+    if 'mutation_probabilties' in res:
+        writer.writerow(['Mutation Carrier Probabilties'])
+        muts = res['mutation_probabilties']
+        col = []
+        val = []
+        for m in muts:
+            k = list(m.keys())[0]
+            col.append(k)
+            val.append(m[k]['decimal'])
+        writer.writerow(col)
+        writer.writerow(val)
+        writer.writerow([])
+
+
 def summary_output_tab(tabf, cmodel, rjson, bwa):
     ''' Tab delimited output file '''
     if cmodel == "boadicea":
@@ -106,6 +122,8 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
                 clt = cr["breast cancer risk"]["decimal"]
 
             writer.writerow([famid, indivID, age, c5, c10, c80, clt])
+
+            mutation_probability_output(res, writer)
         writer.writerow([])
     csvfile.close()
 
@@ -156,6 +174,9 @@ def output_tab(tabf, cmodel, rjson, bwa):
                 writer.writerow([cname.title()+" Cancer Lifetime Risk", cr_dec, cr_per])
 
             writer.writerow([])
+
+            mutation_probability_output(res, writer)
+
     csvfile.close()
 
 
