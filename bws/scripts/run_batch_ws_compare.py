@@ -121,6 +121,11 @@ def get_rfs(bwa):
                     if line[1] == "N":
                         rfsnames.append(['OC_Duration', 'OC_Duration'])
                         rfs['OC_Duration'] = '0'
+                    elif ":" in line[1]:
+                        rfsnames.append(['OC_Duration', 'OC_Duration'])
+                        parts = line[1].split(":")
+                        rfs['OC_Duration'] = parts[1]
+                        line[1] = parts[0]
                 elif line[0] == 'birads':
                     name = 'BIRADS'
                 elif line[0] == 'endo':
