@@ -46,6 +46,7 @@ def get_mp(fname):
     ''' Get mutation propabilities from batch '''
     if not os.path.isfile(fname):
         print("BATCH FILE NOT FOUND :: "+fname)
+        return None
     if os.stat(fname).st_size == 0:
         return None
 
