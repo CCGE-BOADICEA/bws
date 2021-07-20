@@ -8,7 +8,7 @@ import math
 def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, model='BC', muts=False):
     ''' Run batch processing script. '''
     setting = FORTRAN+"settings_"+model+("_AJ" if ashkn else "")+".ini"
-    cmd = [FORTRAN+"batch_run.sh",
+    cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
            "-i", irates,
            "-s", setting,
