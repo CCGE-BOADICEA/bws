@@ -292,8 +292,8 @@ if __name__ == "__main__":
         group2.add_argument('--'+gene+'_mut_sensitivity', type=float, help=gene+' mutation sensitivity')
 
     parser.add_argument('--cancer_rates', default='UK',
-                        choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Finland',
-                                 'Iceland', 'New-Zealand', 'Norway', 'Spain', 'Sweden'],
+                        choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                                 'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden'],
                         help='Cancer incidence rates (default: %(default)s)')
 
     parser.add_argument('--url', default='https://canrisk.org/', help='Web-services URL')
