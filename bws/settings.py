@@ -2,6 +2,7 @@ from collections import OrderedDict
 import os
 import vcf2prs
 from vcf2prs import SnpFile, Vcf2PrsError
+import re
 
 
 def get_alpha(ref_file):
@@ -33,6 +34,7 @@ FORTRAN_ENV['OPENBLAS_NUM_THREADS'] = '1'
 # wkhtmltopdf executable used to generate PDF from HTML
 # WKHTMLTOPDF = '/usr/bin/wkhtmltopdf'
 # WKHTMLTOPDF_TIMEOUT = 10  # seconds
+REGEX_ASHKN = re.compile("^(Ashkenazi)$")
 
 MAX_PEDIGREE_SIZE = 275
 MIN_BASELINE_PEDIGREE_SIZE = 1

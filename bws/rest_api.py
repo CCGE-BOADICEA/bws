@@ -30,8 +30,6 @@ from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRat
 
 logger = logging.getLogger(__name__)
 
-REGEX_ASHKN = re.compile("^(Ashkenazi)$")
-
 
 class ModelWebServiceMixin():
 
@@ -69,7 +67,7 @@ class ModelWebServiceMixin():
                 for pedi in pf.pedigrees:
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
@@ -559,7 +557,7 @@ for each the genes and the population to use for cancer incidence rates.
                 for pedi in pf.pedigrees:
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
