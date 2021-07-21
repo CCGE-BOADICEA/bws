@@ -5,9 +5,12 @@ import re
 import math
 
 
-def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, model='BC', muts=False):
+def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", model='BC', muts=False):
     ''' Run batch processing script. '''
-    setting = FORTRAN+"settings_"+model+("_AJ" if ashkn else "")+".ini"
+    if ashkn or mut_freq == "ASHKENAZI":
+        setting = FORTRAN+"settings_"+model+"_AJ"+".ini"
+    else:
+        setting = FORTRAN+"settings_"+model+"_"+mut_freq+".ini"
     cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
            "-i", irates,
@@ -22,6 +25,9 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, model='BC', mut
     process = Popen(cmd, cwd=FORTRAN, stdout=PIPE, stderr=PIPE)
     (outs, errs) = process.communicate()
     _exit_code = process.wait()
+    if _exit_code != 0:
+        print(outs)
+        print(errs)
     return outs, errs
 
 
