@@ -925,6 +925,7 @@ class Person(object):
         if file_type == 'bwa':
             gtests = BWSGeneticTests.factory([GeneticTest(cols[BwaPedigree.get_column_idx(gene+'t')],
                                                           cols[BwaPedigree.get_column_idx(gene+'r')])
+                                             if BwaPedigree.get_column_idx(gene+'t') != -1 else GeneticTest()
                                              for gene in settings.BC_MODEL['GENES']])
             pathology = PathologyTests(
                 er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, cols[27]),
