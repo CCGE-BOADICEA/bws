@@ -263,7 +263,7 @@ class RiskTests(TestCase):
         for mf in mutation_frequencies.keys():
             if mf == 'Custom':
                 continue
-            params = ModelParams(mutation_frequency=mutation_frequencies[mf])
+            params = ModelParams(population=mf, mutation_frequency=mutation_frequencies[mf])
             calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
