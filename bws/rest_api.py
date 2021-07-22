@@ -75,6 +75,7 @@ class ModelWebServiceMixin():
                             output['warnings'].append(msg)
                         else:
                             output['warnings'] = [msg]
+                        this_params.isashk = True
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
