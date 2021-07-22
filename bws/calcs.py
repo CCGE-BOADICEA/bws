@@ -38,10 +38,11 @@ class ModelParams():
         @keyword mutation_sensitivity: mutation search sensitivities
         @keyword cancer_rates: cancer incidence rates used in risk calculation
         """
-        self.population = population
+        self.population = population        # e.g. Ashkenazi, UK, Iceland
         self.cancer_rates = cancer_rates
         self.mutation_frequency = mutation_frequency
         self.mutation_sensitivity = mutation_sensitivity
+        self.isashk = settings.REGEX_ASHKN.match(population)
 
     @classmethod
     def factory(cls, data, model_settings):
@@ -131,25 +132,27 @@ class Risk(object):
         @return: list of risks for each age
         """
         pedi = self._get_pedi()
+        pred = self.predictions
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
                                             hgt=self._get_hgt(),
                                             prs=self._get_prs(),
-                                            filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.ped"),
-                                            model_settings=self.predictions.model_settings)
+                                            filepath=os.path.join(pred.cwd, self._type()+"_risk.ped"),
+                                            model_settings=pred.model_settings)
         bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                         filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.bat"),
-                                         model_settings=self.predictions.model_settings,
+                                         filepath=os.path.join(pred.cwd, self._type()+"_risk.bat"),
+                                         model_settings=pred.model_settings,
                                          calc_ages=self.risk_age)
-        params = pedi.write_param_file(filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.params"),
-                                       model_settings=self.predictions.model_settings,
+        params = pedi.write_param_file(filepath=os.path.join(pred.cwd, self._type()+"_risk.params"),
+                                       model_settings=pred.model_settings,
                                        mutation_freq=self._get_mutation_frequency(),
-                                       sensitivity=self.predictions.model_params.mutation_sensitivity)
+                                       isashk=pred.model_params.isashk,
+                                       sensitivity=pred.model_params.mutation_sensitivity)
         risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
                                 params=params,
-                                cancer_rates=self.predictions.model_params.cancer_rates, cwd=self.predictions.cwd,
-                                niceness=self.predictions.niceness, name=self._get_name(),
-                                model=self.predictions.model_settings)
+                                cancer_rates=pred.model_params.cancer_rates, cwd=pred.cwd,
+                                niceness=pred.niceness, name=self._get_name(),
+                                model=pred.model_settings)
         return self._parse_risks_output(risks)
 
     def _parse_risks_output(self, risks):
@@ -370,6 +373,7 @@ class Predictions(object):
             params = self.pedi.write_param_file(filepath=os.path.join(self.cwd, "test_prob.params"),
                                                 model_settings=self.model_settings,
                                                 mutation_freq=self.model_params.mutation_frequency,
+                                                isashk=self.model_params.isashk,
                                                 sensitivity=self.model_params.mutation_sensitivity)
             probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, params=params,
                              cancer_rates=self.model_params.cancer_rates,
@@ -395,10 +399,12 @@ class Predictions(object):
                 if self.ten_yr_cancer_risk is not None:
                     self.baseline_ten_yr_cancer_risk = RangeRiskBaseline(self, 40, 50, "10YR RANGE BASELINE").get_risk()
 
-        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user.id) +
-                    "; elapsed time=" + str(time.time() - start) +
-                    "; pedigree size=" + str(len(self.pedi.people)) +
-                    "; version=" + str(getattr(self, "version", "N/A")))
+        name = str(self.model_settings.get('NAME', ""))
+        logger.info(
+            f"{name} CALCULATIONS: user={self.request.user.id}; "
+            f"elapsed time={time.time() - start}; "
+            f"pedigree size={len(self.pedi.people)}; "
+            f"version={getattr(self, 'version', 'N/A')}")
 
     @classmethod
     def _get_niceness(cls, pedi, factor=15):
@@ -478,6 +484,7 @@ class Predictions(object):
             cmd.extend(["-s", params])
 
         cmd.extend(["-o", out, bat_file, model['INCIDENCE'] + cancer_rates + ".nml"])
+        mname = str(model.get('NAME', ""))
 
         start = time.time()
         try:
@@ -502,24 +509,24 @@ class Predictions(object):
             if exit_code == 0:
                 with open(os.path.join(cwd, out), 'r') as result_file:
                     data = result_file.read()
-                logger.info(model.get('NAME', "") + " " +
-                            ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            name + " CALCULATION: user=" + str(request.user.id) +
-                            "; elapsed time=" + str(time.time() - start))
+                logger.info(
+                    f"{mname} {('MUTATION PROBABILITY' if process_type == pedigree.MUTATION_PROBS else 'RISK ')}"
+                    f"{name} CALCULATION: user={request.user.id}; "
+                    f"elapsed time={time.time() - start}")
                 return data
             else:
-                logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
+                logger.error(f"EXIT CODE ({out.replace('can_', '')}): {exit_code}")
                 logger.error(outs)
                 errs = errs.decode("utf-8").replace('\n', '')
                 logger.error(errs)
                 raise ModelError(errs)
         except TimeoutExpired as to:
             process.terminate()
-            logger.error(model.get('NAME', "")+" PROCESS TIMED OUT.")
+            logger.error(f"{mname} PROCESS TIMED OUT.")
             logger.error(to)
             raise TimeOutException()
         except Exception as e:
-            logger.error(model.get('NAME', "")+' PROCESS EXCEPTION: '+cwd)
+            logger.error(f"{mname} PROCESS EXCEPTION: {cwd}")
             logger.error(e)
             raise
 
