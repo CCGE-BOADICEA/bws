@@ -559,20 +559,25 @@ class Pedigree(metaclass=abc.ABCMeta):
     def write_param_file(self, filepath="/tmp/params",
                          model_settings=settings.BC_MODEL,
                          mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
-                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY']):
+                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                         isashk=False):
         """
         Write model parameters file.
         @param filepath: path to write the model parameters file to
         @param model_settings: model settings
         @param mutation_freq: mutation frequencies
         @param sensitivity: genetic test sensitivity
+        @param isashk: true if AJ
         """
+        # Note: population allele frequencies are used to compute the incidence rates
+        # for each genotype, from the overall population incidences
+        allele_freq = "PEDIGREE_ALLELE_FRQ" if isashk else "POPULATION_ALLELE_FRQ"
         f = open(filepath, "w")
         print("&settings", file=f, end='\n\n')
         for idx, gene in enumerate(model_settings['GENES'], start=1):
-            print("PEDIGREE_ALLELE_FRQ( "+str(idx)+" ) = "+str(mutation_freq[gene]), file=f)
+            print(f"{allele_freq}( {idx} ) = {mutation_freq[gene]}", file=f)
         for idx, gene in enumerate(model_settings['GENES'], start=1):
-            print("SCREENING_SENSITIVITIES( "+str(idx)+" ) = "+str(sensitivity[gene]), file=f)
+            print(f"SCREENING_SENSITIVITIES( {idx} ) = {sensitivity[gene]}", file=f)
         print("/", file=f)
         f.close()
         return filepath
