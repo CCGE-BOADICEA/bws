@@ -138,7 +138,7 @@ class ModelWebServiceMixin():
                 output['warnings'].append(attr_name+' not provided')
             else:
                 output['warnings'] = [attr_name+' not provided']
-            logger.debug(attr_name+' not provided :: '+str(e))
+            logger.debug(f'{attr_name} not provided :: {e}')
 
     @classmethod
     def get_fields(cls, model):
