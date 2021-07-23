@@ -13,7 +13,7 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
         setting = FORTRAN+"settings_"+model+"_"+mut_freq+".ini"
     cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
-           "-i", irates,
+           "-i", irates.replace('New-Zealand', 'New_Zealand'),
            "-s", setting,
            "-l", os.path.join(cwd, model+"runlog.log")]
     if model == 'OC':
