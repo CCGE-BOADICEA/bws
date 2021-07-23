@@ -511,7 +511,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         if file_type == MUTATION_PROBS:
             pcount = (len(model_settings['GENES'])+1)
         else:
-            pcount = 2
+            pcount = 1
 
         print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
               str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1,4(X,A8))", file=f)
@@ -625,11 +625,13 @@ class Pedigree(metaclass=abc.ABCMeta):
             elif isinstance(calc_ages, int):
                 calc_ages = [calc_ages]
 
+            if calc_ages[0] != 0:
+                calc_ages.insert(0, 0)
             print("3", file=f)
             print(pedigree_file_name, file=f)
             for i, age in enumerate(calc_ages):
                 print("9", file=f)
-                print((age-tage), file=f)
+                print((age-tage if age != 0 else 0), file=f)
 
                 print("22", file=f)
                 if i < len(calc_ages)-1:
