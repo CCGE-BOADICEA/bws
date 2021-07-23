@@ -140,6 +140,7 @@ for bwa in bwalist:
                 exact_matches += 1
     finally:
         shutil.rmtree(cwd)
+        # print(cwd)
 
 if exact_matches != 0:
     print("====== DIFFERENCES FOUND "+str(exact_matches))
