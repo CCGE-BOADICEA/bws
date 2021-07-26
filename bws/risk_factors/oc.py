@@ -95,15 +95,6 @@ class BMI(RiskFactor):
         return super(BMI, cls).get_category(val, isreal)
 
 
-class Height(RiskFactor):
-    cats = ['-', '<152.91', '152.91-<159.65', '159.65-<165.96', '165.96-<172.70', '>=172.70']
-    help_text = _('Height (cm)')
-
-    @classmethod
-    def get_category(cls, val, isreal=True):
-        return super(Height, cls).get_category(val, isreal)
-
-
 class OCRiskFactors(RiskFactors):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
         If a factor is unobserved, missing or not applicable, it is assigned category 0,
@@ -118,8 +109,7 @@ class OCRiskFactors(RiskFactors):
         MHT,
         TubalLigation,
         Endometriosis,
-        BMI,
-        Height
+        BMI
     ]
 
     # dictionary of risk factor name and number of categories

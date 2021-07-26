@@ -6,17 +6,47 @@
 #                                     --fortran /home/xxxx/Model-Batch-Processing --cancer_rates Spain
 #
 
-import argparse
-import os
-from os.path import expanduser
-import re
-import shutil
-from subprocess import Popen, PIPE
-import tempfile
 
 from boadicea.scripts.boadicea_2_csv import convert2csv
+from bws.scripts.batch import run_batch, get_censoring_ages, get_batch_results, get_rfs,\
+    get_mp, compare_mp
 from bws.scripts.run_webservice import get_auth_token, runws
+from os.path import expanduser
+import argparse
 import math
+import os
+import re
+import shutil
+import tempfile
+
+
+def get_ws_results(args, calc_ages):
+    ''' Parse web-service tab file and return breast and ovarian cancer risks and mutation carrier probabilities. '''
+    bc_ws, oc_ws, bc_mp_ws, oc_mp_ws = {}, {}, None, None
+    sages = '|'.join([str(c) for c in calc_ages])
+    with open(args.tab, 'r') as f:
+        model = 'BC'
+        for line in f:
+            if 'boadicea model' in line:
+                model = 'BC'
+            elif 'ovarian model' in line:
+                model = 'OC'
+            crisks = re.match("^(.*\t.+\t("+sages+")\t(\d*\.\d+[e-]*\d*)).*", line)
+            if crisks:
+                if model == 'BC':
+                    bc_ws[int(crisks.group(2))] = crisks.group(3)
+                elif model == 'OC':
+                    oc_ws[int(crisks.group(2))] = crisks.group(3)
+            elif line.startswith('no mutation'):
+                gkeys = line.strip().split('\t')
+                vals = next(f).strip().split('\t')
+                if model == 'BC':
+                    bc_mp_ws = {gkeys[idx]: val for idx, val in enumerate(vals)}
+                else:
+                    oc_mp_ws = {gkeys[idx]: val for idx, val in enumerate(vals)}
+        f.close()
+    return bc_ws, oc_ws, bc_mp_ws, oc_mp_ws
+
 
 #
 # define optional command line arguments
@@ -28,8 +58,8 @@ parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file 
 parser.add_argument('-f', '--fortran', help='Path to BOADICEA model code',
                     default=os.path.join(expanduser("~"), "boadicea_classic/github/Model-Batch-Processing/"))
 parser.add_argument('--cancer_rates', default='UK',
-                    choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Finland',
-                             'Iceland', 'New-Zealand', 'Norway', 'Spain', 'Sweden'],
+                    choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                             'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden'],
                     help='Cancer incidence rates (default: %(default)s)')
 parser.add_argument('--token', help='authentication token')
 
@@ -37,7 +67,7 @@ args = parser.parse_args()
 args.mut_freq = 'UK'
 
 
-irates = "BOADICEA-Model/Data/incidence_rates_"+args.cancer_rates+".nml"
+irates = "BOADICEA-Model-V6/Data/incidences_"+args.cancer_rates+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
 
 url = args.url
@@ -55,25 +85,6 @@ if os.path.isfile(bwa):
 else:
     bwalist = [os.path.join(bwa, f) for f in os.listdir(bwa) if os.path.isfile(os.path.join(bwa, f))]
 
-
-def add_prs(line, cancer, rfsnames, rfs):
-    '''
-    Add PRS arrays for csv batch input file parameters.
-    @param line: CanRisk PRS header e.g. PRS_BC=alpha=0.444,zscore=1.12
-    @param cancer: string donating cancer type, i.e. 'BC' or 'OC'
-    @param rfsnames: array of risk factor names
-    @param rfs: risk factor values
-    '''
-    zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
-    alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
-    if zscore is not None:
-        rfsnames.append(['PRS_'+cancer+'_z', cancer+'_PRS_z'])
-        rfs['PRS_'+cancer+'_z'] = zscore.group(2)
-    if alpha is not None:
-        rfsnames.append(['PRS_'+cancer+'_alpha', cancer+'_PRS_alpha'])
-        rfs['PRS_'+cancer+'_alpha'] = alpha.group(2)
-
-
 # loop over canrisk files and compare results from webservices with those from the batch script
 exact_matches = 0
 for bwa in bwalist:
@@ -84,100 +95,56 @@ for bwa in bwalist:
         args.tab = os.path.join(cwd, 'webservice.tab')
         runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea', 'ovarian'], token, url)
 
-        # get risk factor names and values plus PRS
-        rfsnames = []
-        rfs = {}
-        f = open(bwa, "r")
-        for line in f:
-            if line.startswith("##") and "##CanRisk" not in line and "##FamID" not in line:
-                if "PRS_BC" in line:      # alpha=0.45,zscore=0.1234
-                    add_prs(line, 'BC', rfsnames, rfs)
-                elif "PRS_OC" in line:    # alpha=0.45,zscore=0.1234
-                    add_prs(line, 'OC', rfsnames, rfs)
-                else:
-                    line = line.replace("##", "").strip().split("=")
-
-                    if line[0].isupper():
-                        if line[0] == 'TL':
-                            name = 'Tubal_Ligation'
-                        else:
-                            name = line[0]
-                    elif line[0] == 'mht_use':
-                        name = 'MHT_use'
-                    elif line[0] == 'oc_use':
-                        name = 'OC_Use'
-                        if line[1] == "N":
-                            rfsnames.append(['OC_Duration', 'OC_Duration'])
-                            rfs['OC_Duration'] = '0'
-                    elif line[0] == 'birads':
-                        name = 'BIRADS'
-                    elif line[0] == 'endo':
-                        name = 'Endometriosis'
-                    else:
-                        name = line[0].capitalize()
-
-                    rfsnames.append([line[0], name])
-                    rfs[line[0]] = line[1]
-        f.close()
-
+        # create pedigree csv file for batch script
+        rfsnames, rfs, ashkn = get_rfs(bwa)
         csvfile = os.path.join(cwd, "ped.csv")
         convert2csv(bwa, csvfile, rfsnames, rfs)
 
         # run batch script
-        BATCH_RESULT = os.path.join(cwd, "batch_result.out")
+        BC_BATCH_RISKS = os.path.join(cwd, "batch_boadicea_risks.out")
+        BC_BATCH_PROBS = os.path.join(cwd, "batch_boadicea_probs.out")
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_RISKS, irates, ashkn=ashkn)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_PROBS, irates, ashkn=ashkn, muts=True)
+        OC_BATCH_RISKS = os.path.join(cwd, "batch_ovarian_risks.out")
+        OC_BATCH_PROBS = os.path.join(cwd, "batch_ovarian_probs.out")
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_RISKS, irates, ashkn=ashkn, model='OC')
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_PROBS, irates, ashkn=ashkn, model='OC', muts=True)
 
-        process = Popen(
-            [FORTRAN+"batch_run.sh",
-             "-r", BATCH_RESULT,
-             "-s", FORTRAN+"settings.ini",
-             "-i", irates,
-             "-l", os.path.join(cwd, "runlog.log"),
-             csvfile],
-            cwd=FORTRAN,
-            stdout=PIPE,
-            stderr=PIPE)
-        (outs, errs) = process.communicate()
-        exit_code = process.wait()
+        # get results
+        c_ages = get_censoring_ages(bwa)
+        bc_ws, oc_ws, bc_mp_ws, oc_mp_ws = get_ws_results(args, c_ages)
+
+        bc_batch = get_batch_results(BC_BATCH_RISKS, c_ages)
+        oc_batch = get_batch_results(OC_BATCH_RISKS, c_ages)
+        bc_mp_batch = get_mp(BC_BATCH_PROBS)
+        oc_mp_batch = get_mp(OC_BATCH_PROBS)
+
+        print(bwa)
+        if bc_mp_batch is not None or bc_mp_ws is not None:
+            exact_matches = compare_mp("BC", bc_mp_batch, bc_mp_ws, exact_matches)
+        if oc_mp_batch is not None or oc_mp_ws is not None:
+            exact_matches = compare_mp("OC", oc_mp_batch, oc_mp_ws, exact_matches)
 
         # compare webservice.tab with batch_result.out
-        f = open(args.tab, "r")
-        for line in f:
-            bcrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*\).*\).*\).*\)", line)
-            ocrisks = re.match("^(.*\t.+\t80\t(\d*\.\d+)).*", line)
-            if bcrisks:
-                bc_80_ws = bcrisks.group(2)
-            if ocrisks:
-                oc_80_ws = ocrisks.group(2)
-        f.close()
+        for age in c_ages:
+            if bc_ws[age] and bc_batch[age] and math.isclose(float(bc_ws[age]), float(bc_batch[age])):
+                print("BC EXACT MATCH ::: "+str(age)+"    webservice: "+bc_ws[age]+" batch: "+bc_batch[age], end='\t\t')
+            else:
+                print("BC NOT A MATCH *** "+str(age)+"    webservice: "+bc_ws[age]+" batch: "+bc_batch[age], end='\t\t')
+                exact_matches += 1
 
-        def get_80(fname):
-            if not os.path.isfile(fname):
-                print(outs)
-                print(errs)
-
-            f = open(fname, "r")
-            for line in f:
-                crisks = re.match("^"+csvfile+",[^,]*(,\d+\.\d+){3},(\d+\.\d+).*", line)
-                if crisks:
-                    c_80_batch = crisks.group(2)
-            f.close()
-            return c_80_batch
-
-        bc_80_batch = get_80(BATCH_RESULT+"_boadicea.csv")
-        oc_80_batch = get_80(BATCH_RESULT+"_ovarian.csv")
-
-        if bc_80_ws and bc_80_batch and math.isclose(float(bc_80_ws), float(bc_80_batch)):
-            print("BC EXACT MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
-        else:
-            print("BC NOT A MATCH ::: "+bwa+"    webservice: "+bc_80_ws+" batch: "+bc_80_batch)
-            exact_matches += 1
-
-        if oc_80_ws and oc_80_batch and math.isclose(float(oc_80_ws), float(oc_80_batch)):
-            print("OC EXACT MATCH ::: "+bwa+"    webservice: "+oc_80_ws+" batch: "+oc_80_batch)
-        else:
-            print("OC NOT A MATCH ::: "+bwa+"    webservice: "+oc_80_ws+" batch: "+oc_80_batch)
-            exact_matches += 1
+            if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age])):
+                print("OC EXACT MATCH :::    webservice: "+oc_ws[age]+" batch: "+oc_batch[age])
+            else:
+                print("OC NOT A MATCH ***    webservice: "+oc_ws[age]+" batch: "+oc_batch[age])
+                exact_matches += 1
     finally:
         shutil.rmtree(cwd)
+        # print(cwd)
+
+if exact_matches != 0:
+    print("====== DIFFERENCES FOUND "+str(exact_matches))
+else:
+    print("====== NO DIFFERENCES FOUND")
 
 exit(exact_matches)

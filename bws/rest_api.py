@@ -30,8 +30,6 @@ from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRat
 
 logger = logging.getLogger(__name__)
 
-REGEX_ASHKN = re.compile("^(Ashkenazi)$")
-
 
 class ModelWebServiceMixin():
 
@@ -69,7 +67,7 @@ class ModelWebServiceMixin():
                 for pedi in pf.pedigrees:
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
@@ -77,6 +75,7 @@ class ModelWebServiceMixin():
                             output['warnings'].append(msg)
                         else:
                             output['warnings'] = [msg]
+                        this_params.isashk = True
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
@@ -89,8 +88,9 @@ class ModelWebServiceMixin():
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
@@ -116,6 +116,7 @@ class ModelWebServiceMixin():
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print(model_settings['NAME']+" :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
@@ -137,7 +138,7 @@ class ModelWebServiceMixin():
                 output['warnings'].append(attr_name+' not provided')
             else:
                 output['warnings'] = [attr_name+' not provided']
-            logger.debug(attr_name+' not provided :: '+str(e))
+            logger.debug(f'{attr_name} not provided :: {e}')
 
     @classmethod
     def get_fields(cls, model):
@@ -529,7 +530,6 @@ for each the genes and the population to use for cancer incidence rates.
 
             tenyr_ages = re.sub("[\[\]]", "", validated_data.get('tenyr_ages'))
             tenyr_ages = [int(item.strip()) for item in tenyr_ages.split(',')]
-            logger.debug(tenyr_ages)
 
             output = {
                 "timestamp": datetime.datetime.now(),
@@ -558,7 +558,7 @@ for each the genes and the population to use for cancer incidence rates.
                 for pedi in pf.pedigrees:
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
@@ -578,14 +578,15 @@ for each the genes and the population to use for cancer incidence rates.
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs, run_risks=False,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs, run_risks=False,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
                     calcs.ten_yr_cancer_risk = []
                     for tenyr in tenyr_ages:
-                        ten_yr_risk, _v = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
+                        ten_yr_risk = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
                         if ten_yr_risk is not None:
                             calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
 
@@ -607,6 +608,7 @@ for each the genes and the population to use for cancer incidence rates.
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print("BCTenYr :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 

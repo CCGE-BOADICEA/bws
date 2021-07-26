@@ -1,17 +1,18 @@
 """ BOADICEA pedigree validation testing.  """
-import os
 from copy import deepcopy
+import copy
 from datetime import date
+import os
+import random
+import re
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
-from bws.exceptions import PathologyError, PedigreeError, GeneticTestError,\
+from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
+from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
 from bws.pedigree import PedigreeFile, Male, Female
-from django.test.utils import override_settings
-from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
-import copy
-import re
 
 
 class ErrorTests(object):
@@ -24,9 +25,26 @@ class ErrorTests(object):
             self.pedigree_data = f.read()
         f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r") as f:
-            self.canrisk_data = f.read()
+
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r") as f:
+            self.canrisk_v1_data = f.read()
         f.close()
+        self.canrisk_v1_file = PedigreeFile(self.canrisk_v1_data)
+
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r") as f:
+            self.canrisk_v2_data = f.read()
+        self.canrisk_v2_file = PedigreeFile(self.canrisk_v2_data)
+        f.close()
+
+    def get_pedigree_data(self):
+        ''' Randomly select a pedigree file.  '''
+        pd = [self.canrisk_v2_data, self.pedigree_data, self.canrisk_v1_data]
+        return copy.copy(random.choice(pd))
+
+    def get_pedigree_file(self):
+        ''' Randomly select a pedigree file.  '''
+        pfs = [self.canrisk_v2_file, self.pedigree_file, self.canrisk_v1_file]
+        return deepcopy(random.choice(pfs))
 
 
 class PedigreeFileTests(TestCase, ErrorTests):
@@ -38,25 +56,17 @@ class PedigreeFileTests(TestCase, ErrorTests):
 
     def test_header(self):
         ''' Test pedigree file header. '''
-        pedigree_data = copy.copy(self.pedigree_data)
-        pedigree_data = pedigree_data.replace('BOADICEA import', 'BOADICEAa import', 1)
+        pd = self.get_pedigree_data()
+        pd = pd.replace('BOADICEA ', 'BOADICEAa ', 1).replace('CanRisk ', 'CanRiska ', 1)
         with self.assertRaisesRegex(PedigreeFileError, r"header record in the pedigree file has unexpected characters"):
-            PedigreeFile(pedigree_data)
-
-    def test_canrisk_header(self):
-        ''' Test canrisk file header. '''
-        PedigreeFile(self.canrisk_data)
-        canrisk_data = copy.copy(self.canrisk_data)
-        canrisk_data = canrisk_data.replace('CanRisk ', 'CanRisky ', 1)
-        with self.assertRaisesRegex(PedigreeFileError, r"header record in the pedigree file has unexpected characters"):
-            PedigreeFile(canrisk_data)
+            PedigreeFile(pd)
 
     def test_header_line2(self):
         ''' Test pedigree file column header. '''
-        pedigree_data = copy.copy(self.pedigree_data)
-        pedigree_data = pedigree_data.replace('FamID', 'FamIDa', 1)
+        pd = self.get_pedigree_data()
+        pd = pd.replace('FamID', 'FamIDa', 1)
         with self.assertRaisesRegex(PedigreeFileError, r"headers in the pedigree file contains unexpected characters"):
-            PedigreeFile(pedigree_data)
+            PedigreeFile(pd)
 
     def test_multiple_pedigrees(self):
         ''' Test multiple pedigrees in a single file. '''
@@ -72,17 +82,10 @@ class PedigreeFileTests(TestCase, ErrorTests):
 
     def test_columns(self):
         ''' Test number of columns in bwa file. '''
-        pedigree_data = copy.copy(self.pedigree_data)
-        pedigree_data = pedigree_data.replace('F1', 'F1    F1')
+        pd = self.get_pedigree_data()
+        pd = pd.replace('F1', 'F1    F1')
         with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
-            PedigreeFile(pedigree_data)
-
-    def test_canrisk_columns(self):
-        ''' Test number of columns in canrisk file. '''
-        canrisk_data = copy.copy(self.canrisk_data)
-        canrisk_data = canrisk_data.replace('PB', 'PB    PB')
-        with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
-            PedigreeFile(canrisk_data)
+            PedigreeFile(pd)
 
 
 class PersonTests(TestCase, ErrorTests):
@@ -482,15 +485,15 @@ class CancerTests(TestCase, ErrorTests):
 
     def test_cancer_age(self):
         ''' Test an error is raised if the cancer diagnosis age is incorrectly specified (not 0 or 1-MAX_AGE). '''
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "xyz"
         with self.assertRaisesRegex(CancerError, r"Age at cancer diagnosis"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
         f1.cancers.diagnoses.bc1.age = "199"
-        with self.assertRaisesRegex(CancerError, f1.pid+"*. Age at cancer diagnosis"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+        with self.assertRaisesRegex(CancerError, f1.pid+".*. Age at cancer diagnosis"):
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_cancer_age2(self):
         ''' Test an error is raised if the cancer diagnosis age is greater than age at last follow up. '''
@@ -522,38 +525,38 @@ class CancerTests(TestCase, ErrorTests):
         pedigree_file = deepcopy(self.pedigree_file)
         f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.prc.age = "21"
-        with self.assertRaisesRegex(CancerError, f1.pid+"*. female but has been assigned an prostate"):
+        with self.assertRaisesRegex(CancerError, ".*\""+f1.pid+"\".* female but has been assigned an prostate"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     def test_bc1_missing(self):
         """ Test an error is raised if the age of a second breast cancer is present but age of first is missing. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "21"
-        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, ".*\""+f1.pid+"\".* contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_bc1_missing2(self):
         """ Test an error is raised if the age of a second breast cancer is AU but age of first is missing. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "-1"
         f1.cancers.diagnoses.bc2.age = "AU"
-        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, ".*\""+f1.pid+"\".* contralateral breast cancer, (.*) " +
                                     "first breast cancer is missing"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_bc1_and_bc2(self):
         """ Test an error is raised if the age of a first breast cancer exceeds that of the second. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.cancers.diagnoses.bc1.age = "22"
         f1.cancers.diagnoses.bc2.age = "21"
-        with self.assertRaisesRegex(CancerError, f1.pid+"*. contralateral breast cancer, (.*) " +
+        with self.assertRaisesRegex(CancerError, ".*\""+f1.pid+"\".* contralateral breast cancer, (.*) " +
                                     "age at diagnosis of the first breast cancer exceeds"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
 
 class GeneticTestTests(TestCase, ErrorTests):
@@ -565,38 +568,39 @@ class GeneticTestTests(TestCase, ErrorTests):
 
     def test_type(self):
         """ Check that the genetic test type is valid. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "X"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test type"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_type_specified(self):
         """ Check if there is a genetic test result check the test type is specified. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "0"
         f1.gtests.brca1.result = "P"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* genetic test type has not been specified"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_result(self):
         """ Check that the mutation status is valid. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "X"
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test result"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+            PedigreeFile.validate(pfile.pedigrees)
 
     def test_result_specified(self):
         """ Check that the mutation status is specified if tested. """
-        pedigree_file = deepcopy(self.pedigree_file)
-        f1 = pedigree_file.pedigrees[0].get_person_by_name('F1')
+        pfile = self.get_pedigree_file()
+        f1 = pfile.pedigrees[0].get_person_by_name('F1')
         f1.gtests.brca1.test_type = "S"
         f1.gtests.brca1.result = "0"
-        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* corresponding test result has not been specified"):
-            PedigreeFile.validate(pedigree_file.pedigrees)
+        with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid +
+                                    "\" .* corresponding test result has not been specified"):
+            PedigreeFile.validate(pfile.pedigrees)
 
 
 class PathologyTestTests(TestCase, ErrorTests):

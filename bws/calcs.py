@@ -18,9 +18,12 @@ from bws import pedigree
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.exceptions import TimeOutException, ModelError
 from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
+import re
 
 
 logger = logging.getLogger(__name__)
+
+REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 
 
 class ModelParams():
@@ -35,10 +38,11 @@ class ModelParams():
         @keyword mutation_sensitivity: mutation search sensitivities
         @keyword cancer_rates: cancer incidence rates used in risk calculation
         """
-        self.population = population
+        self.population = population        # e.g. Ashkenazi, UK, Iceland
         self.cancer_rates = cancer_rates
         self.mutation_frequency = mutation_frequency
         self.mutation_sensitivity = mutation_sensitivity
+        self.isashk = settings.REGEX_ASHKN.match(population)
 
     @classmethod
     def factory(cls, data, model_settings):
@@ -94,6 +98,13 @@ class Risk(object):
         """
         return self.predictions.risk_factor_code
 
+    def _get_hgt(self):
+        """
+        Get the height.
+        @return: height
+        """
+        return self.predictions.hgt
+
     def _get_mutation_frequency(self):
         """
         Get the mutation frequencies.
@@ -117,24 +128,31 @@ class Risk(object):
 
     def get_risk(self):
         """
-        Calulate the risk and return the parsed output as a list.
+        Calculate the risk and return the parsed output as a list.
         @return: list of risks for each age
         """
         pedi = self._get_pedi()
+        pred = self.predictions
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
+                                            hgt=self._get_hgt(),
                                             prs=self._get_prs(),
-                                            filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.ped"),
-                                            model_settings=self.predictions.model_settings)
+                                            filepath=os.path.join(pred.cwd, self._type()+"_risk.ped"),
+                                            model_settings=pred.model_settings)
         bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
-                                         filepath=os.path.join(self.predictions.cwd, self._type()+"_risk.bat"),
-                                         mutation_freq=self._get_mutation_frequency(),
-                                         sensitivity=self.predictions.model_params.mutation_sensitivity,
+                                         filepath=os.path.join(pred.cwd, self._type()+"_risk.bat"),
+                                         model_settings=pred.model_settings,
                                          calc_ages=self.risk_age)
+        params = pedi.write_param_file(filepath=os.path.join(pred.cwd, self._type()+"_risk.params"),
+                                       model_settings=pred.model_settings,
+                                       mutation_freq=self._get_mutation_frequency(),
+                                       isashk=pred.model_params.isashk,
+                                       sensitivity=pred.model_params.mutation_sensitivity)
         risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
-                                cancer_rates=self.predictions.model_params.cancer_rates, cwd=self.predictions.cwd,
-                                niceness=self.predictions.niceness, name=self._get_name(),
-                                model=self.predictions.model_settings)
+                                params=params,
+                                cancer_rates=pred.model_params.cancer_rates, cwd=pred.cwd,
+                                niceness=pred.niceness, name=self._get_name(),
+                                model=pred.model_settings)
         return self._parse_risks_output(risks)
 
     def _parse_risks_output(self, risks):
@@ -145,35 +163,24 @@ class Risk(object):
         """
         lines = risks.split(sep="\n")
         risks_arr = []
-        version = None
-        for line in lines:
+        for _idx, line in enumerate(lines):
             if pedigree.BLANK_LINE.match(line):
                 continue
-            if line.startswith('#Version:'):
-                version = line.replace('#Version:', '').strip()
+            if REGEX_ALPHANUM_COMMAS.match(line):
+                pass
             elif not line.startswith('#'):
                 parts = line.split(sep=",")
-                if self.predictions.model_settings['NAME'] == 'BC':
-                    risks_arr.append(OrderedDict([
-                        ("age", int(parts[0])),
-                        ("breast cancer risk", {
-                            "decimal": float(parts[1]),
-                            "percent": float(parts[2])
-                        }),
-                        ("ovarian cancer risk", {
-                            "decimal": float(parts[3]),
-                            "percent": float(parts[4])
-                        })
-                    ]))
-                else:
-                    risks_arr.append(OrderedDict([
-                        ("age", int(parts[0])),
-                        ("ovarian cancer risk", {
-                            "decimal": float(parts[1]),
-                            "percent": float(parts[2])
-                        })
-                    ]))
-        return risks_arr, version
+                ctype = "breast" if self.predictions.model_settings['NAME'] == 'BC' else "ovarian"
+
+                risks_arr.append(OrderedDict([
+                    ("age", int(parts[0])),
+                    (ctype+" cancer risk", {
+                        "decimal": float(parts[1]),
+                        "percent": round(float(parts[1])*100, 1)
+                    })
+                ]))
+
+        return risks_arr
 
 
 class RemainingLifetimeRisk(Risk):
@@ -204,7 +211,7 @@ class RemainingLifetimeBaselineRisk(Risk):
         else:
             gtests = CanRiskGeneticTests.default_factory()
 
-        if t.sex() is "M":
+        if t.sex() == "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
                          age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
         else:
@@ -218,6 +225,9 @@ class RemainingLifetimeBaselineRisk(Risk):
 
     def _get_risk_factor_code(self):
         return '0'
+
+    def _get_hgt(self):
+        return -1
 
     def _get_prs(self):
         return None
@@ -249,7 +259,7 @@ class RangeRisk(Risk):
     def get_risk(self):
         t = self.predictions.pedi.get_target()
         if t.cancers.is_cancer_diagnosed():   # not calculated for affected indivual's
-            return (None, None)
+            return None
         return super().get_risk()
 
     def _get_pedi(self):
@@ -274,7 +284,7 @@ class RangeRiskBaseline(RangeRisk):
         else:
             gtests = CanRiskGeneticTests.default_factory()
 
-        if t.sex() is "M":
+        if t.sex() == "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
                          dead="0", age=t.age, yob=t.yob, cancers=cancers,
                          gtests=gtests)
@@ -291,6 +301,9 @@ class RangeRiskBaseline(RangeRisk):
     def _get_risk_factor_code(self):
         return '0'
 
+    def _get_hgt(self):
+        return -1
+
     def _get_prs(self):
         return None
 
@@ -298,7 +311,7 @@ class RangeRiskBaseline(RangeRisk):
 class Predictions(object):
 
     def __init__(self, pedi, model_params=ModelParams(),
-                 risk_factor_code=0, prs=None, cwd=None, request=Request(HttpRequest()),
+                 risk_factor_code=0, hgt=-1, prs=None, cwd=None, request=Request(HttpRequest()),
                  run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
@@ -317,6 +330,7 @@ class Predictions(object):
         self.request = request
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
+        self.hgt = hgt
         self.prs = prs
         self.model_settings = model_settings
         self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
@@ -342,50 +356,55 @@ class Predictions(object):
 
     def run_risks(self):
         ''' Run risk and mutation probability calculations '''
+        self.version = Predictions.get_version(model=self.model_settings, cwd=self.cwd)
         self.niceness = Predictions._get_niceness(self.pedi)
         start = time.time()
-
         # mutation probability calculation
         if self.pedi.is_carrier_probs_viable() and self.is_calculate('carrier_probs'):
             ped_file = self.pedi.write_pedigree_file(file_type=pedigree.MUTATION_PROBS,
                                                      risk_factor_code=self.risk_factor_code,
+                                                     hgt=self.hgt,
                                                      prs=self.prs,
                                                      filepath=os.path.join(self.cwd, "test_prob.ped"),
                                                      model_settings=self.model_settings)
             bat_file = self.pedi.write_batch_file(pedigree.MUTATION_PROBS, ped_file,
                                                   filepath=os.path.join(self.cwd, "test_prob.bat"),
-                                                  mutation_freq=self.model_params.mutation_frequency,
-                                                  sensitivity=self.model_params.mutation_sensitivity)
-            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file,
+                                                  model_settings=self.model_settings)
+            params = self.pedi.write_param_file(filepath=os.path.join(self.cwd, "test_prob.params"),
+                                                model_settings=self.model_settings,
+                                                mutation_freq=self.model_params.mutation_frequency,
+                                                isashk=self.model_params.isashk,
+                                                sensitivity=self.model_params.mutation_sensitivity)
+            probs = self.run(self.request, pedigree.MUTATION_PROBS, bat_file, params=params,
                              cancer_rates=self.model_params.cancer_rates,
                              cwd=self.cwd, niceness=self.niceness, model=self.model_settings)
-            self.mutation_probabilties, self.version = self._parse_probs_output(probs, self.model_settings)
+            self.mutation_probabilties = self._parse_probs_output(probs, self.model_settings)
 
         # cancer risk calculation
         if self.pedi.is_risks_calc_viable():
             # remaining lifetime risk
             if self.is_calculate("remaining_lifetime"):
-                self.cancer_risks, self.version = RemainingLifetimeRisk(self).get_risk()
-                self.baseline_cancer_risks, _v = RemainingLifetimeBaselineRisk(self).get_risk()
+                self.cancer_risks = RemainingLifetimeRisk(self).get_risk()
+                self.baseline_cancer_risks = RemainingLifetimeBaselineRisk(self).get_risk()
 
             # lifetime risk
             if self.is_calculate("lifetime"):
-                self.lifetime_cancer_risk, _v = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
+                self.lifetime_cancer_risk = RangeRisk(self, 20, 80, "LIFETIME").get_risk()
                 if self.lifetime_cancer_risk is not None:
-                    self.baseline_lifetime_cancer_risk, _v = RangeRiskBaseline(self, 20, 80,
-                                                                               "LIFETIME BASELINE").get_risk()
+                    self.baseline_lifetime_cancer_risk = RangeRiskBaseline(self, 20, 80, "LIFETIME BASELINE").get_risk()
 
             # ten year risk
             if self.is_calculate("ten_year"):
-                self.ten_yr_cancer_risk, _v = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
+                self.ten_yr_cancer_risk = RangeRisk(self, 40, 50, "10 YR RANGE").get_risk()
                 if self.ten_yr_cancer_risk is not None:
-                    self.baseline_ten_yr_cancer_risk, _v = RangeRiskBaseline(self, 40, 50,
-                                                                             "10YR RANGE BASELINE").get_risk()
+                    self.baseline_ten_yr_cancer_risk = RangeRiskBaseline(self, 40, 50, "10YR RANGE BASELINE").get_risk()
 
-        logger.info(self.model_settings.get('NAME', "") + " CALCULATIONS: user=" + str(self.request.user.id) +
-                    "; elapsed time=" + str(time.time() - start) +
-                    "; pedigree size=" + str(len(self.pedi.people)) +
-                    "; version=" + str(getattr(self, "version", "N/A")))
+        name = str(self.model_settings.get('NAME', ""))
+        logger.info(
+            f"{name} CALCULATIONS: user={self.request.user.id}; "
+            f"elapsed time={time.time() - start}; "
+            f"pedigree size={len(self.pedi.people)}; "
+            f"version={getattr(self, 'version', 'N/A')}")
 
     @classmethod
     def _get_niceness(cls, pedi, factor=15):
@@ -408,61 +427,26 @@ class Predictions(object):
         return niceness
 
     @classmethod
-    def run(cls, request, process_type, bat_file, cancer_rates="UK", cwd="/tmp", niceness=0, name="",
-            model=settings.BC_MODEL):
+    def get_version(cls, model=settings.BC_MODEL, cwd="/tmp"):
         """
-        Run a process.
-        @param request: HTTP request
-        @param process_type: either pedigree.MUTATION_PROBS or pedigree.CANCER_RISKS.
-        @param bat_file: batch file path
-        @keyword cancer_rates: cancer incidence rates used in risk calculation
+        Get the model version.
+        @keyword model_settings: cancer model settings
         @keyword cwd: working directory
-        @keyword niceness: niceness value
-        @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
-        if process_type == pedigree.MUTATION_PROBS:
-            prog = os.path.join(model['HOME'], model['PROBS_EXE'])
-            out = "can_probs"
-        else:
-            prog = os.path.join(model['HOME'], model['RISKS_EXE'])
-            out = "can_risks"
-
-        start = time.time()
         try:
-            try:
-                os.remove(os.path.join(cwd, out+".out"))  # ensure output file doesn't exist
-            except OSError:
-                pass
-
-            # logger.debug(prog + ' -r ' + out+".out -v " + bat_file + " " +
-            #              os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml"))
             process = Popen(
-                [prog,
-                 '-r', out+".out",       # results file
-                 '-v',                   # include model version
-                 bat_file,
-                 os.path.join(model['HOME'], "Data/incidence_rates_" + cancer_rates + ".nml")
-                 ],
+                [os.path.join(model['HOME'], model['EXE']), "-v"],
                 cwd=cwd,
                 stdout=PIPE,
                 stderr=PIPE,
-                env=settings.FORTRAN_ENV,
-                preexec_fn=lambda: os.nice(niceness) and
-                resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)))
+                env=settings.FORTRAN_ENV)
 
             (outs, errs) = process.communicate(timeout=settings.FORTRAN_TIMEOUT)   # timeout in seconds
             exit_code = process.wait()
 
             if exit_code == 0:
-                with open(os.path.join(cwd, out+".out"), 'r') as result_file:
-                    data = result_file.read()
-                logger.info(model.get('NAME', "") + " " +
-                            ("MUTATION PROBABILITY" if process_type == pedigree.MUTATION_PROBS else "RISK ") +
-                            name + " CALCULATION: user=" + str(request.user.id) +
-                            "; elapsed time=" + str(time.time() - start))
-                return data
+                return outs.decode("utf-8").replace('.exe', '').replace('\n', '')
             else:
-                logger.error("EXIT CODE ("+out.replace('can_', '')+"): "+str(exit_code))
                 logger.error(outs)
                 errs = errs.decode("utf-8").replace('\n', '')
                 logger.error(errs)
@@ -477,6 +461,75 @@ class Predictions(object):
             logger.error(e)
             raise
 
+    @classmethod
+    def run(cls, request, process_type, bat_file, params=None, cancer_rates="UK", cwd="/tmp",
+            niceness=0, name="", model=settings.BC_MODEL):
+        """
+        Run a process.
+        @param request: HTTP request
+        @param process_type: either pedigree.MUTATION_PROBS or pedigree.CANCER_RISKS.
+        @param bat_file: batch file path
+        @keyword cancer_rates: cancer incidence rates used in risk calculation
+        @keyword cwd: working directory
+        @keyword niceness: niceness value
+        @keyword name: log name for calculation, e.g. REMAINING LIFETIME
+        """
+        cmd = [os.path.join(model['HOME'], model['EXE'])]
+        if process_type == pedigree.MUTATION_PROBS:
+            out = "can_probs.out"
+            cmd.append("-p")
+        else:
+            out = "can_risks.out"
+        if params is not None:
+            cmd.extend(["-s", params])
+
+        cmd.extend(["-o", out, bat_file, model['INCIDENCE'] + cancer_rates + ".nml"])
+        mname = str(model.get('NAME', ""))
+
+        start = time.time()
+        try:
+            try:
+                os.remove(os.path.join(cwd, out))  # ensure output file doesn't exist
+            except OSError:
+                pass
+
+            # logger.debug(' '.join(cmd))
+            process = Popen(
+                cmd,
+                cwd=cwd,
+                stdout=PIPE,
+                stderr=PIPE,
+                env=settings.FORTRAN_ENV,
+                preexec_fn=lambda: os.nice(niceness) and
+                resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)))
+
+            (outs, errs) = process.communicate(timeout=settings.FORTRAN_TIMEOUT)   # timeout in seconds
+            exit_code = process.wait()
+
+            if exit_code == 0:
+                with open(os.path.join(cwd, out), 'r') as result_file:
+                    data = result_file.read()
+                logger.info(
+                    f"{mname} {('MUTATION PROBABILITY' if process_type == pedigree.MUTATION_PROBS else 'RISK ')}"
+                    f"{name} CALCULATION: user={request.user.id}; "
+                    f"elapsed time={time.time() - start}")
+                return data
+            else:
+                logger.error(f"EXIT CODE ({out.replace('can_', '')}): {exit_code}")
+                logger.error(outs)
+                errs = errs.decode("utf-8").replace('\n', '')
+                logger.error(errs)
+                raise ModelError(errs)
+        except TimeoutExpired as to:
+            process.terminate()
+            logger.error(f"{mname} PROCESS TIMED OUT.")
+            logger.error(to)
+            raise TimeOutException()
+        except Exception as e:
+            logger.error(f"{mname} PROCESS EXCEPTION: {cwd}")
+            logger.error(e)
+            raise
+
     def _parse_probs_output(self, probs, model_settings):
         """
         Parse computed mutation carrier probability results.
@@ -485,15 +538,19 @@ class Predictions(object):
         @return: list of containing dictionaries of the mutaion probability results
         """
         probs_arr = []
-        version = None
-        for line in probs.splitlines():
-            if line.startswith('#Version:'):
-                version = line.replace('#Version:', '').strip()
+        gene_columns = []
+
+        for _idx, line in enumerate(probs.splitlines()):
+            if REGEX_ALPHANUM_COMMAS.match(line):
+                gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
-                probs_arr.append({"no mutation": {"decimal": float(parts[0]), "percent": float(parts[1])}})
-                for i, gene in enumerate(model_settings['GENES']):
+
+                probs_arr.append({"no mutation": {"decimal": float(parts[0]),
+                                                  "percent": round(float(parts[0])*100, 2)}})
+                for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
+                    assert gene == gene_columns[i], "MUTATION CARRIER PROBABILITY - RESULTS COLUMN MISMATCH FOUND"
                     probs_arr.append({gene:
-                                      {"decimal": float(parts[((i*2)+2)]),
-                                       "percent": float(parts[(i*2)+3])}})
-        return probs_arr, version
+                                      {"decimal": float(parts[i]),
+                                       "percent": round(float(parts[i])*100, 2)}})
+        return probs_arr
