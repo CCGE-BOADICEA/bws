@@ -206,19 +206,19 @@ class ModelWebServiceMixin():
             # ),
         ]
 
-        fields += [
-            coreapi.Field(
-                name=g.lower() + "_mut_frequency",
-                required=False,
-                location='form',
-                schema=coreschema.Number(
-                    title=g+" mutation frequency",
-                    description=g+' mutation frequency',
-                    minimum=settings.MIN_MUTATION_FREQ,
-                    maximum=settings.MAX_MUTATION_FREQ
-                ),
-            ) for g in model['GENES']
-        ]
+        # fields += [
+        #    coreapi.Field(
+        #        name=g.lower() + "_mut_frequency",
+        #        required=False,
+        #        location='form',
+        #        schema=coreschema.Number(
+        #            title=g+" mutation frequency",
+        #            description=g+' mutation frequency',
+        #            minimum=settings.MIN_MUTATION_FREQ,
+        #            maximum=settings.MAX_MUTATION_FREQ
+        #        ),
+        #    ) for g in model['GENES']
+        # ]
         fields += [
             coreapi.Field(
                 name=g.lower() + "_mut_sensitivity",
@@ -286,41 +286,15 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
-           - name: brca1_mut_frequency
-             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brca2_mut_frequency
-             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: palb2_mut_frequency
-             description: PALB2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: atm_mut_frequency
-             description: ATM mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: chek2_mut_frequency
-             description: CHEK2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
+             enum: ['UK', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
-             'Iceland', 'New-Zealand', 'Norway', 'Sweden']
-
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
            - name: brca1_mut_sensitivity
              description: BRCA1 mutation sensitivity
              required: false
@@ -416,41 +390,15 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
-           - name: brca1_mut_frequency
-             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brca2_mut_frequency
-             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: rad51d_mut_frequency
-             description: RAD51D mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: rad51c_mut_frequency
-             description: RAD51C mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brip1_mut_frequency
-             description: BRIP1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
+             enum: ['UK', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
-             'Iceland', 'New-Zealand', 'Norway', 'Sweden']
-
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
            - name: brca1_mut_sensitivity
              description: BRCA1 mutation sensitivity
              required: false
