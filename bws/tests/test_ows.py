@@ -43,7 +43,7 @@ class OwsTests(TestCase):
         ''' Test output of POSTing to the OWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX'}
+                'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
