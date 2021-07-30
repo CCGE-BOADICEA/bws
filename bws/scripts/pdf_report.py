@@ -70,8 +70,8 @@ class HttpServer:
             print(e)
             sys.exit(1)
 
-    def start_www(self):
-        copyfile(join(os.path.dirname(os.path.realpath(__file__)), 'base.html'), HttpServer.base)
+    def start_www(self, url):
+        self.base_html_setup(url)
         copyfile("/home/tim/workspace/boadicea/boadicea/local_apps/fh/static/js/pedigreejs.v2.1.0-rc2.min.js",
                  join(TMPDIR, 'pedigreejs.v2.1.0-rc2.min.js'))
         HttpServer.server_thread = Thread_With_Trace(target=HttpServer().run_server)
@@ -80,6 +80,18 @@ class HttpServer:
     def stop_www(self):
         self.server_thread.kill()
         os.remove(HttpServer.base)
+
+    def base_html_setup(self, url):
+        url = url[:-1] if url.endswith("/") else url
+        f = open(join(os.path.dirname(os.path.realpath(__file__)), 'base.html'), "r")
+        new_content = ""
+        for line in f:
+            new_content += line.replace("{URL}", url)
+        f.close()
+
+        bf = open(HttpServer.base, "w")
+        bf.write(new_content)
+        bf.close()
 
 
 def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval=0.2, rename=None):
