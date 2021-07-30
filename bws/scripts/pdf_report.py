@@ -12,6 +12,7 @@ from os.path import expanduser, join
 from shutil import copyfile
 
 TMPDIR = "/tmp"
+pedigree = join(TMPDIR, 'pedigree.txt')
 
 
 class Thread_With_Trace(threading.Thread):
@@ -44,14 +45,6 @@ class Thread_With_Trace(threading.Thread):
 
     def kill(self):
         self.killed = True
-
-
-def rm_report(fname="canrisk_report.pdf"):
-    ''' Wait for file to exist on download. '''
-    home = expanduser("~")
-    fname = join(home, 'Downloads', fname)
-    if os.path.isfile(fname):
-        os.remove(fname)
 
 
 class HttpServer:
@@ -94,6 +87,13 @@ class HttpServer:
         bf.close()
 
 
+def rm_file(fname):
+    ''' Remove file if exists. '''
+    if os.path.isfile(fname):
+        os.remove(fname)
+        print(f"REMOVED {fname}")
+
+
 def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval=0.2, rename=None):
     ''' Wait for file to exist on download. '''
     home = expanduser("~")
@@ -103,13 +103,13 @@ def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval
             # print(str(_i*time_interval)+"s wait for file save")
             if rename:
                 os.rename(fname, rename)
+                rm_file(pedigree)
             return
         time.sleep(time_interval)
     print(fname+" not saved")
 
 
 def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
-    pedigree = join(TMPDIR, 'pedigree.txt')
     copyfile(bwa, pedigree)
 
     # send to server to get web-page and write output.html
@@ -126,7 +126,7 @@ def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
         exit(1)
 
     # open browser to generate results page and PDF
-    rm_report()
+    rm_file(join(expanduser("~"), 'Downloads', "canrisk_report.pdf"))
     webbrowser.open('http://0.0.0.0:8081/base.html')
     _dir, fname = os.path.split(bwa)
     wait_for_pdf_download(rename=join(cwd, f"{fname}.pdf"))
