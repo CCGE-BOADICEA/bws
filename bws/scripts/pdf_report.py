@@ -1,3 +1,4 @@
+# Utility for generating PDF reports
 import json
 import http.server
 import socketserver
@@ -10,7 +11,7 @@ import time
 from os.path import expanduser, join
 from shutil import copyfile
 
-DIRECTORY = "/tmp"
+TMPDIR = "/tmp"
 
 
 class Thread_With_Trace(threading.Thread):
@@ -53,13 +54,41 @@ def rm_report(fname="canrisk_report.pdf"):
         os.remove(fname)
 
 
-def wait_for_statfile(fname="canrisk_report.pdf", max_time=10, time_interval=0.25, rename=None):
+class HttpServer:
+    cwd = os.getcwd()
+    server_thread = None
+    base = join(TMPDIR, 'base.html')
+
+    def run_server(self):
+        PORT = 8081
+        os.chdir(TMPDIR)
+        try:
+            with socketserver.TCPServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
+                print("serving at port", PORT)
+                httpd.serve_forever()
+        except OSError as e:
+            print(e)
+            sys.exit(1)
+
+    def start_www(self):
+        copyfile(join(os.path.dirname(os.path.realpath(__file__)), 'base.html'), HttpServer.base)
+        copyfile("/home/tim/workspace/boadicea/boadicea/local_apps/fh/static/js/pedigreejs.v2.1.0-rc2.min.js",
+                 join(TMPDIR, 'pedigreejs.v2.1.0-rc2.min.js'))
+        HttpServer.server_thread = Thread_With_Trace(target=HttpServer().run_server)
+        self.server_thread.start()
+
+    def stop_www(self):
+        self.server_thread.kill()
+        os.remove(HttpServer.base)
+
+
+def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval=0.2, rename=None):
     ''' Wait for file to exist on download. '''
     home = expanduser("~")
     fname = join(home, 'Downloads', fname)
     for _i in range(int(max_time/time_interval)):
         if os.path.isfile(fname) and os.stat(fname).st_size != 0:
-            print(str(_i*time_interval)+"s wait for file save")
+            # print(str(_i*time_interval)+"s wait for file save")
             if rename:
                 os.rename(fname, rename)
             return
@@ -67,20 +96,11 @@ def wait_for_statfile(fname="canrisk_report.pdf", max_time=10, time_interval=0.2
     print(fname+" not saved")
 
 
-def run_server():
-    PORT = 8081
-    os.chdir(DIRECTORY)
-    with socketserver.TCPServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
-        print("serving at port", PORT)
-        httpd.serve_forever()
-
-
-def create_pdf(url, token, ows_result, bws_result, bwa, pdf_name):
-    cwd = os.getcwd()
-    base = join(DIRECTORY, 'base.html')
-    pedigree = join(DIRECTORY, 'pedigree.txt')
-    copyfile(join(os.path.dirname(os.path.realpath(__file__)), 'base.html'), base)
+def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
+    pedigree = join(TMPDIR, 'pedigree.txt')
     copyfile(bwa, pedigree)
+
+    # send to server to get web-page and write output.html
     data = {"ows_result": json.dumps(ows_result.json(), separators=(',', ':')),
             "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
     r = requests.post(url+'combine/', data=data, headers={'Authorization': "Token "+token})
@@ -93,10 +113,8 @@ def create_pdf(url, token, ows_result, bws_result, bwa, pdf_name):
         sys.stderr.write(r.text)
         exit(1)
 
-    t = Thread_With_Trace(target=run_server)
-    t.start()
+    # open browser to generate results page and PDF
     rm_report()
-    webbrowser.open('http://0.0.0.0:8081/base.html', new=2)
-    wait_for_statfile(rename=join(cwd, pdf_name))
-    os.remove(base)
-    t.kill()
+    webbrowser.open('http://0.0.0.0:8081/base.html')
+    _dir, fname = os.path.split(bwa)
+    wait_for_pdf_download(rename=join(cwd, f"{fname}.pdf"))
