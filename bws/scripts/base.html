@@ -4,51 +4,36 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>  CanRisk Tool </title>
+<title>CanRisk PDF Report</title>
 
-	
-<link rel="icon" href="https://canrisk.org/static/favicon.7e31f3842264.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 
-<link rel="stylesheet" type="text/css" href="https://canrisk.org/static/css/jquery.cookiebar.2c14815c8260.css">
-<link rel="stylesheet" type="text/css" href="https://canrisk.org/static/css/cookie.af203264a484.css">
-<link rel="stylesheet" type="text/css" href="https://canrisk.org/static/css/canrisk.f9b1fe89ad76.css">
+<link rel="stylesheet" type="text/css" href="{URL}/static/css/canrisk.css">
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js" integrity="sha256-F6h55Qw6sweK+t7SiOJX+2bpSAa3b/fnlrVCJvmEj1A=" crossorigin="anonymous"></script>
 
-<script type="text/javascript" src="https://canrisk.org/static/Scripts/Utils.4407e78a0866.js"></script>
+<script type="text/javascript" src="{URL}/static/Scripts/Utils.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js" integrity="sha256-1nLUd8qmbKFJ49vzU7vub7VOQxjb1zy9FDsgtjfak7M=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-toggle@2.2.2/js/bootstrap-toggle.min.js" integrity="sha256-eZNgBgutLI47rKzpfUji/dD9t6LRs2gI3YqXKdoDOmo=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/min/moment-with-locales.min.js"    integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo="    crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/gh/RobinHerbots/jquery.inputmask@5.0.0-beta.130/dist/jquery.inputmask.min.js" integrity="sha256-X+qxu4QvFAeX6R+lgai211sGvlzDR/8eslLWESDxGlY=" crossorigin="anonymous"></script>
 
-<script defer src="https://canrisk.org/static/Scripts/Utils.4407e78a0866.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/risk_factors.9f1cbc17b005.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/HRT_Types.3342a0a01f00.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Consts.d4ac3c142a30.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/HealthQ_FH.a7910e87919e.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script1_Personal.bee717059ae4.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script2_LifeStyle.970b7ae5f8c5.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script3_WomenHealth.3bf66e3fa56f.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script4_Children.780025b490f1.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script5_BreastScreen.6f8f78646001.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script6_MedicalHistory.b8da64a94f26.js"></script>
-<script defer src="https://canrisk.org/static/Scripts/Sections/Script7_GeneticTests.750f50e81772.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.3.1/dist/polyfills.umd.js" integrity="sha256-ONeaAQfSLF92cjV/nhuP46p3DottfnTi6F5PASuPfjc=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.3.1/dist/jspdf.umd.min.js" integrity="sha256-UKM5kRO7NpXHPgbPog3S+1C/3oLAXPjJ+Qv6FGK2jnw=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.14/dist/jspdf.plugin.autotable.min.js" integrity="sha256-1tNRjzLhaF9gFcasz6T9P/KtItEInFchhrqg7HCd5IQ=" crossorigin="anonymous"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@5.16.0/dist/d3.min.js" integrity="sha256-Xb6SSzhH3wEPC4Vy3W70Lqh9Y3Du/3KxPqI2JHQSpTw=" crossorigin="anonymous"></script>
-<script src="https://canrisk.org/static/js/pedigreejs.v2.0.0-rc2.min.210352eb82ee.js"></script>
-<script src="https://canrisk.org/static/Scripts/canrisk.e13952fc745a.js"></script>
-<script src="https://canrisk.org/static/js/pedigree_templates.f4c73c9cdba6.js"></script>
-<script src="https://canrisk.org/static/js/canrisk_init.70fd0643022c.js"></script>
+<!--  <script src="{URL}/static/js/pedigreejs.v2.0.0-rc2.min.js"></script>  -->
+<script src="pedigreejs.v2.1.0-rc2.min.js"></script>
+
+<script src="{URL}/static/Scripts/canrisk.js"></script>
+<script src="{URL}/static/js/pedigree_templates.js"></script>
+<script src="{URL}/static/js/canrisk_init.js"></script>
 
 <script type="text/javascript">
 	////// deconstruct pedigreejs entry point
@@ -61,16 +46,12 @@
 	//////
 	// set options for pedigreejs
 	var opts = {
-			targetDiv: 'pedigree3',
+			targetDiv: 'inp_ped',
 			btn_target: 'pedigree_history',
 			nodeclick: pedigree_form.nodeclick,
-			width: canrisk.get_svg_wid(),
-			height: canrisk.get_svg_hgt(),
+			width: 515,
+			height: 590,
 			symbol_size: 35,
-			keep_proband_on_reset: true,
-			zoomSrc: ['button'],
-			zoomIn: .5,
-			zoomOut: 1.5,
 			font_size: '.7em',
 			optionalLabels: [
 				['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
@@ -82,39 +63,63 @@
 					['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
 			DEBUG: (pedigree_util.urlParam('debug') === null ? false : true)};
 
-	// canrisk.set_frequencies('bc', JSON.parse("{\u0022UK\u0022: {\u0022BRCA1\u0022: 0.0006394, \u0022BRCA2\u0022: 0.00102, \u0022PALB2\u0022: 0.000575, \u0022ATM\u0022: 0.001921, \u0022CHEK2\u0022: 0.002614}, \u0022Ashkenazi\u0022: {\u0022BRCA1\u0022: 0.008, \u0022BRCA2\u0022: 0.006, \u0022PALB2\u0022: 0.000575, \u0022ATM\u0022: 0.001921, \u0022CHEK2\u0022: 0.002614}, \u0022Iceland\u0022: {\u0022BRCA1\u0022: 0.0006394, \u0022BRCA2\u0022: 0.003, \u0022PALB2\u0022: 0.000575, \u0022ATM\u0022: 0.001921, \u0022CHEK2\u0022: 0.002614}}"));
-	// canrisk.set_frequencies('oc', JSON.parse("{\u0022UK\u0022: {\u0022BRCA1\u0022: 0.0007947, \u0022BRCA2\u0022: 0.002576, \u0022RAD51D\u0022: 0.00026, \u0022RAD51C\u0022: 0.00022, \u0022BRIP1\u0022: 0.00044}, \u0022Ashkenazi\u0022: {\u0022BRCA1\u0022: 0.008, \u0022BRCA2\u0022: 0.006, \u0022RAD51D\u0022: 0.00026, \u0022RAD51C\u0022: 0.00022, \u0022BRIP1\u0022: 0.00044}, \u0022Iceland\u0022: {\u0022BRCA1\u0022: 0.0007947, \u0022BRCA2\u0022: 0.003, \u0022RAD51D\u0022: 0.00026, \u0022RAD51C\u0022: 0.00022, \u0022BRIP1\u0022: 0.00044}}"));
-	// canrisk.setup("", '/ovarian/', '/boadicea/', '/combine/', '/bcten/', "tcarver");
-</script>
-
-
-<script type="text/javascript">
 	$(document).ready(function(){
-		//document.body.innerHTML='<object type="text/html" data="output.html" ></object>';
-		$("#content").load("output.html");
-		setTimeout(function () {
-			pdf.save("", ["report_rm", "report_bcr", "report_ocr", "report_mut", "report_extra"], "Generated");
-    		}, 5000);
+		var eventTarget = document.createDocumentFragment()
+		
+		io.add(opts);
+		fetch('pedigree.txt')
+		  .then(response => response.text())
+		  .then(data => {
+			  	if(data.indexOf("BOADICEA import pedigree file format 4.0") === 0) {
+					opts.dataset = io.readBoadiceaV4(data, 4);
+				} else if(data.indexOf("BOADICEA import pedigree file format 2.0") === 0) {
+					opts.dataset = io.readBoadiceaV4(data, 2);
+				} else if(data.indexOf("##") === 0 && data.indexOf("CanRisk") !== -1) {
+					let canrisk_data = io.readCanRiskFile(data);
+					risk_factors = canrisk_data[0];
+					opts.dataset = canrisk_data[1];
+				} else {
+					try {
+						opts.dataset = JSON.parse(e.target.result);
+					} catch(err) {
+						opts.dataset = io.readLinkage(e.target.result);
+					}
+				}
+			  	ptree.validate_pedigree(opts);
+			  	pedcache.setposition(opts);		// clear position
+			  	ptree.rebuild(opts);
+		  });
+
+		fetch('output.html')
+		  .then(response => response.text())
+		  .then(data => {
+			  prs = {}
+			  var tid = run_prediction.create_results(data, prs, opts);
+			  setTimeout(function () {
+					pdf.save(tid, ["report_ins", "report_rm", "report_bcr", "report_ocr", "report_mut", "report_extra"], "Generated");
+				}, 1000);
+		  });
 	});
 </script>
 
-<script src="https://canrisk.org/static/js/prs_graphs.8fefb28ed8e4.js"></script>
-<!--<script src="https://canrisk.org/static/js/pdf.35693246b499.js"></script>-->
-<script src="pdf.js"></script>
+<script defer src="{URL}/static/js/prs_graphs.js"></script>
+<script defer src="{URL}/static/js/pdf.js"></script>
+<script defer src="{URL}/static/js/run_prediction.js"></script>
 
-<script src="https://canrisk.org/static/js/run_prediction.b87e964c7211.js"></script>
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/cupertino/jquery-ui.min.css" type="text/css" media="all"/>
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Abeezee:400%7COpen+Sans:400,600,700%7CSource+Sans+Pro:400,600">
-<link type="text/css" href="https://canrisk.org/static/Scripts/css/accordion.16f895ff96a0.css" rel="stylesheet">
+<link type="text/css" href="{URL}/static/Scripts/css/accordion.css" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css" integrity="sha256-EzqugSJ2RMPyXVT3pNIGnZtdwdSVc3n9rIP1MSHxXIQ=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-toggle@2.2.2/css/bootstrap-toggle.min.css" integrity="sha256-rDWX6XrmRttWyVBePhmrpHnnZ1EPmM6WQRQl6h0h7J8=" crossorigin="anonymous">
-<link type="text/css" href="https://canrisk.org/static/Scripts/css/btn.b8f86c812a53.css" rel="stylesheet" media="all" />
-<link type="text/css" href="https://canrisk.org/static/Scripts/css/CircleRadio.21cee34da281.css" rel="stylesheet" media="all" />
+<link type="text/css" href="{URL}/static/Scripts/css/btn.css" rel="stylesheet" media="all" />
+<link type="text/css" href="{URL}/static/Scripts/css/CircleRadio.css" rel="stylesheet" media="all" />
 
 </head>
 <body>
-	<div id ="content"> </div>
+	<div id="inp_ped"></div>
+	<input id="load" type="text" class="hidden">
+	<div id="content"><div id="qtabs"></div></div>
 </body>
 </html>
