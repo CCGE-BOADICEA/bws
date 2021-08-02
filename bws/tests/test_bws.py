@@ -201,6 +201,15 @@ class BwsTests(BwsMixin):
         self.assertTrue('Person Error' in content)
         self.assertTrue('year of birth' in content['Person Error'])
 
+    def test_field_validate_errors(self):
+        ''' Test error with superfluous fields included. '''
+        data = {'mut_freq': 'UK', 'nosuchflag': '1234', 'nosuchflag2': 77}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('Input Field Error' in content)
+        self.assertEqual('Extra input field(s) found: nosuchflag, nosuchflag2', content['Input Field Error'])
+
     @override_settings(FORTRAN_TIMEOUT=0.05)
     def test_bws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
@@ -235,7 +244,8 @@ class TenYrTests(BwsMixin):
         bcten_url = reverse('bcten')
         bws_url = reverse('bws')
         dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1.txt"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1_prs.txt")]
+               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1_prs.txt"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v2.txt")]
 
         for df in dfs:
             # 1. 10 yr risk web-service for 40-50

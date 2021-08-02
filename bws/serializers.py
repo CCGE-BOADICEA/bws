@@ -65,6 +65,17 @@ class BaseInputSerializer(serializers.Serializer):
         """ Get the cancer rates choice field. """
         return serializers.ChoiceField(choices=list(model['CANCER_RATES'].keys()))
 
+    def is_valid(self, raise_exception=True):
+        """ Check that superfluous input flags have not been included. """
+        if hasattr(self, 'initial_data'):
+            inp_keys = self.initial_data.keys()     # all the user input keys
+            ser_keys = self.fields.keys()           # all the serializer fields
+            extra_fields = list(filter(lambda key: key not in ser_keys, inp_keys))
+            if len(extra_fields) > 0:
+                msg = ", ".join(extra_fields)
+                raise serializers.ValidationError({'Input Field Error': f'Extra input field(s) found: {msg}'})
+        return super(BaseInputSerializer, self).is_valid(raise_exception)
+
 
 class BwsInputSerializer(BaseInputSerializer):
     """ Boadicea breast cancer input fields. """

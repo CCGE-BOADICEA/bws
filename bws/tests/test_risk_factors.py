@@ -299,7 +299,7 @@ class WSRiskFactors(TestCase):
         ''' Test affect of including the PRS. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX', 'risk_factor_code': 0}
+                'user_id': 'test_XXX'}
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + WSRiskFactors.token.key)
         response = self.client.post(url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
