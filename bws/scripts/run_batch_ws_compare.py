@@ -48,6 +48,13 @@ def get_ws_results(args, calc_ages):
     return bc_ws, oc_ws, bc_mp_ws, oc_mp_ws
 
 
+def glob_re(path_pattern):
+    ''' Get files in a path that match a pattern (e.g. /path/xyz[1-2]?). '''
+    pdir = path_pattern.rsplit("/", 1)
+    fnames = filter(re.compile(pdir[1]).match, os.listdir(pdir[0]))
+    return [os.path.join(pdir[0], f) for f in fnames]
+
+
 #
 # define optional command line arguments
 parser = argparse.ArgumentParser('run a risk prediction via the web-service')
@@ -82,8 +89,10 @@ token = get_auth_token(args, url)
 bwa = input("Pedigree (BOADICEA v4/CanRisk file) or path to directory of pedigrees: ") if args.ped is None else args.ped
 if os.path.isfile(bwa):
     bwalist = [bwa]
-else:
+elif os.path.isdir(bwa):
     bwalist = [os.path.join(bwa, f) for f in os.listdir(bwa) if os.path.isfile(os.path.join(bwa, f))]
+else:
+    bwalist = glob_re(bwa)
 
 # loop over canrisk files and compare results from webservices with those from the batch script
 exact_matches = 0
@@ -127,23 +136,25 @@ for bwa in bwalist:
 
         # compare webservice.tab with batch_result.out
         for age in c_ages:
-            if bc_ws[age] and bc_batch[age] and math.isclose(float(bc_ws[age]), float(bc_batch[age])):
-                print("BC EXACT MATCH ::: "+str(age)+"    webservice: "+bc_ws[age]+" batch: "+bc_batch[age], end='\t\t')
-            else:
-                print("BC NOT A MATCH *** "+str(age)+"    webservice: "+bc_ws[age]+" batch: "+bc_batch[age], end='\t\t')
-                exact_matches += 1
+            if len(bc_ws) > 0 or bc_batch is not None:
+                if bc_ws[age] and bc_batch[age] and math.isclose(float(bc_ws[age]), float(bc_batch[age])):
+                    print(f"BC EXACT MATCH ::: {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
+                else:
+                    print(f"BC NOT A MATCH *** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
+                    exact_matches += 1
 
-            if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age])):
-                print("OC EXACT MATCH :::    webservice: "+oc_ws[age]+" batch: "+oc_batch[age])
-            else:
-                print("OC NOT A MATCH ***    webservice: "+oc_ws[age]+" batch: "+oc_batch[age])
-                exact_matches += 1
+            if len(oc_ws) > 0 or oc_batch is not None:
+                if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age])):
+                    print(f"OC EXACT MATCH :::    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                else:
+                    print(f"OC NOT A MATCH ***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                    exact_matches += 1
     finally:
         shutil.rmtree(cwd)
         # print(cwd)
 
 if exact_matches != 0:
-    print("====== DIFFERENCES FOUND "+str(exact_matches))
+    print(f"====== DIFFERENCES FOUND {exact_matches}")
 else:
     print("====== NO DIFFERENCES FOUND")
 
