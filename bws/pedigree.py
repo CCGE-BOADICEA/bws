@@ -501,6 +501,11 @@ class Pedigree(metaclass=abc.ABCMeta):
                 return False
         return True
 
+    @staticmethod
+    def get_unique_oc_genes():
+        ''' Return genes unique to ovarian model. '''
+        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+
     def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
         """
@@ -535,7 +540,15 @@ class Pedigree(metaclass=abc.ABCMeta):
                 # Gene Tests
                 gtests = p.gtests
                 for g in model_settings['GENES']:
-                    print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                    try:
+                        print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                    except AttributeError:
+                        # check if gene not in BC model
+                        if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
+                            if g in Pedigree.get_unique_oc_genes():
+                                print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
+                        else:
+                            raise
 
                 print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
 
