@@ -34,7 +34,8 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
 def get_batch_results(fname, calc_ages):
     ''' Get risk from batch '''
     if not os.path.isfile(fname):
-        print("BATCH FILE NOT FOUND :: "+fname)
+        print("BATCH RESULTS FILE NOT FOUND :: "+fname)
+        return None
 
     c_batch = {}
     f = open(fname, "r")
