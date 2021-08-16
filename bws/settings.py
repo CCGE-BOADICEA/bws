@@ -78,8 +78,8 @@ BC_MODEL = {
             'ATM': 0.0018,
             'CHEK2': 0.00373,
             'BARD1': 0.00043,
-            'RAD51C': 0.00041,
-            'RAD51D': 0.00040
+            'RAD51C': 0.00035,
+            'RAD51D': 0.00035
         }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
@@ -88,8 +88,8 @@ BC_MODEL = {
             'ATM': 0.0018,
             'CHEK2': 0.00373,
             'BARD1': 0.00043,
-            'RAD51C': 0.00041,
-            'RAD51D': 0.00040
+            'RAD51C': 0.00035,
+            'RAD51D': 0.00035
         }),
         ('Iceland', {
             'BRCA1': 0.0006394,
@@ -98,20 +98,20 @@ BC_MODEL = {
             'ATM': 0.0018,
             'CHEK2': 0.00373,
             'BARD1': 0.00043,
-            'RAD51C': 0.00041,
-            'RAD51D': 0.00040
+            'RAD51C': 0.00035,
+            'RAD51D': 0.00035
         })
     ]),
     # Default genetic test sensitivities; updated BRCA1/2 as agreed with AA 10/04/17
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.9,
-        "BRCA2": 0.9,
-        "PALB2": 0.9,
-        "ATM": 0.9,
-        "CHEK2": 1.0,
-        "BARD1": 0.9,
-        "RAD51C": 0.9,
-        "RAD51D": 0.9,
+        "BRCA1": 0.89,
+        "BRCA2": 0.96,
+        "PALB2": 0.92,
+        "ATM": 0.94,
+        "CHEK2": 0.98,
+        "BARD1": 0.89,
+        "RAD51C": 0.78,
+        "RAD51D": 0.86,
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -155,36 +155,36 @@ OC_MODEL = {
         'UK', {
             'BRCA1': 0.0007947,
             'BRCA2': 0.002576,
-            'RAD51D': 0.00040,
-            'RAD51C': 0.00041,
+            'RAD51D': 0.00035,
+            'RAD51C': 0.00035,
             'BRIP1': 0.00071,
             'PALB2': 0.00064
         }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
             'BRCA2': 0.006,
-            'RAD51D': 0.00040,
-            'RAD51C': 0.00041,
+            'RAD51D': 0.00035,
+            'RAD51C': 0.00035,
             'BRIP1': 0.00071,
             'PALB2': 0.00064
         }),
         ('Iceland', {
             'BRCA1': 0.0007947,
             'BRCA2': 0.003,
-            'RAD51D': 0.00040,
-            'RAD51C': 0.00041,
+            'RAD51D': 0.00035,
+            'RAD51C': 0.00035,
             'BRIP1': 0.00071,
             'PALB2': 0.00064
         })
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.9,
-        "BRCA2": 0.9,
-        "RAD51D": 0.9,
-        "RAD51C": 0.9,
-        "BRIP1": 0.9,
-        "PALB2": 0.9
+        "BRCA1": 0.89,
+        "BRCA2": 0.96,
+        "RAD51D": 0.86,
+        "RAD51C": 0.78,
+        "BRIP1": 0.95,
+        "PALB2": 0.92
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
