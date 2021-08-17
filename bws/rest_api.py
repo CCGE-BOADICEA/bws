@@ -8,6 +8,7 @@ import tempfile
 
 from django.conf import settings
 from django.http.response import JsonResponse
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.compat import coreapi, coreschema
@@ -95,6 +96,7 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt is not -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
@@ -528,6 +530,7 @@ for each the genes and the population to use for cancer incidence rates.
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt is not -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
