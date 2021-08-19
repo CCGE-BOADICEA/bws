@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 
 from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cancers,\
-    BWSGeneticTests, CanRiskGeneticTests
+    BWSGeneticTests, CanRiskGeneticTests, Genes
 from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
@@ -487,7 +487,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             return False
         return True
 
-    def is_carrier_probs_viable(self, target=None):
+    def is_carrier_probs_viable(self, target=None, genes=Genes.get_all_model_genes()):
         """
         Return true if the target does not have a positive genetic test carrier probs
         cannot be calculated.
@@ -496,15 +496,11 @@ class Pedigree(metaclass=abc.ABCMeta):
         if target is None:
             target = self.get_target()
         gtests = target.gtests
-        for t in gtests:
+        for g in genes:
+            t = getattr(gtests, g.lower(), GeneticTest())
             if t.result == 'P':
                 return False
         return True
-
-    @staticmethod
-    def get_unique_oc_genes():
-        ''' Return genes unique to ovarian model. '''
-        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
 
     def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
@@ -545,7 +541,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                     except AttributeError:
                         # check if gene not in BC model
                         if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
-                            if g in Pedigree.get_unique_oc_genes():
+                            if g in Genes.get_unique_oc_genes():
                                 print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
                         else:
                             raise
@@ -954,7 +950,7 @@ class Person(object):
                 ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
                 ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
         else:
-            genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]
+            genes = Genes.get_all_model_genes()
 
             def get_genetic_test(cols, gene):
                 idx = CanRiskPedigree.get_column_idx(gene, file_type)
