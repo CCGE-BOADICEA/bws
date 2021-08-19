@@ -7,6 +7,20 @@ from collections import namedtuple
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+
+class Genes():
+
+    @staticmethod
+    def get_unique_oc_genes():
+        ''' Return genes unique to ovarian model. '''
+        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+
+    @staticmethod
+    def get_all_model_genes():
+        ''' Return genes for breast and ovarian model. '''
+        return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]
+
+
 # BC pathology tests stored in named tuple
 PATHOLOGY_TESTS = ['er', 'pr', 'her2', 'ck14', 'ck56']
 PathologyTests = namedtuple('PathologyTests', PATHOLOGY_TESTS)
@@ -273,8 +287,7 @@ class BWSGeneticTests(namedtuple('BWSGeneticTests', ' '.join([gene.lower() for g
 
 
 class CanRiskGeneticTests(namedtuple('CanRiskGeneticTests',
-                                     ' '.join([gene.lower() for gene in settings.BC_MODEL['GENES']]) + ' ' +
-                                     ' '.join([gene.lower() for gene in settings.OC_MODEL['GENES'][4:5]])
+                                     ' '.join([gene.lower() for gene in Genes.get_all_model_genes()])
                                      ),
                           GeneticTestsMixin):
     """
