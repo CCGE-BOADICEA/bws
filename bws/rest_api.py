@@ -443,8 +443,20 @@ class BCTenYrView(APIView, ModelWebServiceMixin):
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
     if coreapi is not None and coreschema is not None:
+        fields = ModelWebServiceMixin.get_fields(model)
+        fields.insert(0, coreapi.Field(
+                name="tenyr_ages",
+                required=True,
+                location='form',
+                schema=coreschema.Array(
+                    title="tenyr_ages",
+                    description='List of ages to calculate the 10-year risks',
+                    min_items=1,
+                    unique_items=True)
+            )
+        )
         schema = ManualSchema(
-            fields=ModelWebServiceMixin.get_fields(model),
+            fields=fields,
             encoding="application/json",
             description="""
 Ten year breast cancer risks calculations as per those given for the ages 40-49
