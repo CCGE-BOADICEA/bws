@@ -249,7 +249,7 @@ class BwsView(APIView, ModelWebServiceMixin):
             fields=ModelWebServiceMixin.get_fields(model),
             encoding="application/json",
             description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
+BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
 that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
 As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
 for each the genes and the population to use for cancer incidence rates.
@@ -259,8 +259,8 @@ for each the genes and the population to use for cancer incidence rates.
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM).
+        BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
+        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM...).
         As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
         for each the genes and the population to use for cancer incidence rates.
         ---
@@ -434,7 +434,7 @@ for each the genes and the population to use for cancer incidence rates.
 
 class BCTenYrView(APIView, ModelWebServiceMixin):
     """
-    BOADICEA Web-Service
+    Ten year breast cancer risks calculation Web-Service
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BCTenYrSerializer
@@ -447,10 +447,9 @@ class BCTenYrView(APIView, ModelWebServiceMixin):
             fields=ModelWebServiceMixin.get_fields(model),
             encoding="application/json",
             description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
+Ten year breast cancer risks calculations as per those given for the ages 40-49
+(https://canrisk.atlassian.net/wiki/x/NwDCAg). The web-service takes a list of
+ages to calculate the 10-year risks for, e.g. [25, 26, 27, 28, 29] or [29].
 """
         )
 
