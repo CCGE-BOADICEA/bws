@@ -9,7 +9,8 @@
 #  -h, --help            show this help message and exit
 #  --mut_freq {UK,Ashkenazi,Iceland}
 #                        Mutation Frequencies (default: UK)
-#  --cancer_rates {UK,Australia,Canada,USA,Denmark,Finland,Iceland,New-Zealand,Norway,Spain,Sweden}
+#  --cancer_rates {'UK','Australia','Canada','USA','Denmark','Estonia','Finland','France',
+#                  'Iceland','Netherlands','New-Zealand','Norway','Slovenia','Spain','Sweden'}
 #                        Cancer incidence rates (default: UK)
 #  --url URL             Web-services URL
 #  -u USER, --user USER  Username
@@ -44,6 +45,8 @@ import csv
 import os
 import sys
 from pathlib import Path
+import pdf_report
+
 try:
     import grequests
 except ImportError as e:
@@ -180,8 +183,9 @@ def output_tab(tabf, cmodel, rjson, bwa):
     csvfile.close()
 
 
-def runws(args, data, bwa, cancers, token, url, prs=None):
+def runws(args, data, bwa, cancers, token, url, cwd=os.getcwd(), prs=None):
     ''' Call web-services '''
+    bwa = join(cwd, bwa)
     data["mut_freq"] = args.mut_freq
     data["cancer_rates"] = args.cancer_rates
 
@@ -208,6 +212,7 @@ def runws(args, data, bwa, cancers, token, url, prs=None):
         return
     else:
         print("SYNC")
+        combine = {}
         for cmodel in cancers:
             files = {'pedigree_data': open(bwa, 'rb')}
 
@@ -221,6 +226,9 @@ def runws(args, data, bwa, cancers, token, url, prs=None):
 
             r = requests.post(url+cmodel+'/', data=data, files=files, headers={'Authorization': "Token "+token})
             handle_response(args, cmodel, r, bwa)
+            combine[cmodel] = r
+        if 'pdf' in args and args.pdf:
+            pdf_report.create_pdf(url, token, combine['ovarian'], combine['boadicea'], bwa, cwd)
 
 
 def handle_response(args, cmodel, r, bwa):
@@ -299,8 +307,9 @@ if __name__ == "__main__":
     parser.add_argument('--url', default='https://canrisk.org/', help='Web-services URL')
     parser.add_argument('-u', '--user', help='Username')
     parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
-    parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
-    parser.add_argument('--summary', help='Tab delimeted summary output file name')
+    parser.add_argument('-t', '--tab', help='Tab delimited output file name')
+    parser.add_argument('--summary', help='Tab delimited summary output file name')
+    parser.add_argument('--pdf', help='PDF file name [EXPERIMENTAL OPTION - USE WITH CAUTION]', action='store_true')
     parser.add_argument('--token', help='authentication token')
     parser.add_argument('--showtoken', help='display the authentication token', action='store_true')
 
@@ -372,6 +381,15 @@ if __name__ == "__main__":
         print("The --vcf option generates a PRS code that is expected to be used with a single pedigree file.")
         exit(1)
 
-    for bwa in bwas:
-        print(bwa)
-        runws(args, data, bwa, cancers, token, url, prs)
+    http_server = None
+    try:
+        if 'pdf' in args and args.pdf:
+            http_server = pdf_report.HttpServer()
+            http_server.start_www(url)
+        cwd = os.getcwd()
+        for bwa in bwas:
+            print(bwa)
+            runws(args, data, bwa, cancers, token, url, cwd=cwd, prs=prs)
+    finally:
+        if 'pdf' in args and args.pdf:
+            http_server.stop_www()
