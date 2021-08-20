@@ -37,7 +37,7 @@ class MutFreqTests(BwsMixin):
         Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
         Check mutation frequencies are correctly set in each case.
         '''
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d3.4xAJ.canrisk"), "r")
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d3.4xAJ.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pedigree_data, 'user_id': 'test_XXX'}
         response = MutFreqTests.client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         pedigree_data.close()
