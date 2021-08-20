@@ -21,29 +21,29 @@ class ErrorTests(object):
 
     def setUpErrorTests(self):
         ''' Read in pedigree data. '''
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "pedigree_data.txt"), "r") as f:
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d3.bwa"), "r") as f:
             self.pedigree_data = f.read()
         f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
 
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r") as f:
-            self.canrisk_v1_data = f.read()
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d0.canrisk"), "r") as f:
+            self.canrisk1_data = f.read()
         f.close()
-        self.canrisk_v1_file = PedigreeFile(self.canrisk_v1_data)
+        self.canrisk1_file = PedigreeFile(self.canrisk1_data)
 
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r") as f:
-            self.canrisk_v2_data = f.read()
-        self.canrisk_v2_file = PedigreeFile(self.canrisk_v2_data)
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d1.canrisk2"), "r") as f:
+            self.canrisk2_data = f.read()
+        self.canrisk2_file = PedigreeFile(self.canrisk2_data)
         f.close()
 
     def get_pedigree_data(self):
         ''' Randomly select a pedigree file.  '''
-        pd = [self.canrisk_v2_data, self.pedigree_data, self.canrisk_v1_data]
+        pd = [self.canrisk2_data, self.pedigree_data, self.canrisk1_data]
         return copy.copy(random.choice(pd))
 
     def get_pedigree_file(self):
         ''' Randomly select a pedigree file.  '''
-        pfs = [self.canrisk_v2_file, self.pedigree_file, self.canrisk_v1_file]
+        pfs = [self.canrisk2_file, self.pedigree_file, self.canrisk1_file]
         return deepcopy(random.choice(pfs))
 
 
@@ -81,10 +81,26 @@ class PedigreeFileTests(TestCase, ErrorTests):
             self.assertEqual(len(warnings), 0)
 
     def test_columns(self):
-        ''' Test number of columns in bwa file. '''
+        ''' Test number of columns in pedigree file. '''
         pd = self.get_pedigree_data()
         pd = pd.replace('F1', 'F1    F1')
         with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
+            PedigreeFile(pd)
+
+    def test_num_columns(self):
+        ''' Test number of columns in file with CanRisk version 1 header. '''
+        pd = self.canrisk2_data
+        pd = pd.replace('CanRisk 2', 'CanRisk 1', 1)
+        with self.assertRaisesRegex(PedigreeFileError,
+                                    r"CanRisk format 1 pedigree files should have 26 data items per line."):
+            PedigreeFile(pd)
+
+    def test_num_columns2(self):
+        ''' Test number of columns in file with CanRisk version 2 header. '''
+        pd = self.canrisk1_data
+        pd = pd.replace('CanRisk 1', 'CanRisk 2', 1)
+        with self.assertRaisesRegex(PedigreeFileError,
+                                    r"CanRisk format 2 pedigree files should have 27 data items per line."):
             PedigreeFile(pd)
 
 

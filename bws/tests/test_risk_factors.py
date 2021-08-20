@@ -264,7 +264,7 @@ class WSRiskFactors(TestCase):
     def setUp(self):
         ''' Set up test client and pedigree data. '''
         self.client = APIClient(enforce_csrf_checks=True)
-        with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "canrisk_v2.txt"), 'r') as f2:
+        with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d1.canrisk2"), 'r') as f2:
             self.pedigree_data = f2.read()
 
     def ws_risk_factor(self, url, bmi, cancer='breast'):

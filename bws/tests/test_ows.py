@@ -33,7 +33,7 @@ class OwsTests(TestCase):
         cls.url = reverse('ows')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
@@ -59,7 +59,7 @@ class OwsTests(TestCase):
 
     def test_multi_pedigree_ows(self):
         ''' Test POSTing multiple pedigrees to the OWS. '''
-        multi_pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "multi_canrisk_data_v1.txt"), "r")
+        multi_pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "multi", "d2.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': multi_pedigree_data,
                 'user_id': 'test_XXX'}
@@ -119,7 +119,7 @@ class OwsTestsPRS(TestCase):
         cls.url = reverse('ows')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
 
     def test_prs_in_canrisk_file(self):
         '''
@@ -132,7 +132,7 @@ class OwsTestsPRS(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk1 = json.loads(force_text(response.content))
 
-        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,zscore=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -144,7 +144,7 @@ class OwsTestsPRS(TestCase):
         ped.close()
 
         # test with DEPRECATED beta instead of zscore
-        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
