@@ -21,17 +21,17 @@ class ErrorTests(object):
 
     def setUpErrorTests(self):
         ''' Read in pedigree data. '''
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "pedigree_data.txt"), "r") as f:
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d3.bwa"), "r") as f:
             self.pedigree_data = f.read()
         f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
 
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r") as f:
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d0.canrisk"), "r") as f:
             self.canrisk_v1_data = f.read()
         f.close()
         self.canrisk_v1_file = PedigreeFile(self.canrisk_v1_data)
 
-        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r") as f:
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d1.canrisk2"), "r") as f:
             self.canrisk_v2_data = f.read()
         self.canrisk_v2_file = PedigreeFile(self.canrisk_v2_data)
         f.close()

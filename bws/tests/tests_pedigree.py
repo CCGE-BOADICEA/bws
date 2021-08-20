@@ -19,7 +19,7 @@ class WritePedigree(TestCase):
 
     def test_write(self):
         """ Write out BOADICEA pedigree file and compare with the original file. """
-        with open(os.path.join(WritePedigree.TEST_DATA_DIR, "pedigree_data.txt"), "r") as f1:
+        with open(os.path.join(WritePedigree.TEST_DATA_DIR, "d3.bwa"), "r") as f1:
             pedigree_data = f1.read()
 
         pedigree_file = PedigreeFile(pedigree_data)

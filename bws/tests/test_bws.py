@@ -37,7 +37,7 @@ class MutFreqTests(BwsMixin):
         Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
         Check mutation frequencies are correctly set in each case.
         '''
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_multi4xAJ.txt"), "r")
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d3.4xAJ.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pedigree_data, 'user_id': 'test_XXX'}
         response = MutFreqTests.client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         pedigree_data.close()
@@ -71,7 +71,7 @@ class BwsTests(BwsMixin):
 
     def setUp(self):
         ''' Set up test client and pedigree data. '''
-        self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
@@ -89,7 +89,7 @@ class BwsTests(BwsMixin):
 
     def test_multi_pedigree_bws(self):
         ''' Test POSTing multiple pedigrees to the BWS. '''
-        multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi_pedigree_data.txt"), "r")
+        multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d1.bwa"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': multi_pedigree_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,7 +102,7 @@ class BwsTests(BwsMixin):
 
     def test_canrisk_format_bws(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
-        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -115,7 +115,7 @@ class BwsTests(BwsMixin):
 
     def test_canrisk_v2_format_bws(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
-        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_v2.txt"), "r")
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d1.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -191,7 +191,7 @@ class BwsTests(BwsMixin):
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
         # force an error changing to an invalid year of birth
-        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
         pd = ped.read().replace('1963', '1600')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -227,7 +227,7 @@ class TenYrTests(BwsMixin):
         ''' Test POSTing multiple ages to the 10 year web service. '''
 
         tenyr_ages = "[30,40,45]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1.txt"), "r")
+        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
                 'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
 
@@ -243,9 +243,9 @@ class TenYrTests(BwsMixin):
 
         bcten_url = reverse('bcten')
         bws_url = reverse('bws')
-        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1.txt"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v1_prs.txt"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_v2.txt")]
+        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "d2.canrisk"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "d1.canrisk2")]
 
         for df in dfs:
             # 1. 10 yr risk web-service for 40-50
