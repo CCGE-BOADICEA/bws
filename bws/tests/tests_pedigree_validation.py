@@ -9,10 +9,12 @@ import re
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests
+from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests,\
+    Genes
 from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
 from bws.pedigree import PedigreeFile, Male, Female
+from django.conf import settings
 
 
 class ErrorTests(object):
@@ -493,6 +495,23 @@ class PedigreeTests(TestCase, ErrorTests):
                                     cancers=deepcopy(twin.cancers)))
 
 
+class GenesTests(TestCase):
+
+    def test_unique_oc_genes(self):
+        ''' Test method to get genes unique to ovarian cancer model. '''
+        g_oc = Genes.get_unique_oc_genes()
+        self.assertEqual(len(g_oc), 1)
+        self.assertListEqual(g_oc, ['BRIP1'])
+
+    def test_all_genes(self):
+        ''' Test method to get all genes. '''
+        g_all = Genes.get_all_model_genes()
+        g_set = set(settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'])
+        self.assertEqual(len(g_all), len(g_set))
+        for g in g_set:
+            self.assertTrue(g in g_all)
+
+
 class CancerTests(TestCase, ErrorTests):
 
     def setUp(self):
@@ -723,3 +742,105 @@ class PathologyTestTests(TestCase, ErrorTests):
                     ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))
         warnings = PedigreeFile.validate(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "CK14 or CK5/6 status is specified but the breast cancer pathology is not triple")
+
+    def test_pathology_codes(self):
+        """
+        Test codes used for tumour pathology of first breast cancer (only applicable to females
+        and should be coded as unknown for all males and those without a first breast cancer).
+        """
+
+        # -1 for unknown or not applicable.
+        self.assertEqual(PathologyTest.write(PathologyTest.factory_default()), "-1 ")
+        # 0 for Oestrogen receptor positive (ER+)
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="P"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST),
+                    her2=PathologyTest(PathologyTest.HER2_TEST),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 0 ")
+        # 1 for Oestrogen receptor negative (ER-), triple negative (TN) unknown
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST),
+                    her2=PathologyTest(PathologyTest.HER2_TEST),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 1 ")
+        # 2 for ER-, not TN
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 2 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 2 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="P"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 2 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="P"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))), " 2 ")
+
+        # 3 for TN with either or both Cytokeratin 14 (CK14) and Cytokeratin 5/6 (CK5/6) unknown
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 3 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST))), " 3 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))), " 3 ")
+
+        # 4 for TN with both CK14 and CK5/6 negative
+        self.assertEqual(PathologyTest.write(PathologyTests(
+                    er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+                    pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+                    her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+                    ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+                    ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))), " 4 ")
+        # 5 for TN with either but not both CK14 or CK5/6 positive
+        self.assertEqual(PathologyTest.write(PathologyTests(
+            er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+            pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+            her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+            ck14=PathologyTest(PathologyTest.CK14_TEST, result="N"),
+            ck56=PathologyTest(PathologyTest.CK56_TEST, result="P"))), " 5 ")
+
+        self.assertEqual(PathologyTest.write(PathologyTests(
+            er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+            pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+            her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+            ck14=PathologyTest(PathologyTest.CK14_TEST, result="P"),
+            ck56=PathologyTest(PathologyTest.CK56_TEST, result="N"))), " 5 ")
+        # 6 for TN with both CK14 and CK5/6 positive
+        self.assertEqual(PathologyTest.write(PathologyTests(
+            er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, result="N"),
+            pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, result="N"),
+            her2=PathologyTest(PathologyTest.HER2_TEST, result="N"),
+            ck14=PathologyTest(PathologyTest.CK14_TEST, result="P"),
+            ck56=PathologyTest(PathologyTest.CK56_TEST, result="P"))), " 6 ")
