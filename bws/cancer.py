@@ -65,7 +65,8 @@ class PathologyTest(object):
         if tests.er.result == "P":
             pcode = 0               # ER+
         if tests.er.result == "N":
-            if tests.pr.result == "0" or tests.her2.result == "0":
+            if((tests.pr.result == "0" or tests.her2.result == "0") and
+               (tests.pr.result != "P" and tests.her2.result != "P")):
                 pcode = 1           # ER-, triple negative (TN) unknown
             elif tests.pr.result == "P" or tests.her2.result == "P":
                 pcode = 2           # ER-, not TN
