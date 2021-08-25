@@ -223,9 +223,21 @@ class BwsTests(BwsMixin):
 
 class TenYrTests(BwsMixin):
 
+    def test_ashk(self):
+        ''' Test AJ mutation frequencies used when AJ status set. '''
+        tenyr_ages = "[45]"
+        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d4.AJ.canrisk2"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
+                'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 2.652})}
+        response = TenYrTests.client.post(reverse('bcten'), data, format='multipart', HTTP_ACCEPT="application/json")
+        canrisk_data.close()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        res = content["pedigree_result"][0]
+        self.assertTrue("Ashkenazi" in res['mutation_frequency'])
+
     def test_multi_tenyr(self):
         ''' Test POSTing multiple ages to the 10 year web service. '''
-
         tenyr_ages = "[30,40,45]"
         canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
