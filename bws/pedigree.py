@@ -555,10 +555,10 @@ class Pedigree(metaclass=abc.ABCMeta):
                       file=f, end="")
 
                 # Height
-                print("%8s " % (hgt if p.target != "0" else -1), file=f, end="")
+                print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
 
                 # PolygStanDev PolygLoad
-                print("%7.6f %7.6f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
+                print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
                                        prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,),
                       file=f)
 
