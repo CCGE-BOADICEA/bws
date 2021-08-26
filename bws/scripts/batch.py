@@ -98,7 +98,7 @@ def add_prs(line, cancer, rfsnames, rfs):
     alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
     if zscore is not None:
         rfsnames.append(['PRS_'+cancer+'_z', cancer+'_PRS_z'])
-        rfs['PRS_'+cancer+'_z'] = zscore.group(2)
+        rfs['PRS_'+cancer+'_z'] = "%8.5f" % float(zscore.group(2))
     if alpha is not None:
         rfsnames.append(['PRS_'+cancer+'_alpha', cancer+'_PRS_alpha'])
         rfs['PRS_'+cancer+'_alpha'] = alpha.group(2)
