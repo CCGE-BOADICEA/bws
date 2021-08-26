@@ -125,9 +125,12 @@ def get_rfs(bwa):
                         name = line[0]
                 elif line[0] == 'mht_use':
                     name = 'MHT_use'
+                elif line[0] == 'height':
+                    name = line[0]
+                    line[1] = ("%8.4f" % float(line[1]))
                 elif line[0] == 'oc_use':
                     name = 'OC_Use'
-                    if line[1] == "N":
+                    if line[1] == "N" or line[1] == "C":
                         rfsnames.append(['OC_Duration', 'OC_Duration'])
                         rfs['OC_Duration'] = '0'
                     elif ":" in line[1]:

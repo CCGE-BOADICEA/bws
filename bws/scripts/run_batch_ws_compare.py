@@ -96,6 +96,7 @@ else:
 
 # loop over canrisk files and compare results from webservices with those from the batch script
 exact_matches = 0
+diffs = []
 for bwa in bwalist:
     try:
         cwd = tempfile.mkdtemp(prefix="canrisk_batch_")
@@ -142,6 +143,7 @@ for bwa in bwalist:
                 else:
                     print(f"BC NOT A MATCH *** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                     exact_matches += 1
+                    diffs.append(bwa)
 
             if len(oc_ws) > 0 or oc_batch is not None:
                 if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age])):
@@ -149,12 +151,16 @@ for bwa in bwalist:
                 else:
                     print(f"OC NOT A MATCH ***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
+                    diffs.append(bwa)
     finally:
         shutil.rmtree(cwd)
         # print(cwd)
 
 if exact_matches != 0:
     print(f"====== DIFFERENCES FOUND {exact_matches}")
+    diffs = list(set(diffs))
+    for d in diffs:
+        print(d)
 else:
     print("====== NO DIFFERENCES FOUND")
 
