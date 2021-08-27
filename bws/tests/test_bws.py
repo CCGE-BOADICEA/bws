@@ -1,16 +1,21 @@
 """ BOADICEA web-service testing.  """
-import os
 
+from bws.calcs import Predictions
+from bws.cancer import CanRiskGeneticTests
+from bws.pedigree import CanRiskPedigree, Female
+from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
-from django.utils.encoding import force_text
 import json
-from django.test.utils import override_settings
+import os
 
 
 class BwsMixin(TestCase):
@@ -219,6 +224,14 @@ class BwsTests(BwsMixin):
         content = json.loads(force_text(response.content))
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
+
+    def test_calcs_validation_err(self):
+        """ Test invalid calculation type raise ValidationError. """
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ValidationError, r"Unknown calculation requested: dribble"):
+            Predictions(pedigree, model_settings=settings.OC_MODEL, calcs=['dribble'])
 
 
 class TenYrTests(BwsMixin):
