@@ -2,6 +2,7 @@
 
 from bws.calcs import Predictions
 from bws.cancer import CanRiskGeneticTests
+from bws.exceptions import ModelError
 from bws.pedigree import CanRiskPedigree, Female
 from datetime import date
 from django.conf import settings
@@ -232,6 +233,14 @@ class BwsTests(BwsMixin):
         pedigree = CanRiskPedigree(people=[target])
         with self.assertRaisesRegex(ValidationError, r"Unknown calculation requested: dribble"):
             Predictions(pedigree, model_settings=settings.OC_MODEL, calcs=['dribble'])
+
+    def test_bws_model_err(self):
+        ''' Test ModelError raised because of pedigree file with only one twin. '''
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20", mztwin="1",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ModelError, r"ERRORS IN THE PEDIGREE FILE"):
+            Predictions(pedigree)
 
 
 class TenYrTests(BwsMixin):
