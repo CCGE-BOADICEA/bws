@@ -302,3 +302,30 @@ class TenYrTests(BwsMixin):
             content = json.loads(force_text(response.content))
             ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
             self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
+
+
+class CombineModelResultsTests(BwsMixin):
+
+    def test_results_page(self):
+        ''' Get results from breast and ovarian web-services and test calling combine results web-service. '''
+        # 1. calculate breast cancer risks
+        fn = os.path.join(BwsTests.TEST_DATA_DIR, "d4.AJ.canrisk2")
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        bws_result = CombineModelResultsTests.client.post(reverse('bws'), data, format='multipart',
+                                                          HTTP_ACCEPT="application/json")
+        self.assertEqual(bws_result.status_code, status.HTTP_200_OK)
+
+        # 2. calculate ovarian cancer risks
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        ows_result = CombineModelResultsTests.client.post(reverse('ows'), data,
+                                                          format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(ows_result.status_code, status.HTTP_200_OK)
+
+        # 3. combine results
+        data = {"ows_result": json.dumps(ows_result.json(), separators=(',', ':')),
+                "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
+
+        response = CombineModelResultsTests.client.post(reverse('combine'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
