@@ -1,6 +1,6 @@
 import os
 
-from rest_framework import permissions, serializers, status
+from rest_framework import serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
 from rest_framework.compat import coreapi, coreschema
@@ -26,11 +26,11 @@ import vcf2prs
 logger = logging.getLogger(__name__)
 
 
-class CanRiskPermission(permissions.BasePermission):
-    message = 'Cancer risk factor permission not granted'
-
-    def has_permission(self, request, view):
-        return request.user.has_perm('boadicea_auth.can_risk')
+# class CanRiskPermission(permissions.BasePermission):
+#    message = 'Cancer risk factor permission not granted'
+#
+#    def has_permission(self, request, view):
+#        return request.user.has_perm('boadicea_auth.can_risk')
 
 
 class Vcf2PrsInputSerializer(serializers.Serializer):
@@ -57,7 +57,7 @@ class Vcf2PrsView(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = Vcf2PrsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated, CanRiskPermission)
+    permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     if coreapi is not None and coreschema is not None:
         schema = ManualSchema(
@@ -208,7 +208,7 @@ class Zscore2PercentView(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = ZscoreInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated, CanRiskPermission)
+    permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     if coreapi is not None and coreschema is not None:
         schema = ManualSchema(
