@@ -1,15 +1,15 @@
 """ Ovarian web-service testing.  """
 
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
-from django.test.utils import override_settings
 
 
 class OwsTests(TestCase):
@@ -64,14 +64,23 @@ class OwsTests(TestCase):
                 'pedigree_data': multi_pedigree_data,
                 'user_id': 'test_XXX'}
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertEqual(len(content['pedigree_result']), 3, "three results")
         family_ids = ["XXX0", "XXX1", "XXX2"]
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
+
+    def test_ows_bwa(self):
+        ''' Test web-service takes BWA file as input. '''
+        pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pedigree_data,
+                'user_id': 'test_XXX'}
+        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_ows_warnings(self):
         ''' Test warning when proband has already had ovarian cancer and no risks are reported. '''
@@ -80,8 +89,7 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': pd, 'user_id': 'test_XXX'}
         OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
@@ -92,8 +100,7 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
         OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_text(response.content))
         self.assertTrue('detail' in content)
