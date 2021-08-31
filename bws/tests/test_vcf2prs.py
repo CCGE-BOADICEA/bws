@@ -1,8 +1,7 @@
-from boadicea_auth.models import UserDetails
-from django.contrib.auth.models import User, Permission
-from django.urls import reverse
+from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -23,11 +22,11 @@ class Vcf2PrsWebServices(TestCase):
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
-        UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
-                                   country='UK')
+        # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
+        #                            country='UK')
         cls.user.save()
-        cls.permission = Permission.objects.get(name='Can risk')
-        cls.user.user_permissions.add(cls.permission)
+        # cls.permission = Permission.objects.get(name='Can risk')
+        # cls.user.user_permissions.add(cls.permission)
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.url = reverse('prs')

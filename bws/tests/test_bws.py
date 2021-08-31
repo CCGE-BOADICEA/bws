@@ -1,16 +1,22 @@
 """ BOADICEA web-service testing.  """
-import os
 
+from bws.calcs import Predictions
+from bws.cancer import CanRiskGeneticTests
+from bws.exceptions import ModelError
+from bws.pedigree import CanRiskPedigree, Female
+from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
-from django.utils.encoding import force_text
 import json
-from django.test.utils import override_settings
+import os
 
 
 class BwsMixin(TestCase):
@@ -220,6 +226,22 @@ class BwsTests(BwsMixin):
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
 
+    def test_calcs_validation_err(self):
+        """ Test invalid calculation type raise ValidationError. """
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ValidationError, r"Unknown calculation requested: dribble"):
+            Predictions(pedigree, model_settings=settings.OC_MODEL, calcs=['dribble'])
+
+    def test_bws_model_err(self):
+        ''' Test ModelError raised because of pedigree file with only one twin. '''
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20", mztwin="1",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ModelError, r"ERRORS IN THE PEDIGREE FILE"):
+            Predictions(pedigree)
+
 
 class TenYrTests(BwsMixin):
 
@@ -280,3 +302,30 @@ class TenYrTests(BwsMixin):
             content = json.loads(force_text(response.content))
             ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
             self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
+
+
+class CombineModelResultsTests(BwsMixin):
+
+    def test_results_page(self):
+        ''' Get results from breast and ovarian web-services and test calling combine results web-service. '''
+        # 1. calculate breast cancer risks
+        fn = os.path.join(BwsTests.TEST_DATA_DIR, "d4.AJ.canrisk2")
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        bws_result = CombineModelResultsTests.client.post(reverse('bws'), data, format='multipart',
+                                                          HTTP_ACCEPT="application/json")
+        self.assertEqual(bws_result.status_code, status.HTTP_200_OK)
+
+        # 2. calculate ovarian cancer risks
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        ows_result = CombineModelResultsTests.client.post(reverse('ows'), data,
+                                                          format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(ows_result.status_code, status.HTTP_200_OK)
+
+        # 3. combine results
+        data = {"ows_result": json.dumps(ows_result.json(), separators=(',', ':')),
+                "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
+
+        response = CombineModelResultsTests.client.post(reverse('combine'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
