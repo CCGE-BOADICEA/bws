@@ -1,5 +1,4 @@
 
-from boadicea_auth.models import UserDetails
 from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
 from bws.risk_factors.bc import BCRiskFactors
@@ -252,8 +251,8 @@ class WSRiskFactors(TestCase):
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
-        UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
-                                   country='UK')
+        # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
+        #                           country='UK')
         cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
