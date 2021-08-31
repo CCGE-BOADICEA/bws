@@ -11,6 +11,7 @@ import tempfile
 import shutil
 import os
 import filecmp
+import copy
 
 
 class WritePedigree(TestCase):
@@ -278,7 +279,7 @@ class RiskTests(TestCase):
         pedigree = deepcopy(self.pedigree)
         PedigreeFile.validate(pedigree)
         with self.assertRaises(FileNotFoundError):
-            model_settings = settings.BC_MODEL
+            model_settings = copy.deepcopy(settings.BC_MODEL)
             model_settings['HOME'] = 'xyz'
             Predictions(pedigree, cwd=self.cwd, model_settings=model_settings)
 
