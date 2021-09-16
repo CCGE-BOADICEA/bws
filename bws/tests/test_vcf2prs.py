@@ -1,3 +1,8 @@
+import io
+import json
+import os
+from pathlib import Path
+
 from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
@@ -6,10 +11,8 @@ from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-from vcf2prs import Vcf2Prs
-import json
-import os
 import vcf2prs
+from vcf2prs.prs import Prs
 
 
 class Vcf2PrsWebServices(TestCase):
@@ -30,7 +33,7 @@ class Vcf2PrsWebServices(TestCase):
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.url = reverse('prs')
-        cls.moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
+        cls.moduledir = Path(vcf2prs.__file__).parent.parent
 
     def setUp(self):
         ''' Create a user and set up the test client. '''
@@ -58,8 +61,8 @@ class Vcf2PrsWebServices(TestCase):
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
-        prs = Vcf2Prs(prs_file_name=self.prs_file_name, geno_file_name=self.vcf_file, sample_name='0.9')
-        _raw, _alpha, zscore = prs.calculatePRS()
+        prs = Prs(prs_file=self.prs_file_name, geno_file=self.vcf_file, sample='0.9')
+        zscore = prs.z_Score
         self.assertEqual(zscore, content['breast_cancer_prs']['zscore'], 'web-service and direct calculation')
 
     def test_prs_err(self):
