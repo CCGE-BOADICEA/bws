@@ -10,7 +10,6 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
-from vcf2prs import Vcf2Prs, Vcf2PrsError
 
 from bws.serializers import FileField
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
@@ -22,15 +21,12 @@ import traceback
 from math import erf, sqrt
 from django.conf import settings
 import vcf2prs
+from vcf2prs.prs import Prs
+from vcf2prs.exception import Vcf2PrsError
+from pathlib import Path
+
 
 logger = logging.getLogger(__name__)
-
-
-# class CanRiskPermission(permissions.BasePermission):
-#    message = 'Cancer risk factor permission not granted'
-#
-#    def has_permission(self, request, view):
-#        return request.user.has_perm('boadicea_auth.can_risk')
 
 
 class Vcf2PrsInputSerializer(serializers.Serializer):
@@ -137,8 +133,9 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
             vcf_file = validated_data.get("vcf_file")
+            vcf_stream = io.StringIO(vcf_file)
 
-            moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
+            moduledir = Path(vcf2prs.__file__).parent.parent
             bc_prs_ref_file = validated_data.get("bc_prs_reference_file", None)
             oc_prs_ref_file = validated_data.get("oc_prs_reference_file", None)
             if bc_prs_ref_file is None and oc_prs_ref_file is None:
@@ -153,15 +150,17 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
 
             try:
                 if bc_prs_ref_file is not None:
-                    breast_prs = Vcf2Prs(prs_file_name=bc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
-                    _raw, bc_alpha, bc_zscore = breast_prs.calculatePRS()
+                    breast_prs = Prs(prs_file=bc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
+                    bc_alpha = breast_prs.alpha
+                    bc_zscore = breast_prs.z_Score
                 else:
                     bc_alpha = 0
                     bc_zscore = 0
 
                 if oc_prs_ref_file is not None:
-                    ovarian_prs = Vcf2Prs(prs_file_name=oc_prs_ref_file, geno_content=vcf_file, sample_name=sample_name)
-                    _raw, oc_alpha, oc_zscore = ovarian_prs.calculatePRS()
+                    ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_content=vcf_stream, sample=sample_name)
+                    oc_alpha = ovarian_prs.alpha
+                    oc_zscore = ovarian_prs.z_Score
                 else:
                     oc_alpha = 0
                     oc_zscore = 0
@@ -175,8 +174,9 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
             except Vcf2PrsError as ex:
+                logger.debug(ex)
                 data = {
-                    'error': ex.args[0]['Vcf2PrsError'],
+                    'error': str(ex),
                     'samples': self.get_samples(vcf_file)
                 }
                 raise NotAcceptable(data)

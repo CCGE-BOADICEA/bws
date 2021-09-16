@@ -1,19 +1,19 @@
 from collections import OrderedDict
 import os
-import vcf2prs
-from vcf2prs import SnpFile, Vcf2PrsError
 import re
+import vcf2prs
+from pathlib import Path
 
 
 def get_alpha(ref_file):
     ''' Get PRS alpha from a reference file header. '''
-    moduledir = os.path.dirname(os.path.abspath(vcf2prs.__file__))
+    moduledir = Path(vcf2prs.__file__).parent.parent
     ref_file = os.path.join(moduledir, "PRS_files", ref_file)
     try:
         snp_file = open(ref_file, 'r')
-        alpha = SnpFile.extractAlpha(snp_file.__next__())
+        alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(snp_file.__next__())
     except (IOError, UnicodeDecodeError, StopIteration):
-        raise Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
+        raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
     finally:
         snp_file.close()
     return alpha
@@ -136,7 +136,8 @@ BC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
-        ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs')
+        ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
+        ('PRISM 289', 'PRISM_289_PRS.prs')
     ])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
