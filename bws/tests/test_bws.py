@@ -1,16 +1,22 @@
 """ BOADICEA web-service testing.  """
-import os
 
+from bws.calcs import Predictions
+from bws.cancer import CanRiskGeneticTests
+from bws.exceptions import ModelError
+from bws.pedigree import CanRiskPedigree, Female
+from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
-from django.utils.encoding import force_text
 import json
-from django.test.utils import override_settings
+import os
 
 
 class BwsMixin(TestCase):
@@ -37,7 +43,7 @@ class MutFreqTests(BwsMixin):
         Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
         Check mutation frequencies are correctly set in each case.
         '''
-        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_multi4xAJ.txt"), "r")
+        pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d3.4xAJ.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pedigree_data, 'user_id': 'test_XXX'}
         response = MutFreqTests.client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         pedigree_data.close()
@@ -71,7 +77,7 @@ class BwsTests(BwsMixin):
 
     def setUp(self):
         ''' Set up test client and pedigree data. '''
-        self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        self.pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
@@ -89,7 +95,7 @@ class BwsTests(BwsMixin):
 
     def test_multi_pedigree_bws(self):
         ''' Test POSTing multiple pedigrees to the BWS. '''
-        multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi_pedigree_data.txt"), "r")
+        multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d1.bwa"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': multi_pedigree_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,7 +108,7 @@ class BwsTests(BwsMixin):
 
     def test_canrisk_format_bws(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
-        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -111,6 +117,22 @@ class BwsTests(BwsMixin):
         genes = settings.BC_MODEL['GENES']
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
+        canrisk_data.close()
+
+    def test_canrisk_v2_format_bws(self):
+        ''' Test POSTing canrisk format pedigree to the BWS. '''
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d1.canrisk2"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("pedigree_result" in content)
+        genes = settings.BC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
+        self.assertDictEqual(settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
+        self.assertEqual(content['cancer_incidence_rates'], 'France')
         canrisk_data.close()
 
     def test_token_auth_err(self):
@@ -175,7 +197,7 @@ class BwsTests(BwsMixin):
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
         # force an error changing to an invalid year of birth
-        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "pedigree_data.txt"), "r")
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
         pd = ped.read().replace('1963', '1600')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -184,6 +206,15 @@ class BwsTests(BwsMixin):
         ped.close()
         self.assertTrue('Person Error' in content)
         self.assertTrue('year of birth' in content['Person Error'])
+
+    def test_field_validate_errors(self):
+        ''' Test error with superfluous fields included. '''
+        data = {'mut_freq': 'UK', 'nosuchflag': '1234', 'nosuchflag2': 77}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_text(response.content))
+        self.assertTrue('Input Field Error' in content)
+        self.assertEqual('Extra input field(s) found: nosuchflag, nosuchflag2', content['Input Field Error'])
 
     @override_settings(FORTRAN_TIMEOUT=0.05)
     def test_bws_timeout(self):
@@ -195,14 +226,42 @@ class BwsTests(BwsMixin):
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
 
+    def test_calcs_validation_err(self):
+        """ Test invalid calculation type raise ValidationError. """
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ValidationError, r"Unknown calculation requested: dribble"):
+            Predictions(pedigree, model_settings=settings.OC_MODEL, calcs=['dribble'])
+
+    def test_bws_model_err(self):
+        ''' Test ModelError raised because of pedigree file with only one twin. '''
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20", mztwin="1",
+                        yob=str(date.today().year-20), gtests=CanRiskGeneticTests.default_factory())
+        pedigree = CanRiskPedigree(people=[target])
+        with self.assertRaisesRegex(ModelError, r"ERRORS IN THE PEDIGREE FILE"):
+            Predictions(pedigree)
+
 
 class TenYrTests(BwsMixin):
 
+    def test_ashk(self):
+        ''' Test AJ mutation frequencies used when AJ status set. '''
+        tenyr_ages = "[45]"
+        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d4.AJ.canrisk2"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
+                'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 2.652})}
+        response = TenYrTests.client.post(reverse('bcten'), data, format='multipart', HTTP_ACCEPT="application/json")
+        canrisk_data.close()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        res = content["pedigree_result"][0]
+        self.assertTrue("Ashkenazi" in res['mutation_frequency'])
+
     def test_multi_tenyr(self):
         ''' Test POSTing multiple ages to the 10 year web service. '''
-
         tenyr_ages = "[30,40,45]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
                 'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
 
@@ -218,8 +277,9 @@ class TenYrTests(BwsMixin):
 
         bcten_url = reverse('bcten')
         bws_url = reverse('bws')
-        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v1.txt"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "canrisk_data_v2.txt")]
+        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "d2.canrisk"),
+               os.path.join(TenYrTests.TEST_DATA_DIR, "d1.canrisk2")]
 
         for df in dfs:
             # 1. 10 yr risk web-service for 40-50
@@ -242,3 +302,30 @@ class TenYrTests(BwsMixin):
             content = json.loads(force_text(response.content))
             ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
             self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
+
+
+class CombineModelResultsTests(BwsMixin):
+
+    def test_results_page(self):
+        ''' Get results from breast and ovarian web-services and test calling combine results web-service. '''
+        # 1. calculate breast cancer risks
+        fn = os.path.join(BwsTests.TEST_DATA_DIR, "d4.AJ.canrisk2")
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        bws_result = CombineModelResultsTests.client.post(reverse('bws'), data, format='multipart',
+                                                          HTTP_ACCEPT="application/json")
+        self.assertEqual(bws_result.status_code, status.HTTP_200_OK)
+
+        # 2. calculate ovarian cancer risks
+        canrisk_data = open(fn, "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        ows_result = CombineModelResultsTests.client.post(reverse('ows'), data,
+                                                          format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(ows_result.status_code, status.HTTP_200_OK)
+
+        # 3. combine results
+        data = {"ows_result": json.dumps(ows_result.json(), separators=(',', ':')),
+                "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
+
+        response = CombineModelResultsTests.client.post(reverse('combine'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

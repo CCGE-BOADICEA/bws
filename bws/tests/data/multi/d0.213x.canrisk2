@@ -1,0 +1,2377 @@
+##CanRisk 2.0
+##Menarche=10
+##Parity=1
+##First_live_birth=24
+##OC_use=N
+##BMI=27.1
+##height=170
+##alcohol=5.1
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+XXX0    0       0       PM      0       0       F       0       1       55      1940    55      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX0    1       0       PF      0       0       M       0       0       78      1938    56      0       0       0       0       0       S:P     0:0     0:0     0:0     0:0     S:P     0:0     0:0     0:0     0:0:0:0:0
+XXX0    2       1       PB      PF      PM      F       0       0       40      1967    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+##Menarche=12
+##Parity=1
+##BMI=23.1
+##height=162
+##PRS_BC=alpha=0.45,zscore=0.11
+XXX2    F1      1       1       3       2       F       0       0       23      1993    21      0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX2    F2      0       2       0       0       F       0       0       55      1961    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+XXX2    M2      0       3       0       0       M       0       0       53      1963    0       0       0       0       0       0       0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0     0:0:0:0:0
+##menarche=14
+##parity=1
+##first_live_birth=22
+##oc_use=N
+##mht_use=N
+##BMI=21.8
+##alcohol=22.4
+##height=177.8
+##TL=N
+##endo=N
+XXXX	0	0	m21	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXXX	1	0	f21	0	0	F	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXXX	2	1	ch1	m21	f21	F	0	0	41	1977	0	0	0	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXXX	3	0	HGkX	MERR	ch1	F	0	0	19	2000	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXXX	4	0	MERR	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##menarche=15
+##parity=2
+##first_live_birth=25
+##oc_use=N
+##mht_use=E
+##BMI=22.35
+##alcohol=2.2857142857142856
+##menopause=47
+##height=172.72
+##PRS_BC=alpha=0.45,zscore=0.3
+XXX3	0	0	m21	0	0	M	0	0	80	1939	0	0	0	79	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXX3	1	0	f21	0	0	F	0	0	77	1942	55	0	0	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXX3	2	1	ch1	m21	f21	F	0	0	56	1962	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXX3	3	0	wASs	RUDP	ch1	F	0	0	28	1991	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXX3	4	0	Rjdb	RUDP	ch1	M	0	0	31	1988	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+XXX3	5	0	RUDP	0	0	M	0	0	58	1961	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##menarche=14
+##parity=1
+##first_live_birth=23
+##oc_use=N
+##mht_use=N
+##BMI=25.23
+##alcohol=31.599999999999998
+##height=172.72
+##TL=Y
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv22	NA	0	aZQB	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	301	1	PB	PF	PM	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	NA	0	Xenx	aZQB	PB	F	0	0	21	2000	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	t1	0	qOkn	MGA	MGO	F	1	0	63	1958	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	t2	0	DqmD	MGA	MGO	F	1	0	63	1958	61	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	NA	0	xZTc	0	0	M	0	0	72	1949	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	202	0	PM	MGA	MGO	F	0	1	61	1940	55	0	44	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	S:P	0:0	0:0     0:0:0:0:0
+cv22	NA	0	oXOA	PGA	PGO	F	0	0	77	1944	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	201	0	PF	PGA	PGO	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	NA	0	WxZP	xZTc	oXOA	M	0	0	55	1966	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	101	0	PGA	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	102	0	PGO	0	0	F	0	1	40	1915	40	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	103	0	MGA	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv22	104	0	MGO	0	0	F	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=14
+##parity=0
+##oc_use=N
+##mht_use=N
+##BMI=25.23
+##alcohol=31.599999999999998
+##height=172.72
+##TL=Y
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv24	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv24	NA	0	kluZ	0	0	F	0	0	68	1953	59	0	0	0	0	0	S:P	S:N	S:N	S:N	S:N	S:N	S:N	S:N	0:0     0:0:0:0:0
+cv24	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=14
+##parity=0
+##oc_use=N
+##mht_use=N
+##BMI=25.23
+##alcohol=31.599999999999998
+##height=172.72
+##TL=Y
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv25	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv25	NA	0	kluZ	0	0	F	0	0	68	1953	59	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     P:N:N:0:0
+cv25	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=13
+##parity=0
+##oc_use=C:2
+##mht_use=N
+##BMI=26.95
+##alcohol=38.68571428571428
+##height=167.64000000000001
+##TL=Y
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv26	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv26	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:N:N:0:0
+cv26	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=15
+##parity=0
+##oc_use=C:2
+##BMI=26.95
+##alcohol=6
+##height=168
+##TL=Y
+##endo=N
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv27	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv27	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:N:N:0:0
+cv27	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##parity=0
+##BMI=24
+##alcohol=5
+##height=175
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv28	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv28	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv28	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##parity=0
+##BMI=24
+##alcohol=1
+##height=175
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv29	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv29	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv29	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv18	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv18	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv18	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv38	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv38	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv38	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv39	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv39	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv39	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv321	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv321	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv321	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv391	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv391	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:0:0:0
+cv391	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv312	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv312	NA	0	kluZ	0	0	F	0	0	68	1953	61	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     P:0:0:0:0
+cv312	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv392	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv392	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:N:N:0:0
+cv392	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv313	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv313	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:P:0:0
+cv313	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv393	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv393	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:0:N:0:0
+cv393	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv314	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv314	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:N:0:0:0
+cv314	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv394	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv394	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     N:P:0:0:0
+cv394	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+cv315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+cv315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+a315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+b315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+c315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+d315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+e315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+f315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+g315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+h315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+i315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+j315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+k315	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k315	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k315	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+a415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+b415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+c415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+d415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+e415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+f415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+g415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+h415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+i415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+j415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+k415	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k415	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k415	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+a51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+b51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+c51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+d51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+e51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+f51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+g51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+h51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+i51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+j51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+k51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+l51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+m51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+n51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+o51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+p51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+q51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+r51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+s51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+t51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+u51	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u51	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u51	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+a511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+b511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+c511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+d511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+e511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+f511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+g511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+h511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+i511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+j511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+k511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+l511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+m511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+n511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+o511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+p511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+q511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+r511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+s511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+t511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD511D	RAD511C	BRIP1	ER:PR:HER2:CK14:CK56
+u511	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u511	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u511	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+a512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+b512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+c512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+d512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+e512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+f512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+g512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+h512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+i512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+j512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+k512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+l512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+m512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+n512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+o512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+p512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+q512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+r512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+s512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+t512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+u512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+a512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+b512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+c512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+d512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+e512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+f512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+g512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+h512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+i512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+j512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+k512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+l512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+m512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+n512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+o512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+p512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+q512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+r512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+s512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+t512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD512D	RAD512C	BRIP1	ER:PR:HER2:CK14:CK56
+u512	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u512	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u512	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+a613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+b613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+c613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+d613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+e613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+f613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+g613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+h613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+i613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+j613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+k613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+l613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+m613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+n613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+o613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+p613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+q613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+r613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+s613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+t613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613D	RAD613C	BRIP1	ER:PR:HER2:CK14:CK56
+u613	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u613	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u613	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+a613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+b613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+c613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+d613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+e613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+f613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+g613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+h613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+i613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+j613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+k613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+l613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+m613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+n613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+o613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+p613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+q613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+r613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+s613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+t613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD613aD	RAD613aC	BRIP1	ER:PR:HER2:CK14:CK56
+u613a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u613a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u613a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+a614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+b614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+c614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+d614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+e614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+f614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+g614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+h614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+i614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+j614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+k614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+l614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+m614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+n614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+o614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+p614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+q614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+r614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+s614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+t614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614D	RAD614C	BRIP1	ER:PR:HER2:CK14:CK56
+u614	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u614	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u614	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+a614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+a614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+b614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+b614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+c614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+c614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+d614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+d614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+e614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+e614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+f614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+f614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+g614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+g614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+h614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+h614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+i614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+i614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+j614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+j614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+k614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+k614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+l614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+l614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+m614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+m614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+n614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+n614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+o614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+o614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+p614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+p614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+q614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+q614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+r614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+r614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+s614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+s614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+t614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+t614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+##CanRisk 2.0
+##menarche=12
+##BMI=31
+##alcohol=5
+##height=178
+##TL=Y
+##endo=Y
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2   BARD1	RAD614aD	RAD614aC	BRIP1	ER:PR:HER2:CK14:CK56
+u614a	NA	0	eHMd	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u614a	NA	0	kluZ	0	0	F	0	0	68	1953	59	68	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0
+u614a	301	1	PB	eHMd	kluZ	F	0	0	44	1977	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0     0:0:0:0:0

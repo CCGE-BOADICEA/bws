@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 
 from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cancers,\
-    BWSGeneticTests, CanRiskGeneticTests
+    BWSGeneticTests, CanRiskGeneticTests, Genes
 from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
@@ -20,8 +20,10 @@ logger = logging.getLogger(__name__)
 # BOADICEA header
 REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
     re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
-REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE = \
-    re.compile("^(##CanRisk\\s[1](.0)*)$")
+REGEX_CANRISK1_PEDIGREE_FILE_HEADER = \
+    re.compile("^(##CanRisk\\s1(.0)*)$")
+REGEX_CANRISK2_PEDIGREE_FILE_HEADER = \
+    re.compile("^(##CanRisk\\s2(.0)*)$")
 REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")
 REGEX_ONLY_HYPHENS = re.compile("^([\-]+)$")
 REGEX_ONLY_ZEROS = re.compile("^[0]+$")
@@ -76,6 +78,7 @@ class CanRiskHeader():
         bc_rfs = BCRiskFactors()
         oc_rfs = OCRiskFactors()
         bc_prs = oc_prs = None
+        hgt = -1
         for line in self.lines:
             try:
                 parts = line.split('=', 1)
@@ -86,12 +89,14 @@ class CanRiskHeader():
                 elif rfnam == 'prs_bc':                 # get breast cancer prs
                     bc_prs = self.get_prs(rfval)
                 else:                                   # lookup breast/ovarian cancer risk factors
+                    if rfnam == 'height':
+                        hgt = float(rfval)
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception:
                 logger.error("CanRisk header format contains an error.")
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), bc_prs, oc_prs)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, bc_prs, oc_prs)
 
 
 class PedigreeFile(object):
@@ -111,19 +116,18 @@ class PedigreeFile(object):
 
         for idx, line in enumerate(pedigree_data.splitlines()):
             if idx == 0:
-                if REGEX_CANRISK_PEDIGREE_FILE_HEADER_ONE.match(line):
-                    file_type = 'canrisk'
+                if REGEX_CANRISK1_PEDIGREE_FILE_HEADER.match(line):
+                    file_type = 'canrisk1'
+                elif REGEX_CANRISK2_PEDIGREE_FILE_HEADER.match(line):
+                    file_type = 'canrisk2'
                 elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
-                        "The first header record must be 'BOADICEA import pedigree file format 4'.")
-            elif line.startswith('##'):
-                if '=' in line:                     # risk factor declaration line
-                    canrisk_header.add_line(line)
-            elif idx == 1:
-                self.column_names = line.split()
+                        "The first header record must be '##CanRisk 2.0'.")
+            elif (idx == 1 and file_type == 'bwa') or line.startswith('##FamID'):
+                self.column_names = line.replace("##FamID", "FamID").split()
                 if (((self.column_names[0] != 'FamID') or
                      (self.column_names[2] != 'Target') or
                      (self.column_names[3] != 'IndivID') or
@@ -133,6 +137,9 @@ class PedigreeFile(object):
                         "Column headers in the pedigree file contains unexpected characters. " +
                         "It must include the 'FamID', 'Target', 'IndivID','FathID' and 'MothID' " +
                         "in columns 1, 3, 4, 5 and 6 respectively.")
+            elif line.startswith('##'):
+                if '=' in line:                     # risk factor declaration line
+                    canrisk_header.add_line(line)
             elif BLANK_LINE.match(line):
                 continue
             else:
@@ -145,15 +152,20 @@ class PedigreeFile(object):
                     pid += 1
                 famid = record[0]
 
-                if(file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS):
+                if file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS:
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "BOADICEA format 4 pedigree files should have " +
                                             str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) +
                                             " data items per line.")
-                elif(file_type == 'canrisk' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS):
+                elif file_type == 'canrisk1' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "CanRisk format 1 pedigree files should have " +
                                             str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
+                                            " data items per line.")
+                elif file_type == 'canrisk2' and len(record) != settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS:
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "CanRisk format 2 pedigree files should have " +
+                                            str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
                                             " data items per line.")
                 pedigrees_records[pid].append(line)
 
@@ -161,12 +173,12 @@ class PedigreeFile(object):
         for i in range(pid+1):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
-            elif file_type == 'canrisk':
-                bc_rfc, oc_rfc, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
+            elif file_type.startswith('canrisk'):
+                bc_rfc, oc_rfc, hgt, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
                     CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
-                                    bc_prs=bc_prs, oc_prs=oc_prs))
+                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt))
 
     @classmethod
     def validate(cls, pedigrees):
@@ -196,7 +208,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None):
+                 bc_prs=None, oc_prs=None, hgt=-1):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -240,7 +252,8 @@ class Pedigree(metaclass=abc.ABCMeta):
         if pedigree_size > settings.MAX_PEDIGREE_SIZE or pedigree_size < settings.MIN_BASELINE_PEDIGREE_SIZE:
             raise PedigreeError("Pedigree (" + self.famid + ") has unexpected number of family members " +
                                 str(pedigree_size), self.famid)
-        if file_type == 'canrisk':
+        if file_type is not None and file_type.startswith('canrisk'):
+            self.hgt = hgt
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
@@ -474,7 +487,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             return False
         return True
 
-    def is_carrier_probs_viable(self, target=None):
+    def is_carrier_probs_viable(self, target=None, genes=Genes.get_all_model_genes()):
         """
         Return true if the target does not have a positive genetic test carrier probs
         cannot be calculated.
@@ -483,12 +496,13 @@ class Pedigree(metaclass=abc.ABCMeta):
         if target is None:
             target = self.get_target()
         gtests = target.gtests
-        for t in gtests:
+        for g in genes:
+            t = getattr(gtests, g.lower(), GeneticTest())
             if t.result == 'P':
                 return False
         return True
 
-    def write_pedigree_file(self, file_type, risk_factor_code='0', prs=None, filepath="/tmp/test.ped",
+    def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
         """
         Write input pedigree file for fortran.
@@ -498,15 +512,10 @@ class Pedigree(metaclass=abc.ABCMeta):
         if file_type == MUTATION_PROBS:
             pcount = (len(model_settings['GENES'])+1)
         else:
-            if model_settings['NAME'] == "BC":
-                pcount = 3
-            elif model_settings['NAME'] == "OC":
-                pcount = 2
+            pcount = 1
 
-        risk_factor_str_len = str(len(risk_factor_code))
-
-        print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X),5(A1,X),A4," +
-              "6(X,A1),X,A"+risk_factor_str_len+",2(X,A7))", file=f)
+        print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
+              str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1,4(X,A8))", file=f)
 
         for gt in range(pcount):
             print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
@@ -514,7 +523,6 @@ class Pedigree(metaclass=abc.ABCMeta):
             for p in self.people:
                 # IndivID FathID MothID Sex MZ Genotype, Polygene 1BC 2BC OC
                 genotype = gt if (p.target != "0" and file_type == MUTATION_PROBS) else ''
-                proband_status = (gt+1) if (p.target != "0" and file_type == CANCER_RISKS) else p.target
                 print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
                       (p.pid,
                        p.fathid if p.fathid != "0" else '',
@@ -528,32 +536,69 @@ class Pedigree(metaclass=abc.ABCMeta):
                 # Gene Tests
                 gtests = p.gtests
                 for g in model_settings['GENES']:
-                    print("%1s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                    try:
+                        print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                    except AttributeError:
+                        # check if gene not in BC model
+                        if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
+                            if g in Genes.get_unique_oc_genes():
+                                print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
+                        else:
+                            raise
 
                 print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
 
                 print(PathologyTest.write(p.pathology), file=f, end="")
 
-                # ProbandStatus RiskFactor PolygStanDev PolygLoad
-                fmt = "%1s %"+risk_factor_str_len+"s %6.5f %6.5f"
+                # ProbandStatus RiskFactor
+                print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
+                      file=f, end="")
 
-                print(fmt % (proband_status, (risk_factor_code if p.target != "0" else 0),
-                             prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
-                             prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,), file=f)
+                # Height
+                print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
+
+                # PolygStanDev PolygLoad
+                print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
+                                       prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,),
+                      file=f)
+
+        f.close()
+        return filepath
+
+    def write_param_file(self, filepath="/tmp/params",
+                         model_settings=settings.BC_MODEL,
+                         mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
+                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                         isashk=False):
+        """
+        Write model parameters file.
+        @param filepath: path to write the model parameters file to
+        @param model_settings: model settings
+        @param mutation_freq: mutation frequencies
+        @param sensitivity: genetic test sensitivity
+        @param isashk: true if AJ
+        """
+        # Note: population allele frequencies are used to compute the incidence rates
+        # for each genotype, from the overall population incidences
+        allele_freq = "PEDIGREE_ALLELE_FRQ" if isashk else "POPULATION_ALLELE_FRQ"
+        f = open(filepath, "w")
+        print("&settings", file=f, end='\n\n')
+        for idx, gene in enumerate(model_settings['GENES'], start=1):
+            print(f"{allele_freq}( {idx} ) = {mutation_freq[gene]}", file=f)
+        for idx, gene in enumerate(model_settings['GENES'], start=1):
+            print(f"SCREENING_SENSITIVITIES( {idx} ) = {sensitivity[gene]}", file=f)
+        print("/", file=f)
         f.close()
         return filepath
 
     def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
-                         mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
-                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
-                         calc_ages=None):
+                         model_settings=settings.BC_MODEL, calc_ages=None):
         """
         Write fortran input batch file.
         @param batch_type: compute MUTATION_PROBS or CANCER_RISKS
         @param pedigree_file_name: path to fortran pedigree file
         @param filepath: path to write the batch file to
-        @param mutation_freq: mutation frequencies
-        @param sensitivity: genetic test sensitivity
+        @param model_settings: model settings
         @param calc_ages: list of ages to calculate a cancer risk at
         """
         f = open(filepath, "w")
@@ -561,21 +606,12 @@ class Pedigree(metaclass=abc.ABCMeta):
         if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
             raise PedigreeFileError("Invalid batch file type.")
 
-        if 'PALB2' in mutation_freq:
-            model_settings = settings.BC_MODEL
-        elif 'RAD51D' in mutation_freq:
-            model_settings = settings.OC_MODEL
-
         print("2", file=f)
         print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
         if batch_type == MUTATION_PROBS:
             print("3", file=f)
             print(pedigree_file_name, file=f)
-            print("9", file=f)
-            for gene in model_settings['GENES']:
-                print(mutation_freq[gene], file=f)
-            for gene in model_settings['GENES']:
-                print(sensitivity[gene], file=f)
+            print("0", file=f)
 
             print("22", file=f)
             print("no", file=f)
@@ -598,15 +634,13 @@ class Pedigree(metaclass=abc.ABCMeta):
             elif isinstance(calc_ages, int):
                 calc_ages = [calc_ages]
 
+            if calc_ages[0] != 0:
+                calc_ages.insert(0, 0)
             print("3", file=f)
             print(pedigree_file_name, file=f)
             for i, age in enumerate(calc_ages):
                 print("9", file=f)
-                for gene in model_settings['GENES']:
-                    print(mutation_freq[gene], file=f)
-                for gene in model_settings['GENES']:
-                    print(sensitivity[gene], file=f)
-                print((age-tage), file=f)
+                print((age-tage if age != 0 else 0), file=f)
 
                 print("22", file=f)
                 if i < len(calc_ages)-1:
@@ -653,7 +687,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             # NOTE: order is different to settings.BC_MODEL['GENES'] so use column header
             idx = type(self).get_column_idx('Ashkn') + 1
             columns = self.get_columns()
-            ngene_test_columns = len(settings.BC_MODEL['GENES'])*2
+            ngene_test_columns = 5*2
             for i in range(idx, idx+ngene_test_columns, 2):
                 gene = columns[i][:-1].lower()
                 gtest = getattr(gt, gene)
@@ -708,9 +742,13 @@ class CanRiskPedigree(Pedigree):
     """
     CanRisk data file, contains the pedigree and optionally risk factors and PRS.
     """
-    COLUMNS = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
-               "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
-               "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
+    COLUMNS1 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
+
+    COLUMNS2 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
 
     def get_prs(self, mname):
         ''' Get the PRS for the given cancer model.  '''
@@ -727,6 +765,20 @@ class CanRiskPedigree(Pedigree):
         elif mname == 'OC' and hasattr(self, 'oc_risk_factor_code'):
             return self.oc_risk_factor_code
         return 0
+
+    @classmethod
+    def get_column_idx(cls, name, file_type="canrisk2"):
+        """
+        Get the BOADICEA file column index from the column name
+        """
+        if file_type == "canrisk1":
+            cols = cls.COLUMNS1
+        else:
+            cols = cls.COLUMNS2
+        for idx, val in enumerate(cols):
+            if val == name or val.lower == name.lower():
+                return idx
+        return -1
 
 
 class Person(object):
@@ -889,6 +941,7 @@ class Person(object):
         if file_type == 'bwa':
             gtests = BWSGeneticTests.factory([GeneticTest(cols[BwaPedigree.get_column_idx(gene+'t')],
                                                           cols[BwaPedigree.get_column_idx(gene+'r')])
+                                             if BwaPedigree.get_column_idx(gene+'t') != -1 else GeneticTest()
                                              for gene in settings.BC_MODEL['GENES']])
             pathology = PathologyTests(
                 er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, cols[27]),
@@ -897,17 +950,19 @@ class Person(object):
                 ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
                 ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
         else:
-            genes = settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][2:]
+            genes = Genes.get_all_model_genes()
 
             def get_genetic_test(cols, gene):
-                idx = CanRiskPedigree.get_column_idx(gene)
+                idx = CanRiskPedigree.get_column_idx(gene, file_type)
                 if idx < 0:
+                    if gene == "BARD1" and file_type == "canrisk1":
+                        return GeneticTest()
                     raise PedigreeError("Genetic test column for '" + gene + "not found.")
                 gt = cols[idx].split(':')
                 return GeneticTest(gt[0], gt[1])
             gtests = CanRiskGeneticTests.factory([get_genetic_test(cols, gene) for gene in genes])
 
-            path = cols[len(CanRiskPedigree.COLUMNS)-1].split(':')
+            path = cols[CanRiskPedigree.get_column_idx("ER:PR:HER2:CK14:CK56", file_type)].split(':')
             pathology = PathologyTests(
                 er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, path[0]),
                 pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, path[1]),

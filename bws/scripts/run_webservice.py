@@ -7,26 +7,15 @@
 #
 # optional arguments:
 #  -h, --help            show this help message and exit
-#  --mut_freq {UK,Ashkenazi,Iceland,Custom}
+#  --mut_freq {UK,Ashkenazi,Iceland}
 #                        Mutation Frequencies (default: UK)
-#  --cancer_rates {UK,Australia,Canada,USA,Denmark,Finland,Iceland,New-Zealand,Norway,Spain,Sweden}
+#  --cancer_rates {'UK','Australia','Canada','USA','Denmark','Estonia','Finland','France',
+#                  'Iceland','Netherlands','New-Zealand','Norway','Slovenia','Spain','Sweden'}
 #                        Cancer incidence rates (default: UK)
 #  --url URL             Web-services URL
 #  -u USER, --user USER  Username
 #  -p PEDIGREE, --pedigree PEDIGREE
 #                        Pedigree file
-#
-# Gene mutation frequencies (when --mut_freq Custom):
-#  --brca1_mut_frequency BRCA1_MUT_FREQUENCY
-#                        brca1 mutation frequency
-#  --brca2_mut_frequency BRCA2_MUT_FREQUENCY
-#                        brca2 mutation frequency
-#  --palb2_mut_frequency PALB2_MUT_FREQUENCY
-#                        palb2 mutation frequency
-#  --chek2_mut_frequency CHEK2_MUT_FREQUENCY
-#                        chek2 mutation frequency
-#  --atm_mut_frequency ATM_MUT_FREQUENCY
-#                        atm mutation frequency
 #
 # Genetic test sensitivity:
 #  --brca1_mut_sensitivity BRCA1_MUT_SENSITIVITY
@@ -43,9 +32,6 @@
 # e.g.
 # run_webservice.py -u username -p ~/bwa4_beta_pedigree_data.txt
 #
-# run_webservice.py --mut_freq Custom --brca1_mut_frequency 0.00064 --brca2_mut_frequency 0.00102 \
-#      --palb2_mut_frequency 0.000575 --chek2_mut_frequency 0.002614 --atm_mut_frequency 0.001921
-#
 # run_webservice.py -u username -p bws/bws/tests/data/canrisk_multi4x.txt -c both -t example.tab
 #
 # run_webservice.py -u username -p boadicea/tests_selenium/canrisk_format_data/canrisk_data1.txt \
@@ -59,6 +45,8 @@ import csv
 import os
 import sys
 from pathlib import Path
+import pdf_report
+
 try:
     import grequests
 except ImportError as e:
@@ -74,6 +62,22 @@ def post_requests(url, **kwargs):
         r = grequests.post(url, **kwargs)
         return grequests.map([r])[0]
     return requests.post(url, **kwargs)
+
+
+def mutation_probability_output(res, writer):
+    ''' Write out mutation carrier probabilities '''
+    if 'mutation_probabilties' in res:
+        writer.writerow(['Mutation Carrier Probabilties'])
+        muts = res['mutation_probabilties']
+        col = []
+        val = []
+        for m in muts:
+            k = list(m.keys())[0]
+            col.append(k)
+            val.append(m[k]['decimal'])
+        writer.writerow(col)
+        writer.writerow(val)
+        writer.writerow([])
 
 
 def summary_output_tab(tabf, cmodel, rjson, bwa):
@@ -121,6 +125,8 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
                 clt = cr["breast cancer risk"]["decimal"]
 
             writer.writerow([famid, indivID, age, c5, c10, c80, clt])
+
+            mutation_probability_output(res, writer)
         writer.writerow([])
     csvfile.close()
 
@@ -128,10 +134,11 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
 def output_tab(tabf, cmodel, rjson, bwa):
     ''' Tab delimited output file '''
     if cmodel == "boadicea":
-        header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%    ",
-                  "OCRisk          ", "OCRisk%"]
+        header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%"]
+        cname = "breast"
     else:
         header = ["FamID", "IndivID", "Age", "OCRisk          ", "OCRisk%"]
+        cname = "ovarian"
     with open(tabf, 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t')
         writer.writerow(["pedigree", bwa])
@@ -152,42 +159,33 @@ def output_tab(tabf, cmodel, rjson, bwa):
                 for idx, cr in enumerate(cancer_risks):
                     bcr = bcancer_risks[idx]
                     if bcr["age"] == cr["age"]:
-                        if cmodel == "boadicea":
-                            bc_dec = '{} ({})'.format(cr["breast cancer risk"]["decimal"],
-                                                      bcr["breast cancer risk"]["decimal"])
-                            bc_per = '{} ({})'.format(cr["breast cancer risk"]["percent"],
-                                                      bcr["breast cancer risk"]["percent"])
-                        oc_dec = '{} ({})'.format(cr["ovarian cancer risk"]["decimal"],
-                                                  bcr["ovarian cancer risk"]["decimal"])
-                        oc_per = '{} ({})'.format(cr["ovarian cancer risk"]["percent"],
-                                                  bcr["ovarian cancer risk"]["percent"])
-                        if cmodel == "boadicea":
-                            writer.writerow([famid, indivID, cr["age"], bc_dec, bc_per, oc_dec, oc_per])
-                        else:
-                            writer.writerow([famid, indivID, cr["age"], oc_dec, oc_per])
+                        cr_dec = '{} ({})'.format(cr[cname+" cancer risk"]["decimal"],
+                                                  bcr[cname+" cancer risk"]["decimal"])
+                        cr_per = '{} ({})'.format(cr[cname+" cancer risk"]["percent"],
+                                                  bcr[cname+" cancer risk"]["percent"])
+                        writer.writerow([famid, indivID, cr["age"], cr_dec, cr_per])
 
             # report lifetime cancer risks
             if "lifetime_cancer_risk" in res and res["lifetime_cancer_risk"] is not None:
                 cr = res['lifetime_cancer_risk'][0]
                 bcr = res['baseline_lifetime_cancer_risk'][0]
 
-                bc_dec = '{} ({})'.format(cr["breast cancer risk"]["decimal"],
-                                          bcr["breast cancer risk"]["decimal"])
-                bc_per = '{} ({})'.format(cr["breast cancer risk"]["percent"],
-                                          bcr["breast cancer risk"]["percent"])
-                oc_dec = '{} ({})'.format(cr["ovarian cancer risk"]["decimal"],
-                                          bcr["ovarian cancer risk"]["decimal"])
-                oc_per = '{} ({})'.format(cr["ovarian cancer risk"]["percent"],
-                                          bcr["ovarian cancer risk"]["percent"])
-                writer.writerow(["Breast Cancer Lifetime Risk", bc_dec, bc_per])
-                writer.writerow(["Ovarian Cancer Lifetime Risk", oc_dec, oc_per])
+                cr_dec = '{} ({})'.format(cr[cname+" cancer risk"]["decimal"],
+                                          bcr[cname+" cancer risk"]["decimal"])
+                cr_per = '{} ({})'.format(cr[cname+" cancer risk"]["percent"],
+                                          bcr[cname+" cancer risk"]["percent"])
+                writer.writerow([cname.title()+" Cancer Lifetime Risk", cr_dec, cr_per])
 
             writer.writerow([])
+
+            mutation_probability_output(res, writer)
+
     csvfile.close()
 
 
-def runws(args, data, bwa, cancers, token, url, prs=None):
+def runws(args, data, bwa, cancers, token, url, cwd=os.getcwd(), prs=None):
     ''' Call web-services '''
+    bwa = join(cwd, bwa)
     data["mut_freq"] = args.mut_freq
     data["cancer_rates"] = args.cancer_rates
 
@@ -214,6 +212,7 @@ def runws(args, data, bwa, cancers, token, url, prs=None):
         return
     else:
         print("SYNC")
+        combine = {}
         for cmodel in cancers:
             files = {'pedigree_data': open(bwa, 'rb')}
 
@@ -227,6 +226,9 @@ def runws(args, data, bwa, cancers, token, url, prs=None):
 
             r = requests.post(url+cmodel+'/', data=data, files=files, headers={'Authorization': "Token "+token})
             handle_response(args, cmodel, r, bwa)
+            combine[cmodel] = r
+        if 'pdf' in args and args.pdf:
+            pdf_report.create_pdf(url, token, combine['ovarian'], combine['boadicea'], bwa, cwd)
 
 
 def handle_response(args, cmodel, r, bwa):
@@ -286,31 +288,28 @@ if __name__ == "__main__":
     group1.add_argument('--vcfonly', help='Only run VCF to PRS', action='store_true')
 
     # Mutation frequencies
-    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland', 'Custom'],
+    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland'],
                         help='Mutation Frequencies (default: %(default)s)')
 
     bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm']
     oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
     genes = list(set(bc_genes + oc_genes))
 
-    group1 = parser.add_argument_group('Gene mutation frequencies (when --mut_freq Custom)')
-    for gene in genes:
-        group1.add_argument('--'+gene+'_mut_frequency', type=float, help=gene+' mutation frequency')
-
     group2 = parser.add_argument_group('Genetic test sensitivity')
     for gene in genes:
         group2.add_argument('--'+gene+'_mut_sensitivity', type=float, help=gene+' mutation sensitivity')
 
     parser.add_argument('--cancer_rates', default='UK',
-                        choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Finland',
-                                 'Iceland', 'New-Zealand', 'Norway', 'Spain', 'Sweden'],
+                        choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                                 'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden'],
                         help='Cancer incidence rates (default: %(default)s)')
 
     parser.add_argument('--url', default='https://canrisk.org/', help='Web-services URL')
     parser.add_argument('-u', '--user', help='Username')
     parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
-    parser.add_argument('-t', '--tab', help='Tab delimeted output file name')
-    parser.add_argument('--summary', help='Tab delimeted summary output file name')
+    parser.add_argument('-t', '--tab', help='Tab delimited output file name')
+    parser.add_argument('--summary', help='Tab delimited summary output file name')
+    parser.add_argument('--pdf', help='PDF file name [EXPERIMENTAL OPTION - USE WITH CAUTION]', action='store_true')
     parser.add_argument('--token', help='authentication token')
     parser.add_argument('--showtoken', help='display the authentication token', action='store_true')
 
@@ -333,13 +332,6 @@ if __name__ == "__main__":
         genes = bc_genes
 
     data = {"user_id": "end_user_id"}
-    if args.mut_freq == 'Custom':
-        for gene in genes:
-            if args.__dict__[gene+"_mut_frequency"] is None:
-                print("--mut_freq Custom requires --"+gene+"_mut_frequency")
-                exit(1)
-            else:
-                data[gene+"_mut_frequency"] = args.__dict__[gene+"_mut_frequency"]
 
     for gene in genes:
         if args.__dict__[gene+"_mut_sensitivity"] is not None:
@@ -389,6 +381,15 @@ if __name__ == "__main__":
         print("The --vcf option generates a PRS code that is expected to be used with a single pedigree file.")
         exit(1)
 
-    for bwa in bwas:
-        print(bwa)
-        runws(args, data, bwa, cancers, token, url, prs)
+    http_server = None
+    try:
+        if 'pdf' in args and args.pdf:
+            http_server = pdf_report.HttpServer()
+            http_server.start_www(url)
+        cwd = os.getcwd()
+        for bwa in bwas:
+            print(bwa)
+            runws(args, data, bwa, cancers, token, url, cwd=cwd, prs=prs)
+    finally:
+        if 'pdf' in args and args.pdf:
+            http_server.stop_www()

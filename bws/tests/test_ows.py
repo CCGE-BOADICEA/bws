@@ -1,15 +1,15 @@
 """ Ovarian web-service testing.  """
 
-from django.contrib.auth.models import User, Permission
-from django.urls import reverse
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.encoding import force_text
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
-from django.test.utils import override_settings
 
 
 class OwsTests(TestCase):
@@ -33,7 +33,7 @@ class OwsTests(TestCase):
         cls.url = reverse('ows')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
@@ -43,7 +43,7 @@ class OwsTests(TestCase):
         ''' Test output of POSTing to the OWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
-                'user_id': 'test_XXX'}
+                'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -59,19 +59,28 @@ class OwsTests(TestCase):
 
     def test_multi_pedigree_ows(self):
         ''' Test POSTing multiple pedigrees to the OWS. '''
-        multi_pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "multi_canrisk_data_v1.txt"), "r")
+        multi_pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "multi", "d2.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': multi_pedigree_data,
                 'user_id': 'test_XXX'}
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertEqual(len(content['pedigree_result']), 3, "three results")
         family_ids = ["XXX0", "XXX1", "XXX2"]
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
+
+    def test_ows_bwa(self):
+        ''' Test web-service takes BWA file as input. '''
+        pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
+                'pedigree_data': pedigree_data,
+                'user_id': 'test_XXX'}
+        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_ows_warnings(self):
         ''' Test warning when proband has already had ovarian cancer and no risks are reported. '''
@@ -80,8 +89,7 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': pd, 'user_id': 'test_XXX'}
         OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
@@ -92,8 +100,7 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
         OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart',
-                                        HTTP_ACCEPT="application/json")
+        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_text(response.content))
         self.assertTrue('detail' in content)
@@ -112,14 +119,14 @@ class OwsTestsPRS(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
-        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.url = reverse('ows')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
 
     def test_prs_in_canrisk_file(self):
         '''
@@ -132,7 +139,7 @@ class OwsTestsPRS(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk1 = json.loads(force_text(response.content))
 
-        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,zscore=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -144,7 +151,7 @@ class OwsTestsPRS(TestCase):
         ped.close()
 
         # test with DEPRECATED beta instead of zscore
-        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "canrisk_data_v1.txt"), "r")
+        ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")

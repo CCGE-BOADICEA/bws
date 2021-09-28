@@ -5,7 +5,6 @@ I/O serializers for the web-services.
 from rest_framework import serializers
 from django.conf import settings
 from django.core.files.base import File
-from bws.risk_factors.bc import BCRiskFactors
 from django.core.validators import int_list_validator
 
 
@@ -40,16 +39,16 @@ class BaseInputSerializer(serializers.Serializer):
         return serializers.ChoiceField(choices=list(model['MUTATION_FREQUENCIES'].keys()),
                                        default='UK', help_text="Mutation frequency")
 
-    @classmethod
-    def get_gene_mutation_frequency_fields(cls, model):
-        """ Get a list of the gene mutation frequency fields strings. """
-        MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
-        MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
-        fields = []
-        for gene in model['GENES']:
-            fields.append(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
-                          "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
-        return fields
+    # @classmethod
+    # def get_gene_mutation_frequency_fields(cls, model):
+    #     """ Get a list of the gene mutation frequency fields strings. """
+    #     MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
+    #     MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
+    #     fields = []
+    #     for gene in model['GENES']:
+    #         fields.append(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
+    #                       "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
+    #     return fields
 
     @classmethod
     def get_gene_mutation_sensitivity_fields(cls, model):
@@ -66,18 +65,30 @@ class BaseInputSerializer(serializers.Serializer):
         """ Get the cancer rates choice field. """
         return serializers.ChoiceField(choices=list(model['CANCER_RATES'].keys()))
 
+    def is_valid(self, raise_exception=True):
+        """ Check that superfluous input flags have not been included. """
+        if hasattr(self, 'initial_data'):
+            inp_keys = self.initial_data.keys()     # all the user input keys
+            ser_keys = self.fields.keys()           # all the serializer fields
+            extra_fields = list(filter(lambda key: key not in ser_keys, inp_keys))
+            if len(extra_fields) > 0:
+                msg = ", ".join(extra_fields)
+                raise serializers.ValidationError({'Input Field Error': f'Extra input field(s) found: {msg}'})
+        return super(BaseInputSerializer, self).is_valid(raise_exception)
+
 
 class BwsInputSerializer(BaseInputSerializer):
     """ Boadicea breast cancer input fields. """
     bc_model = settings.BC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(bc_model)
 
-    for f in BaseInputSerializer.get_gene_mutation_frequency_fields(bc_model):
-        exec(f)
+    # for f in BaseInputSerializer.get_gene_mutation_frequency_fields(bc_model):
+    #     exec(f)
 
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(bc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(bc_model)
+    prs = serializers.JSONField(required=False)
 
 
 class OwsInputSerializer(BaseInputSerializer):
@@ -85,30 +96,17 @@ class OwsInputSerializer(BaseInputSerializer):
     oc_model = settings.OC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(oc_model)
 
-    for f in BaseInputSerializer.get_gene_mutation_frequency_fields(oc_model):
-        exec(f)
+    # for f in BaseInputSerializer.get_gene_mutation_frequency_fields(oc_model):
+    #     exec(f)
 
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(oc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(oc_model)
-
-
-class BwsExtendedInputSerializer(BwsInputSerializer):
-    """ Other input parameters. """
-    risk_factor_code = serializers.IntegerField(max_value=BCRiskFactors.get_max_factor(),
-                                                min_value=0, default=0)
     prs = serializers.JSONField(required=False)
 
 
-class BCTenYrSerializer(BwsExtendedInputSerializer):
+class BCTenYrSerializer(BwsInputSerializer):
     tenyr_ages = serializers.CharField(validators=[int_list_validator], min_length=3, max_length=30)
-
-
-class OwsExtendedInputSerializer(OwsInputSerializer):
-    """ Other input parameters. """
-    risk_factor_code = serializers.IntegerField(max_value=BCRiskFactors.get_max_factor(),
-                                                min_value=0, default=0)
-    prs = serializers.JSONField(required=False)
 
 
 class PedigreeResultSerializer(serializers.Serializer):

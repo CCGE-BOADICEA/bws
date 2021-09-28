@@ -8,6 +8,7 @@ import tempfile
 
 from django.conf import settings
 from django.http.response import JsonResponse
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.compat import coreapi, coreschema
@@ -22,15 +23,12 @@ from bws.calcs import Predictions, ModelParams, RangeRisk
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
-from bws.serializers import BwsExtendedInputSerializer, BwsInputSerializer, OutputSerializer, \
-    OwsExtendedInputSerializer, OwsInputSerializer, CombinedInputSerializer, \
+from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, BCTenYrSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 
 
 logger = logging.getLogger(__name__)
-
-REGEX_ASHKN = re.compile("^(Ashkenazi)$")
 
 
 class ModelWebServiceMixin():
@@ -50,7 +48,6 @@ class ModelWebServiceMixin():
                 "pedigree_result": []
             }
 
-            risk_factor_code = validated_data.get('risk_factor_code', 0)
             prs = validated_data.get('prs', None)
             if prs is not None:
                 prs = Prs(prs.get('alpha'), prs.get('zscore'))
@@ -67,9 +64,10 @@ class ModelWebServiceMixin():
             cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
+                    risk_factor_code = 0
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
@@ -77,26 +75,28 @@ class ModelWebServiceMixin():
                             output['warnings'].append(msg)
                         else:
                             output['warnings'] = [msg]
+                        this_params.isashk = True
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
                         mname = model_settings['NAME']
-                        if 'risk_factor_code' not in request.data.keys():
-                            risk_factor_code = pedi.get_rfcode(mname)
+                        risk_factor_code = pedi.get_rfcode(mname)
 
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
@@ -116,6 +116,7 @@ class ModelWebServiceMixin():
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print(model_settings['NAME']+" :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 
@@ -137,7 +138,7 @@ class ModelWebServiceMixin():
                 output['warnings'].append(attr_name+' not provided')
             else:
                 output['warnings'] = [attr_name+' not provided']
-            logger.debug(attr_name+' not provided :: '+str(e))
+            logger.debug(f'{attr_name} not provided :: {e}')
 
     @classmethod
     def get_fields(cls, model):
@@ -205,19 +206,19 @@ class ModelWebServiceMixin():
             # ),
         ]
 
-        fields += [
-            coreapi.Field(
-                name=g.lower() + "_mut_frequency",
-                required=False,
-                location='form',
-                schema=coreschema.Number(
-                    title=g+" mutation frequency",
-                    description=g+' mutation frequency',
-                    minimum=settings.MIN_MUTATION_FREQ,
-                    maximum=settings.MAX_MUTATION_FREQ
-                ),
-            ) for g in model['GENES']
-        ]
+        # fields += [
+        #    coreapi.Field(
+        #        name=g.lower() + "_mut_frequency",
+        #        required=False,
+        #        location='form',
+        #        schema=coreschema.Number(
+        #            title=g+" mutation frequency",
+        #            description=g+' mutation frequency',
+        #            minimum=settings.MIN_MUTATION_FREQ,
+        #            maximum=settings.MAX_MUTATION_FREQ
+        #        ),
+        #    ) for g in model['GENES']
+        # ]
         fields += [
             coreapi.Field(
                 name=g.lower() + "_mut_sensitivity",
@@ -238,7 +239,7 @@ class BwsView(APIView, ModelWebServiceMixin):
     BOADICEA Web-Service
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
-    serializer_class = BwsExtendedInputSerializer
+    serializer_class = BwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
@@ -248,23 +249,18 @@ class BwsView(APIView, ModelWebServiceMixin):
             fields=ModelWebServiceMixin.get_fields(model),
             encoding="application/json",
             description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
+BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
 that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
 As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
 for each the genes and the population to use for cancer incidence rates.
 """
         )
 
-    def get_serializer_class(self):
-        if self.request.user.has_perm('boadicea_auth.can_risk'):
-            return BwsExtendedInputSerializer
-        return BwsInputSerializer
-
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM).
+        BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
+        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM...).
         As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
         for each the genes and the population to use for cancer incidence rates.
         ---
@@ -285,41 +281,15 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
-           - name: brca1_mut_frequency
-             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brca2_mut_frequency
-             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: palb2_mut_frequency
-             description: PALB2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: atm_mut_frequency
-             description: ATM mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: chek2_mut_frequency
-             description: CHEK2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
+             enum: ['UK', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
-             'Iceland', 'New-Zealand', 'Norway', 'Sweden']
-
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
            - name: brca1_mut_sensitivity
              description: BRCA1 mutation sensitivity
              required: false
@@ -368,7 +338,7 @@ class OwsView(APIView, ModelWebServiceMixin):
     Ovarian Model Web-Service
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
-    serializer_class = OwsExtendedInputSerializer
+    serializer_class = OwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
@@ -384,11 +354,6 @@ As well as the individuals pedigree, the prediction model takes as input mutatio
 for each the genes and the population to use for cancer incidence rates.
 """
             )
-
-    def get_serializer_class(self):
-        if self.request.user.has_perm('boadicea_auth.can_risk'):
-            return OwsExtendedInputSerializer
-        return OwsInputSerializer
 
     # @profile("profile_bws.profile")
     def post(self, request):
@@ -415,41 +380,15 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland', 'Custom']
-           - name: brca1_mut_frequency
-             description: BRCA1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brca2_mut_frequency
-             description: BRCA2 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: rad51d_mut_frequency
-             description: RAD51D mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: rad51c_mut_frequency
-             description: RAD51C mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
-           - name: brip1_mut_frequency
-             description: BRIP1 mutation frequency (only available with mut_freq=Custom)
-             required: false
-             type: float
-             paramType: form
+             enum: ['UK', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'UK-version-1', 'Australia', 'Canada', 'USA-white', 'Denmark', 'Finland',
-             'Iceland', 'New-Zealand', 'Norway', 'Sweden']
-
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
            - name: brca1_mut_sensitivity
              description: BRCA1 mutation sensitivity
              required: false
@@ -495,7 +434,7 @@ for each the genes and the population to use for cancer incidence rates.
 
 class BCTenYrView(APIView, ModelWebServiceMixin):
     """
-    BOADICEA Web-Service
+    Ten year breast cancer risks calculation Web-Service
     """
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BCTenYrSerializer
@@ -504,19 +443,27 @@ class BCTenYrView(APIView, ModelWebServiceMixin):
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
     if coreapi is not None and coreschema is not None:
+        fields = ModelWebServiceMixin.get_fields(model)
+        fields.insert(0, coreapi.Field(
+                name="tenyr_ages",
+                required=True,
+                location='form',
+                schema=coreschema.Array(
+                    title="tenyr_ages",
+                    description='List of ages to calculate the 10-year risks',
+                    min_items=1,
+                    unique_items=True)
+            )
+        )
         schema = ManualSchema(
-            fields=ModelWebServiceMixin.get_fields(model),
+            fields=fields,
             encoding="application/json",
             description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast and ovarian cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
+Ten year breast cancer risks calculations as per those given for the ages 40-49
+(https://canrisk.atlassian.net/wiki/x/NwDCAg). The web-service takes a list of
+ages to calculate the 10-year risks for, e.g. [25, 26, 27, 28, 29] or [29].
 """
         )
-
-    def get_serializer_class(self):
-        return BwsExtendedInputSerializer
 
     # @profile("profile_bws.profile")
     def post(self, request):
@@ -529,7 +476,6 @@ for each the genes and the population to use for cancer incidence rates.
 
             tenyr_ages = re.sub("[\[\]]", "", validated_data.get('tenyr_ages'))
             tenyr_ages = [int(item.strip()) for item in tenyr_ages.split(',')]
-            logger.debug(tenyr_ages)
 
             output = {
                 "timestamp": datetime.datetime.now(),
@@ -539,7 +485,6 @@ for each the genes and the population to use for cancer incidence rates.
                 "pedigree_result": []
             }
 
-            risk_factor_code = validated_data.get('risk_factor_code', 0)
             prs = validated_data.get('prs', None)
             if prs is not None:
                 prs = Prs(prs.get('alpha'), prs.get('zscore'))
@@ -556,9 +501,10 @@ for each the genes and the population to use for cancer incidence rates.
             cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
+                    risk_factor_code = 0
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not REGEX_ASHKN.match(params.population):
+                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
@@ -566,26 +512,27 @@ for each the genes and the population to use for cancer incidence rates.
                             output['warnings'].append(msg)
                         else:
                             output['warnings'] = [msg]
+                        this_params.isashk = True
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
                         mname = model_settings['NAME']
-                        if 'risk_factor_code' not in request.data.keys():
-                            risk_factor_code = pedi.get_rfcode(mname)
+                        risk_factor_code = pedi.get_rfcode(mname)
 
                         if prs is None or len(pf.pedigrees) > 1:
                             prs = pedi.get_prs(mname)
 
+                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, prs=prs, run_risks=False,
+                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs, run_risks=False,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
                     calcs.ten_yr_cancer_risk = []
                     for tenyr in tenyr_ages:
-                        ten_yr_risk, _v = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
+                        ten_yr_risk = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
                         if ten_yr_risk is not None:
                             calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
 
@@ -594,6 +541,7 @@ for each the genes and the population to use for cancer incidence rates.
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = pedi.get_target().pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
@@ -607,6 +555,7 @@ for each the genes and the population to use for cancer incidence rates.
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:
                 shutil.rmtree(cwd)
+                # print("BCTenYr :: "+cwd)
             output_serialiser = OutputSerializer(output)
             return Response(output_serialiser.data, template_name='result_tab_gp.html')
 

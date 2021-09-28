@@ -11,6 +11,7 @@ import tempfile
 import shutil
 import os
 import filecmp
+import copy
 
 
 class WritePedigree(TestCase):
@@ -18,8 +19,8 @@ class WritePedigree(TestCase):
     TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
 
     def test_write(self):
-        """ Write out pedigree and compare with the original file. """
-        with open(os.path.join(WritePedigree.TEST_DATA_DIR, "pedigree_data.txt"), "r") as f1:
+        """ Write out BOADICEA pedigree file and compare with the original file. """
+        with open(os.path.join(WritePedigree.TEST_DATA_DIR, "d3.bwa"), "r") as f1:
             pedigree_data = f1.read()
 
         pedigree_file = PedigreeFile(pedigree_data)
@@ -43,6 +44,16 @@ class RiskTests(TestCase):
         self.pedigree = BwaPedigree(people=[target])
         # parents
         (_father, _mother) = self.pedigree.add_parents(target)
+
+        # canrisk pedigree
+        target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
+                        yob=str(self.year-20), cancers=Cancers(),
+                        gtests=CanRiskGeneticTests.default_factory())
+        self.canrisk_pedigree = CanRiskPedigree(people=[target])
+        (_father, _mother) = self.canrisk_pedigree.add_parents(target, gtests=CanRiskGeneticTests.default_factory())
+        _mother.yob = str(self.year-55)
+        _mother.age = "55"
+        _mother.cancers = Cancers(bc1=Cancer("54"), bc2=Cancer("55"), oc=Cancer(), prc=Cancer(), pac=Cancer())
         self.cwd = tempfile.mkdtemp(prefix="TEST_", dir="/tmp")
 
     def tearDown(self):
@@ -132,22 +143,35 @@ class RiskTests(TestCase):
         self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                         [21, 22, 23, 24, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80])
 
-    def test_lifetime_risk(self):
-        """ Test lifetime risk calculation matches the risk to 80 for a 20 year old. """
-        pedigree = deepcopy(self.pedigree)
-        t = pedigree.get_target()
-        t.age = '20'
-        PedigreeFile.validate(pedigree)
-        calcs = Predictions(pedigree, cwd=self.cwd)
+    @classmethod
+    def run_calc(cls, can, pedigree, calcs=None, cwd=None):
+        """ Run rrisk calculations """
+        msettings = settings.BC_MODEL if can == 'breast' else settings.OC_MODEL
+        mparams = ModelParams(mutation_frequency=msettings['MUTATION_FREQUENCIES']["UK"],
+                              mutation_sensitivity=msettings['GENETIC_TEST_SENSITIVITY'])
+        calcs = Predictions(pedigree, cwd=cwd, model_settings=msettings, model_params=mparams,
+                            calcs=calcs)
         c80 = None
         for c in calcs.cancer_risks:
             if c.get('age') == 80:
                 c80 = c
+        return c80[can+' cancer risk']['decimal'], calcs.lifetime_cancer_risk[0][can + ' cancer risk']['decimal']
 
-        self.assertEqual(calcs.lifetime_cancer_risk[0]['breast cancer risk']['decimal'],
-                         c80['breast cancer risk']['decimal'])
-        self.assertEqual(calcs.lifetime_cancer_risk[0]['ovarian cancer risk']['decimal'],
-                         c80['ovarian cancer risk']['decimal'])
+    def test_lifetime_risk(self):
+        """ Test lifetime risk calculation matches the risk to 80 for a 20 year old. """
+        # 1. breast cancer risk
+        pedigree = deepcopy(self.pedigree)
+        t = pedigree.get_target()
+        t.age = '20'
+        PedigreeFile.validate(pedigree)
+        c80, lif = RiskTests.run_calc('breast', pedigree, calcs=['remaining_lifetime', "lifetime"], cwd=self.cwd)
+        self.assertEqual(c80, lif)
+
+        # 2. ovarian cancer risk
+        pedigree = deepcopy(self.canrisk_pedigree)
+        PedigreeFile.validate(pedigree)
+        c80, lif = RiskTests.run_calc('ovarian', pedigree, calcs=['remaining_lifetime', "lifetime"], cwd=self.cwd)
+        self.assertEqual(c80, lif)
 
     def test_10yr_range_risk(self):
         """ Test ten year range (40-49) risk calculation matches the risk to 50 for a 40 year old. """
@@ -166,8 +190,6 @@ class RiskTests(TestCase):
 
         self.assertEqual(calcs1.ten_yr_cancer_risk[0]['breast cancer risk']['decimal'],
                          c50['breast cancer risk']['decimal'])
-        self.assertEqual(calcs1.ten_yr_cancer_risk[0]['ovarian cancer risk']['decimal'],
-                         c50['ovarian cancer risk']['decimal'])
 
     def test_pedigree_remaining_lifetime(self):
         """ Test pedigree for remaining lifetime risk calculation. """
@@ -242,7 +264,7 @@ class RiskTests(TestCase):
         for mf in mutation_frequencies.keys():
             if mf == 'Custom':
                 continue
-            params = ModelParams(mutation_frequency=mutation_frequencies[mf])
+            params = ModelParams(population=mf, mutation_frequency=mutation_frequencies[mf])
             calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
@@ -257,7 +279,7 @@ class RiskTests(TestCase):
         pedigree = deepcopy(self.pedigree)
         PedigreeFile.validate(pedigree)
         with self.assertRaises(FileNotFoundError):
-            model_settings = settings.BC_MODEL
+            model_settings = copy.deepcopy(settings.BC_MODEL)
             model_settings['HOME'] = 'xyz'
             Predictions(pedigree, cwd=self.cwd, model_settings=model_settings)
 
