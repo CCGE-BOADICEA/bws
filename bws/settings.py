@@ -137,7 +137,7 @@ BC_MODEL = {
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
-        ('PRISM 289', 'PRISM_289_PRS.prs')
+        ('PRISMA 289', 'PRISM_289_PRS.prs')
     ])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
