@@ -132,6 +132,10 @@ class Risk(object):
         @return: list of risks for each age
         """
         pedi = self._get_pedi()
+        t = pedi.get_target()
+        if t.dead == "1":   # risk not calculated for deceased indivual's
+            return None
+
         pred = self.predictions
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
@@ -212,10 +216,10 @@ class RemainingLifetimeBaselineRisk(Risk):
             gtests = CanRiskGeneticTests.default_factory()
 
         if t.sex() == "M":
-            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
+            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead=t.dead,
                          age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
         else:
-            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target, dead="0",
+            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target, dead=t.dead,
                            age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
 
         if self.predictions.model_settings['NAME'] == 'BC':
@@ -286,11 +290,11 @@ class RangeRiskBaseline(RangeRisk):
 
         if t.sex() == "M":
             new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
-                         dead="0", age=t.age, yob=t.yob, cancers=cancers,
+                         dead=t.dead, age=t.age, yob=t.yob, cancers=cancers,
                          gtests=gtests)
         else:
             new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target,
-                           dead="0", age=t.age, yob=t.yob, cancers=cancers,
+                           dead=t.dead, age=t.age, yob=t.yob, cancers=cancers,
                            gtests=gtests)
 
         if self.predictions.model_settings['NAME'] == 'BC':
