@@ -242,6 +242,22 @@ class BwsTests(BwsMixin):
         with self.assertRaisesRegex(ModelError, r"ERRORS IN THE PEDIGREE FILE"):
             Predictions(pedigree)
 
+    def test_bws_model_deceased_no_risks(self):
+        ''' Test deceased target produces mutation carrier probabilities and no risks. '''
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d5.dead.canrisk2"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_text(response.content))
+        self.assertTrue("pedigree_result" in content)
+
+        self.assertTrue(content["pedigree_result"][0]['cancer_risks'] is None)
+        self.assertTrue(content["pedigree_result"][0]['lifetime_cancer_risk'] is None)
+        self.assertTrue(content["pedigree_result"][0]['baseline_cancer_risks'] is None)
+        genes = settings.BC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
 
 class TenYrTests(BwsMixin):
 
