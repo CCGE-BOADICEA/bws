@@ -118,13 +118,14 @@ def get_rf_values(pedigree_data):
     return canrisk_headers
 
 
-def convert2csv(filename, csvfilename, censoring_ages=[1, 5, 10]):
+def convert2csv(filename, csvfilename, censoring_ages_freq=[1, 5, 10]):
     '''
     Convert pedigree file to a CSV file for batch processing
     @param filename - pedigree file name
     @param csvfilename - name of output CSV file
-    @param args - object of risk factors (e.g args.height)
+    @param censoring_ages - object of risk factors (e.g args.height)
     '''
+
     with open(filename, 'r') as f:
         pedigree_data = f.read()
     f.close()
@@ -145,60 +146,71 @@ def convert2csv(filename, csvfilename, censoring_ages=[1, 5, 10]):
         print(hdr[i], file=csv_file, end="," if i < len(hdr)-1 else "")
     print('', file=csv_file)
     for ped in pf.pedigrees:
-        for person in ped.people:
-            print(person.famid, file=csv_file, end=",")
-            print(person.name, file=csv_file, end=",")
-            print(person.target, file=csv_file, end=",")
-            print(person.pid, file=csv_file, end=",")
-            print(person.fathid, file=csv_file, end=",")
-            print(person.mothid, file=csv_file, end=",")
-            print(person.sex(), file=csv_file, end=",")
-            print(person.mztwin, file=csv_file, end=",")
-            print(person.dead, file=csv_file, end=",")
-            print(person.age, file=csv_file, end=",")
-            print(person.yob, file=csv_file, end=",")
-            print(person.yob, file=csv_file, end=",")
+        trgt = ped.get_target()
+        tage = int(trgt.age)
+        alf = tage
+        calc_ages = []
+        while alf <= settings.MAX_AGE_FOR_RISK_CALCS:
+            alf += 1
+            if(alf-tage in censoring_ages_freq):
+                calc_ages.append(str(alf))
+        calc_ages.append("80")
 
-            cancers = person.cancers
-            d = cancers.diagnoses
-            age = -1
-            [print((getattr(d, c).age if getattr(d, c).age != 'AU' else age), file=csv_file, end=",")
-             for c in Cancers.get_cancers()]
-            print(person.ashkn, file=csv_file, end=",")
+        for censoring_age in calc_ages:
+            for person in ped.people:
+                print(person.famid+":"+censoring_age, file=csv_file, end=",")
+                print(person.name, file=csv_file, end=",")
+                print(person.target, file=csv_file, end=",")
+                print(person.pid, file=csv_file, end=",")
+                print(person.fathid, file=csv_file, end=",")
+                print(person.mothid, file=csv_file, end=",")
+                print(person.sex(), file=csv_file, end=",")
+                print(person.mztwin, file=csv_file, end=",")
+                print(person.dead, file=csv_file, end=",")
+                print(person.age, file=csv_file, end=",")
+                print(person.yob, file=csv_file, end=",")
+                print(person.yob, file=csv_file, end=",")
 
-            gtests = person.gtests
-            for g in genes:
-                try:
-                    gt = getattr(gtests, g.lower())
-                    print(gt.test_type, file=csv_file, end=",")
-                    print(gt.result, file=csv_file, end=",")
-                except AttributeError:
-                    raise
+                cancers = person.cancers
+                d = cancers.diagnoses
+                age = -1
+                [print((getattr(d, c).age if getattr(d, c).age != 'AU' else age), file=csv_file, end=",")
+                 for c in Cancers.get_cancers()]
+                print(person.ashkn, file=csv_file, end=",")
 
-            pathology = person.pathology
-            print(pathology.er.result, file=csv_file, end=",")
-            print(pathology.pr.result, file=csv_file, end=",")
-            print(pathology.her2.result, file=csv_file, end=",")
-            print(pathology.ck14.result, file=csv_file, end=",")
-            print(pathology.ck56.result, file=csv_file, end="")
+                gtests = person.gtests
+                for g in genes:
+                    try:
+                        gt = getattr(gtests, g.lower())
+                        print(gt.test_type, file=csv_file, end=",")
+                        print(gt.result, file=csv_file, end=",")
+                    except AttributeError:
+                        raise
 
-            print(",", file=csv_file, end="")   # Censoring_Age
-            this_rfs = None
-            if person.famid in cheaders:
-                this_rfs = cheaders[person.famid]
-            for rf in RISK_FACTORS:
-                if person.target != "0":
-                    if this_rfs is not None:
-                        if rf in this_rfs:
-                            print(","+this_rfs[rf], file=csv_file, end="")
+                pathology = person.pathology
+                print(pathology.er.result, file=csv_file, end=",")
+                print(pathology.pr.result, file=csv_file, end=",")
+                print(pathology.her2.result, file=csv_file, end=",")
+                print(pathology.ck14.result, file=csv_file, end=",")
+                print(pathology.ck56.result, file=csv_file, end=",")
+
+                print(censoring_age+",", file=csv_file, end="")
+                this_rfs = None
+                if person.famid in cheaders:
+                    this_rfs = cheaders[person.famid]
+                for rf in RISK_FACTORS:
+                    if person.target != "0":
+                        if this_rfs is not None:
+                            if rf in this_rfs:
+                                print(","+this_rfs[rf], file=csv_file, end="")
+                            else:
+                                print(",", file=csv_file, end="")
                         else:
                             print(",", file=csv_file, end="")
                     else:
                         print(",", file=csv_file, end="")
-                else:
-                    print(",", file=csv_file, end="")
 
-            print('', file=csv_file)
+                print('', file=csv_file)
     csv_file.close()
 
 
