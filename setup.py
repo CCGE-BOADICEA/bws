@@ -10,7 +10,7 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='bws',
-    version='v1.1.1',
+    version='v2.0.0',
     packages=find_packages(),
     package_data={'bws': ['tests/data/*txt'], },
     include_package_data=True,
@@ -18,7 +18,7 @@ setup(
     url='https://github.com/CCGE-BOADICEA/bws',
     description='A Django app for web-services for BOADICEA.',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
-    install_requires=["requests>=2.22.0", "Django>=3.2.5,<4", "djangorestframework==3.12.4",
+    install_requires=["requests>=2.26.0", "Django>=3.2.8,<4", "djangorestframework==3.12.4",
                       "coreapi==2.3.3", "PyVCF==0.6.8"],
     classifiers=[
         'Environment :: Web Environment',
@@ -26,7 +26,7 @@ setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
