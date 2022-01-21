@@ -1,9 +1,20 @@
 '''
-Helper script for creating CSV files to be used with the batch script. As
+Utility script for creating CSV files to be used with the batch script. As
 input it takes a CanRisk pedigree file.
 
-Usage:
+Dependencies:
 
+pip install django==3.2
+pip install djangorestframework==3.13.1
+
+remove vcf2prs dependency in bws/settings.py as follows-
+1) remove 'import vcf2prs' line
+2) change the function get_alpha() to be:
+
+def get_alpha(ref_file):
+    return None
+
+Usage:
 export DJANGO_SETTINGS_MODULE=bws.settings
 python3 -m bws.scripts.canrisk_2_csv pedigree_file output.csv --height 175
 
@@ -15,7 +26,7 @@ import argparse
 from bws.pedigree import PedigreeFile
 from bws.cancer import Genes, Cancers
 from bws.exceptions import PedigreeFileError
-from django.conf import settings
+# from django.conf import settings
 
 
 REGEX_CANRISK1_PEDIGREE_FILE_HEADER = \
@@ -105,16 +116,14 @@ def get_rf_values(pedigree_data):
                 famid = this_famid
                 canrisk_header = {}
 
-            if file_type == 'canrisk1' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
+            if file_type == 'canrisk1' and len(record) != 26:
                 raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                         "CanRisk format 1 pedigree files should have " +
-                                        str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
-                                        " data items per line.")
-            elif file_type == 'canrisk2' and len(record) != settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS:
+                                        "26 data items per line.")
+            elif file_type == 'canrisk2' and len(record) != 27:
                 raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                         "CanRisk format 2 pedigree files should have " +
-                                        str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
-                                        " data items per line.")
+                                        "27 data items per line.")
     return canrisk_headers
 
 
@@ -150,7 +159,7 @@ def convert2csv(filename, csvfilename, censoring_ages_freq=[1, 5, 10]):
         tage = int(trgt.age)
         alf = tage
         calc_ages = []
-        while alf <= settings.MAX_AGE_FOR_RISK_CALCS:
+        while alf <= 79:
             alf += 1
             if(alf-tage in censoring_ages_freq):
                 calc_ages.append(str(alf))
@@ -160,46 +169,45 @@ def convert2csv(filename, csvfilename, censoring_ages_freq=[1, 5, 10]):
             for person in ped.people:
                 print(person.famid+":"+censoring_age, file=csv_file, end=",")
                 print(person.name, file=csv_file, end=",")
-                print(person.target, file=csv_file, end=",")
+                print(person.target if person.target == "1" else "", file=csv_file, end=",")
                 print(person.pid, file=csv_file, end=",")
-                print(person.fathid, file=csv_file, end=",")
-                print(person.mothid, file=csv_file, end=",")
+                print(person.fathid if person.fathid != "0" else "", file=csv_file, end=",")
+                print(person.mothid if person.mothid != "0" else "", file=csv_file, end=",")
                 print(person.sex(), file=csv_file, end=",")
-                print(person.mztwin, file=csv_file, end=",")
+                print(person.mztwin if person.mztwin != "0" else "", file=csv_file, end=",")
                 print(person.dead, file=csv_file, end=",")
                 print(person.age, file=csv_file, end=",")
-                print(person.yob, file=csv_file, end=",")
-                print(person.yob, file=csv_file, end=",")
+                print(person.yob if person.yob != "0" else "", file=csv_file, end=",")
 
                 cancers = person.cancers
                 d = cancers.diagnoses
-                age = -1
-                [print((getattr(d, c).age if getattr(d, c).age != 'AU' else age), file=csv_file, end=",")
-                 for c in Cancers.get_cancers()]
+                age = ""
+                [print((getattr(d, c).age if getattr(d, c).age != 'AU' and getattr(d, c).age != '-1' else age),
+                       file=csv_file, end=",") for c in Cancers.get_cancers()]
                 print(person.ashkn, file=csv_file, end=",")
 
                 gtests = person.gtests
                 for g in genes:
                     try:
                         gt = getattr(gtests, g.lower())
-                        print(gt.test_type, file=csv_file, end=",")
-                        print(gt.result, file=csv_file, end=",")
+                        print(gt.test_type if gt.test_type != "0" else "", file=csv_file, end=",")
+                        print(gt.result if gt.result != "0" else "", file=csv_file, end=",")
                     except AttributeError:
                         raise
 
-                pathology = person.pathology
-                print(pathology.er.result, file=csv_file, end=",")
-                print(pathology.pr.result, file=csv_file, end=",")
-                print(pathology.her2.result, file=csv_file, end=",")
-                print(pathology.ck14.result, file=csv_file, end=",")
-                print(pathology.ck56.result, file=csv_file, end=",")
+                p = person.pathology
+                print(p.er.result if p.er.result != "0" else "", file=csv_file, end=",")
+                print(p.pr.result if p.pr.result != "0" else "", file=csv_file, end=",")
+                print(p.her2.result if p.her2.result != "0" else "", file=csv_file, end=",")
+                print(p.ck14.result if p.ck14.result != "0" else "", file=csv_file, end=",")
+                print(p.ck56.result if p.ck56.result != "0" else "", file=csv_file, end=",")
 
-                print(censoring_age+",", file=csv_file, end="")
+                print((censoring_age if person.target == "1" else ""), file=csv_file, end="")
                 this_rfs = None
                 if person.famid in cheaders:
                     this_rfs = cheaders[person.famid]
                 for rf in RISK_FACTORS:
-                    if person.target != "0":
+                    if person.target == "1":
                         if this_rfs is not None:
                             if rf in this_rfs:
                                 print(","+this_rfs[rf], file=csv_file, end="")
