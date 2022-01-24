@@ -48,7 +48,7 @@ def get_prs(line, cancer):
     zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
     alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
     if zscore is not None and alpha is not None:
-        return ['PRS_'+cancer+'_z', 'PRS_'+cancer+'_alpha'], [zscore.group(2), alpha.group(2)]
+        return [cancer+'_PRS_z', cancer+'_PRS_alpha'], [zscore.group(2), alpha.group(2)]
 
 
 def get_rfs(line):
@@ -62,7 +62,7 @@ def get_rfs(line):
         if line[0] == 'TL':
             return 'Tubal_Ligation', line[1]
         elif line[0] == 'mht_use':
-            return 'MHT_use', line[1]
+            return 'MHT_Use', line[1]
         elif line[0] == 'height':
             return 'Height', line[1]
         elif line[0].upper() == 'OC_USE':
