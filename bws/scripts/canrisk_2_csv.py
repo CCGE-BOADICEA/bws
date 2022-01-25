@@ -16,7 +16,7 @@ def get_alpha(ref_file):
 
 Usage:
 export DJANGO_SETTINGS_MODULE=bws.settings
-python3 -m bws.scripts.canrisk_2_csv pedigree_file output.csv --height 175
+python3 -m bws.scripts.canrisk_2_csv pedigree_file.canrisk output.csv -c 1 5 80
 
 '''
 import sys
