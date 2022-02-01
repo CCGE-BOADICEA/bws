@@ -61,7 +61,7 @@ def get_rfs(line):
         line = line.replace("##", "").strip().split("=")
         if line[0] == 'TL':
             return 'Tubal_Ligation', line[1]
-        elif line[0] == 'mht_use':
+        elif line[0].upper() == 'MHT_USE':
             return 'MHT_Use', line[1]
         elif line[0] == 'height':
             return 'Height', line[1]
@@ -71,7 +71,7 @@ def get_rfs(line):
             elif ":" in line[1]:
                 parts = line[1].split(":")
                 return ['OC_Use', 'OC_Duration'], [parts[0], parts[1]]
-        elif line[0] == 'birads':
+        elif line[0].upper() == 'BIRADS':
             return 'BIRADS', line[1]
         elif line[0] == 'endo':
             return 'Endometriosis', line[1]
@@ -111,6 +111,7 @@ def get_rf_values(pedigree_data):
         else:
             record = line.split()
             this_famid = record[0].strip()
+            this_famid = this_famid.replace("-", "")[:8]
             if famid is None or famid != this_famid:         # start of pedigree
                 canrisk_headers[this_famid] = canrisk_header
                 famid = this_famid
