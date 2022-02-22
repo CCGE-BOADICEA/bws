@@ -136,6 +136,7 @@ BC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
+        ('EMERGE 309', 'EMERGE_309_PRS.prs'),
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
         ('PRISMA 289', 'PRISM_289_PRS.prs')
     ])
