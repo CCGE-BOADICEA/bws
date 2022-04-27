@@ -158,7 +158,7 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                     bc_zscore = 0
 
                 if oc_prs_ref_file is not None:
-                    ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_content=vcf_stream, sample=sample_name)
+                    ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
                     oc_alpha = ovarian_prs.alpha
                     oc_zscore = ovarian_prs.z_Score
                 else:
