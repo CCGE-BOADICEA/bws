@@ -171,7 +171,7 @@ def compare_mp(model, mp_batch, mp_ws, exact_matches, abs_tol=1e-09):
     if exact:
         print(model+" EXACT MATCH ::: "+msg)
     else:
-        print(model+" NOT A MATCH ::: "+msg)
+        print(model+" DIFFERENCE ["+str(float(v)-float(mp_ws[k]))+"] ::: "+msg)
     return exact_matches
 
 
