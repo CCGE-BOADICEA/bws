@@ -168,10 +168,11 @@ def compare_mp(model, mp_batch, mp_ws, exact_matches, abs_tol=1e-09):
             msg += k+":"+mp_ws[k]+"?"+v+" "
             exact_matches += 1
             exact = False
+            print(k+": DIFFERENCE ["+str(float(v)-float(mp_ws[k]))+"]")
     if exact:
         print(model+" EXACT MATCH ::: "+msg)
     else:
-        print(model+" DIFFERENCE ["+str(float(v)-float(mp_ws[k]))+"] ::: "+msg)
+        print(model+" DIFFERENCE  ::: "+msg)
     return exact_matches
 
 
