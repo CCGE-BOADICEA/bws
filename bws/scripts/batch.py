@@ -162,7 +162,7 @@ def compare_mp(model, mp_batch, mp_ws, exact_matches, abs_tol=1e-09):
     exact = True
     msg = ""
     for k, v in mp_batch.items():
-        if math.isclose(float(v), float(mp_ws[k]), abs_tol=abs_tol) or k is "no mutation":
+        if math.isclose(float(v), float(mp_ws[k]), abs_tol=abs_tol) or k == "no mutation":
             msg += k+":"+mp_ws[k]+"="+v+" "
         else:
             msg += k+":"+mp_ws[k]+"?"+v+" "
