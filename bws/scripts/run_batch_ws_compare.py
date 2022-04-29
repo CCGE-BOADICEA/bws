@@ -69,13 +69,32 @@ parser.add_argument('--cancer_rates', default='UK',
                              'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden'],
                     help='Cancer incidence rates (default: %(default)s)')
 parser.add_argument('--token', help='authentication token')
+parser.add_argument('--bc_rr_tolerance', default=1e-09, help='BC tolerance comparing web-service & batch risks')
+parser.add_argument('--oc_rr_tolerance', default=1e-09, help='OC tolerance comparing web-service & batch risks')
+
+parser.add_argument('--bc_probs_tolerance', default=1e-09, help='BC tolerance comparing web-service & batch probs')
+parser.add_argument('--oc_probs_tolerance', default=1e-09, help='OC tolerance comparing web-service & batch probs')
 
 args = parser.parse_args()
 args.mut_freq = 'UK'
 
+bc_rr_tol = float(args.bc_rr_tolerance)
+oc_rr_tol = float(args.oc_rr_tolerance)
+
+bc_probs_tol = float(args.bc_probs_tolerance)
+oc_probs_tol = float(args.oc_probs_tolerance)
+
+print("=============================================")
+print("BC Risk Tolerance "+str(bc_rr_tol))
+print("OC Risk Tolerance "+str(oc_rr_tol))
+
+print("BC Probs Tolerance "+str(bc_probs_tol))
+print("OC Probs Tolerance "+str(oc_probs_tol))
+
 
 irates = "BOADICEA-Model-V6/Data/incidences_"+args.cancer_rates+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
+print("=============================================")
 
 url = args.url
 
@@ -131,25 +150,29 @@ for bwa in bwalist:
 
         print(bwa)
         if bc_mp_batch is not None or bc_mp_ws is not None:
-            exact_matches = compare_mp("BC", bc_mp_batch, bc_mp_ws, exact_matches)
+            exact_matches = compare_mp("BC", bc_mp_batch, bc_mp_ws, exact_matches, bc_probs_tol)
         if oc_mp_batch is not None or oc_mp_ws is not None:
-            exact_matches = compare_mp("OC", oc_mp_batch, oc_mp_ws, exact_matches)
+            exact_matches = compare_mp("OC", oc_mp_batch, oc_mp_ws, exact_matches, oc_probs_tol)
 
         # compare webservice.tab with batch_result.out
         for age in c_ages:
             if len(bc_ws) > 0 or bc_batch is not None:
-                if bc_ws[age] and bc_batch[age] and math.isclose(float(bc_ws[age]), float(bc_batch[age])):
+                if bc_ws[age] and bc_batch[age] and math.isclose(float(bc_ws[age]), float(bc_batch[age]),
+                                                                 abs_tol=bc_rr_tol):
                     print(f"BC EXACT MATCH ::: {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                 else:
-                    print(f"BC NOT A MATCH *** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
+                    print(f"BC DIFFERENCE ["+str(float(bc_ws[age])-float(bc_batch[age])) +
+                          "]*** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                     exact_matches += 1
                     diffs.append(bwa)
 
             if len(oc_ws) > 0 or oc_batch is not None:
-                if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age])):
+                if oc_ws[age] and oc_batch[age] and math.isclose(float(oc_ws[age]), float(oc_batch[age]),
+                                                                 abs_tol=oc_rr_tol):
                     print(f"OC EXACT MATCH :::    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                 else:
-                    print(f"OC NOT A MATCH ***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                    print(f"OC DIFFERENCE ["+str(float(oc_ws[age])-float(oc_batch[age])) +
+                          "]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
     finally:
