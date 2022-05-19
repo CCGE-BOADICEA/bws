@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calcs import Predictions, ModelParams, RangeRisk
+from bws.calcs import Predictions, ModelParams, Risk, ModelOpts
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
@@ -531,10 +531,12 @@ ages to calculate the 10-year risks for, e.g. [25, 26, 27, 28, 29] or [29].
                     calcs.niceness = Predictions._get_niceness(calcs.pedi)
 
                     calcs.ten_yr_cancer_risk = []
-                    for tenyr in tenyr_ages:
-                        ten_yr_risk = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
-                        if ten_yr_risk is not None:
-                            calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
+                    t = calcs.pedi.get_target()
+                    if not t.cancers.is_cancer_diagnosed():
+                        model_opts = ModelOpts(out="rr_10yr.txt", probs=False, rj=True, rl=False, rr=False, ry=False)
+                        _rl, _rr, _ry, rj, _mp = Risk(calcs).get_risk(model_opts)
+                        if rj is not None:
+                            calcs.ten_yr_cancer_risk = rj
 
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
