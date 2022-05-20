@@ -90,6 +90,8 @@ class CanRiskHeader():
                     bc_prs = self.get_prs(rfval)
                 else:                                   # lookup breast/ovarian cancer risk factors
                     if rfnam == 'height':
+                        if rfval == 'NA':
+                            continue
                         hgt = float(rfval)
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
