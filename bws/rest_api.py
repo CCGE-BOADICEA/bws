@@ -533,10 +533,19 @@ ages to calculate the 10-year risks for, e.g. [25, 26, 27, 28, 29] or [29].
                     calcs.ten_yr_cancer_risk = []
                     t = calcs.pedi.get_target()
                     if not t.cancers.is_cancer_diagnosed():
-                        model_opts = ModelOpts(out="rr_10yr.txt", probs=False, rj=True, rl=False, rr=False, ry=False)
-                        _rl, _rr, _ry, rj, _mp = Risk(calcs).get_risk(model_opts)
+                        rj = True       # 10-yr, NHS protocol
+                        ry = False      # 10-yr, 40-50y
+                        age = int(t.age)
+                        if age >= 40 and age < 50:
+                            rj = False
+                            ry = True
+
+                        model_opts = ModelOpts(out="rr_10yr.txt", probs=False, rj=rj, rl=False, rr=False, ry=ry)
+                        _rl, _rr, ry, rj, _mp = Risk(calcs).get_risk(model_opts)
                         if rj is not None:
                             calcs.ten_yr_cancer_risk = rj
+                        elif ry is not None:
+                            calcs.ten_yr_cancer_risk = ry
 
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
