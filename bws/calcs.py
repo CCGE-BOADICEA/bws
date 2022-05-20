@@ -72,11 +72,12 @@ class ModelOpts():
         is_cancer_diagnosed = t.cancers.is_cancer_diagnosed()
         is_risks_calc_viable = calc.pedi.is_risks_calc_viable() and is_alive
         is_carr_probs_viable = calc.pedi.is_carrier_probs_viable()
+        is_nhs_tenyr_reqd = (int(t.age) < 50 and calc.model_settings['NAME'] == 'BC')
 
         mname = str(calc.model_settings.get('NAME', ""))
         return ModelOpts(out=mname+"_predictions.txt",
                          probs=(is_carr_probs_viable and calc.is_calculate('carrier_probs')),
-                         rj=False,
+                         rj=is_nhs_tenyr_reqd,
                          rl=(is_risks_calc_viable and calc.is_calculate("lifetime") and not is_cancer_diagnosed),
                          rr=is_risks_calc_viable,
                          ry=(is_risks_calc_viable and calc.is_calculate("ten_year") and not is_cancer_diagnosed))
@@ -457,13 +458,15 @@ class Predictions(object):
         start = time.time()
         model_opts = ModelOpts.factory(self)
 
-        rl, rr, ry, _rj, mp = Risk(self).get_risk(model_opts)
+        rl, rr, ry, rj, mp = Risk(self).get_risk(model_opts)
         if rl is not None:
             self.lifetime_cancer_risk = rl
         if rr is not None:
             self.cancer_risks = rr
         if ry is not None:
             self.ten_yr_cancer_risk = ry
+        if rj is not None:
+            self.ten_yr_nhs_protocol = rj
         if mp is not None:
             self.mutation_probabilties = mp
 

@@ -79,9 +79,9 @@ class ModelWebServiceMixin():
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
+                    mname = model_settings['NAME']
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
-                        mname = model_settings['NAME']
                         risk_factor_code = pedi.get_rfcode(mname)
 
                         if prs is None or len(pf.pedigrees) > 1:
@@ -91,10 +91,11 @@ class ModelWebServiceMixin():
                     calcs = Predictions(pedi, model_params=this_params,
                                         risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
+                    target = pedi.get_target()
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
-                    this_pedigree["proband_id"] = pedi.get_target().pid
+                    this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
                     this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
@@ -108,6 +109,8 @@ class ModelWebServiceMixin():
                     self.add_attr("baseline_lifetime_cancer_risk", this_pedigree, calcs, output)
                     self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
                     self.add_attr("baseline_ten_yr_cancer_risk", this_pedigree, calcs, output)
+                    if int(target.age) < 50 and mname == "BC":
+                        self.add_attr("ten_yr_nhs_protocol", this_pedigree, calcs, output)
 
                     output["pedigree_result"].append(this_pedigree)
             except ValidationError as e:
