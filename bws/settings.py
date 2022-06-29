@@ -5,8 +5,8 @@ import vcf2prs
 from pathlib import Path
 
 
-def line_that_contain(string, fp):
-    return [line for line in fp if string in line][0]
+def line_that_contain(s1, s2, fp):
+    return [line for line in fp if s1 in line and s2 in line][0]
 
 
 def get_alpha(ref_file):
@@ -15,7 +15,7 @@ def get_alpha(ref_file):
     ref_file = os.path.join(moduledir, "PRS_files", ref_file)
     try:
         snp_file = open(ref_file, 'r')
-        alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', snp_file))
+        alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
     except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
         raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
     finally:
@@ -218,6 +218,7 @@ OC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
+        ('OCAC 34', 'OCAC_36_PRS.prs'),
         ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
