@@ -218,7 +218,7 @@ OC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
-        ('OCAC 34', 'OCAC_36_PRS.prs'),
+        ('OCAC 34', 'OCAC_34_PRS.prs'),
         ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
