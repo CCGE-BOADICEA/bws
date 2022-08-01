@@ -216,7 +216,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('Input Field Error' in content)
         self.assertEqual('Extra input field(s) found: nosuchflag, nosuchflag2', content['Input Field Error'])
 
-    @override_settings(FORTRAN_TIMEOUT=0.05)
+    @override_settings(FORTRAN_TIMEOUT=0.0005)
     def test_bws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
@@ -250,74 +250,12 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_text(response.content))
         self.assertTrue("pedigree_result" in content)
-
-        self.assertTrue(content["pedigree_result"][0]['cancer_risks'] is None)
-        self.assertTrue(content["pedigree_result"][0]['lifetime_cancer_risk'] is None)
-        self.assertTrue(content["pedigree_result"][0]['baseline_cancer_risks'] is None)
+        self.assertFalse('cancer_risks' in content["pedigree_result"][0])
+        self.assertFalse('lifetime_cancer_risk' in content["pedigree_result"][0])
+        self.assertFalse('baseline_cancer_risks' in content["pedigree_result"][0])
         genes = settings.BC_MODEL['GENES']
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
-
-
-class TenYrTests(BwsMixin):
-
-    def test_ashk(self):
-        ''' Test AJ mutation frequencies used when AJ status set. '''
-        tenyr_ages = "[45]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d4.AJ.canrisk2"), "r")
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
-                'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 2.652})}
-        response = TenYrTests.client.post(reverse('bcten'), data, format='multipart', HTTP_ACCEPT="application/json")
-        canrisk_data.close()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
-        res = content["pedigree_result"][0]
-        self.assertTrue("Ashkenazi" in res['mutation_frequency'])
-
-    def test_multi_tenyr(self):
-        ''' Test POSTing multiple ages to the 10 year web service. '''
-        tenyr_ages = "[30,40,45]"
-        canrisk_data = open(os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"), "r")
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
-                'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
-
-        response = TenYrTests.client.post(reverse('bcten'), data, format='multipart', HTTP_ACCEPT="application/json")
-        canrisk_data.close()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
-        ten_yr_risks = content["pedigree_result"][0]["ten_yr_cancer_risk"]
-        self.assertEqual(len(json.loads(tenyr_ages)), len(ten_yr_risks), "No. ranges equals no. 10 year risks")
-
-    def test_tenyr_40(self):
-        ''' Test 10 year risk from 40 same as BWS. '''
-
-        bcten_url = reverse('bcten')
-        bws_url = reverse('bws')
-        dfs = [os.path.join(TenYrTests.TEST_DATA_DIR, "d0.canrisk"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "d2.canrisk"),
-               os.path.join(TenYrTests.TEST_DATA_DIR, "d1.canrisk2")]
-
-        for df in dfs:
-            # 1. 10 yr risk web-service for 40-50
-            tenyr_ages = "[40]"
-            canrisk_data = open(df, "r")
-            data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data,
-                    'tenyr_ages': tenyr_ages, 'user_id': 'test_XXX'}
-            response = TenYrTests.client.post(bcten_url, data, format='multipart', HTTP_ACCEPT="application/json")
-            canrisk_data.close()
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            content = json.loads(force_text(response.content))
-            ten_yr_cancer_risk1 = content["pedigree_result"][0]["ten_yr_cancer_risk"][0]
-
-            # 2. use BWS to get 10 yr risk from 40 for comparison
-            canrisk_data = open(df, "r")
-            data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-            response = TenYrTests.client.post(bws_url, data, format='multipart', HTTP_ACCEPT="application/json")
-            canrisk_data.close()
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            content = json.loads(force_text(response.content))
-            ten_yr_cancer_risk2 = content["pedigree_result"][0]['ten_yr_cancer_risk'][0]
-            self.assertDictEqual(ten_yr_cancer_risk1, ten_yr_cancer_risk2, "Compare 10yr cancer risk from 40")
 
 
 class CombineModelResultsTests(BwsMixin):
