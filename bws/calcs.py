@@ -259,7 +259,7 @@ class Risk(object):
                         "percent": round(float(parts[2])*100, 1)
                     })
                 ]))
-            elif ry:
+            elif ry and ry_arr is not None:
                 parts = line.split(sep=",")
                 ry_arr.append(OrderedDict([
                     ("age", int(parts[1])),
