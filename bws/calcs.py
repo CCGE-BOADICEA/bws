@@ -70,14 +70,14 @@ class ModelOpts():
         t = calc.pedi.get_target()
         is_alive = (t.dead != "1")
         is_cancer_diagnosed = t.cancers.is_cancer_diagnosed()
-        is_risks_calc_viable = calc.pedi.is_risks_calc_viable() and is_alive
+        is_risks_calc_viable = calc.pedi.is_risks_calc_viable() and is_alive and t.sex() == "F"
         is_carr_probs_viable = calc.pedi.is_carrier_probs_viable()
         is_nhs_tenyr_reqd = (int(t.age) < 50 and calc.model_settings['NAME'] == 'BC')
 
         mname = str(calc.model_settings.get('NAME', ""))
         return ModelOpts(out=mname+"_predictions.txt",
                          probs=(is_carr_probs_viable and calc.is_calculate('carrier_probs')),
-                         rj=is_nhs_tenyr_reqd,
+                         rj=is_risks_calc_viable and is_nhs_tenyr_reqd,
                          rl=(is_risks_calc_viable and calc.is_calculate("lifetime") and not is_cancer_diagnosed),
                          rr=is_risks_calc_viable,
                          ry=(is_risks_calc_viable and calc.is_calculate("ten_year") and not is_cancer_diagnosed))
@@ -478,9 +478,9 @@ class Predictions(object):
             if rr is not None:
                 self.baseline_cancer_risks = rr
 
-        # other baseline
-        rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rl=True,
-                                                                      rr=False, ry=True))
+            # other baseline
+            rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rl=True,
+                                                                          rr=False, ry=True))
         if rl is not None:
             self.baseline_lifetime_cancer_risk = rl
         if ry is not None:
