@@ -478,13 +478,13 @@ class Predictions(object):
             if rr is not None:
                 self.baseline_cancer_risks = rr
 
-            # other baseline
+            # baseline lifetime cancer risk and baseline 10-year cancer risk
             rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rl=True,
                                                                           rr=False, ry=True))
-        if rl is not None:
-            self.baseline_lifetime_cancer_risk = rl
-        if ry is not None:
-            self.baseline_ten_yr_cancer_risk = ry
+            if rl is not None:
+                self.baseline_lifetime_cancer_risk = rl
+            if ry is not None:
+                self.baseline_ten_yr_cancer_risk = ry
 
         name = str(self.model_settings.get('NAME', ""))
         logger.info(
