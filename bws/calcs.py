@@ -1,42 +1,37 @@
 """ Risk and mutation probability calculations, for details
 see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
-from collections import OrderedDict
-import logging
-import os
-import resource
-from subprocess import Popen, PIPE, TimeoutExpired
-import tempfile
-import time
-
-from django.conf import settings
-from django.http.request import HttpRequest
-from rest_framework.exceptions import ValidationError, NotAcceptable
-from rest_framework.request import Request
-
 from bws import pedigree
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.exceptions import TimeOutException, ModelError
 from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
+from collections import OrderedDict
+from django.conf import settings
+from django.http.request import HttpRequest
+from rest_framework.exceptions import ValidationError
+from rest_framework.request import Request
+from subprocess import Popen, PIPE, TimeoutExpired
+import logging
+import os
 import re
+import resource
+import tempfile
+import time
 
 
 logger = logging.getLogger(__name__)
-
 REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 
 
 class ModelOpts():
 
     """
-    Fortran cancer model options
+    Defines the Fortran cancer risk model options
     -o , --output= write results to a file [defaults to the stdout].
     -p, --probs calculates pathogenic carrier probabilities.
     -rj, --riskJ 10-year cancer risk calculation (NHS protocol for young women at high risk)
     -rl, --riskL lifetime cancer risk calculation (proband's age set at 20y, censor age set at 80y)
     -rr, --riskR cancer risk calculation is performed (proband's age and censor age set in input files)
     -ry, --riskY 10-year cancer risk calculation (proband's age set at 40y, censor age set at 50y)
-    -s , --settings= use values of the model parameters in the specified file [default model settings if absent].
-    -v, --version print the version.
     """
     def __init__(self, out="predictions.txt", probs=True, rj=True, rl=True, rr=True, ry=True):
         self.out = out
@@ -67,17 +62,15 @@ class ModelOpts():
         @keyword calc: Predictions
         @return: ModelOpts
         """
+        mname = calc.model_settings.get('NAME', "")
         t = calc.pedi.get_target()
         is_alive = (t.dead != "1")
         is_cancer_diagnosed = t.cancers.is_cancer_diagnosed()
         is_risks_calc_viable = calc.pedi.is_risks_calc_viable() and is_alive and t.sex() == "F"
         is_carr_probs_viable = calc.pedi.is_carrier_probs_viable()
-        is_nhs_tenyr_reqd = (int(t.age) < 50 and calc.model_settings['NAME'] == 'BC')
-
-        mname = str(calc.model_settings.get('NAME', ""))
         return ModelOpts(out=mname+"_predictions.txt",
                          probs=(is_carr_probs_viable and calc.is_calculate('carrier_probs')),
-                         rj=is_risks_calc_viable and is_nhs_tenyr_reqd,
+                         rj=is_risks_calc_viable and (mname == 'BC' and int(t.age) < 50),
                          rl=(is_risks_calc_viable and calc.is_calculate("lifetime") and not is_cancer_diagnosed),
                          rr=is_risks_calc_viable,
                          ry=(is_risks_calc_viable and calc.is_calculate("ten_year") and not is_cancer_diagnosed))
@@ -110,24 +103,12 @@ class ModelParams():
         @return: ModelParams
         """
         population = data.get('mut_freq', 'UK')
-        crates = model_settings['CANCER_RATES'].get(data.get('cancer_rates'))
-
-        if population != 'Custom':
-            mut_freq = model_settings['MUTATION_FREQUENCIES'][population]
-        else:
-            mut_freq = {}
-            for gene in model_settings['GENES']:
-                try:
-                    mut_freq[gene] = float(data.get(gene.lower() + '_mut_frequency'))
-                except TypeError:
-                    raise NotAcceptable("Invalid mutation frequency for " + gene + ".")
-
         gts = model_settings['GENETIC_TEST_SENSITIVITY']
-        mut_sens = {
-            k: float(data.get(k.lower() + "_mut_sensitivity", gts[k]))
-            for k in gts.keys()
-        }
-        return ModelParams(population, cancer_rates=crates, mutation_frequency=mut_freq, mutation_sensitivity=mut_sens)
+        mut_sens = {k: float(data.get(k.lower() + "_mut_sensitivity", gts[k])) for k in gts.keys()}
+        return ModelParams(population,
+                           cancer_rates=model_settings['CANCER_RATES'].get(data.get('cancer_rates')),
+                           mutation_frequency=model_settings['MUTATION_FREQUENCIES'][population],
+                           mutation_sensitivity=mut_sens)
 
 
 class Risk(object):
@@ -241,42 +222,23 @@ class Risk(object):
             elif 'Age' in line or pedigree.BLANK_LINE.match(line):
                 continue
 
-            if rr:
-                parts = line.split(sep=",")
-                rr_arr.append(OrderedDict([
-                    ("age", int(parts[0])),
-                    (ctype+" cancer risk", {
-                        "decimal": float(parts[1]),
-                        "percent": round(float(parts[1])*100, 1)
-                    })
-                ]))
-            elif rl:
-                parts = line.split(sep=",")
-                rl_arr.append(OrderedDict([
-                    ("age", int(parts[1])),
-                    (ctype+" cancer risk", {
-                        "decimal": float(parts[2]),
-                        "percent": round(float(parts[2])*100, 1)
-                    })
-                ]))
-            elif ry and ry_arr is not None:
-                parts = line.split(sep=",")
-                ry_arr.append(OrderedDict([
-                    ("age", int(parts[1])),
-                    (ctype+" cancer risk", {
-                        "decimal": float(parts[2]),
-                        "percent": round(float(parts[2])*100, 1)
-                    })
-                ]))
-            elif rj:
-                parts = line.split(sep=",")
-                rj_arr.append(OrderedDict([
-                    ("age", int(parts[1])),
-                    (ctype+" cancer risk", {
-                        "decimal": float(parts[2]),
-                        "percent": round(float(parts[2])*100, 1)
-                    })
-                ]))
+            if rr or rl or ry or rj:
+                prts = line.split(sep=",")
+                plen = len(prts)
+                v = float(prts[plen-1])
+                od = OrderedDict([
+                        ("age", int(prts[plen-2])),
+                        (ctype+" cancer risk", {"decimal": v, "percent": round(v*100, 1)})
+                    ])
+
+                if rr:
+                    rr_arr.append(od)
+                elif rl:
+                    rl_arr.append(od)
+                elif ry and ry_arr is not None:
+                    ry_arr.append(od)
+                elif rj:
+                    rj_arr.append(od)
             elif mp:
                 mp_lines += line+"\n"
 
