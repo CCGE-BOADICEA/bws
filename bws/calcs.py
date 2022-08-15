@@ -446,8 +446,8 @@ class Predictions(object):
             # baseline lifetime cancer risk and baseline 10-year cancer risk
             if hasattr(self, "lifetime_cancer_risk") or hasattr(self, "ten_yr_cancer_risk"):
                 rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rr=False,
-                                                                              rl=self.lifetime_cancer_risk,
-                                                                              ry=self.ten_yr_cancer_risk))
+                                                                              rl=hasattr(self, "lifetime_cancer_risk"),
+                                                                              ry=hasattr(self, "ten_yr_cancer_risk")))
                 if rl is not None:
                     self.baseline_lifetime_cancer_risk = rl
                 if ry is not None:
