@@ -427,8 +427,11 @@ class Predictions(object):
             self.cancer_risks = rr
         if ry is not None:
             self.ten_yr_cancer_risk = ry
-        if rj is not None:
-            self.ten_yr_nhs_protocol = rj
+        if hasattr(self, "lifetime_cancer_risk") and rj is not None:
+            if len(rj) > 0:
+                self.ten_yr_nhs_protocol = rj
+            elif ry is not None:
+                self.ten_yr_nhs_protocol = ry
         if mp is not None:
             self.mutation_probabilties = mp
 
@@ -441,12 +444,14 @@ class Predictions(object):
                 self.baseline_cancer_risks = rr
 
             # baseline lifetime cancer risk and baseline 10-year cancer risk
-            rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rl=True,
-                                                                          rr=False, ry=True))
-            if rl is not None:
-                self.baseline_lifetime_cancer_risk = rl
-            if ry is not None:
-                self.baseline_ten_yr_cancer_risk = ry
+            if hasattr(self, "lifetime_cancer_risk") or hasattr(self, "ten_yr_cancer_risk"):
+                rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rr=False,
+                                                                              rl=self.lifetime_cancer_risk,
+                                                                              ry=self.ten_yr_cancer_risk))
+                if rl is not None:
+                    self.baseline_lifetime_cancer_risk = rl
+                if ry is not None:
+                    self.baseline_ten_yr_cancer_risk = ry
 
         name = str(self.model_settings.get('NAME', ""))
         logger.info(
