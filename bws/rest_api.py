@@ -2,7 +2,6 @@
 from copy import deepcopy
 import datetime
 import logging
-import re
 import shutil
 import tempfile
 
@@ -19,12 +18,12 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calcs import Predictions, ModelParams, RangeRisk
+from bws.calcs import Predictions, ModelParams
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
-    CombinedOutputSerializer, BCTenYrSerializer
+    CombinedOutputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 
 
@@ -79,9 +78,9 @@ class ModelWebServiceMixin():
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
+                    mname = model_settings['NAME']
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
-                        mname = model_settings['NAME']
                         risk_factor_code = pedi.get_rfcode(mname)
 
                         if prs is None or len(pf.pedigrees) > 1:
@@ -91,10 +90,11 @@ class ModelWebServiceMixin():
                     calcs = Predictions(pedi, model_params=this_params,
                                         risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
+                    target = pedi.get_target()
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
                     this_pedigree = {}
                     this_pedigree["family_id"] = pedi.famid
-                    this_pedigree["proband_id"] = pedi.get_target().pid
+                    this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
                     this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
@@ -108,6 +108,8 @@ class ModelWebServiceMixin():
                     self.add_attr("baseline_lifetime_cancer_risk", this_pedigree, calcs, output)
                     self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
                     self.add_attr("baseline_ten_yr_cancer_risk", this_pedigree, calcs, output)
+                    if int(target.age) < 50 and mname == "BC":
+                        self.add_attr("ten_yr_nhs_protocol", this_pedigree, calcs, output)
 
                     output["pedigree_result"].append(this_pedigree)
             except ValidationError as e:
@@ -430,136 +432,6 @@ for each the genes and the population to use for cancer incidence rates.
         produces: ['application/json', 'application/xml']
         """
         return self.post_to_model(request, settings.OC_MODEL)
-
-
-class BCTenYrView(APIView, ModelWebServiceMixin):
-    """
-    Ten year breast cancer risks calculation Web-Service
-    """
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
-    serializer_class = BCTenYrSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
-    model = settings.BC_MODEL
-    if coreapi is not None and coreschema is not None:
-        fields = ModelWebServiceMixin.get_fields(model)
-        fields.insert(0, coreapi.Field(
-                name="tenyr_ages",
-                required=True,
-                location='form',
-                schema=coreschema.Array(
-                    title="tenyr_ages",
-                    description='List of ages to calculate the 10-year risks',
-                    min_items=1,
-                    unique_items=True)
-            )
-        )
-        schema = ManualSchema(
-            fields=fields,
-            encoding="application/json",
-            description="""
-Ten year breast cancer risks calculations as per those given for the ages 40-49
-(https://canrisk.atlassian.net/wiki/x/NwDCAg). The web-service takes a list of
-ages to calculate the 10-year risks for, e.g. [25, 26, 27, 28, 29] or [29].
-"""
-        )
-
-    # @profile("profile_bws.profile")
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            validated_data = serializer.validated_data
-            pf = PedigreeFile(validated_data.get('pedigree_data'))
-            model_settings = settings.BC_MODEL
-            params = ModelParams.factory(validated_data, model_settings)
-
-            tenyr_ages = re.sub("[\[\]]", "", validated_data.get('tenyr_ages'))
-            tenyr_ages = [int(item.strip()) for item in tenyr_ages.split(',')]
-
-            output = {
-                "timestamp": datetime.datetime.now(),
-                "mutation_frequency": {params.population: params.mutation_frequency},
-                "mutation_sensitivity": params.mutation_sensitivity,
-                "cancer_incidence_rates": params.cancer_rates,
-                "pedigree_result": []
-            }
-
-            prs = validated_data.get('prs', None)
-            if prs is not None:
-                prs = Prs(prs.get('alpha'), prs.get('zscore'))
-
-            try:
-                warnings = PedigreeFile.validate(pf.pedigrees)
-                if len(warnings) > 0:
-                    output['warnings'] = warnings
-            except ValidationError as e:
-                logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json", status=status.HTTP_400_BAD_REQUEST)
-
-            # note limit username string length used here to avoid paths too long for model code
-            cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
-            try:
-                for pedi in pf.pedigrees:
-                    risk_factor_code = 0
-                    this_params = deepcopy(params)
-                    # check if Ashkenazi Jewish status set & correct mutation frequencies
-                    if pedi.is_ashkn() and not settings.REGEX_ASHKN.match(params.population):
-                        msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
-                              'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
-                        logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
-                        if 'warnings' in output:
-                            output['warnings'].append(msg)
-                        else:
-                            output['warnings'] = [msg]
-                        this_params.isashk = True
-                        this_params.population = 'Ashkenazi'
-                        this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
-
-                    if isinstance(pedi, CanRiskPedigree):
-                        # for canrisk format files check if risk factors and/or prs set in the header
-                        mname = model_settings['NAME']
-                        risk_factor_code = pedi.get_rfcode(mname)
-
-                        if prs is None or len(pf.pedigrees) > 1:
-                            prs = pedi.get_prs(mname)
-
-                    this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
-                    calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs, run_risks=False,
-                                        cwd=cwd, request=request, model_settings=model_settings)
-                    calcs.niceness = Predictions._get_niceness(calcs.pedi)
-
-                    calcs.ten_yr_cancer_risk = []
-                    for tenyr in tenyr_ages:
-                        ten_yr_risk = RangeRisk(calcs, int(tenyr), int(tenyr+10), "10 YR RANGE").get_risk()
-                        if ten_yr_risk is not None:
-                            calcs.ten_yr_cancer_risk.append(ten_yr_risk[0])
-
-                    # Add input parameters and calculated results as attributes to 'this_pedigree'
-                    this_pedigree = {}
-                    this_pedigree["family_id"] = pedi.famid
-                    this_pedigree["proband_id"] = pedi.get_target().pid
-                    this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
-                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
-                    if prs is not None:
-                        this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
-                    this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
-                    self.add_attr("version", output, calcs, output)
-                    self.add_attr("ten_yr_cancer_risk", this_pedigree, calcs, output)
-
-                    output["pedigree_result"].append(this_pedigree)
-            except ValidationError as e:
-                logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json",
-                                    status=status.HTTP_400_BAD_REQUEST, safe=False)
-            finally:
-                shutil.rmtree(cwd)
-                # print("BCTenYr :: "+cwd)
-            output_serialiser = OutputSerializer(output)
-            return Response(output_serialiser.data, template_name='result_tab_gp.html')
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CombineModelResultsView(APIView):

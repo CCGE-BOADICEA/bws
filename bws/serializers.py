@@ -5,7 +5,6 @@ I/O serializers for the web-services.
 from rest_framework import serializers
 from django.conf import settings
 from django.core.files.base import File
-from django.core.validators import int_list_validator
 
 
 class FileField(serializers.Field):
@@ -105,10 +104,6 @@ class OwsInputSerializer(BaseInputSerializer):
     prs = serializers.JSONField(required=False)
 
 
-class BCTenYrSerializer(BwsInputSerializer):
-    tenyr_ages = serializers.CharField(validators=[int_list_validator], min_length=3, max_length=30)
-
-
 class PedigreeResultSerializer(serializers.Serializer):
     """ Cancer model risks and mutation probabilities for a pedigree. """
     family_id = serializers.CharField(read_only=True)
@@ -121,6 +116,7 @@ class PedigreeResultSerializer(serializers.Serializer):
     lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
     baseline_lifetime_cancer_risk = serializers.ListField(read_only=True, required=False)
     ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
+    ten_yr_nhs_protocol = serializers.ListField(read_only=True, required=False)
     baseline_ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False)
     mutation_probabilties = serializers.ListField(read_only=True)
 
