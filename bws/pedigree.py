@@ -511,58 +511,53 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         f = open(filepath, "w")
         print("(I3,X,A8)", file=f)
-        if file_type == MUTATION_PROBS:
-            pcount = (len(model_settings['GENES'])+1)
-        else:
-            pcount = 1
 
         print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
               str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1,4(X,A8))", file=f)
 
-        for gt in range(pcount):
-            print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
+        print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
 
-            for p in self.people:
-                # IndivID FathID MothID Sex MZ Genotype, Polygene 1BC 2BC OC
-                genotype = gt if (p.target != "0" and file_type == MUTATION_PROBS) else ''
-                print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
-                      (p.pid,
-                       p.fathid if p.fathid != "0" else '',
-                       p.mothid if p.mothid != "0" else '', p.sex(),
-                       p.mztwin if p.mztwin != "0" else '',
-                       genotype, '   '), file=f, end="")
+        for p in self.people:
+            # IndivID FathID MothID Sex MZ Genotype, Polygene 1BC 2BC OC
+            genotype = ''
+            print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
+                  (p.pid,
+                   p.fathid if p.fathid != "0" else '',
+                   p.mothid if p.mothid != "0" else '', p.sex(),
+                   p.mztwin if p.mztwin != "0" else '',
+                   genotype, '   '), file=f, end="")
 
-                print(p.cancers.write(model_settings['CANCERS'], p.age), file=f, end="")
-                print("%3s " % p.age, file=f, end="")
+            print(p.cancers.write(model_settings['CANCERS'], p.age), file=f, end="")
+            print("%3s " % p.age, file=f, end="")
 
-                # Gene Tests
-                gtests = p.gtests
-                for g in model_settings['GENES']:
-                    try:
-                        print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
-                    except AttributeError:
-                        # check if gene not in BC model
-                        if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
-                            if g in Genes.get_unique_oc_genes():
-                                print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
-                        else:
-                            raise
+            # Gene Tests
+            gtests = p.gtests
+            for g in model_settings['GENES']:
+                try:
+                    print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
+                except AttributeError:
+                    # check if gene not in BC model
+                    if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
+                        if g in Genes.get_unique_oc_genes():
+                            print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
+                    else:
+                        raise
 
-                print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
+            print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
 
-                print(PathologyTest.write(p.pathology), file=f, end="")
+            print(PathologyTest.write(p.pathology), file=f, end="")
 
-                # ProbandStatus RiskFactor
-                print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
-                      file=f, end="")
+            # ProbandStatus RiskFactor
+            print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
+                  file=f, end="")
 
-                # Height
-                print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
+            # Height
+            print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
 
-                # PolygStanDev PolygLoad
-                print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
-                                       prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,),
-                      file=f)
+            # PolygStanDev PolygLoad
+            print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
+                                   prs.zscore if p.target != "0" and prs is not None and prs.zscore else 0,),
+                  file=f)
 
         f.close()
         return filepath
@@ -610,45 +605,38 @@ class Pedigree(metaclass=abc.ABCMeta):
 
         print("2", file=f)
         print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
-        if batch_type == MUTATION_PROBS:
-            print("3", file=f)
-            print(pedigree_file_name, file=f)
-            print("0", file=f)
+
+        target = self.get_target()
+        tage = int(target.age)      # target age at last follow up
+
+        if calc_ages is None:
+            # Compute breast/ovarian cancer risks for the following years:
+            #    (1) Next 5 years at one year intervals, age at last follow up +1, +2, +3, +4, +5
+            #    (2) Age at last follow up +10
+            #    (3) Ages divisible by 5, greater than age at last follow up +5, and less than 80 years,
+            #    to make assessments for MRI screening easier
+            calc_ages = []
+            alf = tage
+            while alf <= settings.MAX_AGE_FOR_RISK_CALCS:
+                alf += 1
+                if(alf <= (tage + 5) or alf % 5 == 0 or alf == (tage + 10)):
+                    calc_ages.append(alf)
+        elif isinstance(calc_ages, int):
+            calc_ages = [calc_ages]
+
+        if calc_ages[0] != 0:
+            calc_ages.insert(0, 0)
+        print("3", file=f)
+        print(pedigree_file_name, file=f)
+        for i, age in enumerate(calc_ages):
+            print("9", file=f)
+            print((age-tage if age != 0 else 0), file=f)
 
             print("22", file=f)
-            print("no", file=f)
-        elif batch_type == CANCER_RISKS:
-            target = self.get_target()
-            tage = int(target.age)      # target age at last follow up
-
-            if calc_ages is None:
-                # Compute breast/ovarian cancer risks for the following years:
-                #    (1) Next 5 years at one year intervals, age at last follow up +1, +2, +3, +4, +5
-                #    (2) Age at last follow up +10
-                #    (3) Ages divisible by 5, greater than age at last follow up +5, and less than 80 years,
-                #    to make assessments for MRI screening easier
-                calc_ages = []
-                alf = tage
-                while alf <= settings.MAX_AGE_FOR_RISK_CALCS:
-                    alf += 1
-                    if(alf <= (tage + 5) or alf % 5 == 0 or alf == (tage + 10)):
-                        calc_ages.append(alf)
-            elif isinstance(calc_ages, int):
-                calc_ages = [calc_ages]
-
-            if calc_ages[0] != 0:
-                calc_ages.insert(0, 0)
-            print("3", file=f)
-            print(pedigree_file_name, file=f)
-            for i, age in enumerate(calc_ages):
-                print("9", file=f)
-                print((age-tage if age != 0 else 0), file=f)
-
-                print("22", file=f)
-                if i < len(calc_ages)-1:
-                    print("yes", file=f)
-                else:
-                    print("no", file=f)
+            if i < len(calc_ages)-1:
+                print("yes", file=f)
+            else:
+                print("no", file=f)
         f.close()
         return filepath
 

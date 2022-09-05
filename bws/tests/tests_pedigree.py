@@ -3,8 +3,7 @@ from datetime import date
 from django.test import TestCase
 from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree
 from copy import deepcopy
-from bws.calcs import Predictions, RemainingLifetimeRisk, RangeRiskBaseline,\
-    ModelParams
+from bws.calcs import Predictions, ModelParams
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
 from django.conf import settings
 import tempfile
@@ -190,29 +189,6 @@ class RiskTests(TestCase):
 
         self.assertEqual(calcs1.ten_yr_cancer_risk[0]['breast cancer risk']['decimal'],
                          c50['breast cancer risk']['decimal'])
-
-    def test_pedigree_remaining_lifetime(self):
-        """ Test pedigree for remaining lifetime risk calculation. """
-        p1 = deepcopy(self.pedigree)
-        PedigreeFile.validate(p1)
-        calcs = Predictions(p1, cwd=self.cwd, run_risks=False)
-        self.assertTrue(calcs.pedi.is_carrier_probs_viable())
-        self.assertTrue(calcs.pedi.is_risks_calc_viable())
-        remaining_life = RemainingLifetimeRisk(calcs)
-        p2 = remaining_life._get_pedi()
-        self.assertEqual(len(p1.people), len(p2.people))
-        self.assertEqual(p1.get_target().age, p2.get_target().age)
-
-    def test_pedigree_range_baseline(self):
-        """ Test pedigree for baseline time range (e.g. lifetime, 10yr range) risk calculation. """
-        p1 = deepcopy(self.pedigree)
-        PedigreeFile.validate(p1)
-        calcs = Predictions(p1, cwd=self.cwd, run_risks=False)
-        range_baseline = RangeRiskBaseline(calcs, 40, 50, "10 YR RANGE BASELINE")
-        p2 = range_baseline._get_pedi()
-        self.assertEqual(len(p2.people), 1)
-        self.assertEqual(p2.get_target().age, 40)
-        self.assertNotEqual(p1.get_target().age, p2.get_target().age)
 
     def test_incidence_rates(self):
         """ Test prediction of cancer risk and mutation probability for different incidence rates. """
