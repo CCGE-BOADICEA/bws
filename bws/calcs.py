@@ -70,7 +70,7 @@ class ModelOpts():
         is_carr_probs_viable = calc.pedi.is_carrier_probs_viable()
         return ModelOpts(out=mname+"_predictions.txt",
                          probs=(is_carr_probs_viable and calc.is_calculate('carrier_probs')),
-                         rj=is_risks_calc_viable and (mname == 'BC' and int(t.age) < 50),
+                         rj=(is_risks_calc_viable and (mname == 'BC' and int(t.age) < 50) and not is_cancer_diagnosed),
                          rl=(is_risks_calc_viable and calc.is_calculate("lifetime") and not is_cancer_diagnosed),
                          rr=is_risks_calc_viable,
                          ry=(is_risks_calc_viable and calc.is_calculate("ten_year") and not is_cancer_diagnosed))
