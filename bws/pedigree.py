@@ -624,6 +624,8 @@ class Pedigree(metaclass=abc.ABCMeta):
         elif isinstance(calc_ages, int):
             calc_ages = [calc_ages]
 
+        if len(calc_ages) == 0:
+            calc_ages.append(0)
         if calc_ages[0] != 0:
             calc_ages.insert(0, 0)
         print("3", file=f)
