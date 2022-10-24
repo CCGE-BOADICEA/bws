@@ -73,7 +73,7 @@ class BaseInputSerializer(serializers.Serializer):
             if len(extra_fields) > 0:
                 msg = ", ".join(extra_fields)
                 raise serializers.ValidationError({'Input Field Error': f'Extra input field(s) found: {msg}'})
-        return super(BaseInputSerializer, self).is_valid(raise_exception)
+        return super(BaseInputSerializer, self).is_valid()
 
 
 class BwsInputSerializer(BaseInputSerializer):
