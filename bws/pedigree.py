@@ -903,7 +903,7 @@ class Person(object):
         # Check max no. of siblings not exceeded
         (siblings, siblings_same_yob) = pedigree.get_siblings(self)
         if len(siblings) > settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY:
-            raise PersonError("Family member '" + self.pid + "' exeeded the maximum number of siblings (" +
+            raise PersonError("Family member '" + self.pid + "' exceeded the maximum number of siblings (" +
                               str(settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY) + ".")
         # Check has siblings with the same year of birth
         if len(siblings_same_yob) > settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB:
