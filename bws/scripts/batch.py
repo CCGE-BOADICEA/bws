@@ -41,7 +41,7 @@ def get_batch_results(fname, calc_ages):
     f = open(fname, "r")
     for line in f:
         crisks = line.strip().split(',')
-        if len(crisks) == 4 and not line.startswith('file'):
+        if len(crisks) == 4 and not line.startswith('file') and 'Censor' not in line:
             censoring_age = int(crisks[2])
             if censoring_age in calc_ages:
                 c_batch[censoring_age] = crisks[3]
@@ -59,10 +59,12 @@ def get_mp(fname):
 
     f = open(fname, "r")
     for line in f:
+        if 'PROBABILITIES' in line:
+            continue
         parts = line.strip().replace('NO_PATHOGENIC_VARIANTS', 'no mutation').split(',')[2:]
-        if line.startswith('file'):
+        if 'NO_PATHOGENIC_VARIANTS' in line:
             keys = parts
-        elif not line.startswith('file'):
+        else:
             vals = parts
     f.close()
     return {keys[idx]: val for idx, val in enumerate(vals)}

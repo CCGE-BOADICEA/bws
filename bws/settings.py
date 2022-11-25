@@ -138,6 +138,7 @@ BC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
+        ('ANTEBC 2803', {'alpha': 0.437}),
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BCAC 3820', 'BCAC_3820_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
@@ -151,7 +152,10 @@ BC_MODEL = {
     ])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
-BC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in BC_MODEL['PRS_REFERENCE_FILES'].items()}
+BC_MODEL['PRS_ALPHA'] = {
+    k: get_alpha(v) if isinstance(v, str) else v['alpha']
+    for k, v in BC_MODEL['PRS_REFERENCE_FILES'].items()
+}
 
 #
 # OVARIAN CANCER MODEL
