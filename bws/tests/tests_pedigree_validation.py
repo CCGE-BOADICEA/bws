@@ -1,4 +1,10 @@
-""" BOADICEA pedigree validation testing.  """
+"""
+BOADICEA pedigree validation testing.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from copy import deepcopy
 import copy
 from datetime import date

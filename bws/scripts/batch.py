@@ -1,3 +1,12 @@
+"""
+Utilities to assist in running batch processing script and
+extract results.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
+
 import os
 from subprocess import PIPE, Popen
 from bws.pedigree import PedigreeFile, CanRiskPedigree

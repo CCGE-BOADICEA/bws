@@ -1,3 +1,8 @@
+"""
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from rest_framework.exceptions import APIException
 from rest_framework import status
 from django.utils.translation import ugettext_lazy as _

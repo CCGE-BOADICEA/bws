@@ -1,4 +1,10 @@
-""" Command line utility. """
+"""
+Command line utility.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from django.core.management.base import BaseCommand
 from bws.risk_factors.bc import BCRiskFactors
 
