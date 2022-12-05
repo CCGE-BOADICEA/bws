@@ -1,5 +1,11 @@
-""" Risk and mutation probability calculations, for details
-see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations"""
+"""
+Risk and mutation probability calculations, for details
+see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from bws import pedigree
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.exceptions import TimeOutException, ModelError

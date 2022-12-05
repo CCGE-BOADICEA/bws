@@ -1,4 +1,10 @@
-""" BOADICEA web-service throttling tests.  """
+"""
+BOADICEA web-service throttling tests.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 
 from django.test import TestCase
 from rest_framework import status

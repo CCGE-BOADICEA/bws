@@ -5,7 +5,9 @@
 # bws/scripts/run_batch_ws_compare.py -u USERNAME -p bws/tests/data/batch/ --url http://0.0.0.0:8000/ \
 #                                     --fortran /home/xxxx/Model-Batch-Processing --cancer_rates Spain
 #
-
+# © 2022 Cambridge University
+# SPDX-FileCopyrightText: 2022 Cambridge University
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from boadicea.scripts.boadicea_2_csv import convert2csv
 from bws.scripts.batch import run_batch, get_censoring_ages, get_batch_results, get_rfs,\

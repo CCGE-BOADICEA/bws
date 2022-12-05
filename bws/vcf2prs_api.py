@@ -1,3 +1,11 @@
+"""
+Calculate PRS from a VCF file.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
+
 import os
 
 from rest_framework import serializers, status

@@ -94,4 +94,14 @@ pedigree file and will prompt for the password and run the risk calculation via 
 
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --help
     ${PATH_TO_BWS}/bws/scripts/run_webservice.py --url ${URL} -u ${USER} \
-                                                 -p ${PATH_TO_BWS}/bws/tests/data/pedigree_data.txt 
+                                                 -p ${PATH_TO_BWS}/bws/tests/data/pedigree_data.txt
+
+License
+-------
+
+This software is distributed under the GPL either version 3 or later license.
+
+Publication
+-----------
+
+pedigreejs: a web-based graphical pedigree editor. Carver T, et al. `Bioinformatics, Volume 34, Issue 6, 15 March 2018 <http://dx.doi.org/10.1093/bioinformatics/btx705>`_.

@@ -1,4 +1,10 @@
-""" Mutation risk and probability calculation testing. """
+"""
+Mutation risk and probability calculation testing.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from datetime import date
 from django.test import TestCase
 from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree

@@ -1,4 +1,8 @@
-
+"""
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
 from bws.risk_factors.bc import BCRiskFactors

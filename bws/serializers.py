@@ -1,5 +1,9 @@
 """
 I/O serializers for the web-services.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
 """
 
 from rest_framework import serializers

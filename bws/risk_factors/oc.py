@@ -1,5 +1,9 @@
 '''
 Ovarian cancer risk factors.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
 '''
 
 from bws.risk_factors.rfs import RiskFactor, RiskFactors

@@ -1,4 +1,10 @@
-''' API for the BWS/OWS REST resources. '''
+'''
+API for the BWS/OWS REST resources.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+'''
 from copy import deepcopy
 import datetime
 import logging
