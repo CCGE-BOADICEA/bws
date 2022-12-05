@@ -1,4 +1,10 @@
-""" BOADICEA web-service testing.  """
+"""
+BOADICEA web-service testing.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 
 from bws.calcs import Predictions
 from bws.cancer import CanRiskGeneticTests

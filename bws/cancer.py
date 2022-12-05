@@ -1,5 +1,9 @@
 """
 Cancer, pathology and genetic testing
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
 """
 import re
 from bws.exceptions import GeneticTestError, PathologyError, CancerError

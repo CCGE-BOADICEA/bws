@@ -1,4 +1,10 @@
-""" BOADICEA pedigree validation testing.  """
+"""
+BOADICEA pedigree validation testing.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 from copy import deepcopy
 import copy
 from datetime import date
@@ -286,7 +292,7 @@ class PersonTests(TestCase, ErrorTests):
         pedigree.people.append(Male(f1.famid, "M1A", "111", f1.fathid, f1.mothid))
         pedigree.people.append(Male(f1.famid, "M1B", "112", f1.fathid, f1.mothid))
         self.assertEqual(len(pedigree.get_siblings(f1)[0]), 2)
-        with self.assertRaisesRegex(PersonError, r"exeeded the maximum number of siblings"):
+        with self.assertRaisesRegex(PersonError, r"exceeded the maximum number of siblings"):
             PedigreeFile.validate(pedigree_file.pedigrees)
 
     @override_settings(MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB=1)

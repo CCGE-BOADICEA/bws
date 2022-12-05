@@ -1,4 +1,10 @@
-""" Command line utility. """
+"""
+Command line utility.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 import os
 from django.core.management.base import BaseCommand, CommandError
 from bws.exceptions import PedigreeFileError

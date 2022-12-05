@@ -1,4 +1,10 @@
-""" Ovarian web-service testing.  """
+"""
+Ovarian web-service testing.
+
+© 2022 Cambridge University
+SPDX-FileCopyrightText: 2022 Cambridge University
+SPDX-License-Identifier: GPL-3.0-or-later
+"""
 
 from django.contrib.auth.models import User
 from django.test import TestCase
