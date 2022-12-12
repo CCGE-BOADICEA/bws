@@ -141,7 +141,6 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
             vcf_file = validated_data.get("vcf_file")
-            vcf_stream = io.StringIO(vcf_file)
 
             moduledir = Path(vcf2prs.__file__).parent.parent
             bc_prs_ref_file = validated_data.get("bc_prs_reference_file", None)
@@ -158,6 +157,7 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
 
             try:
                 if bc_prs_ref_file is not None:
+                    vcf_stream = io.StringIO(vcf_file)
                     breast_prs = Prs(prs_file=bc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
                     bc_alpha = breast_prs.alpha
                     bc_zscore = breast_prs.z_Score
@@ -166,6 +166,7 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                     bc_zscore = 0
 
                 if oc_prs_ref_file is not None:
+                    vcf_stream = io.StringIO(vcf_file)
                     ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
                     oc_alpha = ovarian_prs.alpha
                     oc_zscore = ovarian_prs.z_Score
