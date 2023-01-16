@@ -164,7 +164,7 @@ for bwa in bwalist:
                     print(f"BC EXACT MATCH ::: {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                 else:
                     print(f"BC DIFFERENCE ["+str(float(bc_ws[age])-float(bc_batch[age])) +
-                          "]*** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
+                          f"]*** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                     exact_matches += 1
                     diffs.append(bwa)
 
@@ -174,7 +174,7 @@ for bwa in bwalist:
                     print(f"OC EXACT MATCH :::    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                 else:
                     print(f"OC DIFFERENCE ["+str(float(oc_ws[age])-float(oc_batch[age])) +
-                          "]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                          f"]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
     finally:
