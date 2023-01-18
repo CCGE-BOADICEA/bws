@@ -93,8 +93,9 @@ class ModelWebServiceMixin():
                             prs = pedi.get_prs(mname)
 
                     this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
-                    calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
+                    this_birads = (str(int(pedi.birads)) if hasattr(pedi, 'birads') and pedi.birads is not None else None)
+                    calcs = Predictions(pedi, model_params=this_params, risk_factor_code=risk_factor_code,
+                                        hgt=this_hgt, birads=this_birads, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     target = pedi.get_target()
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
@@ -102,6 +103,9 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    if mname == "BC":
+                        this_pedigree["risk_factors"][_('Mammographic Density')] = "BI-RADS " + \
+                                                                                   this_birads if this_birads is not None else "-"
                     this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}

@@ -156,10 +156,6 @@ class RiskFactorsCodeTests(TestCase):
         rfc += 4*128000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
-        bc_risk_categories[8] = bc.MammographicDensity.get_category('1')
-        rfc += 1*768000
-        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
-
         # bc_risk_categories[9] = bc.Height.get_category('174.21')
         # rfc += 5*3840000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)

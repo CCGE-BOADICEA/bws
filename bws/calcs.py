@@ -149,6 +149,16 @@ class Risk(object):
         """
         return self.predictions.hgt
 
+    def _get_md(self):
+        """
+        Get the mammographic density. If employing BIRAD, the value should be an integer between 1 and 4.
+        If employing continuous methods, the value should be a real number in the form N.xxxx. 
+        In this case, N refers to the method (10=Stratus, 20= Volpara) whereas xxxxx is the mammographic
+        density percentage. 
+        @return: mammographic density
+        """
+        return self.predictions.birads
+
     def _get_mutation_frequency(self):
         """
         Get the mutation frequencies.
@@ -180,6 +190,7 @@ class Risk(object):
         ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
                                             risk_factor_code=self._get_risk_factor_code(),
                                             hgt=self._get_hgt(),
+                                            mdensity=self._get_md(),
                                             prs=self._get_prs(),
                                             filepath=os.path.join(pred.cwd, self._type()+"_risk.ped"),
                                             model_settings=pred.model_settings)
@@ -327,6 +338,13 @@ class RemainingLifetimeBaselineRisk(Risk):
     def _get_hgt(self):
         return -1
 
+    def _get_md(self):
+        """
+        Get the mammographic density.
+        @return: mammographic density
+        """
+        return None
+
     def _get_prs(self):
         return None
 
@@ -366,6 +384,13 @@ class RiskBaseline(Risk):
     def _get_hgt(self):
         return -1
 
+    def _get_md(self):
+        """
+        Get the mammographic density.
+        @return: mammographic density
+        """
+        return None
+
     def _get_prs(self):
         return None
 
@@ -376,7 +401,7 @@ class RiskBaseline(Risk):
 class Predictions(object):
 
     def __init__(self, pedi, model_params=ModelParams(),
-                 risk_factor_code=0, hgt=-1, prs=None, cwd=None, request=Request(HttpRequest()),
+                 risk_factor_code=0, hgt=-1, birads=None, prs=None, cwd=None, request=Request(HttpRequest()),
                  run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
@@ -396,6 +421,7 @@ class Predictions(object):
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
         self.hgt = hgt
+        self.birads = birads
         self.prs = prs
         self.model_settings = model_settings
         self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
@@ -537,14 +563,14 @@ class Predictions(object):
         @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
         cmd = [os.path.join(model['HOME'], model['EXE'])]
-
+        mname = str(model.get('NAME', ""))
         if params is not None:
             cmd.extend(["-s", params])
-
+        if mname is "BC":
+            cmd.extend(["-e", os.path.join(model["HOME"], 'Data/coeffs-BC_UK-pop.nml')])
         out = model_opts.out
         cmd.extend(model_opts.get_cmd_line_opts())
         cmd.extend([bat_file, model['INCIDENCE'] + cancer_rates + ".nml"])
-        mname = str(model.get('NAME', ""))
 
         start = time.time()
         try:

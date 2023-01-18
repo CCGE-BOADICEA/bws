@@ -151,9 +151,9 @@ for bwa in bwalist:
         oc_mp_batch = get_mp(OC_BATCH_PROBS)
 
         print(bwa)
-        if bc_mp_batch is not None or bc_mp_ws is not None:
+        if bc_mp_batch is not None and bc_mp_ws is not None:
             exact_matches = compare_mp("BC", bc_mp_batch, bc_mp_ws, exact_matches, bc_probs_tol)
-        if oc_mp_batch is not None or oc_mp_ws is not None:
+        if oc_mp_batch is not None and oc_mp_ws is not None:
             exact_matches = compare_mp("OC", oc_mp_batch, oc_mp_ws, exact_matches, oc_probs_tol)
 
         # compare webservice.tab with batch_result.out

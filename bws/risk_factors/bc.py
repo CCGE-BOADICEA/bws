@@ -120,8 +120,7 @@ class BCRiskFactors(RiskFactors):
         MHT,
         BMI,
         AlcoholIntake,
-        AgeOfMenopause,
-        MammographicDensity
+        AgeOfMenopause
     ]
 
     # dictionary of risk factor name and number of categories
@@ -144,6 +143,6 @@ class BCRiskFactors(RiskFactors):
 #         ])
 
     # dictionary of risk factor name and the categories
-    risk_factors_categories = OrderedDict(
-        (rf.snake_name(), rf.cats) for rf in risk_factors
-    )
+#    risk_factors_categories = OrderedDict(
+#       (rf.snake_name(), rf.cats) for rf in risk_factors
+#    )
