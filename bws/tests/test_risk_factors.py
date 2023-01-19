@@ -16,6 +16,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
+from bws.risk_factors.mdensity import Birads, Stratus, Volpara
 
 
 class RiskFactorsCategoryTests(TestCase):
@@ -97,14 +98,41 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
 
-    def test_get_MammographicDensity_category(self):
-        ''' Given a Mammographic Density value check the category is correctly assigned. '''
-        self.assertEqual(bc.MammographicDensity.get_category('-'), 0)
-        self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
-        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
-        self.assertEqual(bc.MammographicDensity.get_category('c'), 3)
-        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS c"), 3)
-        self.assertEqual(bc.MammographicDensity.get_category('a'), 1)
+
+class MammographicDensityTests(TestCase):
+    
+    def test_get_Birads_category(self):
+        ''' Given a Birads value check the category is correctly assigned. '''
+        self.assertEqual(Birads.get_category('-'), 0)
+        self.assertEqual(Birads.get_category('3'), 3)
+        self.assertEqual(Birads.get_category("BI-RADS 3"), 3)
+        self.assertEqual(Birads.get_category('c'), 3)
+        self.assertEqual(Birads.get_category("BI-RADS c"), 3)
+        self.assertEqual(Birads.get_category('a'), 1)
+
+    def test_Stratus_pedigree(self):
+        ''' Given a Stratus value check the pedigree encoding and display string. '''
+        stratus = Stratus("10.67")
+        self.assertEqual(stratus.get_pedigree_str(), "10.10670")
+        self.assertEqual(stratus.get_display_str(), "Stratus 10.67")
+        stratus = Stratus("0.678999")
+        self.assertEqual(stratus.get_pedigree_str(), "10.00679")
+        self.assertEqual(stratus.get_display_str(), "Stratus 0.678999")
+        stratus = Stratus("88")
+        self.assertEqual(stratus.get_pedigree_str(), "10.88000")
+        self.assertEqual(stratus.get_display_str(), "Stratus 88")
+
+    def test_Volpara_pedigree(self):
+        ''' Given a Volpara value check the pedigree encoding and display string. '''
+        vol = Volpara("12.67333333")
+        self.assertEqual(vol.get_pedigree_str(), "20.12673")
+        self.assertEqual(vol.get_display_str(), "Volpara 12.67333333")
+        vol = Volpara("1.678999")
+        self.assertEqual(vol.get_pedigree_str(), "20.01679")
+        self.assertEqual(vol.get_display_str(), "Volpara 1.678999")
+        vol = Volpara("5")
+        self.assertEqual(vol.get_pedigree_str(), "20.05000")
+        self.assertEqual(vol.get_display_str(), "Volpara 5")
 
 
 class RiskFactorsCodeTests(TestCase):

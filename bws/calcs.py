@@ -157,7 +157,7 @@ class Risk(object):
         density percentage. 
         @return: mammographic density
         """
-        return self.predictions.birads
+        return self.predictions.mdensity
 
     def _get_mutation_frequency(self):
         """
@@ -401,13 +401,15 @@ class RiskBaseline(Risk):
 class Predictions(object):
 
     def __init__(self, pedi, model_params=ModelParams(),
-                 risk_factor_code=0, hgt=-1, birads=None, prs=None, cwd=None, request=Request(HttpRequest()),
+                 risk_factor_code=0, hgt=-1, mdensity=None, prs=None, cwd=None, request=Request(HttpRequest()),
                  run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
         @param pedi: L{Pedigree} used in prediction calculations
         @keyword model_params: model parameters
         @keyword risk_factor_code: risk factor code
+        @keyword hgt: height
+        @keyword mdensity: mammographic density  
         @keyword prs: polygenic risk alpha & beta values calculated from VCF file
         @keyword cwd: working directory
         @keyword request: HTTP request
@@ -421,7 +423,7 @@ class Predictions(object):
         self.cwd = cwd
         self.risk_factor_code = risk_factor_code
         self.hgt = hgt
-        self.birads = birads
+        self.mdensity = mdensity
         self.prs = prs
         self.model_settings = model_settings
         self.calcs = self.model_settings['CALCS'] if calcs is None else calcs

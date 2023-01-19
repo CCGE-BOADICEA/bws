@@ -15,11 +15,12 @@ from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
 from datetime import date
 from random import randint
 import abc
-from bws.risk_factors.bc import BCRiskFactors, MammographicDensity
+from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 import logging
 import os
 from django.utils.translation import gettext_lazy as _
+from bws.risk_factors.mdensity import Birads, Volpara, Stratus
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class CanRiskHeader():
         oc_rfs = OCRiskFactors()
         bc_prs = oc_prs = None
         hgt = -1
-        birads = None
+        md = None
         for line in self.lines:
             try:
                 parts = line.split('=', 1)
@@ -101,15 +102,18 @@ class CanRiskHeader():
                             continue
                         hgt = float(rfval)
                     if rfnam == 'birads':
-                        mdcat = MammographicDensity.get_category(rfval)
-                        if mdcat > 0:
-                            birads = "0000000"+str(mdcat)
+                        md = Birads(rfval)
+                    elif rfnam == 'stratus':
+                        md = Stratus(rfval)
+                    elif rfnam == 'volpara':
+                        md = Volpara(rfval)
+                    
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception:
                 logger.error("CanRisk header format contains an error.")
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, birads, bc_prs, oc_prs)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, bc_prs, oc_prs)
 
 
 class PedigreeFile(object):
@@ -187,11 +191,11 @@ class PedigreeFile(object):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type.startswith('canrisk'):
-                bc_rfc, oc_rfc, hgt, birads, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
+                bc_rfc, oc_rfc, hgt, mdensity, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
                     CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
-                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt, birads=birads))
+                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt, mdensity=mdensity))
 
     @classmethod
     def validate(cls, pedigrees):
@@ -221,7 +225,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, hgt=-1, birads=None):
+                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -267,7 +271,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                                 str(pedigree_size), self.famid)
         if file_type is not None and file_type.startswith('canrisk'):
             self.hgt = hgt
-            self.birads = birads
+            self.mdensity = mdensity
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
@@ -521,6 +525,10 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         Write input pedigree file for fortran.
         """
+        
+        if mdensity is not None and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus)):
+            raise Exception("Unsupported mammographic density type")
+        
         f = open(filepath, "w")
         
         mname = model_settings['NAME']
@@ -571,7 +579,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
             # Mammographic density
             if mname == "BC":
-                print(("%8s " % mdensity) if p.target != "0" and mdensity is not None else ("%8s " % "00000000"), file=f, end="")
+                print(("%8s " % mdensity.get_pedigree_str()) if p.target != "0" and mdensity is not None else ("%8s " % "00000000"), file=f, end="")
 
             # PolygStanDev PolygLoad
             print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,

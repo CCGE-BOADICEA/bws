@@ -87,23 +87,7 @@ class AgeOfMenopause(RiskFactor):
     help_text = _('Age of Menopause')
     synonyms = ['menopause']
 
-
-class MammographicDensity(RiskFactor):
-    cats = ['-', 'BI-RADS a', 'BI-RADS b', 'BI-RADS c', 'BI-RADS d']
-    help_text = _('Mammographic Density')
-    synonyms = ['birads']
-
-    @classmethod
-    def get_category(cls, val):
-        alt1 = ['NA', 'a', 'b', 'c', 'd']
-        alt2 = ['NA', '1', '2', '3', '4']
-        val = val.lower().replace('bi-rads ', '')
-        for idx, _cat in enumerate(cls.cats):
-            if val == alt1[idx] or val == alt2[idx]:
-                return idx
-        return 0
-
-
+    
 class BCRiskFactors(RiskFactors):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
         If a factor is unobserved, missing or not applicable, it is assigned category 0,
