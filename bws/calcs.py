@@ -22,6 +22,7 @@ import re
 import resource
 import tempfile
 import time
+from bws.risk_factors.ethnicity import UKBioBankEthnicty
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,8 @@ class ModelParams():
 
     def __init__(self, population="UK", mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
                  mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
-                 cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK")):
+                 cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
+                 ethnicity=UKBioBankEthnicty()):
         """
         Cancer risk model parameters and population.
         @keyword population: population setting
@@ -99,6 +101,7 @@ class ModelParams():
         self.mutation_frequency = mutation_frequency
         self.mutation_sensitivity = mutation_sensitivity
         self.isashk = settings.REGEX_ASHKN.match(population)
+        self.ethnicity = ethnicity
 
     @classmethod
     def factory(cls, data, model_settings):
@@ -198,15 +201,16 @@ class Risk(object):
                                          filepath=os.path.join(pred.cwd, self._type()+"_risk.bat"),
                                          model_settings=pred.model_settings,
                                          calc_ages=self.risk_age)
-        params = pedi.write_param_file(filepath=os.path.join(pred.cwd, self._type()+"_risk.params"),
-                                       model_settings=pred.model_settings,
-                                       mutation_freq=self._get_mutation_frequency(),
-                                       isashk=pred.model_params.isashk,
-                                       sensitivity=pred.model_params.mutation_sensitivity)
-        risks = Predictions.run(self.predictions.request, pedigree.CANCER_RISKS, bat_file,
+        param_file = pedi.write_param_file(filepath=os.path.join(pred.cwd, self._type()+"_risk.params"),
+                                           model_settings=pred.model_settings,
+                                           mutation_freq=self._get_mutation_frequency(),
+                                           isashk=pred.model_params.isashk,
+                                           sensitivity=pred.model_params.mutation_sensitivity)
+        risks = Predictions.run(self.predictions.request, bat_file,
                                 model_opts=model_opts,
-                                params=params,
-                                cancer_rates=pred.model_params.cancer_rates, cwd=pred.cwd,
+                                model_params=pred.model_params,
+                                param_file=param_file,
+                                cwd=pred.cwd,
                                 niceness=pred.niceness, name=self._get_name(),
                                 model=pred.model_settings)
         return self._parse_risks_output(risks, model_opts)
@@ -550,26 +554,27 @@ class Predictions(object):
             raise
 
     @classmethod
-    def run(cls, request, process_type, bat_file, model_opts, params=None, cancer_rates="UK", cwd="/tmp",
-            niceness=0, name="", model=settings.BC_MODEL):
+    def run(cls, request, bat_file, model_opts, model_params, 
+            param_file=None, cwd="/tmp", niceness=0, name="", model=settings.BC_MODEL):
         """
         Run a process.
         @param request: HTTP request
-        @param process_type: either pedigree.MUTATION_PROBS or pedigree.CANCER_RISKS.
         @param bat_file: batch file path
         @param model_opts: fortran model options
-        @param params: model parameters
-        @keyword cancer_rates: cancer incidence rates used in risk calculation
+        @param model_params: fortran model parameters
+        @param param_file: settings file name
         @keyword cwd: working directory
         @keyword niceness: niceness value
         @keyword name: log name for calculation, e.g. REMAINING LIFETIME
         """
+        cancer_rates = model_params.cancer_rates
         cmd = [os.path.join(model['HOME'], model['EXE'])]
         mname = str(model.get('NAME', ""))
-        if params is not None:
-            cmd.extend(["-s", params])
-        if mname is "BC":
-            cmd.extend(["-e", os.path.join(model["HOME"], 'Data/coeffs-BC_UK-pop.nml')])
+        if param_file is not None:
+            cmd.extend(["-s", param_file])
+        if mname == "BC":
+            cmd.extend(["-e", os.path.join(model["HOME"], 'Data', model_params.ethnicity.get_filename())])
+
         out = model_opts.out
         cmd.extend(model_opts.get_cmd_line_opts())
         cmd.extend([bat_file, model['INCIDENCE'] + cancer_rates + ".nml"])
