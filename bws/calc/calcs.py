@@ -62,10 +62,7 @@ class Risk(object):
 
     def _get_md(self):
         """
-        Get the mammographic density. If employing BIRAD, the value should be an integer between 1 and 4.
-        If employing continuous methods, the value should be a real number in the form N.xxxx. 
-        In this case, N refers to the method (10=Stratus, 20= Volpara) whereas xxxxx is the mammographic
-        density percentage. 
+        Get the mammographic density 
         @return: mammographic density
         """
         return self.predictions.mdensity
@@ -98,14 +95,13 @@ class Risk(object):
         """
         pedi = self._get_pedi()
         pred = self.predictions
-        ped_file = pedi.write_pedigree_file(file_type=pedigree.CANCER_RISKS,
-                                            risk_factor_code=self._get_risk_factor_code(),
+        ped_file = pedi.write_pedigree_file(risk_factor_code=self._get_risk_factor_code(),
                                             hgt=self._get_hgt(),
                                             mdensity=self._get_md(),
                                             prs=self._get_prs(),
                                             filepath=os.path.join(pred.cwd, self._type()+"_risk.ped"),
                                             model_settings=pred.model_settings)
-        bat_file = pedi.write_batch_file(pedigree.CANCER_RISKS, ped_file,
+        bat_file = pedi.write_batch_file(ped_file,
                                          filepath=os.path.join(pred.cwd, self._type()+"_risk.bat"),
                                          model_settings=pred.model_settings,
                                          calc_ages=self.risk_age)

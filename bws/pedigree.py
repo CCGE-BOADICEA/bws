@@ -40,10 +40,6 @@ REGEX_ASHKENAZI_STATUS = re.compile("^[01]$")
 
 BLANK_LINE = re.compile(r'^\s*$')
 
-# calculation type
-CANCER_RISKS = 1
-MUTATION_PROBS = 2
-
 
 class Prs(object):
     ''' Polygenic risk score - alpha and zscore values. '''
@@ -520,7 +516,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                 return False
         return True
 
-    def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, mdensity=None, prs=None, filepath="/tmp/test.ped",
+    def write_pedigree_file(self, risk_factor_code='0', hgt=-1, mdensity=None, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
         """
         Write input pedigree file for fortran.
@@ -615,20 +611,16 @@ class Pedigree(metaclass=abc.ABCMeta):
         f.close()
         return filepath
 
-    def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
+    def write_batch_file(self, pedigree_file_name, filepath="/tmp/test.bat",
                          model_settings=settings.BC_MODEL, calc_ages=None):
         """
         Write fortran input batch file.
-        @param batch_type: compute MUTATION_PROBS or CANCER_RISKS
         @param pedigree_file_name: path to fortran pedigree file
         @param filepath: path to write the batch file to
         @param model_settings: model settings
         @param calc_ages: list of ages to calculate a cancer risk at
         """
         f = open(filepath, "w")
-
-        if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
-            raise PedigreeFileError("Invalid batch file type.")
 
         print("2", file=f)
         print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
