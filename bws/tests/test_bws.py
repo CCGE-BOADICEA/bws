@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2022 Cambridge University
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-from bws.calcs import Predictions
+from bws.calc.calcs import Predictions
 from bws.cancer import CanRiskGeneticTests
 from bws.exceptions import ModelError
 from bws.pedigree import CanRiskPedigree, Female

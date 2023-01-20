@@ -9,7 +9,8 @@ from datetime import date
 from django.test import TestCase
 from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree
 from copy import deepcopy
-from bws.calcs import Predictions, ModelParams
+from bws.calc.model import ModelParams
+from bws.calc.calcs import Predictions
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
 from django.conf import settings
 import tempfile

@@ -22,7 +22,7 @@ import re
 import resource
 import tempfile
 import time
-from bws.model import ModelParams, ModelOpts
+from bws.calc.model import ModelParams, ModelOpts
 
 
 logger = logging.getLogger(__name__)

@@ -24,7 +24,8 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calcs import Predictions, ModelParams
+from bws.calc.model import ModelParams
+from bws.calc.calcs import Predictions
 from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
