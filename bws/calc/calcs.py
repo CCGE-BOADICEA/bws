@@ -7,9 +7,7 @@ SPDX-FileCopyrightText: 2022 Cambridge University
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 from bws import pedigree
-from bws.cancer import Cancer, Cancers, CanRiskGeneticTests, BWSGeneticTests
 from bws.exceptions import TimeOutException, ModelError
-from bws.pedigree import Male, Female, BwaPedigree, CanRiskPedigree
 from collections import OrderedDict
 from django.conf import settings
 from django.http.request import HttpRequest
@@ -23,101 +21,140 @@ import resource
 import tempfile
 import time
 from bws.calc.model import ModelParams, ModelOpts
+from bws.calc.risks import Risk, RemainingLifetimeBaselineRisk, RiskBaseline
+from bws.pedigree import Pedigree
 
 
 logger = logging.getLogger(__name__)
 REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 
-class Risk(object):
 
-    def __init__(self, predictions):
+class Predictions(object):
+
+    def __init__(self, pedi, model_params=ModelParams(),
+                 risk_factor_code=0, hgt=-1, mdensity=None, prs=None, cwd=None, request=Request(HttpRequest()),
+                 run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
         """
         Run cancer risk and mutation probability prediction calculations.
-        @param predictions: L{Predictions} used in prediction calculations
+        @param pedi: L{Pedigree} used in prediction calculations
+        @keyword model_params: L{ModelParams}, model parameters
+        @keyword risk_factor_code: risk factor code
+        @keyword hgt: height
+        @keyword mdensity: mammographic density  
+        @keyword prs: polygenic risk alpha & beta values calculated from VCF file
+        @keyword cwd: working directory
+        @keyword request: HTTP request
+        @keyword run_risks: run risk calculations, default True
+        @keyword model_settings: cancer model settings
+        @keyword calcs: list of calculations to run, e.g. ['carrier_probs', 'remaining_lifetime']
         """
-        assert isinstance(predictions, Predictions), "%r is not a Predictions" % predictions
-        self.predictions = predictions
-        self.risk_age = None    # if none uses the default ages to calculate risk at
+        assert isinstance(pedi, Pedigree), "%r is not a Pedigree" % pedi
+        assert isinstance(model_params, ModelParams), "%r is not a ModelParams" % model_params
+        self.pedi = pedi
+        self.model_params = model_params
+        self.request = request
+        self.cwd = cwd
+        self.risk_factor_code = risk_factor_code
+        self.hgt = hgt
+        self.mdensity = mdensity
+        self.prs = prs
+        self.model_settings = model_settings
+        self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
 
-    def _get_pedi(self):
-        """
-        Get the pedigree.
-        @return: L{Pedigree}
-        """
-        return self.predictions.pedi
+        for c in self.calcs:
+            if c not in settings.ALLOWED_CALCS:     # check calculations are in the allowed list
+                raise ValidationError("Unknown calculation requested: "+c)
 
-    def _get_risk_factor_code(self):
-        """
-        Get the risk factor code.
-        @return: risk factor code
-        """
-        return self.predictions.risk_factor_code
+        if cwd is None:
+            self.cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
+        if isinstance(risk_factor_code, int):
+            self.risk_factor_code = str(risk_factor_code)
+        if run_risks:
+            self._run_risks()
 
-    def _get_hgt(self):
-        """
-        Get the height.
-        @return: height
-        """
-        return self.predictions.hgt
+    def is_calculate(self, calc):
+        '''
+        Determine if a calculation is to be run.
+        @param calc: calculation name, e.g. 'carrier_probs', 'remaining_lifetime'
+        '''
+        return True if len(self.calcs) == 0 else (calc in self.calcs)
 
-    def _get_md(self):
-        """
-        Get the mammographic density 
-        @return: mammographic density
-        """
-        return self.predictions.mdensity
-
-    def _get_mutation_frequency(self):
-        """
-        Get the mutation frequencies.
-        @return: mutation frequencies
-        """
-        return self.predictions.model_params.mutation_frequency
-
-    def _get_prs(self):
-        """
-        Get the prs.
-        @return: prs
-        """
-        return self.predictions.prs
-
-    def _get_name(self):
-        return "RISK AND MUTATION CARRIER PREDICTIONS"
-
-    def _type(self):
-        """ Returns the type of risk as the class name. """
-        return self.__class__.__name__
-
-    def get_risk(self, model_opts):
+    def _run_risk(self, risk, model_opts):
         """
         Calculate the risk and return the parsed output as a list.
         @return: list of risks for each age
         """
-        pedi = self._get_pedi()
-        pred = self.predictions
-        ped_file = pedi.write_pedigree_file(risk_factor_code=self._get_risk_factor_code(),
-                                            hgt=self._get_hgt(),
-                                            mdensity=self._get_md(),
-                                            prs=self._get_prs(),
-                                            filepath=os.path.join(pred.cwd, self._type()+"_risk.ped"),
-                                            model_settings=pred.model_settings)
-        bat_file = pedi.write_batch_file(ped_file,
-                                         filepath=os.path.join(pred.cwd, self._type()+"_risk.bat"),
-                                         model_settings=pred.model_settings,
-                                         calc_ages=self.risk_age)
-        param_file = pedi.write_param_file(filepath=os.path.join(pred.cwd, self._type()+"_risk.params"),
-                                           model_settings=pred.model_settings,
-                                           mutation_freq=self._get_mutation_frequency(),
-                                           isashk=pred.model_params.isashk,
-                                           sensitivity=pred.model_params.mutation_sensitivity)
-        risks = Predictions.run(self.predictions.request, bat_file,
+        p = risk.get_pedigree()
+        pf = p.write_pedigree_file(risk_factor_code=risk.get_risk_factor_code(),
+                                   hgt=risk.get_hgt(),
+                                   mdensity=risk.get_md(),
+                                   prs=risk.get_prs(),
+                                   filepath=os.path.join(self.cwd, risk.type()+"_risk.ped"),
+                                   model_settings=self.model_settings)
+        bf = p.write_batch_file(pf,
+                                filepath=os.path.join(self.cwd, risk.type()+"_risk.bat"),
+                                model_settings=self.model_settings,
+                                calc_ages=risk.risk_age)
+        paramf = p.write_param_file(filepath=os.path.join(self.cwd, risk.type()+"_risk.params"),
+                                    model_settings=self.model_settings,
+                                    mutation_freq=risk.get_mutation_frequency(),
+                                    isashk=self.model_params.isashk,
+                                    sensitivity=self.model_params.mutation_sensitivity)
+        risks = Predictions.run(self.request, bf,
                                 model_opts=model_opts,
-                                model_params=pred.model_params,
-                                param_file=param_file,
-                                cwd=pred.cwd,
-                                niceness=pred.niceness, name=self._get_name(),
-                                model=pred.model_settings)
+                                model_params=self.model_params,
+                                param_file=paramf,
+                                cwd=self.cwd,
+                                niceness=self.niceness, name=risk.get_name(),
+                                model=self.model_settings)
         return self._parse_risks_output(risks, model_opts)
+
+    def _run_risks(self):
+        ''' Run risk and mutation probability calculations '''
+        self.version = Predictions._get_version(model=self.model_settings, cwd=self.cwd)
+        self.niceness = Predictions._get_niceness(self.pedi)
+        start = time.time()
+        model_opts = ModelOpts.factory(self)
+
+        rl, rr, ry, rj, mp = self._run_risk(Risk(self), model_opts)
+        if rl is not None:
+            self.lifetime_cancer_risk = rl
+        if rr is not None:
+            self.cancer_risks = rr
+        if ry is not None:
+            self.ten_yr_cancer_risk = ry
+        if hasattr(self, "lifetime_cancer_risk") and rj is not None:
+            if len(rj) > 0:
+                self.ten_yr_nhs_protocol = rj
+            elif ry is not None:
+                self.ten_yr_nhs_protocol = ry
+        if mp is not None:
+            self.mutation_probabilties = mp
+
+        # remaining lifetime baseline
+        if rr is not None:
+            _rl, rr, _ry, _rj, _mp = self._run_risk(RemainingLifetimeBaselineRisk(self), ModelOpts(probs=False,
+                                                                                            rj=False, rl=False,
+                                                                                            rr=True, ry=False))
+            if rr is not None:
+                self.baseline_cancer_risks = rr
+
+            # baseline lifetime cancer risk and baseline 10-year cancer risk
+            if hasattr(self, "lifetime_cancer_risk") or hasattr(self, "ten_yr_cancer_risk"):
+                rl, _rr, ry, _rj, _mp = self._run_risk(RiskBaseline(self), ModelOpts(probs=False, rj=False, rr=False,
+                                                                              rl=hasattr(self, "lifetime_cancer_risk"),
+                                                                              ry=hasattr(self, "ten_yr_cancer_risk")))
+                if rl is not None:
+                    self.baseline_lifetime_cancer_risk = rl
+                if ry is not None:
+                    self.baseline_ten_yr_cancer_risk = ry
+
+        name = str(self.model_settings.get('NAME', ""))
+        logger.info(
+            f"{name} CALCULATIONS: user={self.request.user.id}; "
+            f"elapsed time={time.time() - start}; "
+            f"pedigree size={len(self.pedi.people)}; "
+            f"version={getattr(self, 'version', 'N/A')}")
 
     def _parse_risks_output(self, risks, model_opts):
         """
@@ -138,7 +175,7 @@ class Risk(object):
 
         rr, rl, ry, rj, mp = False, False, False, False, False
         mp_lines = ""
-        model_settings = self.predictions.model_settings
+        model_settings = self.model_settings
         ctype = "breast" if model_settings['NAME'] == 'BC' else "ovarian"
 
         for _idx, line in enumerate(lines):
@@ -178,10 +215,11 @@ class Risk(object):
             elif line.startswith('## PROBABILITIES'):
                 mp = True
 
-        mp_arr = self._parse_probs_output(mp_lines, model_settings) if model_opts.probs else None
+        mp_arr = Predictions._parse_probs_output(mp_lines, model_settings) if model_opts.probs else None
         return rl_arr, rr_arr, ry_arr, rj_arr, mp_arr
 
-    def _parse_probs_output(self, probs, model_settings):
+    @classmethod
+    def _parse_probs_output(cls, probs, model_settings):
         """
         Parse computed mutation carrier probability results.
         @param probs: mutation probability text from fortran output
@@ -206,202 +244,6 @@ class Risk(object):
                                        "percent": round(float(parts[i])*100, 2)}})
         return probs_arr
 
-
-class RemainingLifetimeBaselineRisk(Risk):
-    """
-    Get the baseline risks: the purpose of the baseline risk is to show the risk to
-    an equivalent random woman from the population without any information on risk of
-    genetic factors (i.e. based on population incidences only). The only aspects
-    observed are her age (she needs to alive..!) year of birth and age at cancer diagnosis
-    if affected. (ACA: 16/2/2017 email)
-    """
-    def _get_pedi(self):
-        t = self.predictions.pedi.get_target()
-        if t.cancers.is_cancer_diagnosed():
-            cancers = Cancers(bc1=Cancer(t.cancers.diagnoses.bc1.age), bc2=Cancer(), oc=Cancer(),
-                              prc=Cancer(), pac=Cancer())
-        else:
-            cancers = Cancers()
-
-        if self.predictions.model_settings['NAME'] == 'BC':
-            gtests = BWSGeneticTests.default_factory()
-        else:
-            gtests = CanRiskGeneticTests.default_factory()
-
-        if t.sex() == "M":
-            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target, dead=t.dead,
-                         age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
-        else:
-            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target, dead=t.dead,
-                           age=t.age, yob=t.yob, cancers=cancers, gtests=gtests)
-
-        if self.predictions.model_settings['NAME'] == 'BC':
-            return BwaPedigree(people=[new_t])
-        else:
-            return CanRiskPedigree(people=[new_t])
-
-    def _get_risk_factor_code(self):
-        return '0'
-
-    def _get_hgt(self):
-        return -1
-
-    def _get_md(self):
-        """
-        Get the mammographic density.
-        @return: mammographic density
-        """
-        return None
-
-    def _get_prs(self):
-        return None
-
-    def _get_name(self):
-        return "REMAINING LIFETIME BASELINE"
-
-
-class RiskBaseline(Risk):
-    """
-    Calculate baseline risk over a time range.
-    """
-    def _get_pedi(self):
-        t = super()._get_pedi().get_target()
-        cancers = Cancers()
-        if self.predictions.model_settings['NAME'] == 'BC':
-            gtests = BWSGeneticTests.default_factory()
-        else:
-            gtests = CanRiskGeneticTests.default_factory()
-
-        if t.sex() == "M":
-            new_t = Male(t.famid, t.name, t.pid, "", "", target=t.target,
-                         dead=t.dead, age=t.age, yob=t.yob, cancers=cancers,
-                         gtests=gtests)
-        else:
-            new_t = Female(t.famid, t.name, t.pid, "", "", target=t.target,
-                           dead=t.dead, age=t.age, yob=t.yob, cancers=cancers,
-                           gtests=gtests)
-
-        if self.predictions.model_settings['NAME'] == 'BC':
-            return BwaPedigree(people=[new_t])
-        else:
-            return CanRiskPedigree(people=[new_t])
-
-    def _get_risk_factor_code(self):
-        return '0'
-
-    def _get_hgt(self):
-        return -1
-
-    def _get_md(self):
-        """
-        Get the mammographic density.
-        @return: mammographic density
-        """
-        return None
-
-    def _get_prs(self):
-        return None
-
-    def _get_name(self):
-        return "BASELINE RISK PREDICTIONS"
-
-
-class Predictions(object):
-
-    def __init__(self, pedi, model_params=ModelParams(),
-                 risk_factor_code=0, hgt=-1, mdensity=None, prs=None, cwd=None, request=Request(HttpRequest()),
-                 run_risks=True, model_settings=settings.BC_MODEL, calcs=None):
-        """
-        Run cancer risk and mutation probability prediction calculations.
-        @param pedi: L{Pedigree} used in prediction calculations
-        @keyword model_params: model parameters
-        @keyword risk_factor_code: risk factor code
-        @keyword hgt: height
-        @keyword mdensity: mammographic density  
-        @keyword prs: polygenic risk alpha & beta values calculated from VCF file
-        @keyword cwd: working directory
-        @keyword request: HTTP request
-        @keyword run_risks: run risk calculations, default True
-        @keyword model_settings: cancer model settings
-        @keyword calcs: list of calculations to run, e.g. ['carrier_probs', 'remaining_lifetime']
-        """
-        self.pedi = pedi
-        self.model_params = model_params
-        self.request = request
-        self.cwd = cwd
-        self.risk_factor_code = risk_factor_code
-        self.hgt = hgt
-        self.mdensity = mdensity
-        self.prs = prs
-        self.model_settings = model_settings
-        self.calcs = self.model_settings['CALCS'] if calcs is None else calcs
-
-        # check calculations are in the allowed list of calculations
-        for c in self.calcs:
-            if c not in settings.ALLOWED_CALCS:
-                raise ValidationError("Unknown calculation requested: "+c)
-
-        if cwd is None:
-            self.cwd = tempfile.mkdtemp(prefix=str(request.user)+"_", dir="/tmp")
-        if isinstance(risk_factor_code, int):
-            self.risk_factor_code = str(risk_factor_code)
-        if run_risks:
-            self.run_risks()
-
-    def is_calculate(self, calc):
-        '''
-        Determine if a calculation is to be run.
-        @param calc: calculation name, e.g. 'carrier_probs', 'remaining_lifetime'
-        '''
-        return True if len(self.calcs) == 0 else (calc in self.calcs)
-
-    def run_risks(self):
-        ''' Run risk and mutation probability calculations '''
-        self.version = Predictions.get_version(model=self.model_settings, cwd=self.cwd)
-        self.niceness = Predictions._get_niceness(self.pedi)
-        start = time.time()
-        model_opts = ModelOpts.factory(self)
-
-        rl, rr, ry, rj, mp = Risk(self).get_risk(model_opts)
-        if rl is not None:
-            self.lifetime_cancer_risk = rl
-        if rr is not None:
-            self.cancer_risks = rr
-        if ry is not None:
-            self.ten_yr_cancer_risk = ry
-        if hasattr(self, "lifetime_cancer_risk") and rj is not None:
-            if len(rj) > 0:
-                self.ten_yr_nhs_protocol = rj
-            elif ry is not None:
-                self.ten_yr_nhs_protocol = ry
-        if mp is not None:
-            self.mutation_probabilties = mp
-
-        # remaining lifetime baseline
-        if rr is not None:
-            _rl, rr, _ry, _rj, _mp = RemainingLifetimeBaselineRisk(self).get_risk(ModelOpts(probs=False,
-                                                                                            rj=False, rl=False,
-                                                                                            rr=True, ry=False))
-            if rr is not None:
-                self.baseline_cancer_risks = rr
-
-            # baseline lifetime cancer risk and baseline 10-year cancer risk
-            if hasattr(self, "lifetime_cancer_risk") or hasattr(self, "ten_yr_cancer_risk"):
-                rl, _rr, ry, _rj, _mp = RiskBaseline(self).get_risk(ModelOpts(probs=False, rj=False, rr=False,
-                                                                              rl=hasattr(self, "lifetime_cancer_risk"),
-                                                                              ry=hasattr(self, "ten_yr_cancer_risk")))
-                if rl is not None:
-                    self.baseline_lifetime_cancer_risk = rl
-                if ry is not None:
-                    self.baseline_ten_yr_cancer_risk = ry
-
-        name = str(self.model_settings.get('NAME', ""))
-        logger.info(
-            f"{name} CALCULATIONS: user={self.request.user.id}; "
-            f"elapsed time={time.time() - start}; "
-            f"pedigree size={len(self.pedi.people)}; "
-            f"version={getattr(self, 'version', 'N/A')}")
-
     @classmethod
     def _get_niceness(cls, pedi, factor=15):
         """
@@ -423,7 +265,7 @@ class Predictions(object):
         return niceness
 
     @classmethod
-    def get_version(cls, model=settings.BC_MODEL, cwd="/tmp"):
+    def _get_version(cls, model=settings.BC_MODEL, cwd="/tmp"):
         """
         Get the model version.
         @keyword model_settings: cancer model settings
