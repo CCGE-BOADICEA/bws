@@ -5,11 +5,12 @@ Cancer, pathology and genetic testing
 SPDX-FileCopyrightText: 2022 Cambridge University
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-import re
-from bws.exceptions import GeneticTestError, PathologyError, CancerError
 from collections import namedtuple
+import re
+import bws.consts as consts
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from bws.exceptions import GeneticTestError, PathologyError, CancerError
 
 
 class Genes():
@@ -331,10 +332,9 @@ class Cancers():
         """
         Validate a person's cancer types and diagnoses ages.
         """
-        from bws import pedigree
         cancer_types = Cancers.get_cancers()
         diagnoses = person.cancers.diagnoses
-        REGEX_AGE = pedigree.REGEX_AGE
+        REGEX_AGE = consts.REGEX_AGE
         for idx, ctype in enumerate(cancer_types):
             diagnoses_age = diagnoses[idx].age
             # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'

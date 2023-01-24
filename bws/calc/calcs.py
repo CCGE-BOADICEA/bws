@@ -6,7 +6,7 @@ see https://github.com/CCGE-BOADICEA/boadicea/wiki/Cancer-Risk-Calculations
 SPDX-FileCopyrightText: 2022 Cambridge University
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-from bws import pedigree
+
 from bws.exceptions import TimeOutException, ModelError
 from collections import OrderedDict
 from django.conf import settings
@@ -16,7 +16,7 @@ from rest_framework.request import Request
 from subprocess import Popen, PIPE, TimeoutExpired
 import logging
 import os
-import re
+import bws.consts as consts
 import resource
 import tempfile
 import time
@@ -26,7 +26,6 @@ from bws.pedigree import Pedigree
 
 
 logger = logging.getLogger(__name__)
-REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 
 
 class Predictions(object):
@@ -181,7 +180,7 @@ class Predictions(object):
         for _idx, line in enumerate(lines):
             if line.startswith('##'):
                 rr, rl, ry, rj, mp = False, False, False, False, False
-            elif 'Age' in line or pedigree.BLANK_LINE.match(line):
+            elif 'Age' in line or consts.BLANK_LINE.match(line):
                 continue
 
             if rr or rl or ry or rj:
@@ -230,7 +229,7 @@ class Predictions(object):
         gene_columns = []
 
         for _idx, line in enumerate(probs.splitlines()):
-            if REGEX_ALPHANUM_COMMAS.match(line):
+            if consts.REGEX_ALPHANUM_COMMAS.match(line):
                 gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")

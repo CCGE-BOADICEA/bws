@@ -7,29 +7,13 @@ SPDX-License-Identifier: GPL-3.0-or-later
 """
 
 from datetime import date
-import re
-
 from django.conf import settings
 
 from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cancers, \
     BWSGeneticTests, CanRiskGeneticTests, Genes
+import bws.consts as consts
 from bws.exceptions import PedigreeError, PersonError
 import bws.pedigree as pedigree
-
-
-# BOADICEA header
-REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
-    re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
-REGEX_CANRISK1_PEDIGREE_FILE_HEADER = \
-    re.compile("^(##CanRisk\\s1(.0)*)$")
-REGEX_CANRISK2_PEDIGREE_FILE_HEADER = \
-    re.compile("^(##CanRisk\\s2(.0)*)$")
-REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")
-REGEX_ONLY_HYPHENS = re.compile("^([\-]+)$")
-REGEX_ONLY_ZEROS = re.compile("^[0]+$")
-REGEX_AGE = re.compile("^\\d{1,3}$")
-REGEX_YEAR_OF_BIRTH = re.compile("^0|((17|18|19|20)[0-9][0-9])$")
-REGEX_ASHKENAZI_STATUS = re.compile("^[01]$")
 
 
 class Person(object):
@@ -87,27 +71,27 @@ class Person(object):
         @param pedigree: Pedigree the person belongs to.
         """
         if(self.name == '' or
-           not REGEX_ALPHANUM_HYPHENS.match(self.name)):
+           not consts.REGEX_ALPHANUM_HYPHENS.match(self.name)):
             raise PersonError("A name '"+self.name+"' is unspecified or is not an alphanumeric string.", self.famid)
 
         if(len(self.pid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.pid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           REGEX_ONLY_ZEROS.match(self.pid) or
-           not REGEX_ALPHANUM_HYPHENS.match(self.pid)):
+           consts.REGEX_ONLY_ZEROS.match(self.pid) or
+           not consts.REGEX_ALPHANUM_HYPHENS.match(self.pid)):
             raise PersonError("An individual identifier (IndivID column) was specified as '" + self.pid +
                               ". Individual identifiers must be alphanumeric strings with a maximum of " +
                               str(settings.MAX_FAMILY_ID_STR_LENGTH)+"characters.", self.famid)
 
         if(len(self.fathid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.fathid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           not REGEX_ALPHANUM_HYPHENS.match(self.fathid)):
+           not consts.REGEX_ALPHANUM_HYPHENS.match(self.fathid)):
             raise PersonError("Father identifier ('" + self.fathid + "', FathID column) has unexpected characters. "
                               "It must be alphanumeric strings with a maximum of " +
                               str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
 
         if(len(self.mothid) < settings.MIN_FAMILY_ID_STR_LENGTH or
            len(self.mothid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           not REGEX_ALPHANUM_HYPHENS.match(self.mothid)):
+           not consts.REGEX_ALPHANUM_HYPHENS.match(self.mothid)):
             raise PersonError("Mother identifier ('" + self.mothid + "', MothID column) has unexpected characters. "
                               "It must be alphanumeric strings with a maximum of " +
                               str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
@@ -138,7 +122,7 @@ class Person(object):
             raise PersonError("The family member '" + self.pid + "' has an invalid vital status " +
                               "(alive must be specified as '0', and dead specified as '1')", self.famid)
         # check that age of last follow up set to either 0 (unknown) or in range 1-110
-        if not REGEX_AGE.match(self.age) or int(self.age) > settings.MAX_AGE:
+        if not consts.REGEX_AGE.match(self.age) or int(self.age) > settings.MAX_AGE:
             raise PersonError("The age specified for family member '" + self.pid + "' has unexpected " +
                               "characters. Ages must be specified with as '0' for unknown, or in the " +
                               "range 1-" + str(settings.MAX_AGE), self.famid)
@@ -146,7 +130,7 @@ class Person(object):
         # validate year of birth
         current_year = date.today().year
         if self.yob != "0":
-            if(not REGEX_YEAR_OF_BIRTH.match(self.yob) or
+            if(not consts.REGEX_YEAR_OF_BIRTH.match(self.yob) or
                int(self.yob) < settings.MIN_YEAR_OF_BIRTH or
                int(self.yob) > current_year):
                 raise PersonError("The year of birth '" + self.yob + "' specified for family member '" + self.pid +
@@ -154,7 +138,7 @@ class Person(object):
                                   str(settings.MIN_YEAR_OF_BIRTH) + "-" + str(current_year))
 
         # Check that we have valid data values for the Ashkenazi flag
-        if(not REGEX_ASHKENAZI_STATUS.match(self.ashkn)):
+        if(not consts.REGEX_ASHKENAZI_STATUS.match(self.ashkn)):
             raise PersonError("Family member '" + self.pid + "' has been assigned an invalid Ashkenazi "
                               "origin parameter. The Ashkenazi origin parameter must be set to '1' "
                               "for Ashkenazi origin, or '0' for not Ashkenazi origin.")

@@ -5,19 +5,22 @@ Mutation risk and probability calculation testing.
 SPDX-FileCopyrightText: 2022 Cambridge University
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-from datetime import date
-from django.test import TestCase
-from bws.pedigree import Female, PedigreeFile, BwaPedigree, CanRiskPedigree
 from copy import deepcopy
-from bws.calc.model import ModelParams
-from bws.calc.calcs import Predictions
-from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
-from django.conf import settings
-import tempfile
-import shutil
-import os
-import filecmp
 import copy
+from datetime import date
+import filecmp
+import os
+import shutil
+import tempfile
+
+from django.conf import settings
+from django.test import TestCase
+
+from bws.calc.calcs import Predictions
+from bws.calc.model import ModelParams
+from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
+from bws.pedigree import Female, BwaPedigree, CanRiskPedigree
+from bws.pedigree_file import PedigreeFile
 
 
 class WritePedigree(TestCase):
