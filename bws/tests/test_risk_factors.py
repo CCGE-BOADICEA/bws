@@ -100,6 +100,15 @@ class RiskFactorsCategoryTests(TestCase):
 
 
 class MammographicDensityTests(TestCase):
+    '''
+    Encoding for the pedigree (Fortran) file:
+    If employing BIRAD, the value should be an integer between 1 and 4. If employing
+    continuous methods, the value should be a real number in the form N.xxxx. 
+    In this case, N refers to the method (10=Stratus, 20= Volpara) whereas xxxxx
+    is the mammographic density percentage. 
+    Example 1: MD = 42.42% measured with Volpara should be coded as “20.42420”
+    Example 2: MD = category 3 of Birads should be coded as “3”
+    '''
     
     def test_get_Birads_category(self):
         ''' Given a Birads value check the category is correctly assigned. '''
