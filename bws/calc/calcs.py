@@ -317,8 +317,7 @@ class Predictions(object):
         mname = str(model.get('NAME', ""))
         if param_file is not None:
             cmd.extend(["-s", param_file])
-        if mname == "BC":
-            cmd.extend(["-e", os.path.join(model["HOME"], 'Data', model_params.ethnicity.get_filename())])
+        cmd.extend(["-e", os.path.join(model["HOME"], 'Data', "coeffs-"+mname+"_"+model_params.ethnicity.get_filename())])
 
         out = model_opts.out
         cmd.extend(model_opts.get_cmd_line_opts())

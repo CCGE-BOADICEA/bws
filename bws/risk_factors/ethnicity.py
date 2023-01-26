@@ -52,4 +52,4 @@ class UKBioBankEthnicty(Ethnicity):
             raise Exception(self.ethnicity+" not a UK BioBank ethnic group")
 
     def get_filename(self):
-        return "coeffs-BC_" + UKBioBankEthnicty.GROUPS[self.ethnicity] + ".nml"
+        return UKBioBankEthnicty.GROUPS[self.ethnicity] + ".nml"
