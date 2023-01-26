@@ -7,8 +7,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 from collections import OrderedDict
 import os
 import re
-import vcf2prs
 from pathlib import Path
+
+try:
+    import vcf2prs
+except ImportError as e:
+    pass  # module doesn't exist, deal with it.
 
 
 def line_that_contain(s1, s2, fp):
@@ -17,15 +21,19 @@ def line_that_contain(s1, s2, fp):
 
 def get_alpha(ref_file):
     ''' Get PRS alpha from a reference file header. '''
-    moduledir = Path(vcf2prs.__file__).parent.parent
-    ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+    alpha = ""
     try:
-        snp_file = open(ref_file, 'r')
-        alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
-    except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
-        raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
-    finally:
-        snp_file.close()
+        moduledir = Path(vcf2prs.__file__).parent.parent
+        ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+        try:
+            snp_file = open(ref_file, 'r')
+            alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
+        except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
+            raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
+        finally:
+            snp_file.close()
+    except NameError:
+        pass 
     return alpha
 
 
