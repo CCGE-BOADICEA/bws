@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 from subprocess import PIPE, Popen
-from bws.pedigree import PedigreeFile, CanRiskPedigree
+from bws.pedigree_file import PedigreeFile, CanRiskPedigree
 import re
 import math
 
