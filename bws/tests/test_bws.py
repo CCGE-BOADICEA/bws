@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
@@ -54,7 +54,7 @@ class MutFreqTests(BwsMixin):
         response = MutFreqTests.client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         pedigree_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
         self.assertTrue("pedigree_result" in content)
         self.assertEqual(len(content['pedigree_result']), 4, "four results")
@@ -94,7 +94,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("family_id" in content["pedigree_result"][0])
@@ -105,7 +105,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': multi_pedigree_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertEqual(len(content['pedigree_result']), 2, "two results")
         family_ids = ["XXX0", "XXX1"]
         for res in content['pedigree_result']:
@@ -118,7 +118,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
         genes = settings.BC_MODEL['GENES']
         for g in genes:
@@ -131,7 +131,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
         genes = settings.BC_MODEL['GENES']
         for g in genes:
@@ -148,7 +148,7 @@ class BwsTests(BwsMixin):
         client.credentials(HTTP_AUTHORIZATION='Token xxxxxxxxxx')
         response = client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertNotEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertEqual(content['detail'], 'Invalid token.')
 
     def test_force_auth_bws(self):
@@ -168,7 +168,7 @@ class BwsTests(BwsMixin):
 
         # response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # content = json.loads(force_text(response.content))
+        # content = json.loads(force_str(response.content))
         #
         # for g, mf in content['mutation_frequency']['Custom'].items():
         #     self.assertTrue(g in genes)
@@ -185,7 +185,7 @@ class BwsTests(BwsMixin):
 
         # response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         # self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        # content = json.loads(force_text(response.content))
+        # content = json.loads(force_str(response.content))
         # self.assertEqual(len(content.keys()), len(genes))
         # for k in content.keys():
         #     self.assertTrue(k.split("_")[0].upper() in genes)
@@ -195,7 +195,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'This field is required.')
@@ -208,7 +208,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         ped.close()
         self.assertTrue('Person Error' in content)
         self.assertTrue('year of birth' in content['Person Error'])
@@ -218,7 +218,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'nosuchflag': '1234', 'nosuchflag2': 77}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue('Input Field Error' in content)
         self.assertEqual('Extra input field(s) found: nosuchflag, nosuchflag2', content['Input Field Error'])
 
@@ -228,7 +228,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
 
@@ -254,7 +254,7 @@ class BwsTests(BwsMixin):
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
         self.assertFalse('cancer_risks' in content["pedigree_result"][0])
         self.assertFalse('lifetime_cancer_risk' in content["pedigree_result"][0])
