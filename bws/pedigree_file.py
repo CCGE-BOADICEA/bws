@@ -18,6 +18,8 @@ from bws.pedigree import BwaPedigree, CanRiskPedigree, Pedigree
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.mdensity import Birads, Volpara, Stratus
 from bws.risk_factors.oc import OCRiskFactors
+from bws.risk_factors import ethnicity
+from bws.risk_factors.ethnicity import UKBioBankEthnicty
 
 
 logger = logging.getLogger(__name__)
@@ -79,13 +81,15 @@ class CanRiskHeader():
                         if rfval == 'NA':
                             continue
                         hgt = float(rfval)
-                    if rfnam == 'birads':
+                    elif rfnam == 'birads':
                         md = Birads(rfval)
                     elif rfnam == 'stratus':
                         md = Stratus(rfval)
                     elif rfnam == 'volpara':
                         md = Volpara(rfval)
-                    
+                    elif rfnam == 'ethnicity':
+                        ethnicity = UKBioBankEthnicty.factory(rfval)
+
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception:
