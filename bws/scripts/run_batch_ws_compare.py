@@ -177,6 +177,8 @@ for bwa in bwalist:
                           "]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
+        if exact_matches != 0:
+            break
     finally:
         shutil.rmtree(cwd)
         # print(cwd)
