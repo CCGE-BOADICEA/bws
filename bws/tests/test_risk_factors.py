@@ -17,22 +17,25 @@ from rest_framework.test import APIClient
 import json
 import os
 from bws.risk_factors.mdensity import Birads, Stratus, Volpara
-from bws.risk_factors.ethnicity import UKBioBankEthnicty
+from bws.risk_factors.ethnicity import ONSEthnicity
 
 
 class UKBioBankEthnictyTests(TestCase):
     
     def test_white(self):
-        ethnicity = UKBioBankEthnicty.factory("White;English/Welsh/Scottish/Northern Irish/British")
-        self.assertEqual(ethnicity.get_filename(), "UK-european.nml")
+        onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
 
-    def test_chinese(self):    
-        ethnicity = UKBioBankEthnicty.factory("Asian or Asian British;Chinese")
-        self.assertEqual(ethnicity.ethnicity, "chinese")
+    def test_chinese(self):
+        onsEthnicity = ONSEthnicity("Asian or Asian British", "Chinese")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "chinese")
         
-    def test_asian(self):    
-        ethnicity = UKBioBankEthnicty.factory("Asian or Asian British;Indian;")
-        self.assertEqual(ethnicity.ethnicity, "asian")
+    def test_asian(self):
+        onsEthnicity = ONSEthnicity("Asian or Asian British", "Indian")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "asian")
 
 
 class MammographicDensityTests(TestCase):

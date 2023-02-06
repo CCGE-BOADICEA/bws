@@ -9,8 +9,9 @@ from abc import ABC, abstractmethod
 
 
 class Ethnicity(ABC):
-    def __init__(self, ethnicity):
+    def __init__(self, ethnicity, ethnicityBackground=None):
         self.ethnicity = ethnicity.lower()
+        self.ethnicityBackground = ethnicityBackground.lower() if ethnicityBackground is not None else None
         self.validate()
 
     @abstractmethod
@@ -20,8 +21,85 @@ class Ethnicity(ABC):
     def get_filename(self): raise NotImplementedError
 
 
+class ONSEthnicity(Ethnicity):
+    '''
+    https://www.ons.gov.uk/methodology/classificationsandstandards/measuringequality/ethnicgroupnationalidentityandreligion#ethnic-group
+    '''
+    GROUPS = {
+        "White" :
+            ["English/Welsh/Scottish/Northern Irish/British",
+             "Irish",
+             "Gypsy or Irish Traveller",
+             "Any other White background, please describe"
+            ],
+        "Mixed/Multiple ethnic groups":
+            ["White and Black Caribbean",
+             "White and Black African", 
+             "White and Asian",
+             "Any other Mixed/Multiple ethnic background, please describe"
+            ],
+        "Asian or Asian British":
+            ["Indian",
+             "Pakistani",
+             "Bangladeshi",
+             "Chinese",
+             "Any other Asian background, please describe"
+            ],
+        "Black or Black British":
+            ["African",
+             "Caribbean",
+             "Any other Black/African/Caribbean background, please describe"
+            ],
+        "Other ethnic group":
+            ["Arab",
+             "Any other ethnic group, please describe"
+            ],
+        "Unknown" : None
+    }
+    
+    GROUPS_LOWERCASE = dict((k.lower(), (v.lower() for v in vs) if vs is not None else None) for k,vs in GROUPS.items())
+
+    def __init__(self, ethnicity="Unknown", ethnicityBackground=None):
+        assert(ethnicity in ONSEthnicity.GROUPS)
+        super().__init__(ethnicity, ethnicityBackground)
+
+    def validate(self):
+        if self.ethnicity not in ONSEthnicity.GROUPS_LOWERCASE:
+            raise Exception(self.ethnicity.title()+" not an ONS ethnic group")
+        if self.ethnicityBackground not in ONSEthnicity.GROUPS_LOWERCASE[self.ethnicity]:
+            raise Exception(self.ethnicityBackground+" not an ethnic background for the ONS ethnic group: "+self.ethnicity)
+
+    def get_filename(self): raise NotImplementedError
+
+    @classmethod
+    def ons2UKBioBank(cls, onsEthnicity):
+        '''
+        Map ONS to UK BioBank ethnicity
+        '''
+        e = onsEthnicity.ethnicity
+        ebg = onsEthnicity.ethnicityBackground
+            
+        if e == "white":
+            return UKBioBankEthnicty(e);
+        elif e == "mixed/multiple ethnic groups": 
+            return UKBioBankEthnicty("mixed");#
+        elif e == "asian or asian british":
+            if ebg == "chinese":
+                return UKBioBankEthnicty("chinese")
+            else:
+                return UKBioBankEthnicty("asian")
+        elif e ==  "black or black british":
+            return UKBioBankEthnicty("black")
+        elif e ==  "other ethnic group":
+            return UKBioBankEthnicty("other")
+        elif e ==  "unknown":
+            return UKBioBankEthnicty("unknown")            
+        return UKBioBankEthnicty()
+
 class UKBioBankEthnicty(Ethnicity):
     '''
+    https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=21000
+    
     UK Biobank ethnic groups:
         1 : White
         2 : Mixed
@@ -50,41 +128,7 @@ class UKBioBankEthnicty(Ethnicity):
 
     def validate(self):
         if self.ethnicity not in UKBioBankEthnicty.GROUPS:
-            raise Exception(self.ethnicity+" not a UK BioBank ethnic group")
-
-    @classmethod
-    def factory(cls, ethnicity):
-        '''
-        Parse the ethnicity value to create Ethnicity object
-        Examples:
-        ##Ethnicity=White;English/Welsh/Scottish/Northern Irish/British;
-        ##Ethnicity=White;Irish;
-        ##Ethnicity=Mixed/Multiple ethnic groups;White and Black African;
-        ##Ethnicity=Asian or Asian British;Chinese;
-        ##Ethnicity=Black or Black British;African;
-        ##Ethnicity=Other ethnic group;Arab;
-        ##Ethnicity=Unknown;
-        '''
-        parts = ethnicity.split(';')
-        e = parts[0].lower().strip()
-            
-        if e == "white":
-            return UKBioBankEthnicty(e);
-        elif e == "mixed/multiple ethnic groups": 
-            return UKBioBankEthnicty("mixed");#
-        elif e == "asian or asian british":
-            if parts[1].lower().strip() == "chinese":
-                return UKBioBankEthnicty("chinese")
-            else:
-                return UKBioBankEthnicty("asian")
-        elif e ==  "black or black british":
-            return UKBioBankEthnicty("black")
-        elif e ==  "other ethnic group":
-            return UKBioBankEthnicty("other")
-        elif e ==  "unknown":
-            return UKBioBankEthnicty("unknown")            
-        return UKBioBankEthnicty()
-        
+            raise Exception(self.ethnicity+" not a UK BioBank ethnic group")        
         
     def get_filename(self):
         return UKBioBankEthnicty.GROUPS[self.ethnicity] + ".nml"
