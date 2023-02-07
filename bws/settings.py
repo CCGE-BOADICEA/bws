@@ -152,7 +152,7 @@ BC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
-        ('ANTEBC 2803', {'alpha': 0.437}),
+        # ('ANTEBC 2803', {'alpha': xxxx}),
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BCAC 3820', 'BCAC_3820_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),

@@ -177,7 +177,6 @@ for bwa in bwalist:
                           f"]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
-
         if exact_matches != 0:
             break
     finally:
