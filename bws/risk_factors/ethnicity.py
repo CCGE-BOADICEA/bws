@@ -66,7 +66,8 @@ class ONSEthnicity(Ethnicity):
     def validate(self):
         if self.ethnicity not in ONSEthnicity.GROUPS_LOWERCASE:
             raise Exception(self.ethnicity.title()+" not an ONS ethnic group")
-        if self.ethnicityBackground not in ONSEthnicity.GROUPS_LOWERCASE[self.ethnicity]:
+        if (self.ethnicityBackground is not None and 
+            self.ethnicityBackground not in ONSEthnicity.GROUPS_LOWERCASE[self.ethnicity]):
             raise Exception(self.ethnicityBackground+" not an ethnic background for the ONS ethnic group: "+self.ethnicity)
 
     def get_filename(self): raise NotImplementedError

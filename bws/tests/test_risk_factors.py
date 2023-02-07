@@ -26,6 +26,7 @@ class UKBioBankEthnictyTests(TestCase):
         onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
 
     def test_chinese(self):
         onsEthnicity = ONSEthnicity("Asian or Asian British", "Chinese")
@@ -36,6 +37,26 @@ class UKBioBankEthnictyTests(TestCase):
         onsEthnicity = ONSEthnicity("Asian or Asian British", "Indian")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "asian")
+        
+    def test_mixed(self):
+        onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "White and Black African")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
+
+    def test_black(self):
+        onsEthnicity = ONSEthnicity("Black or Black British", "Caribbean")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "black")
+
+    def test_other(self):
+        onsEthnicity = ONSEthnicity("Other ethnic group", "Any other ethnic group, please describe")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "other")
+
+    def test_unknown(self):
+        onsEthnicity = ONSEthnicity("Unknown", None)
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "unknown")
 
 
 class MammographicDensityTests(TestCase):
