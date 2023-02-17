@@ -43,6 +43,11 @@ class UKBioBankEthnictyTests(TestCase):
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
 
+    def test_mixed2(self):
+        onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "white and black african")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
+
     def test_black(self):
         onsEthnicity = ONSEthnicity("Black or Black British", "Caribbean")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)

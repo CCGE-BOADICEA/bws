@@ -57,7 +57,8 @@ class ONSEthnicity(Ethnicity):
         "Unknown" : None
     }
     
-    GROUPS_LOWERCASE = dict((k.lower(), (v.lower() for v in vs) if vs is not None else None) for k,vs in GROUPS.items())
+    # GROUPS_LOWERCASE = dict((k.lower(), (v.lower() for v in vs) if vs is not None else None) for k,vs in GROUPS.items())
+    GROUPS_LOWERCASE = dict((k.lower(), ([v.lower() for v in vs]) if vs is not None else None) for k,vs in GROUPS.items())
 
     def __init__(self, ethnicity="Unknown", ethnicityBackground=None):
         assert(ethnicity in ONSEthnicity.GROUPS)
