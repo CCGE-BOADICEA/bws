@@ -29,7 +29,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None):
+                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -76,6 +76,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         if file_type is not None and file_type.startswith('canrisk'):
             self.hgt = hgt
             self.mdensity = mdensity
+            self.ethnicity = ethnicity
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
