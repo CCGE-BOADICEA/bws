@@ -318,7 +318,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             twins = twin_store[t]
             if len(twins) != 2:
                 raise PedigreeError(
-                    "MZ twin identifier '" + str(twins[0].pid) + "' does not appear twice in the pedigree file. "
+                    "MZ twin identifier [mztwin=" + str(twins[0].mztwin) + "] does not appear twice in the pedigree file. "
                     "Only MZ twins are permitted in the pedigree, MZ triplets or quads are not allowed.",
                     twins[0].famid)
 
