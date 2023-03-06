@@ -151,9 +151,9 @@ for bwa in bwalist:
         oc_mp_batch = get_mp(OC_BATCH_PROBS)
 
         print(bwa)
-        if bc_mp_batch is not None or bc_mp_ws is not None:
+        if bc_mp_batch is not None and bc_mp_ws is not None:
             exact_matches = compare_mp("BC", bc_mp_batch, bc_mp_ws, exact_matches, bc_probs_tol)
-        if oc_mp_batch is not None or oc_mp_ws is not None:
+        if oc_mp_batch is not None and oc_mp_ws is not None:
             exact_matches = compare_mp("OC", oc_mp_batch, oc_mp_ws, exact_matches, oc_probs_tol)
 
         # compare webservice.tab with batch_result.out
@@ -164,7 +164,7 @@ for bwa in bwalist:
                     print(f"BC EXACT MATCH ::: {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                 else:
                     print(f"BC DIFFERENCE ["+str(float(bc_ws[age])-float(bc_batch[age])) +
-                          "]*** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
+                          f"]*** {age}    webservice: {bc_ws[age]} batch: {bc_batch[age]}", end='\t\t')
                     exact_matches += 1
                     diffs.append(bwa)
 
@@ -174,7 +174,7 @@ for bwa in bwalist:
                     print(f"OC EXACT MATCH :::    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                 else:
                     print(f"OC DIFFERENCE ["+str(float(oc_ws[age])-float(oc_batch[age])) +
-                          "]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                          f"]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
         if exact_matches != 0:
