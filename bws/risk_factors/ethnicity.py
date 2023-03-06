@@ -136,4 +136,6 @@ class UKBioBankEthnicty(Ethnicity):
         return UKBioBankEthnicty.GROUPS[self.ethnicity] + ".nml"
 
     def get_group(self):
+        if self.ethnicity == "na":
+            return "UK"
         return "UK "+self.ethnicity.title()
