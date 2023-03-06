@@ -134,3 +134,6 @@ class UKBioBankEthnicty(Ethnicity):
         
     def get_filename(self):
         return UKBioBankEthnicty.GROUPS[self.ethnicity] + ".nml"
+
+    def get_group(self):
+        return "UK "+self.ethnicity.title()

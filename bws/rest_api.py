@@ -107,6 +107,8 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
+
                     if mname == "BC":
                         this_pedigree["risk_factors"][_('Mammographic Density')] = \
                                                             this_mdensity.get_display_str() if this_mdensity is not None else "-"
