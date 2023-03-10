@@ -95,7 +95,7 @@ class ModelWebServiceMixin():
 
                     this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     this_mdensity = (pedi.mdensity if hasattr(pedi, 'mdensity') and pedi.mdensity is not None else None)
-                    if pedi.ethnicity is not None:
+                    if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
                         this_params.ethnicity = pedi.ethnicity
 
                     calcs = Predictions(pedi, model_params=this_params, risk_factor_code=risk_factor_code,
