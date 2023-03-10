@@ -28,7 +28,7 @@ from bws.pedigree import Pedigree
 logger = logging.getLogger(__name__)
 
 
-class Predictions(object):
+class Predictions():
 
     def __init__(self, pedi, model_params=ModelParams(),
                  risk_factor_code=0, hgt=-1, mdensity=None, prs=None, cwd=None, request=Request(HttpRequest()),
