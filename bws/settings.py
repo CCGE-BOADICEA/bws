@@ -145,6 +145,7 @@ BC_MODEL = {
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
         # ('ANTEBC 2803', {'alpha': xxxx}),
+        ('BCAC 77', 'BCAC_77_PRS.prs'),
         ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BCAC 3820', 'BCAC_3820_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
@@ -228,7 +229,7 @@ OC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
-        ('OC-EGLH-CEN 34', 'OCAC_34_PRS.prs'),
+        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
         ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
