@@ -26,12 +26,12 @@ import logging
 import io
 import vcf
 import traceback
-from math import erf, sqrt
 from django.conf import settings
 import vcf2prs
 from vcf2prs.prs import Prs
 from vcf2prs.exception import Vcf2PrsError
 from pathlib import Path
+from statistics import NormalDist
 
 
 logger = logging.getLogger(__name__)
@@ -267,12 +267,10 @@ Returns PRS represented as a percentage of those with a lower PRS.
     @classmethod
     def get_percentage(cls, load):
         """
-        Use error function to compute cumulative standard normal distribution,
-        https://docs.python.org/3/library/math.html#math.erf
-        (alternative to scipy.stats.norm.cdf(load, mu, sigma) * 100.0) to get
-        percentage representation.
+        Use NormalDist to compute cumulative standard normal distribution,
+        https://stackoverflow.com/questions/809362/how-to-calculate-cumulative-normal-distribution
         @param: standard normal PRS which is normally distributed in the general population with mean
         of 0 and standard deviation of 1
         @return: PRS represented as a percentage of those with a lower PRS
         """
-        return ((1.0 + erf(load / sqrt(2.0))) / 2.0) * 100.0
+        return NormalDist().cdf(load) * 100.0
