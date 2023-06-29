@@ -72,8 +72,8 @@ class HttpServer:
 
     def start_www(self, url):
         self.base_html_setup(url)
-        copyfile("/home/tim/workspace/boadicea/boadicea/local_apps/fh/static/js/pedigreejs.v2.1.0-rc2.min.js",
-                 join(TMPDIR, 'pedigreejs.v2.1.0-rc2.min.js'))
+        # copyfile("/home/tim/workspace/boadicea/boadicea/local_apps/fh/static/js/pedigreejs.v3.0.0-rc2.min.js",
+        #         join(TMPDIR, 'pedigreejs.v2.1.0-rc2.min.js'))
         HttpServer.server_thread = Thread_With_Trace(target=HttpServer().run_server)
         self.server_thread.start()
 

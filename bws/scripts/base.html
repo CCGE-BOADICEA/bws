@@ -28,20 +28,24 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.14/dist/jspdf.plugin.autotable.min.js" integrity="sha256-1tNRjzLhaF9gFcasz6T9P/KtItEInFchhrqg7HCd5IQ=" crossorigin="anonymous"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@5.16.0/dist/d3.min.js" integrity="sha256-Xb6SSzhH3wEPC4Vy3W70Lqh9Y3Du/3KxPqI2JHQSpTw=" crossorigin="anonymous"></script>
-<script src="{URL}/static/js/pedigreejs.v2.1.0-rc2.min.js"></script>
+<script src="{URL}/static/js/pedigreejs.v3.0.0-rc1.min.js"></script>
 
-<script src="{URL}/static/Scripts/canrisk.js"></script>
+<script src="{URL}/static/Scripts/Consts.js"></script>
+
 <script src="{URL}/static/js/pedigree_templates.js"></script>
 <script src="{URL}/static/js/canrisk_init.js"></script>
 
 <script type="text/javascript">
 	////// deconstruct pedigreejs entry point
-	var pedigree_util = window.pedigreejs.pedigree_utils;
-	var pedcache = window.pedigreejs.pedcache;
-	var io = window.pedigreejs.io;
-	var pedigree_form = window.pedigreejs.pedigree_form;
-	var canrisk_file = window.pedigreejs.canrisk_file;
+	var pedigree_util = window.pedigreejs.pedigreejs_utils;
+	var pedigree_extras  = window.pedigreejs.pedigreejs__extras;
+	var pedcache = window.pedigreejs.pedigreejs_pedcache;
+	var io = window.pedigreejs.pedigreejs_io;
+	var pedigree_form = window.pedigreejs.pedigreejs_form;
+	var canrisk_file = window.pedigreejs.pedigreejs_canrisk_file;
 	var ptree = window.pedigreejs.pedigreejs;
+	var pedigreejs_widgets = window.pedigreejs.pedigreejs_widgets;
+	var zooming = window.pedigreejs.pedigreejs_zooming;
 	//////
 	// set options for pedigreejs
 	var opts = {
@@ -65,7 +69,7 @@
 	$(document).ready(function(){
 		var eventTarget = document.createDocumentFragment()
 		
-		io.add(opts);
+		io.addIO(opts);
 		fetch('pedigree.txt')
 		  .then(response => response.text())
 		  .then(data => {
@@ -84,7 +88,7 @@
 						opts.dataset = io.readLinkage(e.target.result);
 					}
 				}
-			  	ptree.validate_pedigree(opts);
+			  	pedigree_util.validate_pedigree(opts);
 			  	pedcache.setposition(opts);		// clear position
 			  	ptree.rebuild(opts);
 		  });
@@ -96,7 +100,7 @@
 			  var tid = run_prediction.create_results(data, prs, opts);
 			  setTimeout(function () {
 					pdf.save(tid, ["report_ins", "report_rm", "report_bcr", "report_ocr", "report_mut", "report_extra"], "Generated");
-				}, 1000);
+				}, 3000);
 		  });
 	});
 </script>
@@ -121,4 +125,15 @@
 	<input id="load" type="text" class="hidden">
 	<div id="content"><div id="qtabs"></div></div>
 </body>
+
+<script src="{URL}/static/Scripts/risk_factors.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script1_Personal.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script2_LifeStyle.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script3_WomenHealth.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script4_Children.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script5_BreastScreen.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script6_MedicalHistory.js"></script>
+<script src="{URL}/static/Scripts/Sections/Script7_GeneticTests.js"></script>
+
+<script src="{URL}/static/Scripts/canrisk.js"></script>
 </html>
