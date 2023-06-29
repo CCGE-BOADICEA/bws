@@ -274,6 +274,7 @@ def get_auth_token(args, url):
 
 
 if __name__ == "__main__":
+    cwd = Path.cwd()
     #
     # define optional command line arguments
     parser = argparse.ArgumentParser('run a risk prediction via the web-service')
@@ -389,7 +390,7 @@ if __name__ == "__main__":
         if 'pdf' in args and args.pdf:
             http_server = pdf_report.HttpServer()
             http_server.start_www(url)
-        cwd = os.getcwd()
+        
         for bwa in bwas:
             print(bwa)
             runws(args, data, bwa, cancers, token, url, cwd=cwd, prs=prs)
