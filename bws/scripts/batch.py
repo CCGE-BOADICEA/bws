@@ -14,22 +14,42 @@ import re
 import math
 
 
-def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", model='BC', muts=False):
+def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", model='BC', muts=False, verbose=False):
     ''' Run batch processing script. '''
     if ashkn or mut_freq == "ASHKENAZI":
         setting = FORTRAN+"settings_"+model+"_AJ"+".ini"
     else:
         setting = FORTRAN+"settings_"+model+"_"+mut_freq+".ini"
+        
+    if model  == 'OC':
+        model_path = os.path.join(FORTRAN, "Ovarian-Cancer-Model")
+    elif model == 'BC':
+        model_path = os.path.join(FORTRAN, "Breast-Cancer-Model")
     cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
-           "-i", irates.replace('New-Zealand', 'New_Zealand'),
+           "-i", os.path.join(model_path, "Data/incidences_"+irates.replace('New-Zealand', 'New_Zealand')),
            "-s", setting,
            "-l", os.path.join(cwd, model+"runlog.log")]
-    if model == 'OC':
-        cmd.append('-o')
+    
     if muts:
-        cmd.append('-p')
+        cmd.append('-m')
+        cmd.append('p')
+
+    if model == 'OC':
+        cmd.append('-c')
+        cmd.append('o')
+        cmd.append('-e')
+        cmd.append(os.path.join(model_path, "Data/coeffs-OC_UK-pop.nml"))
+    elif model == 'BC':
+        cmd.append('-c')
+        cmd.append('b')
+        cmd.append('-e')
+        cmd.append(os.path.join(model_path, "Data/coeffs-BC_UK-pop.nml"))     
+
     cmd.append(csvfile)
+    
+    if verbose:
+        print(' '.join(cmd))
 
     process = Popen(cmd, cwd=FORTRAN, stdout=PIPE, stderr=PIPE)
     (outs, errs) = process.communicate()
@@ -37,6 +57,7 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
     if _exit_code != 0:
         print(outs)
         print(errs)
+        exit(1)
     return outs, errs
 
 
@@ -150,7 +171,7 @@ def get_rfs(bwa):
                         rfs['OC_Duration'] = parts[1]
                         line[1] = parts[0]
                 elif line[0] == 'birads':
-                    name = 'BIRADS'
+                    name = 'Mamm_density'
                 elif line[0] == 'endo':
                     name = 'Endometriosis'
                 else:

@@ -82,7 +82,7 @@ ALLOWED_CALCS = ['carrier_probs', 'remaining_lifetime', "lifetime", "ten_year"]
 # BREAST CANCER MODEL
 BC_MODEL = {
     'NAME': 'BC',
-    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Breast-Cancer-Model-v7'),
+    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Breast-Cancer-v7.0.1'),
     'EXE': 'boadicea.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],          # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'PALB2', 'CHEK2',           # NOTE: order used by fortran pedigree file
@@ -176,7 +176,7 @@ BC_MODEL['PRS_ALPHA'] = {
 # OVARIAN CANCER MODEL
 OC_MODEL = {
     'NAME': 'OC',
-    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Ovarian-Cancer-Model-v3'),
+    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Ovarian-Cancer-v3.0.1'),
     'EXE': 'ovarian.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1', 'PALB2'],   # NOTE: order used by fortran pedigree file
