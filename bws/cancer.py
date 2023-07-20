@@ -113,11 +113,13 @@ class PathologyTest(object):
                       "will be taken into account in the calculation; "
                       "(2) if a breast cancer is ER positive, no other pathology information for that individual will "
                       "be taken into account in the calculation; "
-                      "(3) if a breast cancer is ER negative, information on PR and HER2 for that individual will only "
-                      "be taken into account in the calculation if both PR and HER2 are specified; and "
-                      "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation if "
-                      "both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR "
+                      "(3) if a breast cancer is ER negative, information on PR and HER2 are only employed jointly: "
+                      "i.e. either the cancer is triple negative (ER-/PR-/HER2-) or it's not (i.e. ER-/PR-/HER2+ or "
+                      "ER-/PR+/HER2- or ER-/PR+/HER2+), no other options are considered; and "
+                      "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation "
+                      "if both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR "
                       "negative and HER2 negative). ")
+
             # If ER is unspecified but another pathology parameter has been specified,
             # report that no pathology data will be used
             if(tests.er.result == "0" and (tests.pr.result != "0" or tests.her2.result != "0" or
