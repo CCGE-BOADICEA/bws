@@ -190,17 +190,21 @@ class PedigreeFile(object):
         if isinstance(pedigrees, Pedigree):
             pedigrees = [pedigrees]
         warnings = []
+        incomplete = []
         for pedigree in pedigrees:
             people = pedigree.people
             pedigree.validate()             # Validate pedigree input data
 
             for p in people:
                 if not p.is_complete():
-                    warnings.append(_('year of birth and age at last follow up must be specified in order for ' +
-                                      '%(id)s to be included in a calculation') % {'id': p.pid})
+                    incomplete.append(p.pid)
+
                 p.validate(pedigree)                        # Validate person data
                 type(p.cancers).validate(p)                 # Validate cancer diagnoses
                 warnings.extend(PathologyTest.validate(p))  # Validate pathology status
                 GeneticTest.validate(p)                     # Validate genetic tests
 
+        if len(incomplete) > 0:
+            warnings.append(_('year of birth and age at last follow up must be specified in order for ' +
+                                      '%(id)s to be included in a calculation') % {'id': ', '.join(incomplete)})
         return warnings
