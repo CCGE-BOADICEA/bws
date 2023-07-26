@@ -10,7 +10,7 @@ import re
 REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
     re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
 REGEX_CANRISK1_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s1(.0)*)$")
-REGEX_CANRISK2_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s2(.0)*)$")
+REGEX_CANRISK2_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s2(.\\d)*)$")
 REGEX_CANRISK3_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s3(.0)*)$")
     
 REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")

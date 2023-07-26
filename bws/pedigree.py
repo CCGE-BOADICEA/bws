@@ -337,11 +337,20 @@ class Pedigree(metaclass=abc.ABCMeta):
         f = open(filepath, "w")
         
         mname = model_settings['NAME']
-        num = "5" if mname == "BC" else "4"  # extra column for mammographic density
+        num = "5"
+        if mname == "OC":
+            num = "4"
+        elif mname == "PC":
+            num = "2"
         print("(I3,X,A8)", file=f)
 
-        print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-              str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1," + num + "(X,A8))", file=f)
+        print("(3(A7,X),2(A1,X),2(A3,X)," +
+              str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
+              str(len(model_settings['GENES'])) + "(A2,X)," +
+              "A4,X," +                             # yob 
+              ("A2,X," if mname != "PC" else "") +  # pathology
+              "A1," +                               # proband status
+              num + "(X,A8))", file=f)
 
         print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
 
@@ -351,9 +360,11 @@ class Pedigree(metaclass=abc.ABCMeta):
             print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
                   (p.pid,
                    p.fathid if p.fathid != "0" else '',
-                   p.mothid if p.mothid != "0" else '', p.sex(),
+                   p.mothid if p.mothid != "0" else '',
+                   p.sex(),
                    p.mztwin if p.mztwin != "0" else '',
-                   genotype, '   '), file=f, end="")
+                   genotype,
+                   '   '), file=f, end="")
 
             print(p.cancers.write(model_settings['CANCERS'], p.age), file=f, end="")
             print("%3s " % p.age, file=f, end="")
@@ -368,23 +379,31 @@ class Pedigree(metaclass=abc.ABCMeta):
                     if mname == "OC" and isinstance(gtests, BWSGeneticTests):
                         if g in Genes.get_unique_oc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
+                    elif mname == "PC":
+                        logger.debug(g+" ==== "+mname)
+                        if g in Genes.get_unique_pc_genes():
+                            print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
                     else:
+                        logger.debug(g+" "+mname)
                         raise
 
             print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
+            if mname != "PC":
+                print(PathologyTest.write(p.pathology), file=f, end="")
 
-            print(PathologyTest.write(p.pathology), file=f, end="")
-
-            # ProbandStatus RiskFactor
-            print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
+                # ProbandStatus RiskFactor
+                print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
                   file=f, end="")
 
-            # Height
-            print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
+                # Height
+                print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
 
-            # Mammographic density
-            if mname == "BC":
-                print(("%8s " % mdensity.get_pedigree_str()) if p.target != "0" and mdensity is not None else ("%8s " % "00000000"), file=f, end="")
+                # Mammographic density
+                if mname == "BC":
+                    print(("%8s " % mdensity.get_pedigree_str()) if p.target != "0" and mdensity is not None else ("%8s " % "00000000"), file=f, end="")
+            else:
+                # ProbandStatus
+                print("%1s " % p.target, file=f, end="")
 
             # PolygStanDev PolygLoad
             print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
@@ -569,6 +588,11 @@ class CanRiskPedigree(Pedigree):
     COLUMNS2 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
                 "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
                 "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
+
+#    COLUMNS3 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+#                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+#                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13",
+#                "ER:PR:HER2:CK14:CK56"]
 
     def get_prs(self, mname):
         ''' Get the PRS for the given cancer model.  '''

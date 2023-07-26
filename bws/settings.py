@@ -178,8 +178,9 @@ OC_MODEL = {
     'NAME': 'OC',
     'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Ovarian-Cancer-v3.0.1'),
     'EXE': 'ovarian.exe',
-    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
-    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1', 'PALB2'],   # NOTE: order used by fortran pedigree file
+    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],      # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C',     # NOTE: order used by fortran pedigree file
+              'BRIP1', 'PALB2'],
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
@@ -243,6 +244,67 @@ OC_MODEL = {
 }
 OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
+
+
+#
+# PROSTATE CANCER MODEL
+PC_MODEL = {
+    'NAME': 'PC',
+    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Prostate-Cancer-v3.0'),
+    'EXE': 'prostate.exe',
+    'CANCERS': ['prc', 'bc1', 'oc'],      # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA2', 'HOXB13', 'BRCA1'],              # NOTE: order used by fortran pedigree file
+    'CALCS': ['carrier_probs', 'remaining_lifetime'],
+    'MUTATION_FREQUENCIES': OrderedDict([(
+        'UK', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.00102,
+            'HOXB13': 0.00212
+        }),
+        ('Ashkenazi', {
+            'BRCA1': 0.008,
+            'BRCA2': 0.006,
+            'HOXB13': 0.00212
+        }),
+        ('Iceland', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.003,
+            'HOXB13': 0.00212
+        })
+    ]),
+    # Default genetic test sensitivities
+    'GENETIC_TEST_SENSITIVITY': {
+        "BRCA1": 0.89,
+        "BRCA2": 0.96,
+        "HOXB13": 0.86
+    },
+    # cancer incidence rate display name and corresponding file name
+    'CANCER_RATES': OrderedDict([
+        ('UK', 'UK'),
+        # ('UK-version-1', 'UKold'),
+        ('Australia', 'Australia'),
+        ('Canada', 'Canada'),
+        ('USA', 'USA'),
+        ('Denmark', 'Denmark'),
+        ('Estonia', 'Estonia'),
+        ('Finland', 'Finland'),
+        ('France', 'France'),
+        ('Iceland', 'Iceland'),
+        ('Netherlands', 'Netherlands'),
+        ('New-Zealand', 'New_Zealand'),
+        ('Norway', 'Norway'),
+        ('Slovenia', 'Slovenia'),
+        ('Spain', 'Spain'),
+        ('Sweden', 'Sweden'),
+        ('Other', 'UK')
+    ]),
+    'PRS_REFERENCE_FILES': OrderedDict([
+        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
+        ('OCAC 36', 'OCAC_36_PRS.prs')
+    ])
+}
+PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
+PC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in PC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if

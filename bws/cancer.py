@@ -21,6 +21,11 @@ class Genes():
         return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
 
     @staticmethod
+    def get_unique_pc_genes():
+        ''' Return genes unique to prostate model. '''
+        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+
+    @staticmethod
     def get_all_model_genes():
         ''' Return genes for breast and ovarian model. '''
         return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]

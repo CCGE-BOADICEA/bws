@@ -95,7 +95,7 @@ class BwsInputSerializer(BaseInputSerializer):
 
 
 class OwsInputSerializer(BaseInputSerializer):
-    """ Boadicea breast cancer input fields. """
+    """ Ovarian cancer input fields. """
     oc_model = settings.OC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(oc_model)
 
@@ -105,6 +105,17 @@ class OwsInputSerializer(BaseInputSerializer):
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(oc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(oc_model)
+    prs = serializers.JSONField(required=False)
+
+
+class PwsInputSerializer(BaseInputSerializer):
+    """ Prostate cancer input fields. """
+    pc_model = settings.PC_MODEL
+    mut_freq = BaseInputSerializer.get_mutation_frequency_field(pc_model)
+
+    for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(pc_model):
+        exec(f)
+    cancer_rates = BaseInputSerializer.get_cancer_rates_field(pc_model)
     prs = serializers.JSONField(required=False)
 
 

@@ -30,7 +30,7 @@ from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
-    CombinedOutputSerializer
+    CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 
 
@@ -277,10 +277,7 @@ for each the genes and the population to use for cancer incidence rates.
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM...).
-        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-        for each the genes and the population to use for cancer incidence rates.
+        BOADICEA Web-Service (BWS).
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -376,10 +373,7 @@ for each the genes and the population to use for cancer incidence rates.
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        Ovarian Web-Service (OWS) used to calculate the risks of ovarian cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, RAD51D, RAD51C, BRIP1).
-        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-        for each the genes and the population to use for cancer incidence rates.
+        Ovarian Web-Service (OWS).
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -448,6 +442,90 @@ for each the genes and the population to use for cancer incidence rates.
         produces: ['application/json', 'application/xml']
         """
         return self.post_to_model(request, settings.OC_MODEL)
+
+
+class PwsView(APIView, ModelWebServiceMixin):
+    """
+    Prostate Model Web-Service
+    """
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    serializer_class = PwsInputSerializer
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    model = settings.PC_MODEL
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+                fields=ModelWebServiceMixin.get_fields(model),
+                encoding="application/json",
+                description="""
+Prostate Web-Service (PWS) used to calculate the risks of prostate cancer and the probability
+that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
+As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
+for each the genes and the population to use for cancer incidence rates.
+"""
+            )
+
+    # @profile("profile_bws.profile")
+    def post(self, request):
+        """
+        Prostate Web-Service (PWS).
+        ---
+        parameters_strategy: merge
+        response_serializer: OutputSerializer
+        parameters:
+           - name: user_id
+             description: unique end user ID, e.g. IP address
+             type: string
+             required: true
+           - name: pedigree_data
+             description: CanRisk pedigree data file
+             type: file
+             required: true
+           - name: mut_freq
+             description: mutation frequency
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'Ashkenazi', 'Iceland']
+           - name: cancer_rates
+             description: cancer incidence rates
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
+           - name: brca1_mut_sensitivity
+             description: BRCA1 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: brca2_mut_sensitivity
+             description: BRCA2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: hoxb13_mut_sensitivity
+             description: HOXB13 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+
+        responseMessages:
+           - code: 401
+             message: Not authenticated
+
+        consumes:
+           - application/json
+           - application/xml
+        produces: ['application/json', 'application/xml']
+        """
+        return self.post_to_model(request, settings.PC_MODEL)
 
 
 class CombineModelResultsView(APIView):
