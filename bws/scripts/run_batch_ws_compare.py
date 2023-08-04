@@ -93,8 +93,7 @@ print("OC Risk Tolerance "+str(oc_rr_tol))
 print("BC Probs Tolerance "+str(bc_probs_tol))
 print("OC Probs Tolerance "+str(oc_probs_tol))
 
-
-irates = "BOADICEA-Model-V6/Data/incidences_"+args.cancer_rates+".nml"
+irates = args.cancer_rates.replace('New-Zealand', 'New_Zealand')+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
 print("=============================================")
 
