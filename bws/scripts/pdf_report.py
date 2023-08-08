@@ -17,8 +17,9 @@ import threading
 import time
 from os.path import expanduser, join
 from shutil import copyfile
+import tempfile
 
-TMPDIR = "/tmp"
+TMPDIR = tempfile.gettempdir()
 pedigree = join(TMPDIR, 'pedigree.txt')
 
 
@@ -58,6 +59,7 @@ class HttpServer:
     cwd = os.getcwd()
     server_thread = None
     base = join(TMPDIR, 'base.html')
+    print(base)
 
     def run_server(self):
         PORT = 8081
