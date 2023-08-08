@@ -15,10 +15,12 @@ import os
 import webbrowser
 import threading
 import time
-from os.path import expanduser, join
+from os.path import join
 from shutil import copyfile
+import tempfile
+from pathlib import Path
 
-TMPDIR = "/tmp"
+TMPDIR = tempfile.gettempdir()
 pedigree = join(TMPDIR, 'pedigree.txt')
 
 
@@ -58,6 +60,7 @@ class HttpServer:
     cwd = os.getcwd()
     server_thread = None
     base = join(TMPDIR, 'base.html')
+    print(base)
 
     def run_server(self):
         PORT = 8081
@@ -72,8 +75,8 @@ class HttpServer:
 
     def start_www(self, url):
         self.base_html_setup(url)
-        copyfile("/home/tim/workspace/boadicea/boadicea/local_apps/fh/static/js/pedigreejs.v2.1.0-rc2.min.js",
-                 join(TMPDIR, 'pedigreejs.v2.1.0-rc2.min.js'))
+        copyfile(join(os.path.dirname(os.path.realpath(__file__)), 'pedigreejs.v3.0.0-rc1.min.js'),
+                 join(TMPDIR, 'pedigreejs.v3.0.0-rc1.min.js'))
         HttpServer.server_thread = Thread_With_Trace(target=HttpServer().run_server)
         self.server_thread.start()
 
@@ -101,14 +104,14 @@ def rm_file(fname):
         print(f"REMOVED {fname}")
 
 
-def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval=0.2, rename=None):
+def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval=0.25, rename=None):
     ''' Wait for file to exist on download. '''
-    home = expanduser("~")
-    fname = join(home, 'Downloads', fname)
+    fname = join(Path.home(), "Downloads", fname)
     for _i in range(int(max_time/time_interval)):
         if os.path.isfile(fname) and os.stat(fname).st_size != 0:
             # print(str(_i*time_interval)+"s wait for file save")
             if rename:
+                print("PDF FILE: "+rename)
                 os.rename(fname, rename)
                 rm_file(pedigree)
             return
@@ -124,7 +127,7 @@ def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
             "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
     r = requests.post(url+'combine/', data=data, headers={'Authorization': "Token "+token})
     if r.status_code == 200:
-        f = open('/tmp/output.html', 'wb')
+        f = open(join(TMPDIR, 'output.html'), 'wb')
         f.write(r.content)
         f.close()
     else:
@@ -133,7 +136,7 @@ def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
         exit(1)
 
     # open browser to generate results page and PDF
-    rm_file(join(expanduser("~"), 'Downloads', "canrisk_report.pdf"))
+    rm_file(join(Path.home(), 'Downloads', "canrisk_report.pdf"))
     webbrowser.open('http://0.0.0.0:8081/base.html')
     _dir, fname = os.path.split(bwa)
-    wait_for_pdf_download(rename=join(cwd, f"{fname}.pdf"))
+    wait_for_pdf_download(rename=join(Path.home(), 'Desktop', f"{fname}.pdf"))
