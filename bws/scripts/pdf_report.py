@@ -137,6 +137,6 @@ def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
 
     # open browser to generate results page and PDF
     rm_file(join(Path.home(), 'Downloads', "canrisk_report.pdf"))
-    webbrowser.open('http://0.0.0.0:8081/base.html')
+    webbrowser.open('http://localhost:8081/base.html')
     _dir, fname = os.path.split(bwa)
     wait_for_pdf_download(rename=join(Path.home(), 'Desktop', f"{fname}.pdf"))
