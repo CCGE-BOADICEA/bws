@@ -60,7 +60,6 @@ of the executables for the mutation probability and risk calculation::
         path('boadicea/', rest_api.BwsView.as_view(), name='bws'),    # breast cancer risk model
         path('ovarian/', rest_api.OwsView.as_view(), name='ows'),     # ovarian cancer risk model
         path('auth-token/', ObtainAuthToken.as_view()),
-        path('combine/', rest_api.CombineModelResultsView.as_view(), name='combine'),
     ]
     urlpatterns.extend(url_rest_patterns)
 
