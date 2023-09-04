@@ -4,6 +4,7 @@ bws
 
 
 BWS is a Django app to run web-services for `BOADICEA <https://canrisk.org/about/>`_.
+It use the Django REST framework to provide the Web APIs.
 
 Quick start
 -----------
@@ -11,8 +12,15 @@ Quick start
 1. Installation::
 
     pip install -e git+https://git@github.com/CCGE-BOADICEA/bws.git#egg=bws
+    
 
-2. Update the ``bws.settings.py``. In particular change the ``FORTRAN_HOME`` parameter to set the directory location for the cancer risk models. Depending on the file structure it may be necessary to also change the ``HOME`` location in ``BC_MODEL`` and ``OC_MODEL`` in this file. These and the ``PROBS_EXE`` and ``RISKS_EXE`` parameters define the location of the executables for the mutation probability and risk calculation::
+This will install the bws app and the dependencies.    
+
+2. Locate the installation directory (e.g. with pip show bws). Update the ``bws.settings.py``.
+In particular change the ``FORTRAN_HOME`` parameter to set the directory location for the cancer risk models.
+Depending on the file structure it may be necessary to also change the ``HOME`` location in ``BC_MODEL``
+and ``OC_MODEL`` in this file. These and the ``PROBS_EXE`` and ``RISKS_EXE`` parameters define the location
+of the executables for the mutation probability and risk calculation::
 
     FORTRAN_HOME = "/usr/src/"
     ....
