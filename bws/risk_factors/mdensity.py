@@ -9,8 +9,8 @@ is the mammographic density percentage.
 Example 1: MD = 42.42% measured with Volpara should be coded as “20.42420”
 Example 2: MD = category 3 of Birads should be coded as “3”
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 from abc import ABC, abstractmethod
