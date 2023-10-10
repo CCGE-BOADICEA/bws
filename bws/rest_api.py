@@ -568,4 +568,4 @@ class CombineModelResultsView(APIView):
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
             output_serialiser = CombinedOutputSerializer(validated_data)
-            return Response(output_serialiser.data, template_name='result_tab.html')
+            return Response(output_serialiser.data, template_name='results/tabs.html')
