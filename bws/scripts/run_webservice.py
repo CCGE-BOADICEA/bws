@@ -37,8 +37,8 @@
 # run_webservice.py -u username -p boadicea/tests_selenium/canrisk_format_data/canrisk_data1.txt \
 #       --vcf sample_data/sample_BCAC_313.vcf -s SampleA --bc_prs_reference_file BCAC_313_PRS.prs
 #
-# © 2022 Cambridge University
-# SPDX-FileCopyrightText: 2022 Cambridge University
+# © 2023 University of Cambridge
+# SPDX-FileCopyrightText: 2023 University of Cambridge
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import getpass
@@ -274,6 +274,7 @@ def get_auth_token(args, url):
 
 
 if __name__ == "__main__":
+    cwd = Path.cwd()
     #
     # define optional command line arguments
     parser = argparse.ArgumentParser('run a risk prediction via the web-service')
@@ -389,7 +390,7 @@ if __name__ == "__main__":
         if 'pdf' in args and args.pdf:
             http_server = pdf_report.HttpServer()
             http_server.start_www(url)
-        cwd = os.getcwd()
+        
         for bwa in bwas:
             print(bwa)
             runws(args, data, bwa, cancers, token, url, cwd=cwd, prs=prs)

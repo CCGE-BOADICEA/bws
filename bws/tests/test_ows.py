@@ -1,8 +1,8 @@
 """
 Ovarian web-service testing.
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -53,7 +53,7 @@ class OwsTests(TestCase):
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
         self.assertTrue("pedigree_result" in content)
 
@@ -72,7 +72,7 @@ class OwsTests(TestCase):
         OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertEqual(len(content['pedigree_result']), 3, "three results")
         family_ids = ["XXX0", "XXX1", "XXX2"]
         for res in content['pedigree_result']:
@@ -97,7 +97,7 @@ class OwsTests(TestCase):
         OwsTests.client.force_authenticate(user=OwsTests.user)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
 
     @override_settings(FORTRAN_TIMEOUT=0.01)
@@ -108,7 +108,7 @@ class OwsTests(TestCase):
         OwsTests.client.force_authenticate(user=OwsTests.user)
         response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
 
@@ -143,14 +143,14 @@ class OwsTestsPRS(TestCase):
         OwsTestsPRS.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTestsPRS.token.key)
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        orisk1 = json.loads(force_text(response.content))
+        orisk1 = json.loads(force_str(response.content))
 
         ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,zscore=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        orisk2 = json.loads(force_text(response.content))
+        orisk2 = json.loads(force_str(response.content))
 
         self.assertNotEqual(self.get_percent(orisk1, 80), self.get_percent(orisk2, 80),
                             "ovarian cancer at 80 different values")
@@ -162,7 +162,7 @@ class OwsTestsPRS(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        orisk3 = json.loads(force_text(response.content))
+        orisk3 = json.loads(force_str(response.content))
 
         self.assertEqual(self.get_percent(orisk3, 80), self.get_percent(orisk2, 80),
                          "ovarian cancer at 80 different values")
