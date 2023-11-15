@@ -75,8 +75,6 @@ class HttpServer:
 
     def start_www(self, url):
         self.base_html_setup(url)
-        copyfile(join(os.path.dirname(os.path.realpath(__file__)), 'pedigreejs.v3.0.0-rc1.min.js'),
-                 join(TMPDIR, 'pedigreejs.v3.0.0-rc1.min.js'))
         HttpServer.server_thread = Thread_With_Trace(target=HttpServer().run_server)
         self.server_thread.start()
 
@@ -96,6 +94,14 @@ class HttpServer:
         bf.write(new_content)
         bf.close()
 
+        # add CanRisk icon
+        imgDir = join(TMPDIR, 'static', 'img')
+        Path(imgDir).mkdir(parents=True, exist_ok=True)
+        img_data = requests.get(url+"/static/img/CanRisk250x83.png").content
+        img = open(join(imgDir, 'CanRisk250x83.png'), 'wb')
+        img.write(img_data)
+        img.close()
+        
 
 def rm_file(fname):
     ''' Remove file if exists. '''
