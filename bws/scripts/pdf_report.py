@@ -126,6 +126,7 @@ def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval
 
 
 def create_pdf(url, token, ows_result, bws_result, bwa, cwd):
+    rm_file(pedigree)
     copyfile(bwa, pedigree)
 
     # send to server to get web-page and write output.html
