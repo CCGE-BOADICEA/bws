@@ -242,7 +242,7 @@ def handle_response(args, cmodel, r, bwa):
             output_tab(args.tab, cmodel, rjson, bwa)
         elif args.summary:
             summary_output_tab(args.summary, cmodel, rjson, bwa)
-        else:
+        elif not ('pdf' in args and args.pdf):
             print(json.dumps(rjson, indent=4, sort_keys=True))
     else:
         sys.stderr.write("Web-services error status: "+str(r.status_code))
