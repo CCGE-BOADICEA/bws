@@ -56,6 +56,12 @@ class Thread_With_Trace(threading.Thread):
         self.killed = True
 
 
+class QuietServer(http.server.SimpleHTTPRequestHandler):
+
+    def log_message(self, _fmt, *args):
+        pass
+
+
 class HttpServer:
     cwd = os.getcwd()
     server_thread = None
@@ -66,7 +72,7 @@ class HttpServer:
         PORT = 8081
         os.chdir(TMPDIR)
         try:
-            with socketserver.TCPServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
+            with socketserver.TCPServer(("", PORT), QuietServer) as httpd:
                 print("serving at port", PORT)
                 httpd.serve_forever()
         except OSError as e:
@@ -128,7 +134,7 @@ def wait_for_pdf_download(fname="canrisk_report.pdf", max_time=10, time_interval
                 rm_file(pedigree)
             return
         time.sleep(time_interval)
-    print(fname+" not saved")
+    print("************************* "+(rename if rename is not None else fname)+" NOT SAVED! *************************")
 
 
 def create_pdf(url, token, ows_result, bws_result, bwa, cwd):

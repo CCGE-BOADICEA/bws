@@ -85,17 +85,20 @@
 			  	pedigree_util.validate_pedigree(opts);
 			  	pedcache.setposition(opts);		// clear position
 			  	ptree.rebuild(opts);
-		  });
-
-		fetch('output.html', {cache: "no-cache"})
-		  .then(response => response.text())
-		  .then(data => {
-			  prs = {}
-			  var tid = run_prediction.create_results(data, prs, opts);
-			  setTimeout(function () {
-					pdf.save(tid, ["report_bcr", "report_ocr", "report_nice", "report_extra"], "Generated");
-				}, 3000);
-		  });
+		  })
+		  .then(
+			fetch('output.html', {cache: "no-cache"})
+			  .then(response => response.text())
+			  .then(data => {
+				  prs = {}
+				  setTimeout(function () {
+				  	var tid = run_prediction.create_results(data, prs, opts);
+				  	setTimeout(function () {
+						pdf.save(tid, ["report_bcr", "report_ocr", "report_nice", "report_extra"], "Generated");
+					}, 500);
+				  }, 250);
+			 })
+		 );
 	});
 </script>
 
