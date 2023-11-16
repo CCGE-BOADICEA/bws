@@ -102,6 +102,12 @@ class HttpServer:
         img.write(img_data)
         img.close()
         
+        # add favicon
+        fav = requests.get(url+"/static/favicon.ico").content
+        ico = open(join(TMPDIR, 'favicon.ico'), 'wb')
+        ico.write(fav)
+        ico.close()
+        
 
 def rm_file(fname):
     ''' Remove file if exists. '''
