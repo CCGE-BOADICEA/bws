@@ -57,18 +57,16 @@
 			symbol_size: 35,
 			font_size: '.7em',
 			optionalLabels: [
-				['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
-				['rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
-				['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
-			labels: [['age', 'yob'],
-					['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
-					['rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
-					['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
-			DEBUG: (pedigree_util.urlParam('debug') === null ? false : true)};
+                ['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
+                ['bard1_gene_test', 'rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
+                ['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
+        	labels: [['age', 'yob'],
+                        ['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
+                        ['bard1_gene_test', 'rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
+                        ['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
+			DEBUG: false};
 
 	$(document).ready(function(){
-		var eventTarget = document.createDocumentFragment()
-		
 		io.addIO(opts);
 		fetch('pedigree.txt')
 		  .then(response => response.text())
