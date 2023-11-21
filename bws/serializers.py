@@ -1,8 +1,8 @@
 """
 I/O serializers for the web-services.
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
@@ -95,7 +95,7 @@ class BwsInputSerializer(BaseInputSerializer):
 
 
 class OwsInputSerializer(BaseInputSerializer):
-    """ Boadicea breast cancer input fields. """
+    """ Ovarian cancer input fields. """
     oc_model = settings.OC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(oc_model)
 
@@ -108,10 +108,22 @@ class OwsInputSerializer(BaseInputSerializer):
     prs = serializers.JSONField(required=False)
 
 
+class PwsInputSerializer(BaseInputSerializer):
+    """ Prostate cancer input fields. """
+    pc_model = settings.PC_MODEL
+    mut_freq = BaseInputSerializer.get_mutation_frequency_field(pc_model)
+
+    for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(pc_model):
+        exec(f)
+    cancer_rates = BaseInputSerializer.get_cancer_rates_field(pc_model)
+    prs = serializers.JSONField(required=False)
+
+
 class PedigreeResultSerializer(serializers.Serializer):
     """ Cancer model risks and mutation probabilities for a pedigree. """
     family_id = serializers.CharField(read_only=True)
     proband_id = serializers.CharField(read_only=True)
+    ethnicity = serializers.CharField(read_only=True)
     mutation_frequency = serializers.DictField(read_only=True)
     risk_factors = serializers.DictField(read_only=True, required=False)
     prs = serializers.DictField(read_only=True, required=False)

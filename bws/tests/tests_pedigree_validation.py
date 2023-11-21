@@ -1,8 +1,8 @@
 """
 BOADICEA pedigree validation testing.
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 from copy import deepcopy
@@ -12,15 +12,16 @@ import os
 import random
 import re
 
+from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests,\
+from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests, \
     Genes
 from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
-from bws.pedigree import PedigreeFile, Male, Female
-from django.conf import settings
+from bws.pedigree_file import PedigreeFile
+from bws.person import Male, Female
 
 
 class ErrorTests(object):

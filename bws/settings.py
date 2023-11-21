@@ -1,14 +1,18 @@
 """
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
 from collections import OrderedDict
 import os
 import re
-import vcf2prs
 from pathlib import Path
+
+try:
+    import vcf2prs
+except ImportError as e:
+    pass  # module doesn't exist, deal with it.
 
 
 def line_that_contain(s1, s2, fp):
@@ -17,15 +21,19 @@ def line_that_contain(s1, s2, fp):
 
 def get_alpha(ref_file):
     ''' Get PRS alpha from a reference file header. '''
-    moduledir = Path(vcf2prs.__file__).parent.parent
-    ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+    alpha = ""
     try:
-        snp_file = open(ref_file, 'r')
-        alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
-    except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
-        raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
-    finally:
-        snp_file.close()
+        moduledir = Path(vcf2prs.__file__).parent.parent
+        ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+        try:
+            snp_file = open(ref_file, 'r')
+            alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
+        except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
+            raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
+        finally:
+            snp_file.close()
+    except NameError:
+        pass 
     return alpha
 
 
@@ -74,7 +82,7 @@ ALLOWED_CALCS = ['carrier_probs', 'remaining_lifetime', "lifetime", "ten_year"]
 # BREAST CANCER MODEL
 BC_MODEL = {
     'NAME': 'BC',
-    'HOME': os.path.join(FORTRAN_HOME, 'boadicea-v6'),
+    'HOME': os.path.join(FORTRAN_HOME, 'boadicea'),
     'EXE': 'boadicea.exe',
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],          # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'PALB2', 'CHEK2',           # NOTE: order used by fortran pedigree file
@@ -168,10 +176,11 @@ BC_MODEL['PRS_ALPHA'] = {
 # OVARIAN CANCER MODEL
 OC_MODEL = {
     'NAME': 'OC',
-    'HOME': os.path.join(FORTRAN_HOME, 'ovarian-v2'),
+    'HOME': os.path.join(FORTRAN_HOME, 'ovarian'),
     'EXE': 'ovarian.exe',
-    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],              # NOTE: order used by fortran pedigree file
-    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C', 'BRIP1', 'PALB2'],   # NOTE: order used by fortran pedigree file
+    'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],      # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C',     # NOTE: order used by fortran pedigree file
+              'BRIP1', 'PALB2'],
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
@@ -235,6 +244,67 @@ OC_MODEL = {
 }
 OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
+
+
+#
+# PROSTATE CANCER MODEL
+PC_MODEL = {
+    'NAME': 'PC',
+    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Prostate-Cancer-v3.0'),
+    'EXE': 'prostate.exe',
+    'CANCERS': ['prc', 'bc1', 'oc'],      # NOTE: order used by fortran pedigree file
+    'GENES': ['BRCA2', 'HOXB13', 'BRCA1'],              # NOTE: order used by fortran pedigree file
+    'CALCS': ['carrier_probs', 'remaining_lifetime'],
+    'MUTATION_FREQUENCIES': OrderedDict([(
+        'UK', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.00102,
+            'HOXB13': 0.00212
+        }),
+        ('Ashkenazi', {
+            'BRCA1': 0.008,
+            'BRCA2': 0.006,
+            'HOXB13': 0.00212
+        }),
+        ('Iceland', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.003,
+            'HOXB13': 0.00212
+        })
+    ]),
+    # Default genetic test sensitivities
+    'GENETIC_TEST_SENSITIVITY': {
+        "BRCA1": 0.89,
+        "BRCA2": 0.96,
+        "HOXB13": 0.86
+    },
+    # cancer incidence rate display name and corresponding file name
+    'CANCER_RATES': OrderedDict([
+        ('UK', 'UK'),
+        # ('UK-version-1', 'UKold'),
+        ('Australia', 'Australia'),
+        ('Canada', 'Canada'),
+        ('USA', 'USA'),
+        ('Denmark', 'Denmark'),
+        ('Estonia', 'Estonia'),
+        ('Finland', 'Finland'),
+        ('France', 'France'),
+        ('Iceland', 'Iceland'),
+        ('Netherlands', 'Netherlands'),
+        ('New-Zealand', 'New_Zealand'),
+        ('Norway', 'Norway'),
+        ('Slovenia', 'Slovenia'),
+        ('Spain', 'Spain'),
+        ('Sweden', 'Sweden'),
+        ('Other', 'UK')
+    ]),
+    'PRS_REFERENCE_FILES': OrderedDict([
+        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
+        ('OCAC 36', 'OCAC_36_PRS.prs')
+    ])
+}
+PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
+PC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in PC_MODEL['PRS_REFERENCE_FILES'].items()}
 
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if

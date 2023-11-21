@@ -1,212 +1,25 @@
 """
 Pedigree data
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-import re
+import abc
+import logging
+import os
+from random import randint
 
 from django.conf import settings
 
-from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cancers,\
-    BWSGeneticTests, CanRiskGeneticTests, Genes
-from bws.exceptions import PedigreeFileError, PedigreeError, PersonError
-from datetime import date
-from random import randint
-import abc
-from bws.risk_factors.bc import BCRiskFactors
-from bws.risk_factors.oc import OCRiskFactors
-import logging
-import os
-from django.utils.translation import gettext_lazy as _
+from bws.cancer import GeneticTest, PathologyTest, BWSGeneticTests, Genes
+import bws.consts as consts
+from bws.exceptions import PedigreeError
+from bws.person import Person, Male, Female
+from bws.risk_factors.mdensity import Volpara, Stratus
+
 
 logger = logging.getLogger(__name__)
-
-# BOADICEA header
-REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
-    re.compile("^(BOADICEA\\s+import\\s+pedigree\\s+file\\s+format\\s[124](.0)*)$")
-REGEX_CANRISK1_PEDIGREE_FILE_HEADER = \
-    re.compile("^(##CanRisk\\s1(.0)*)$")
-REGEX_CANRISK2_PEDIGREE_FILE_HEADER = \
-    re.compile("^(##CanRisk\\s2(.0)*)$")
-REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")
-REGEX_ONLY_HYPHENS = re.compile("^([\-]+)$")
-REGEX_ONLY_ZEROS = re.compile("^[0]+$")
-REGEX_AGE = re.compile("^\\d{1,3}$")
-REGEX_YEAR_OF_BIRTH = re.compile("^0|((17|18|19|20)[0-9][0-9])$")
-REGEX_ASHKENAZI_STATUS = re.compile("^[01]$")
-
-BLANK_LINE = re.compile(r'^\s*$')
-
-# calculation type
-CANCER_RISKS = 1
-MUTATION_PROBS = 2
-
-
-class Prs(object):
-    ''' Polygenic risk score - alpha and zscore values. '''
-    def __init__(self, alpha, zscore):
-        self.alpha = alpha
-        self.zscore = zscore
-
-
-class CanRiskHeader():
-    '''
-    CanRisk File Format Header
-    '''
-    def __init__(self):
-        self.lines = []
-
-    def add_line(self, line):
-        ''' Append header line to the list of lines. '''
-        self.lines.append(line)
-
-    def get_prs(self, val):
-        ''' Get a Prs object from a value containing e.g. alpha=float, zscore=float'''
-        alpha = zscore = None
-        parts = val.replace(" ", "").split(",")
-        for p1 in parts:
-            p2 = p1.split('=')
-            if len(p2) == 2:
-                if 'alpha' in p2[0]:
-                    alpha = float(p2[1])
-                if 'zscore' in p2[0]:
-                    zscore = float(p2[1])
-                if 'beta' in p2[0]:       # deprecated
-                    zscore = float(p2[1])
-        if alpha is not None and zscore is not None:
-            return Prs(alpha, zscore)
-        return None
-
-    def get_risk_factor_codes(self):
-        ''' Get breast and ovarian cancer risk factor code and PRS from header lines. '''
-        bc_rfs = BCRiskFactors()
-        oc_rfs = OCRiskFactors()
-        bc_prs = oc_prs = None
-        hgt = -1
-        for line in self.lines:
-            try:
-                parts = line.split('=', 1)
-                rfnam = parts[0][2:].lower().strip()    # risk factor name
-                rfval = parts[1].strip()                # risk factor value
-                if rfnam == 'prs_oc':                   # get ovarian cancer prs
-                    oc_prs = self.get_prs(rfval)
-                elif rfnam == 'prs_bc':                 # get breast cancer prs
-                    bc_prs = self.get_prs(rfval)
-                else:                                   # lookup breast/ovarian cancer risk factors
-                    if rfnam == 'height':
-                        if rfval == 'NA':
-                            continue
-                        hgt = float(rfval)
-                    bc_rfs.add_category(rfnam, rfval)
-                    oc_rfs.add_category(rfnam, rfval)
-            except Exception:
-                logger.error("CanRisk header format contains an error.")
-                raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, bc_prs, oc_prs)
-
-
-class PedigreeFile(object):
-    """
-    CanRisk and BOADICEA import pedigree file.
-    """
-    def __init__(self, pedigree_data):
-        self.pedigree_data = pedigree_data
-        pedigrees_records = [[]]
-        canrisk_headers = []
-        canrisk_header = CanRiskHeader()
-        pid = 0
-        famid = None
-        file_type = None
-        bc_rfc = oc_rfc = 0
-        bc_prs = oc_prs = None
-
-        for idx, line in enumerate(pedigree_data.splitlines()):
-            if idx == 0:
-                if REGEX_CANRISK1_PEDIGREE_FILE_HEADER.match(line):
-                    file_type = 'canrisk1'
-                elif REGEX_CANRISK2_PEDIGREE_FILE_HEADER.match(line):
-                    file_type = 'canrisk2'
-                elif REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
-                    file_type = 'bwa'
-                else:
-                    raise PedigreeFileError(
-                        "The first header record in the pedigree file has unexpected characters. " +
-                        "The first header record must be '##CanRisk 2.0'.")
-            elif (idx == 1 and file_type == 'bwa') or line.startswith('##FamID'):
-                self.column_names = line.replace("##FamID", "FamID").split()
-                if (((self.column_names[0] != 'FamID') or
-                     (self.column_names[2] != 'Target') or
-                     (self.column_names[3] != 'IndivID') or
-                     (self.column_names[4] != 'FathID') or
-                     (self.column_names[5] != 'MothID'))):
-                    raise PedigreeFileError(
-                        "Column headers in the pedigree file contains unexpected characters. " +
-                        "It must include the 'FamID', 'Target', 'IndivID','FathID' and 'MothID' " +
-                        "in columns 1, 3, 4, 5 and 6 respectively.")
-            elif line.startswith('##'):
-                if '=' in line:                     # risk factor declaration line
-                    canrisk_header.add_line(line)
-            elif BLANK_LINE.match(line):
-                continue
-            else:
-                record = line.split()
-                if famid is None or famid != record[0]:         # start of pedigree
-                    canrisk_headers.append(canrisk_header)
-                    canrisk_header = CanRiskHeader()
-                if famid is not None and famid != record[0]:    # start of next pedigree found
-                    pedigrees_records.append([])
-                    pid += 1
-                famid = record[0]
-
-                if file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS:
-                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
-                                            "BOADICEA format 4 pedigree files should have " +
-                                            str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) +
-                                            " data items per line.")
-                elif file_type == 'canrisk1' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
-                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
-                                            "CanRisk format 1 pedigree files should have " +
-                                            str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
-                                            " data items per line.")
-                elif file_type == 'canrisk2' and len(record) != settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS:
-                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
-                                            "CanRisk format 2 pedigree files should have " +
-                                            str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
-                                            " data items per line.")
-                pedigrees_records[pid].append(line)
-
-        self.pedigrees = []
-        for i in range(pid+1):
-            if file_type == 'bwa':
-                self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
-            elif file_type.startswith('canrisk'):
-                bc_rfc, oc_rfc, hgt, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
-                self.pedigrees.append(
-                    CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
-                                    bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
-                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt))
-
-    @classmethod
-    def validate(cls, pedigrees):
-        if isinstance(pedigrees, Pedigree):
-            pedigrees = [pedigrees]
-        warnings = []
-        for pedigree in pedigrees:
-            people = pedigree.people
-            pedigree.validate()             # Validate pedigree input data
-
-            for p in people:
-                if not p.is_complete():
-                    warnings.append(_('year of birth and age at last follow up must be specified in order for ' +
-                                      '%(id)s to be included in a calculation') % {'id': p.pid})
-                p.validate(pedigree)                        # Validate person data
-                type(p.cancers).validate(p)                 # Validate cancer diagnoses
-                warnings.extend(PathologyTest.validate(p))  # Validate pathology status
-                GeneticTest.validate(p)                     # Validate genetic tests
-
-        return warnings
 
 
 class Pedigree(metaclass=abc.ABCMeta):
@@ -216,7 +29,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, hgt=-1):
+                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -262,6 +75,8 @@ class Pedigree(metaclass=abc.ABCMeta):
                                 str(pedigree_size), self.famid)
         if file_type is not None and file_type.startswith('canrisk'):
             self.hgt = hgt
+            self.mdensity = mdensity
+            self.ethnicity = ethnicity
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
@@ -276,9 +91,9 @@ class Pedigree(metaclass=abc.ABCMeta):
         @param p: Person to validate pedigree data.
         """
         if(len(self.famid) > settings.MAX_LENGTH_PEDIGREE_NUMBER_STR or
-           not REGEX_ALPHANUM_HYPHENS.match(self.famid) or       # must be alphanumeric plus hyphen
-           REGEX_ONLY_HYPHENS.match(self.famid) or               # but not just hyphens
-           REGEX_ONLY_ZEROS.match(self.famid)):                  # and not just zeros
+           not consts.REGEX_ALPHANUM_HYPHENS.match(self.famid) or       # must be alphanumeric plus hyphen
+           consts.REGEX_ONLY_HYPHENS.match(self.famid) or               # but not just hyphens
+           consts.REGEX_ONLY_ZEROS.match(self.famid)):                  # and not just zeros
             raise PedigreeError(
                 "Family ID (1st data column) has been set to '" + self.famid +
                 "'. Family IDs must be specified with between 1 and "+str(settings.MAX_LENGTH_PEDIGREE_NUMBER_STR) +
@@ -510,16 +325,32 @@ class Pedigree(metaclass=abc.ABCMeta):
                 return False
         return True
 
-    def write_pedigree_file(self, file_type, risk_factor_code='0', hgt=-1, prs=None, filepath="/tmp/test.ped",
+    def write_pedigree_file(self, risk_factor_code='0', hgt=-1, mdensity=None, prs=None, filepath="/tmp/test.ped",
                             model_settings=settings.BC_MODEL):
         """
         Write input pedigree file for fortran.
         """
+        
+        if mdensity is not None and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus)):
+            raise Exception("Unsupported mammographic density type")
+        
         f = open(filepath, "w")
+        
+        mname = model_settings['NAME']
+        num = "5"
+        if mname == "OC":
+            num = "4"
+        elif mname == "PC":
+            num = "2"
         print("(I3,X,A8)", file=f)
 
-        print("(3(A7,X),2(A1,X),2(A3,X)," + str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
-              str(len(model_settings['GENES'])) + "(A2,X),A4,X,A2,X,A1,4(X,A8))", file=f)
+        print("(3(A7,X),2(A1,X),2(A3,X)," +
+              str(len(model_settings['CANCERS'])+1) + "(A3,X)," +
+              str(len(model_settings['GENES'])) + "(A2,X)," +
+              "A4,X," +                             # yob 
+              ("A2,X," if mname != "PC" else "") +  # pathology
+              "A1," +                               # proband status
+              num + "(X,A8))", file=f)
 
         print("%-3d %-8s" % (len(self.people), self.people[0].famid), file=f)
 
@@ -529,9 +360,11 @@ class Pedigree(metaclass=abc.ABCMeta):
             print("%-7s %-7s %-7s %-1s %-1s %3s %-3s " %
                   (p.pid,
                    p.fathid if p.fathid != "0" else '',
-                   p.mothid if p.mothid != "0" else '', p.sex(),
+                   p.mothid if p.mothid != "0" else '',
+                   p.sex(),
                    p.mztwin if p.mztwin != "0" else '',
-                   genotype, '   '), file=f, end="")
+                   genotype,
+                   '   '), file=f, end="")
 
             print(p.cancers.write(model_settings['CANCERS'], p.age), file=f, end="")
             print("%3s " % p.age, file=f, end="")
@@ -543,22 +376,34 @@ class Pedigree(metaclass=abc.ABCMeta):
                     print("%2s " % getattr(gtests, g.lower()).get_genetic_test_data(), file=f, end="")
                 except AttributeError:
                     # check if gene not in BC model
-                    if model_settings['NAME'] == "OC" and isinstance(gtests, BWSGeneticTests):
+                    if mname == "OC" and isinstance(gtests, BWSGeneticTests):
                         if g in Genes.get_unique_oc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
+                    elif mname == "PC":
+                        logger.debug(g+" ==== "+mname)
+                        if g in Genes.get_unique_pc_genes():
+                            print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
                     else:
+                        logger.debug(g+" "+mname)
                         raise
 
             print("%4s " % (p.yob if p.yob != "0" else settings.MENDEL_NULL_YEAR_OF_BIRTH), file=f, end="")
+            if mname != "PC":
+                print(PathologyTest.write(p.pathology), file=f, end="")
 
-            print(PathologyTest.write(p.pathology), file=f, end="")
-
-            # ProbandStatus RiskFactor
-            print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
+                # ProbandStatus RiskFactor
+                print("%1s %8s " % (p.target, (risk_factor_code if p.target != "0" else "00000000")),
                   file=f, end="")
 
-            # Height
-            print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
+                # Height
+                print(("%8.4f " % hgt) if p.target != "0" else ("%8s " % "-1"), file=f, end="")
+
+                # Mammographic density
+                if mname == "BC":
+                    print(("%8s " % mdensity.get_pedigree_str()) if p.target != "0" and mdensity is not None else ("%8s " % "00000000"), file=f, end="")
+            else:
+                # ProbandStatus
+                print("%1s " % p.target, file=f, end="")
 
             # PolygStanDev PolygLoad
             print("%8.5f %8.5f" % (prs.alpha if p.target != "0" and prs is not None and prs.alpha else 0,
@@ -594,20 +439,16 @@ class Pedigree(metaclass=abc.ABCMeta):
         f.close()
         return filepath
 
-    def write_batch_file(self, batch_type, pedigree_file_name, filepath="/tmp/test.bat",
+    def write_batch_file(self, pedigree_file_name, filepath="/tmp/test.bat",
                          model_settings=settings.BC_MODEL, calc_ages=None):
         """
         Write fortran input batch file.
-        @param batch_type: compute MUTATION_PROBS or CANCER_RISKS
         @param pedigree_file_name: path to fortran pedigree file
         @param filepath: path to write the batch file to
         @param model_settings: model settings
         @param calc_ages: list of ages to calculate a cancer risk at
         """
         f = open(filepath, "w")
-
-        if (batch_type != MUTATION_PROBS) and (batch_type != CANCER_RISKS):
-            raise PedigreeFileError("Invalid batch file type.")
 
         print("2", file=f)
         print(os.path.join(model_settings['HOME'], "Data/locus.loc"), file=f)
@@ -748,6 +589,11 @@ class CanRiskPedigree(Pedigree):
                 "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
                 "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
 
+#    COLUMNS3 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+#                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+#                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13",
+#                "ER:PR:HER2:CK14:CK56"]
+
     def get_prs(self, mname):
         ''' Get the PRS for the given cancer model.  '''
         if mname == 'BC' and hasattr(self, 'bc_prs'):
@@ -777,234 +623,3 @@ class CanRiskPedigree(Pedigree):
             if val == name or val.lower == name.lower():
                 return idx
         return -1
-
-
-class Person(object):
-    """ Person class. """
-
-    def __init__(self, famid, name, pid, fathid, mothid, target="0", dead="0", age="0", yob="0", ashkn="0", mztwin="0",
-                 cancers=Cancers(),
-                 gtests=BWSGeneticTests.default_factory(),
-                 pathology=PathologyTest.factory_default()):
-        """
-        @type  famid: str
-        @param famid: family/pedigree ID
-        @type  pid: str
-        @param pid: person ID
-        @type  fathid: str
-        @keyword fathid: father ID
-        @type  mothid: str
-        @keyword mothid: mother ID
-        @type  target: str
-        @keyword target: subject of risk calculation
-        @type  dead: str
-        @keyword dead: alive specified as '0' and dead as '1'
-        @type  age: str
-        @keyword age: age at last follow up or age at death
-        @type  yob: str
-        @keyword yob: year of birth
-        @type ashkn: str
-        @keyword ashkn: Ashkenazi origin parameter: '1' for Ashkenazi origin else '0'
-        @type  mztwin: str
-        @keyword mztwin: monozygotic (identical) twin
-        @type cancers: Cancers
-        @keyword cancers: cancer status
-        @type gtest: GeneticTests
-        @keyword gtest: genetic tests
-        @type pathology: PathologyResult
-        @keyword pathology: pathology test results
-        """
-        self.famid = famid.replace("-", "")[:8]   # remove hyphen and restrict to 8 chars
-        self.name = name[:8]
-        self.pid = pid
-        self.fathid = fathid
-        self.mothid = mothid
-        self.target = target
-        self.dead = dead
-        self.age = age
-        self.yob = yob
-        self.ashkn = ashkn
-        self.mztwin = mztwin
-        self.cancers = cancers  # cancers
-        self.gtests = gtests    # genetic tests
-        self.pathology = pathology
-
-    def validate(self, pedigree):
-        """ Validation check for people input.
-        @param pedigree: Pedigree the person belongs to.
-        """
-        if(self.name == '' or
-           not REGEX_ALPHANUM_HYPHENS.match(self.name)):
-            raise PersonError("A name '"+self.name+"' is unspecified or is not an alphanumeric string.", self.famid)
-
-        if(len(self.pid) < settings.MIN_FAMILY_ID_STR_LENGTH or
-           len(self.pid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           REGEX_ONLY_ZEROS.match(self.pid) or
-           not REGEX_ALPHANUM_HYPHENS.match(self.pid)):
-            raise PersonError("An individual identifier (IndivID column) was specified as '" + self.pid +
-                              ". Individual identifiers must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH)+"characters.", self.famid)
-
-        if(len(self.fathid) < settings.MIN_FAMILY_ID_STR_LENGTH or
-           len(self.fathid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           not REGEX_ALPHANUM_HYPHENS.match(self.fathid)):
-            raise PersonError("Father identifier ('" + self.fathid + "', FathID column) has unexpected characters. "
-                              "It must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
-
-        if(len(self.mothid) < settings.MIN_FAMILY_ID_STR_LENGTH or
-           len(self.mothid) > settings.MAX_FAMILY_ID_STR_LENGTH or
-           not REGEX_ALPHANUM_HYPHENS.match(self.mothid)):
-            raise PersonError("Mother identifier ('" + self.mothid + "', MothID column) has unexpected characters. "
-                              "It must be alphanumeric strings with a maximum of " +
-                              str(settings.MAX_FAMILY_ID_STR_LENGTH) + " characters", self.famid)
-
-        if(self.fathid == '0' and self.mothid != '0') or (self.fathid != '0' and self.mothid == '0'):
-            raise PersonError("Family member '"+self.name+"' has only one parent specified. All family members must "
-                              "have no parents specified (i.e. they must be founders) or both parents specified.",
-                              self.famid)
-
-        # check for missing parents
-        if self.mothid != '0' and pedigree.get_person(self.mothid) is None:
-            raise PersonError("The mother '"+self.mothid+"' of family member '" + self.pid +
-                              "' is missing from the pedigree.", self.famid)
-        elif self.fathid != '0' and pedigree.get_person(self.fathid) is None:
-            raise PersonError("The father '"+self.fathid+"' of family member '" + self.pid +
-                              "' is missing from the pedigree.", self.famid)
-
-        # check all fathers are male
-        if self.fathid != '0' and pedigree.get_person(self.fathid).sex() != 'M':
-            raise PersonError("The father of family member '" + self.pid + "' is not specified as male. " +
-                              "All fathers in the pedigree must have sex specified as 'M'.", self.famid)
-        # check all mothers are female
-        if self.mothid != '0' and pedigree.get_person(self.mothid).sex() != 'F':
-            raise PersonError("The mother of family member '" + self.pid + "' is not specified as female. " +
-                              "All mothers in the pedigree must have sex specified as 'F'.", self.famid)
-        # check if the dead attribute has been correctly set
-        if self.dead != '0' and self.dead != '1':
-            raise PersonError("The family member '" + self.pid + "' has an invalid vital status " +
-                              "(alive must be specified as '0', and dead specified as '1')", self.famid)
-        # check that age of last follow up set to either 0 (unknown) or in range 1-110
-        if not REGEX_AGE.match(self.age) or int(self.age) > settings.MAX_AGE:
-            raise PersonError("The age specified for family member '" + self.pid + "' has unexpected " +
-                              "characters. Ages must be specified with as '0' for unknown, or in the " +
-                              "range 1-" + str(settings.MAX_AGE), self.famid)
-
-        # validate year of birth
-        current_year = date.today().year
-        if self.yob != "0":
-            if(not REGEX_YEAR_OF_BIRTH.match(self.yob) or
-               int(self.yob) < settings.MIN_YEAR_OF_BIRTH or
-               int(self.yob) > current_year):
-                raise PersonError("The year of birth '" + self.yob + "' specified for family member '" + self.pid +
-                                  "' is out of range. Years of birth must be in the range " +
-                                  str(settings.MIN_YEAR_OF_BIRTH) + "-" + str(current_year))
-
-        # Check that we have valid data values for the Ashkenazi flag
-        if(not REGEX_ASHKENAZI_STATUS.match(self.ashkn)):
-            raise PersonError("Family member '" + self.pid + "' has been assigned an invalid Ashkenazi "
-                              "origin parameter. The Ashkenazi origin parameter must be set to '1' "
-                              "for Ashkenazi origin, or '0' for not Ashkenazi origin.")
-
-        # Check max no. of siblings not exceeded
-        (siblings, siblings_same_yob) = pedigree.get_siblings(self)
-        if len(siblings) > settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY:
-            raise PersonError("Family member '" + self.pid + "' exceeded the maximum number of siblings (" +
-                              str(settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY) + ".")
-        # Check has siblings with the same year of birth
-        if len(siblings_same_yob) > settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB:
-            raise PersonError("Family member '" + self.pid + "' exceeded the maximum number of siblings " +
-                              "with the same year of birth exceeded (" +
-                              str(settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB) + ")")
-
-    @staticmethod
-    def factory(ped_file_line, file_type=None):
-        ''' Factory method for creating types of people given a record from
-        a BOADICEA import pedigree file .
-        @type  ped_file_line: str
-        @param ped_file_line: Pedigree file line.
-        '''
-        cols = ped_file_line.split()
-
-        famid = cols[0]
-        name = cols[1]
-        pid = cols[3]
-        cancers = Cancers(bc1=Cancer(cols[11] if cols[11] != "0" else "-1"),
-                          bc2=Cancer(cols[12] if cols[12] != "0" else "-1"),
-                          oc=Cancer(cols[13] if cols[13] != "0" else "-1"),
-                          prc=Cancer(cols[14] if cols[14] != "0" else "-1"),
-                          pac=Cancer(cols[15] if cols[15] != "0" else "-1"))
-
-        # use column headers to get gene test type and result
-        if file_type == 'bwa':
-            gtests = BWSGeneticTests.factory([GeneticTest(cols[BwaPedigree.get_column_idx(gene+'t')],
-                                                          cols[BwaPedigree.get_column_idx(gene+'r')])
-                                             if BwaPedigree.get_column_idx(gene+'t') != -1 else GeneticTest()
-                                             for gene in settings.BC_MODEL['GENES']])
-            pathology = PathologyTests(
-                er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, cols[27]),
-                pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, cols[28]),
-                her2=PathologyTest(PathologyTest.HER2_TEST, cols[29]),
-                ck14=PathologyTest(PathologyTest.CK14_TEST, cols[30]),
-                ck56=PathologyTest(PathologyTest.CK56_TEST, cols[31]))
-        else:
-            genes = Genes.get_all_model_genes()
-
-            def get_genetic_test(cols, gene):
-                idx = CanRiskPedigree.get_column_idx(gene, file_type)
-                if idx < 0:
-                    if gene == "BARD1" and file_type == "canrisk1":
-                        return GeneticTest()
-                    raise PedigreeError("Genetic test column for '" + gene + "not found.")
-                gt = cols[idx].split(':')
-                return GeneticTest(gt[0], gt[1])
-            gtests = CanRiskGeneticTests.factory([get_genetic_test(cols, gene) for gene in genes])
-
-            path = cols[CanRiskPedigree.get_column_idx("ER:PR:HER2:CK14:CK56", file_type)].split(':')
-            pathology = PathologyTests(
-                er=PathologyTest(PathologyTest.ESTROGEN_RECEPTOR_TEST, path[0]),
-                pr=PathologyTest(PathologyTest.PROGESTROGEN_RECEPTOR_TEST, path[1]),
-                her2=PathologyTest(PathologyTest.HER2_TEST, path[2]),
-                ck14=PathologyTest(PathologyTest.CK14_TEST, path[3]),
-                ck56=PathologyTest(PathologyTest.CK56_TEST, path[4]))
-
-        if cols[6] == 'M':
-            return Male(
-                famid, name, pid, fathid=cols[4], mothid=cols[5], target=cols[2], dead=cols[8], age=cols[9],
-                yob=cols[10], ashkn=cols[16], cancers=cancers, mztwin=cols[7], gtests=gtests, pathology=pathology)
-        elif cols[6] == 'F':
-            return Female(
-                famid, name, pid, fathid=cols[4], mothid=cols[5], target=cols[2], dead=cols[8], age=cols[9],
-                yob=cols[10], ashkn=cols[16], cancers=cancers, mztwin=cols[7], gtests=gtests, pathology=pathology)
-        else:
-            raise PedigreeError("The sex of family member '"+name+"' is invalid. An " +
-                                "individuals sex must be specified as 'M' or 'F' only.")
-
-    def is_complete(self):
-        """
-        Checks if a family member without cancer is missing a year of birth or age at last
-        follow up. An individual's year of birth and age at last follow up must be specified
-        in order for that person to be included in a calculation. As a result, family members
-        lacking this information will be excluded from the calculation.
-        """
-        if self.yob == '0' or self.age == '0':
-            if not self.cancers.is_cancer_diagnosed():
-                return False
-        return True
-
-    def is_target(self):
-        return False if self.target == '0' else True
-
-
-class Male(Person):
-    ''' Male person. '''
-
-    def sex(self):
-        return 'M'
-
-
-class Female(Person):
-    ''' Female person. '''
-
-    def sex(self):
-        return 'F'

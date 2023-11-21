@@ -2,69 +2,67 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CanRisk PDF Report</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Noto+Sans&amp;display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha256-MBffSnbbXwHCuZtgPYiwMQbfE7z+GOZ7fBPCNB06Z98=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.3.0/css/all.min.css" integrity="sha256-/4UQcSmErDzPCMAiuOiWPVVsNN2s3ZY/NsmXNcj0IFc=" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="{URL}/static/css/canrisk.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.6/css/bootstrap5-toggle.min.css" integrity="sha256-N8jfyI3OUwBRDYp/+oy1nwAz19/B1ohDhyQrqXnjHk8=" crossorigin="anonymous">
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js" integrity="sha256-F6h55Qw6sweK+t7SiOJX+2bpSAa3b/fnlrVCJvmEj1A=" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.6/js/bootstrap5-toggle.jquery.min.js" integrity="sha256-u8c3aZeZXY//wvqN3RW58AbFk3Kfx52f6USzq5blw1k=" crossorigin="anonymous"></script>
 
 <script type="text/javascript" src="{URL}/static/Scripts/Utils.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js" integrity="sha256-1nLUd8qmbKFJ49vzU7vub7VOQxjb1zy9FDsgtjfak7M=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-toggle@2.2.2/js/bootstrap-toggle.min.js" integrity="sha256-eZNgBgutLI47rKzpfUji/dD9t6LRs2gI3YqXKdoDOmo=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@2.24.0/min/moment-with-locales.min.js"    integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo="    crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/gh/RobinHerbots/jquery.inputmask@5.0.0-beta.130/dist/jquery.inputmask.min.js" integrity="sha256-X+qxu4QvFAeX6R+lgai211sGvlzDR/8eslLWESDxGlY=" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/polyfills.umd.js" integrity="sha256-m9fhXeVduOn8iW3jfqydyGGHTn0Cgoe651oF+wcOr7k=" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" integrity="sha256-mMzxeqEMILsTAXYmGPzJtqs6Tn8mtgcdZNC0EVTfOHU=" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js" integrity="sha256-lxgDZ6KCQ2m1G9ZiuNO5hHo8zofmP9ekBPtwfaLGyRk=" crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.3.1/dist/polyfills.umd.js" integrity="sha256-ONeaAQfSLF92cjV/nhuP46p3DottfnTi6F5PASuPfjc=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.3.1/dist/jspdf.umd.min.js" integrity="sha256-UKM5kRO7NpXHPgbPog3S+1C/3oLAXPjJ+Qv6FGK2jnw=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.14/dist/jspdf.plugin.autotable.min.js" integrity="sha256-1tNRjzLhaF9gFcasz6T9P/KtItEInFchhrqg7HCd5IQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js" integrity="sha256-1rA678n2xEx7x4cTZ5x4wpUCj6kUMZEZ5cxLSVSFWxw=" crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/d3@5.16.0/dist/d3.min.js" integrity="sha256-Xb6SSzhH3wEPC4Vy3W70Lqh9Y3Du/3KxPqI2JHQSpTw=" crossorigin="anonymous"></script>
-<script src="{URL}/static/js/pedigreejs.v3.0.0-rc1.min.js"></script>
-
-<script src="{URL}/static/Scripts/canrisk.js"></script>
-<script src="{URL}/static/js/pedigree_templates.js"></script>
+<!-- look for a version of pedigreejs -->
+<script src="{URL}/static/js/pedigreejs.v3.0.0-rc3.min.js"></script>
 <script src="{URL}/static/js/canrisk_init.js"></script>
+<script src="{URL}/static/js/risk_plots.js"></script>
 
 <script type="text/javascript">
 	////// deconstruct pedigreejs entry point
 	var pedigree_util = window.pedigreejs.pedigreejs_utils;
+	var pedigree_extras  = window.pedigreejs.pedigreejs__extras;
 	var pedcache = window.pedigreejs.pedigreejs_pedcache;
 	var io = window.pedigreejs.pedigreejs_io;
 	var pedigree_form = window.pedigreejs.pedigreejs_form;
 	var canrisk_file = window.pedigreejs.pedigreejs_canrisk_file;
 	var ptree = window.pedigreejs.pedigreejs;
+	var pedigreejs_widgets = window.pedigreejs.pedigreejs_widgets;
+	var zooming = window.pedigreejs.pedigreejs_zooming;
 	//////
 	// set options for pedigreejs
 	var opts = {
 			targetDiv: 'inp_ped',
 			btn_target: 'pedigree_history',
 			nodeclick: pedigree_form.nodeclick,
-			width: 515,
-			height: 590,
+			width: 684,
+			height: 525,
 			symbol_size: 35,
 			font_size: '.7em',
 			optionalLabels: [
-				['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
-				['rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
-				['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
-			labels: [['age', 'yob'],
-					['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
-					['rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
-					['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
-			DEBUG: (pedigree_util.urlParam('debug') === null ? false : true)};
+                ['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
+                ['bard1_gene_test', 'rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
+                ['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
+        	labels: [['age', 'yob'],
+                        ['brca1_gene_test', 'brca2_gene_test', 'palb2_gene_test', 'chek2_gene_test', 'atm_gene_test'],
+                        ['bard1_gene_test', 'rad51d_gene_test', 'rad51c_gene_test', 'brip1_gene_test'],
+                        ['er_bc_pathology', 'pr_bc_pathology', 'her2_bc_pathology', 'ck14_bc_pathology', 'ck56_bc_pathology']],
+			DEBUG: false};
 
 	$(document).ready(function(){
-		var eventTarget = document.createDocumentFragment()
-		
 		io.addIO(opts);
 		fetch('pedigree.txt')
 		  .then(response => response.text())
@@ -87,38 +85,106 @@
 			  	pedigree_util.validate_pedigree(opts);
 			  	pedcache.setposition(opts);		// clear position
 			  	ptree.rebuild(opts);
-		  });
-
-		fetch('output.html')
-		  .then(response => response.text())
-		  .then(data => {
-			  prs = {}
-			  var tid = run_prediction.create_results(data, prs, opts);
-			  setTimeout(function () {
-					pdf.save(tid, ["report_ins", "report_rm", "report_bcr", "report_ocr", "report_mut", "report_extra"], "Generated");
-				}, 1000);
-		  });
+		  })
+		  .then(
+			fetch('output.html', {cache: "no-cache"})
+			  .then(response => response.text())
+			  .then(data => {
+				  prs = {}
+				  setTimeout(function () {
+				  	var tid = run_prediction.create_results(data, prs, opts);
+				  	setTimeout(function () {
+						pdf.save(tid, ["report_bcr", "report_ocr", "report_nice", "report_extra"], "Generated");
+					}, 500);
+				  }, 250);
+			 })
+		 );
 	});
 </script>
 
 <script defer src="{URL}/static/js/prs_graphs.js"></script>
 <script defer src="{URL}/static/js/pdf.js"></script>
-<script defer src="{URL}/static/js/run_prediction.js"></script>
+<script src="{URL}/static/js/run_prediction.js"></script>
 
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/cupertino/jquery-ui.min.css" type="text/css" media="all"/>
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Abeezee:400%7COpen+Sans:400,600,700%7CSource+Sans+Pro:400,600">
 <link type="text/css" href="{URL}/static/Scripts/css/accordion.css" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css" integrity="sha256-EzqugSJ2RMPyXVT3pNIGnZtdwdSVc3n9rIP1MSHxXIQ=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-toggle@2.2.2/css/bootstrap-toggle.min.css" integrity="sha256-rDWX6XrmRttWyVBePhmrpHnnZ1EPmM6WQRQl6h0h7J8=" crossorigin="anonymous">
-<link type="text/css" href="{URL}/static/Scripts/css/btn.css" rel="stylesheet" media="all" />
-<link type="text/css" href="{URL}/static/Scripts/css/CircleRadio.css" rel="stylesheet" media="all" />
-
 </head>
 <body>
 	<div id="inp_ped"></div>
-	<input id="load" type="text" class="hidden">
-	<div id="content"><div id="qtabs"></div></div>
+	<div id="content">
+		<div id="qtabs">
+			<div id="qtabsContent"></div>
+		</div>
+	</div>
+
+
+	<!-- ************ REPORT INTRODUCTION TEXT ************ -->
+	<div id="report_intro" hidden>
+		<h1>CanRisk Report</h1>
+		<div class="full bc1"><div><strong>This report presents the results of your CanRisk assessment and it has three sections.</strong></div></div>
+		<div class="male bc2 othercancers">
+			<div><div><strong>This report presents the results of your CanRisk assessment.</strong></div></div>
+			<div>Content summary:</div>
+			<ul>
+			    <li>your risk of carrying a genetic pathogenic variant (or genetic mutation).</li>
+			    <li>a visual representation of your family (called a pedigree) based on the information you provided.</li>
+			    <li>a summary of cancer diagnoses in your family based on the information you provided.</li>
+			    <li class="showbcprs">your breast cancer polygenic score.</li>
+			   	<li class="showocprs">your ovarian cancer polygenic scores.</li>
+			</ul>
+		</div>
+
+		<div class="bc1">
+			As you have already had a diagnosis of breast cancer, the risks presented in this
+			report are for contralateral breast cancer, that is, of the other (unaffected) breast.
+			<span class="showoc" >Risks for ovarian cancer are also included.</span>
+			When your risks are compared to the risk of the population, this refers to the
+			risk of average women in the UK who have already had breast cancer.
+		</div>
+		
+		<div class="full bc1">
+		
+			<div><strong>Section one presents information for you:</strong></div>
+			<ul>
+		    	<li class="showbc">information about your risk of developing breast cancer. These risk results are based on the information you provided about yourself, your family and the results of any genetic tests.</li>
+		    	<li class="showoc" >information about your risk of developing ovarian cancer. These risk results are based on the information you provided about yourself, your family and the results of any genetic tests.</li>
+			</ul>
+
+			<div><strong>Sections two and three present specific information relevant for healthcare professionals.</strong></div>
+
+			<div><strong>Section two presents information for your healthcare professional:</strong></div>
+			<ul>
+			    <li class="showbc showNICE">further information about your risk of developing breast cancer between the ages of 20 and 80 and between the ages of 40 and 50.</li>
+			    <li class="showbc">further information about your risk of developing breast cancer between now and the age of 80.</li>
+			    <li class="showoc">further information about your risk of developing ovarian cancer between now and the age of 80.</li>
+			    <li>
+			    your risk of carrying a genetic pathogenic variant (or genetic mutation) that is relevant to your risk of developing
+			    <span class="showbc">breast</span> <span class="showbc showoc">and</span> <span class="showoc">ovarian</span> cancer in the future.
+			   	</li>
+			</ul>
+		
+			<div><strong>Section three presents technical information for specialist healthcare professionals:</strong></div>
+			<ul>
+			    <li>a visual representation of your family (called a pedigree) based on the information you provided.</li>
+			    <li class="show10yr">your 10-year breast cancer risk(s).</li>
+			    <li>a summary of cancer diagnoses in your family based on the information you provided.</li>
+			    <li class="showbc">a summary of the other information included in the model used to calculate your breast cancer risks.</li>
+			    <li class="showbcprs">your breast cancer polygenic score.</li>
+			    <li class="showoc">a summary of the other information included in the model used to calculate your ovarian cancer risks.</li>
+			    <li class="showocprs">your ovarian cancer polygenic scores.</li>
+		    </ul>
+		</div>
+
+		<div class="full">
+			This report does not include recommendations to manage or lower your risk of developing
+			<span class="showbc">breast</span> <span class="showbc showoc">and</span> <span class="showoc">ovarian</span> cancer.
+			Your risk is calculated based on the information you have provided and the results of any genetic tests.
+			Note that your risk may change if your risk factors change (more information on risk factors in section 3).
+		</div>
+	</div>
+
 </body>
 </html>

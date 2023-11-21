@@ -18,8 +18,8 @@ Usage:
 export DJANGO_SETTINGS_MODULE=bws.settings
 python3 -m bws.scripts.canrisk_2_csv pedigree_file.canrisk output.csv -c 1 5 80
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 import sys

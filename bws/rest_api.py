@@ -1,8 +1,8 @@
 '''
 API for the BWS/OWS REST resources.
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 from copy import deepcopy
@@ -24,12 +24,13 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calcs import Predictions, ModelParams
-from bws.pedigree import PedigreeFile, CanRiskPedigree, Prs
+from bws.calc.model import ModelParams
+from bws.calc.calcs import Predictions
+from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
-    CombinedOutputSerializer
+    CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 
 
@@ -93,8 +94,12 @@ class ModelWebServiceMixin():
                             prs = pedi.get_prs(mname)
 
                     this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
-                    calcs = Predictions(pedi, model_params=this_params,
-                                        risk_factor_code=risk_factor_code, hgt=this_hgt, prs=prs,
+                    this_mdensity = (pedi.mdensity if hasattr(pedi, 'mdensity') and pedi.mdensity is not None else None)
+                    if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
+                        this_params.ethnicity = pedi.ethnicity
+
+                    calcs = Predictions(pedi, model_params=this_params, risk_factor_code=risk_factor_code,
+                                        hgt=this_hgt, mdensity=this_mdensity, prs=prs,
                                         cwd=cwd, request=request, model_settings=model_settings)
                     target = pedi.get_target()
                     # Add input parameters and calculated results as attributes to 'this_pedigree'
@@ -102,6 +107,11 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
+                    this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
+
+                    if mname == "BC":
+                        this_pedigree["risk_factors"][_('Mammographic Density')] = \
+                                                            this_mdensity.get_display_str() if this_mdensity is not None else "-"
                     this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
@@ -267,10 +277,7 @@ for each the genes and the population to use for cancer incidence rates.
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, PALB2, CHEK2, ATM...).
-        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-        for each the genes and the population to use for cancer incidence rates.
+        BOADICEA Web-Service (BWS).
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -366,10 +373,7 @@ for each the genes and the population to use for cancer incidence rates.
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        Ovarian Web-Service (OWS) used to calculate the risks of ovarian cancer and the probability
-        that an individual is a carrier of cancer-associated mutations in genes (BRCA1, BRCA2, RAD51D, RAD51C, BRIP1).
-        As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-        for each the genes and the population to use for cancer incidence rates.
+        Ovarian Web-Service (OWS).
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -440,6 +444,90 @@ for each the genes and the population to use for cancer incidence rates.
         return self.post_to_model(request, settings.OC_MODEL)
 
 
+class PwsView(APIView, ModelWebServiceMixin):
+    """
+    Prostate Model Web-Service
+    """
+    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    serializer_class = PwsInputSerializer
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    model = settings.PC_MODEL
+    if coreapi is not None and coreschema is not None:
+        schema = ManualSchema(
+                fields=ModelWebServiceMixin.get_fields(model),
+                encoding="application/json",
+                description="""
+Prostate Web-Service (PWS) used to calculate the risks of prostate cancer and the probability
+that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
+As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
+for each the genes and the population to use for cancer incidence rates.
+"""
+            )
+
+    # @profile("profile_bws.profile")
+    def post(self, request):
+        """
+        Prostate Web-Service (PWS).
+        ---
+        parameters_strategy: merge
+        response_serializer: OutputSerializer
+        parameters:
+           - name: user_id
+             description: unique end user ID, e.g. IP address
+             type: string
+             required: true
+           - name: pedigree_data
+             description: CanRisk pedigree data file
+             type: file
+             required: true
+           - name: mut_freq
+             description: mutation frequency
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'Ashkenazi', 'Iceland']
+           - name: cancer_rates
+             description: cancer incidence rates
+             required: true
+             type: string
+             paramType: form
+             defaultValue: 'UK'
+             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
+                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
+           - name: brca1_mut_sensitivity
+             description: BRCA1 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: brca2_mut_sensitivity
+             description: BRCA2 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+           - name: hoxb13_mut_sensitivity
+             description: HOXB13 mutation sensitivity
+             required: false
+             type: float
+             paramType: form
+             defaultValue: 0.9
+
+        responseMessages:
+           - code: 401
+             message: Not authenticated
+
+        consumes:
+           - application/json
+           - application/xml
+        produces: ['application/json', 'application/xml']
+        """
+        return self.post_to_model(request, settings.PC_MODEL)
+
+
 class CombineModelResultsView(APIView):
     """
     Combine results from breast and ovarian models to produce HTML results tab.
@@ -480,4 +568,4 @@ class CombineModelResultsView(APIView):
         if serializer.is_valid(raise_exception=True):
             validated_data = serializer.validated_data
             output_serialiser = CombinedOutputSerializer(validated_data)
-            return Response(output_serialiser.data, template_name='result_tab.html')
+            return Response(output_serialiser.data, template_name='results/tabs.html')

@@ -1,15 +1,16 @@
 """
 Cancer, pathology and genetic testing
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-import re
-from bws.exceptions import GeneticTestError, PathologyError, CancerError
 from collections import namedtuple
+import re
+import bws.consts as consts
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from bws.exceptions import GeneticTestError, PathologyError, CancerError
 
 
 class Genes():
@@ -18,6 +19,11 @@ class Genes():
     def get_unique_oc_genes():
         ''' Return genes unique to ovarian model. '''
         return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+
+    @staticmethod
+    def get_unique_pc_genes():
+        ''' Return genes unique to prostate model. '''
+        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
 
     @staticmethod
     def get_all_model_genes():
@@ -112,11 +118,13 @@ class PathologyTest(object):
                       "will be taken into account in the calculation; "
                       "(2) if a breast cancer is ER positive, no other pathology information for that individual will "
                       "be taken into account in the calculation; "
-                      "(3) if a breast cancer is ER negative, information on PR and HER2 for that individual will only "
-                      "be taken into account in the calculation if both PR and HER2 are specified; and "
-                      "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation if "
-                      "both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR "
+                      "(3) if a breast cancer is ER negative, information on PR and HER2 are only employed jointly: "
+                      "i.e. either the cancer is triple negative (ER-/PR-/HER2-) or it's not (i.e. ER-/PR-/HER2+ or "
+                      "ER-/PR+/HER2- or ER-/PR+/HER2+), no other options are considered; and "
+                      "(4) an individual's CK14 and CK5/6 status will only be taken into account in the calculation "
+                      "if both CK14 and CK5/6 are specified and the breast cancer is triple negative (ER negative, PR "
                       "negative and HER2 negative). ")
+
             # If ER is unspecified but another pathology parameter has been specified,
             # report that no pathology data will be used
             if(tests.er.result == "0" and (tests.pr.result != "0" or tests.her2.result != "0" or
@@ -331,10 +339,9 @@ class Cancers():
         """
         Validate a person's cancer types and diagnoses ages.
         """
-        from bws import pedigree
         cancer_types = Cancers.get_cancers()
         diagnoses = person.cancers.diagnoses
-        REGEX_AGE = pedigree.REGEX_AGE
+        REGEX_AGE = consts.REGEX_AGE
         for idx, ctype in enumerate(cancer_types):
             diagnoses_age = diagnoses[idx].age
             # Check that the age at cancer diagnosis is an unsigned integer or set to 'AU'

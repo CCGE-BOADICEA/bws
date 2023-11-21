@@ -5,8 +5,8 @@
 # bws/scripts/run_batch_ws_compare.py -u USERNAME -p bws/tests/data/batch/ --url http://0.0.0.0:8000/ \
 #                                     --fortran /home/xxxx/Model-Batch-Processing --cancer_rates Spain
 #
-# © 2022 Cambridge University
-# SPDX-FileCopyrightText: 2022 Cambridge University
+# © 2023 University of Cambridge
+# SPDX-FileCopyrightText: 2023 University of Cambridge
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from boadicea.scripts.boadicea_2_csv import convert2csv
@@ -93,8 +93,7 @@ print("OC Risk Tolerance "+str(oc_rr_tol))
 print("BC Probs Tolerance "+str(bc_probs_tol))
 print("OC Probs Tolerance "+str(oc_probs_tol))
 
-
-irates = "BOADICEA-Model-V6/Data/incidences_"+args.cancer_rates+".nml"
+irates = args.cancer_rates.replace('New-Zealand', 'New_Zealand')+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
 print("=============================================")
 
