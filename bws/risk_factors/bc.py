@@ -1,8 +1,8 @@
 '''
 Breast cancer risk factors.
 
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 
@@ -87,23 +87,7 @@ class AgeOfMenopause(RiskFactor):
     help_text = _('Age of Menopause')
     synonyms = ['menopause']
 
-
-class MammographicDensity(RiskFactor):
-    cats = ['-', 'BI-RADS a', 'BI-RADS b', 'BI-RADS c', 'BI-RADS d']
-    help_text = _('Mammographic Density')
-    synonyms = ['birads']
-
-    @classmethod
-    def get_category(cls, val):
-        alt1 = ['NA', 'a', 'b', 'c', 'd']
-        alt2 = ['NA', '1', '2', '3', '4']
-        val = val.lower().replace('bi-rads ', '')
-        for idx, _cat in enumerate(cls.cats):
-            if val == alt1[idx] or val == alt2[idx]:
-                return idx
-        return 0
-
-
+    
 class BCRiskFactors(RiskFactors):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
         If a factor is unobserved, missing or not applicable, it is assigned category 0,
@@ -120,8 +104,7 @@ class BCRiskFactors(RiskFactors):
         MHT,
         BMI,
         AlcoholIntake,
-        AgeOfMenopause,
-        MammographicDensity
+        AgeOfMenopause
     ]
 
     # dictionary of risk factor name and number of categories
@@ -144,6 +127,6 @@ class BCRiskFactors(RiskFactors):
 #         ])
 
     # dictionary of risk factor name and the categories
-    risk_factors_categories = OrderedDict(
-        (rf.snake_name(), rf.cats) for rf in risk_factors
-    )
+#    risk_factors_categories = OrderedDict(
+#       (rf.snake_name(), rf.cats) for rf in risk_factors
+#    )

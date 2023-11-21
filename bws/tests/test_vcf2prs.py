@@ -1,6 +1,6 @@
 """
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -65,7 +65,7 @@ class Vcf2PrsWebServices(TestCase):
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        content = json.loads(force_text(response.content))
+        content = json.loads(force_str(response.content))
         prs = Prs(prs_file=self.prs_file_name, geno_file=self.vcf_file, sample='0.9')
         zscore = prs.z_Score
         self.assertEqual(zscore, content['breast_cancer_prs']['zscore'], 'web-service and direct calculation')

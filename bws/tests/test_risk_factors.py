@@ -1,6 +1,6 @@
 """
-© 2022 Cambridge University
-SPDX-FileCopyrightText: 2022 Cambridge University
+© 2023 University of Cambridge
+SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 from bws.exceptions import RiskFactorError
@@ -16,6 +16,97 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
+from bws.risk_factors.mdensity import Birads, Stratus, Volpara
+from bws.risk_factors.ethnicity import ONSEthnicity
+
+
+class UKBioBankEthnictyTests(TestCase):
+    
+    def test_white(self):
+        onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
+
+    def test_chinese(self):
+        onsEthnicity = ONSEthnicity("Asian or Asian British", "Chinese")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "chinese")
+        
+    def test_asian(self):
+        onsEthnicity = ONSEthnicity("Asian or Asian British", "Indian")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "asian")
+        
+    def test_mixed(self):
+        onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "White and Black African")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
+
+    def test_mixed2(self):
+        onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "white and black african")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
+
+    def test_black(self):
+        onsEthnicity = ONSEthnicity("Black or Black British", "Caribbean")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "black")
+
+    def test_other(self):
+        onsEthnicity = ONSEthnicity("Other ethnic group", "Any other ethnic group, please describe")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "other")
+
+    def test_unknown(self):
+        onsEthnicity = ONSEthnicity("Unknown", None)
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "unknown")
+
+
+class MammographicDensityTests(TestCase):
+    '''
+    Encoding for the pedigree (Fortran) file:
+    If employing BIRAD, the value should be an integer between 1 and 4. If employing
+    continuous methods, the value should be a real number in the form N.xxxx. 
+    In this case, N refers to the method (10=Stratus, 20= Volpara) whereas xxxxx
+    is the mammographic density percentage. 
+    Example 1: MD = 42.42% measured with Volpara should be coded as “20.42420”
+    Example 2: MD = category 3 of Birads should be coded as “3”
+    '''
+    
+    def test_get_Birads_category(self):
+        ''' Given a Birads value check the category is correctly assigned. '''
+        self.assertEqual(Birads.get_category('-'), 0)
+        self.assertEqual(Birads.get_category('3'), 3)
+        self.assertEqual(Birads.get_category("BI-RADS 3"), 3)
+        self.assertEqual(Birads.get_category('c'), 3)
+        self.assertEqual(Birads.get_category("BI-RADS c"), 3)
+        self.assertEqual(Birads.get_category('a'), 1)
+
+    def test_Stratus_pedigree(self):
+        ''' Given a Stratus value check the pedigree encoding and display string. '''
+        stratus = Stratus("10.67")
+        self.assertEqual(stratus.get_pedigree_str(), "10.10670")
+        self.assertEqual(stratus.get_display_str(), "Stratus 10.67")
+        stratus = Stratus("0.678999")
+        self.assertEqual(stratus.get_pedigree_str(), "10.00679")
+        self.assertEqual(stratus.get_display_str(), "Stratus 0.678999")
+        stratus = Stratus("88")
+        self.assertEqual(stratus.get_pedigree_str(), "10.88000")
+        self.assertEqual(stratus.get_display_str(), "Stratus 88")
+
+    def test_Volpara_pedigree(self):
+        ''' Given a Volpara value check the pedigree encoding and display string. '''
+        vol = Volpara("12.67333333")
+        self.assertEqual(vol.get_pedigree_str(), "20.12673")
+        self.assertEqual(vol.get_display_str(), "Volpara 12.67333333")
+        vol = Volpara("1.678999")
+        self.assertEqual(vol.get_pedigree_str(), "20.01679")
+        self.assertEqual(vol.get_display_str(), "Volpara 1.678999")
+        vol = Volpara("5")
+        self.assertEqual(vol.get_pedigree_str(), "20.05000")
+        self.assertEqual(vol.get_display_str(), "Volpara 5")
 
 
 class RiskFactorsCategoryTests(TestCase):
@@ -97,15 +188,6 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
 
-    def test_get_MammographicDensity_category(self):
-        ''' Given a Mammographic Density value check the category is correctly assigned. '''
-        self.assertEqual(bc.MammographicDensity.get_category('-'), 0)
-        self.assertEqual(bc.MammographicDensity.get_category('3'), 3)
-        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS 3"), 3)
-        self.assertEqual(bc.MammographicDensity.get_category('c'), 3)
-        self.assertEqual(bc.MammographicDensity.get_category("BI-RADS c"), 3)
-        self.assertEqual(bc.MammographicDensity.get_category('a'), 1)
-
 
 class RiskFactorsCodeTests(TestCase):
 
@@ -154,10 +236,6 @@ class RiskFactorsCodeTests(TestCase):
 
         bc_risk_categories[7] = bc.AgeOfMenopause.get_category(52)
         rfc += 4*128000
-        self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
-
-        bc_risk_categories[8] = bc.MammographicDensity.get_category('1')
-        rfc += 1*768000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
         # bc_risk_categories[9] = bc.Height.get_category('174.21')
