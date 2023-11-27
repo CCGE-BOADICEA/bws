@@ -45,7 +45,7 @@ GENES = ["BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C",
 
 
 def zero4NA(v):
-    return v if v != "NA" else "0"
+    return v if v != "NA" and v != "" else "0"
 
 def convert2canrisk(csvfilename):
     '''
@@ -97,19 +97,16 @@ def convert2canrisk(csvfilename):
                 elif h == "PAN":
                     peep+=zero4NA(row["PanCa"])+"\t"
                 elif h == "FathID" or h == "MothID":
-                    if row[h] == "NA":
-                        peep+="0\t"
-                    else:
-                        peep+=row[h]+"\t"
+                    peep+=zero4NA(row[h])+"\t"
                 elif h in GENES:
-                    if row[h+"t"] == "NA":
+                    if row[h+"t"] == "NA" or row[h+"t"] == "":
                         peep+="0:0\t"
                     else:
                         peep+=row[h+"t"]+":"+row[h+"r"]+"\t"
                 elif h == "ER:PR:HER2:CK14:CK56":
                     ps = ""
                     for p in h.split(":"):
-                        ps+=(row[p]+":" if row[p] != "NA" else "0:")
+                        ps+=(row[p]+":" if row[p] != "NA" and row[p] != "" else "0:")
                     peep+=ps[:-1]
                 elif h not in row:
                     print("WARNING ::: "+h)
