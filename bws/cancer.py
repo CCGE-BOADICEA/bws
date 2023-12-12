@@ -168,7 +168,7 @@ class PathologyTest(object):
             if(tests.er.result == "P" and (tests.pr.result != "0" or tests.her2.result != "0" or
                                            tests.ck14.result != "0" or tests.ck56.result != "0")):
                 warnings.append(
-                    _("Incomplete data record in your pedigree: family member \"%(id)s\" has a breast cancer pathology"
+                    _("Incomplete data record in your pedigree: family member \"%(id)s\" has a breast cancer pathology "
                       "that is ER positive, where an additional pathology parameter (PR, HER2, CK14 or CK5/6) "
                       "has been specified. %(rules)s As a result, only ER positive status will be taken into account "
                       "in this case.")
