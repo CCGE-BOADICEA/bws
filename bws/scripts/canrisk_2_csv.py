@@ -26,7 +26,7 @@ import sys
 import os
 import re
 import argparse
-from bws.pedigree import PedigreeFile
+from bws.pedigree_file import PedigreeFile
 from bws.cancer import Genes, Cancers
 from bws.exceptions import PedigreeFileError
 # from django.conf import settings
