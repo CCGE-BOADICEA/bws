@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-26 09:09+0100\n"
+"POT-Creation-Date: 2023-12-12 15:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,34 +16,38 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: bws/cancer.py:76
+#: bws/cancer.py:116
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
 "individual's ER status is unspecified, no pathology information for that "
 "individual will be taken into account in the calculation; (2) if a breast "
 "cancer is ER positive, no other pathology information for that individual "
 "will be taken into account in the calculation; (3) if a breast cancer is ER "
-"negative, information on PR and HER2 for that individual will only be taken "
-"into account in the calculation if both PR and HER2 are specified; and (4) "
-"an individual's CK14 and CK5/6 status will only be taken into account in the "
-"calculation if both CK14 and CK5/6 are specified and the breast cancer is "
-"triple negative (ER negative, PR negative and HER2 negative). "
+"negative, information on PR and HER2 are only employed jointly: i.e. either "
+"the cancer is triple negative (ER-/PR-/HER2-) or it's not (i.e. ER-/PR-/"
+"HER2+ or ER-/PR+/HER2- or ER-/PR+/HER2+), no other options are considered; "
+"and (4) an individual's CK14 and CK5/6 status will only be taken into "
+"account in the calculation if both CK14 and CK5/6 are specified and the "
+"breast cancer is triple negative (ER negative, PR negative and HER2 "
+"negative). "
 msgstr ""
 "Wij wijzen u op de volgende regels voor borstkankerpathologiegegevens: (1) "
 "als de ER-status van een individu niet is gespecificeerd, wordt er bij de "
 "berekening geen rekening gehouden met pathologiegegevens voor dat individu; "
 "(2) als een borstkanker ER-positief is, wordt er bij de berekening geen "
-"rekening gehouden met andere pathologiegegevens voor het individu; (3)  als "
-"een borstkanker ER-negatief is, dan wordt er bij de berekening alleen "
-"rekening gehouden met informatie over PR en HER2 voor het individu als zowel "
-"PR als HER2 zijn gespecificeerd; en (4) er wordt bij de berekening alleen "
-"rekening gehouden met de status CK14 en CK5/6  van individuen als zowel CK14 "
-"als CK5/6 zijn gespecificeerd en de borstkanker driemaal negatief is (ER-"
-"negatief, PR-negatief en HER2-negatief). "
+"rekening gehouden met andere pathologiegegevens voor het individu; (3) als "
+"een borstkanker ER-negatief is, dan wordt de informatie over PR en HER2 "
+"alleen gezamenlijk verwerkt: namelijk of de kanker bijvoorbeeld "
+"triple-negatief is (ER-negatief, PR-negatief en HER2-negatief), of niet "
+"(bijv. ER-negatief, PR-negatief en HER2-positief, of ER-negatief, "
+"PR-positief en HER2-negatief, of ER-negatief, PR-positief en HER2-positief). "
+"Dan worden er geen andere opties overwogen. En (4) er wordt bij de "
+"berekening alleen rekening gehouden met de status CK14 en CK5/6 van "
+"individuen als zowel CK14 als CK5/6 zijn gespecificeerd en de borstkanker "
+"triple-negatief is (ER-negatief, PR-negatief en HER2-negatief). "
 
-#: bws/cancer.py:91
+#: bws/cancer.py:133
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has an "
@@ -56,7 +60,7 @@ msgstr ""
 "CK14 of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval geen "
 "rekening gehouden met de pathologiegegevens van dit individu."
 
-#: bws/cancer.py:101
+#: bws/cancer.py:143
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -65,11 +69,11 @@ msgid ""
 "not be taken into account in this case."
 msgstr ""
 "Onvolledige gegevens in de stamboom: familielid \"%(id)s\" heeft borstkanker "
-"waarbij de PR-status is gespecificeerd maar de HER2-status is niet "
-"gespecificeerd (of omgekeerd). %(rules)sDaarom wordt in dit geval geen "
+"waarbij de PR-status is gespecificeerd maar de HER2-status niet is "
+"gespecificeerd (of omgekeerd).  %(rules)sDaarom wordt in dit geval geen "
 "rekening gehouden met de PR-status en HER2-status."
 
-#: bws/cancer.py:110
+#: bws/cancer.py:152
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -81,7 +85,7 @@ msgstr ""
 "waarbij alleen de status CK14 of CK5/6 is gespecificeerd. %(rules)s Daarom "
 "wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
-#: bws/cancer.py:119
+#: bws/cancer.py:161
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -91,15 +95,15 @@ msgid ""
 "taken into account in this case."
 msgstr ""
 "Onvolledige gegevens in de stamboom: familielid \"%(id)s\" heeft borstkanker "
-"waarbij de status CK14 of CK5/ 6 is gespecificeerd maar de borstkanker is "
-"niet triple negatief (ER-negatief, PR-negatief en HER2-negatief). %(rules)s "
+"waarbij de status CK14 of CK5/ 6 is gespecificeerd maar de borstkanker "
+"niet triple-negatief is (ER-negatief, PR-negatief en HER2-negatief).  %(rules)s "
 "Daarom wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
-#: bws/cancer.py:129
+#: bws/cancer.py:171
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
-"breast cancer pathologythat is ER positive, where an additional pathology "
+"breast cancer pathology that is ER positive, where an additional pathology "
 "parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
 "result, only ER positive status will be taken into account in this case."
 msgstr ""
@@ -108,18 +112,18 @@ msgstr ""
 "CK14 of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval alleen "
 "rekening gehouden met de status ER-positief."
 
-#: bws/cancer.py:200
+#: bws/cancer.py:207
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test type. It "
 "must be specified with '0' for untested, 'S' for mutation search or 'T' for "
 "direct gene test."
 msgstr ""
-"Er is een ongeldig type genetische test toegewezen aan familielid \"%(id)s"
-"\". Deze persoon dient gespecificeerd te worden als '0' (voor niet getest), "
-"'S' (voor zoeken naar mutatie) of 'T' (voor directe genetische test)."
+"Er is een ongeldig type genetische test toegewezen aan familielid \"%(id)s\". "
+"Deze persoon dient gespecificeerd te worden als '0' (voor niet getest), "
+"'S' (voor zoekactie naar mutatie) of 'T' (voor directe genetische test)."
 
-#: bws/cancer.py:206
+#: bws/cancer.py:213
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test result. "
@@ -131,7 +135,7 @@ msgstr ""
 "gespecificeerd als '0' voor niet getest, 'N' voor geen mutatie, 'P' voor "
 "mutatie gedetecteerd."
 
-#: bws/cancer.py:212
+#: bws/cancer.py:219
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had a genetic test but the corresponding test "
@@ -140,7 +144,7 @@ msgstr ""
 "Familielid \"%(id)s\" heeft een genetische test ondergaan, maar het "
 "bijbehorende testresultaat is niet gespecificeerd."
 
-#: bws/cancer.py:217
+#: bws/cancer.py:224
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned a genetic test result, but the "
@@ -150,7 +154,7 @@ msgstr ""
 "\"%(id)s\", maar het bijbehorende type genetische test is niet "
 "gespecificeerd."
 
-#: bws/cancer.py:346
+#: bws/cancer.py:351
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
@@ -164,7 +168,7 @@ msgstr ""
 "'AU' voor beïnvloed op onbekende leeftijd, of worden gespecificeerd met een "
 "geheel getal in het bereik 1-%(max_age)s."
 
-#: bws/cancer.py:355
+#: bws/cancer.py:360
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
@@ -176,7 +180,7 @@ msgstr ""
 "ten tijde van de diagnose van kanker mag niet hoger zijn dan de leeftijd bij "
 "de laatste follow up."
 
-#: bws/cancer.py:362
+#: bws/cancer.py:367
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
@@ -185,7 +189,7 @@ msgstr ""
 "Het familielid \"%(id)s\" is mannelijk, maar er is een diagnose van "
 "eierstokkanker toegewezen."
 
-#: bws/cancer.py:368
+#: bws/cancer.py:373
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is female but has been assigned an prostate cancer "
@@ -194,7 +198,7 @@ msgstr ""
 "Het familielid \"%(id)s\" is vrouwelijk, maar er is een diagnose van "
 "prostaatkanker toegewezen."
 
-#: bws/cancer.py:376
+#: bws/cancer.py:381
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
@@ -204,11 +208,11 @@ msgid ""
 msgstr ""
 "Er is een diagnose van kanker gesteld bij familielid \"%(id)s\", maar er is "
 "geen geboortejaar gespecificeerd. Alle familieleden met kanker moeten een "
-"geldig geboortejaar hebben. Indien het geboortejaar van een familielid dat "
-"is beïnvloed onbekend is, dan is het altijd beter een schatting te geven, "
+"geldig geboortejaar hebben. Indien het geboortejaar van het betreffende "
+"familielid onbekend is, dan is het altijd beter een schatting te geven, "
 "zodat risico’s niet worden onderschat."
 
-#: bws/cancer.py:389 bws/cancer.py:400
+#: bws/cancer.py:394 bws/cancer.py:405
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -217,7 +221,7 @@ msgstr ""
 "Familielid \"%(id)s\" heeft contralaterale borstkanker gehad, maar de "
 "leeftijd ten tijde van de diagnose van de eerste borstkanker ontbreekt."
 
-#: bws/cancer.py:393
+#: bws/cancer.py:398
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -228,11 +232,11 @@ msgstr ""
 "leeftijd ten tijde van de diagnose van de eerste borstkanker is hoger dan "
 "die ten tijde van de tweede borstkanker."
 
-#: bws/exceptions.py:90
+#: bws/exceptions.py:88
 msgid "Request has timed out."
 msgstr "Time-out bij verzoek."
 
-#: bws/pedigree.py:182
+#: bws/pedigree_file.py:208
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -241,54 +245,54 @@ msgstr ""
 "Geboortejaar en leeftijd ten tijde van laatste follow-up moet worden "
 "gespecificeerd voor %(id)s opname in een berekening"
 
-#: bws/risk_factors/bc.py:12
-msgid "Age at First Occurrence of Menstruation"
-msgstr "Leeftijd ten tijde van eerste menstruatie"
-
-#: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
-msgid "Number of Children"
-msgstr "Aantal kinderen"
-
-#: bws/risk_factors/bc.py:23
-msgid "Age of First Live Birth"
-msgstr "Leeftijd bij eerste levend geboren kind"
-
-#: bws/risk_factors/bc.py:29
-msgid "Oral Contraception Usage"
-msgstr "Gebruik van orale anticonceptiemiddelen"
-
-#: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
-msgid "Hormone Replacement Therapy"
-msgstr "Hormoonvervangende therapie (HVT)"
-
-#: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
-msgid "Body Mass Index"
-msgstr "Body Mass Index/Queteletindex"
-
-#: bws/risk_factors/bc.py:73
-msgid "Alcohol Intake (grams/day)"
-msgstr "Alcoholconsumptie (gram/dag)"
-
-#: bws/risk_factors/bc.py:83
-msgid "Age of Menopause"
-msgstr "Leeftijd bij overgang"
-
-#: bws/risk_factors/bc.py:89
+#: bws/rest_api.py:113
 msgid "Mammographic Density"
 msgstr "Borstdensiteit"
 
-#: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
+#: bws/rest_api.py:115
 msgid "Height (cm)"
 msgstr "Lengte (cm)"
 
-#: bws/risk_factors/oc.py:17
+#: bws/risk_factors/bc.py:16
+msgid "Age at First Occurrence of Menstruation"
+msgstr "Leeftijd ten tijde van eerste menstruatie"
+
+#: bws/risk_factors/bc.py:22 bws/risk_factors/oc.py:16
+msgid "Number of Children"
+msgstr "Aantal kinderen"
+
+#: bws/risk_factors/bc.py:27
+msgid "Age of First Live Birth"
+msgstr "Leeftijd bij eerste levend geboren kind"
+
+#: bws/risk_factors/bc.py:33
+msgid "Oral Contraception Usage"
+msgstr "Gebruik van orale anticonceptiemiddelen"
+
+#: bws/risk_factors/bc.py:51 bws/risk_factors/oc.py:49
+msgid "Hormone Replacement Therapy"
+msgstr "Hormoonvervangende therapie (HVT)"
+
+#: bws/risk_factors/bc.py:67 bws/risk_factors/oc.py:95
+msgid "Body Mass Index"
+msgstr "Body Mass Index/Queteletindex"
+
+#: bws/risk_factors/bc.py:77
+msgid "Alcohol Intake (grams/day)"
+msgstr "Alcoholconsumptie (gram/dag)"
+
+#: bws/risk_factors/bc.py:87
+msgid "Age of Menopause"
+msgstr "Leeftijd bij overgang"
+
+#: bws/risk_factors/oc.py:21
 msgid "Duration of Oral Contraception Use"
 msgstr "Duur van gebruik van orale anticonceptiemiddelen"
 
-#: bws/risk_factors/oc.py:60
+#: bws/risk_factors/oc.py:64
 msgid "Tubal Ligation"
 msgstr "Afgebonden eileiders"
 
-#: bws/risk_factors/oc.py:76
+#: bws/risk_factors/oc.py:80
 msgid "Endometriosis"
 msgstr "Endometriose"
