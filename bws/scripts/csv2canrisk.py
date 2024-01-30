@@ -9,7 +9,7 @@ Usage:
 python3 csv2canrisk.py /home/tim/ped.csv
 
 © 2023 University of Cambridge
-SPDX-FileCopyrightText: 2023 University of Cambridge
+SPDX-FileCopyrightText: 2024 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 import sys
@@ -18,15 +18,9 @@ import csv
 import argparse
 
 
-RISK_FACTORS = [
-    'Menarche', 'Parity', 'First_live_birth', 'OC_Use', 'OC_Duration', 'MHT_Use',
-    'BMI', 'Alcohol', 'Menopause', 'BIRADS', 'Height', 'Tubal_Ligation',
-    'Endometriosis', 'BC_PRS_alpha', 'BC_PRS_z', 'OC_PRS_alpha', 'OC_PRS_z']
-
-
 CSV_COLUMNS = [
     "FamID", "IndivID", "FathID", "MothID", "Proband", "Sex", "MZtwin", "Age", "Yob",
-    "BrCa_1st", "BrCa_2nd", "OvCa", "ProCa", "PanCa", "Censoring_Age",
+    "BrCa_1st", "BrCa_2nd", "OvCa", "ProCa", "PanCa",
     "BRCA1t", "BRCA1r", "BRCA2t", "BRCA2r", "PALB2t", "PALB2r", "CHEK2t", "CHEK2r",
     "ATMt", "ATMr", "RAD51Dt", "RAD51Dr", "RAD51Ct", "RAD51Cr",
     "BRIP1t", "BRIP1r", "BARD1t", "BARD1r", "HOXB13t", "HOXB13r",
@@ -39,6 +33,11 @@ CANRISK_HDR = [
     "FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age",
     "Yob", "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn", "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2",
     "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
+
+RISK_FACTORS = [
+    'Menarche', 'Parity', 'First_live_birth', 'OC_Use', 'OC_Duration', 'MHT_Use',
+    'BMI', 'Alcohol', 'Menopause', "Mamm_density", 'BIRADS', 'Height', 'Tubal_Ligation',
+    'Endometriosis', 'BC_PRS_alpha', 'BC_PRS_z', 'OC_PRS_alpha', 'OC_PRS_z']
 
 GENES = ["BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1"]
 
@@ -59,7 +58,7 @@ def convert2canrisk(csvfilename):
     with open(csvfilename, newline='') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=',')
         for row in reader:
-            if row['Proband'] == "1":
+            if row['Proband'] == "1":   # read risk factors for proband
                 for rf in RISK_FACTORS:
                     if rf in row and row[rf] != "NA" and row[rf] != "":
                         if rf == "OC_use":
@@ -75,6 +74,12 @@ def convert2canrisk(csvfilename):
                             print("##TL="+row[rf])
                         elif rf == "Endometriosis":
                             print("##Endo="+row[rf])
+                        elif rf == "Mamm_density":
+                            # assume birads
+                            if row[rf] in ['a', 'b', 'c', 'd'] or row[rf] in ['1', '2', '3', '4']:
+                                print("##BIRADS="+row[rf])
+                            else:
+                                print("WARNING ::: Mamm_density = "+row[rf])
                         elif "_PRS_alpha" in rf:
                             print("##PRS_"+rf[:2]+"=alpha="+row[rf]+",zscore="+row[rf[:2]+"_PRS_z"])
                         elif "_PRS_" in rf:

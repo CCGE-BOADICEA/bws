@@ -251,7 +251,7 @@ OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_R
 # PROSTATE CANCER MODEL
 PC_MODEL = {
     'NAME': 'PC',
-    'HOME': os.path.join(FORTRAN_HOME, 'DEV-Models-Prostate-Cancer-v3.0'),
+    'HOME': os.path.join(FORTRAN_HOME, 'prostate'),
     'EXE': 'prostate.exe',
     'CANCERS': ['prc', 'bc1', 'oc'],      # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA2', 'HOXB13', 'BRCA1'],              # NOTE: order used by fortran pedigree file
