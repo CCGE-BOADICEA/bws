@@ -69,6 +69,21 @@ class RiskTests(TestCase):
         TestCase.tearDown(self)
         shutil.rmtree(self.cwd)
 
+    def test_risk_calc_viable(self):
+        """ Test if the risk calculations are viable. """
+        pedigree = deepcopy(self.pedigree)
+        target = pedigree.get_target()
+        self.assertTrue(pedigree.is_risks_calc_viable())
+        self.assertFalse(pedigree.is_risks_calc_viable(allowMale=True))
+
+        # BC1 diagnosis
+        target.cancers = Cancers(bc1=Cancer("19"), bc2=Cancer(), oc=Cancer(), prc=Cancer(), pac=Cancer())
+        self.assertTrue(pedigree.is_risks_calc_viable())
+
+        # OC diagnosis
+        target.cancers = Cancers(bc1=Cancer(), bc2=Cancer(), oc=Cancer("19"), prc=Cancer(), pac=Cancer())
+        self.assertFalse(pedigree.is_risks_calc_viable())
+
     def test_calculations(self):
         """ Test prediction of cancer risk and mutation probability. """
         pedigree = deepcopy(self.pedigree)
