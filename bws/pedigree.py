@@ -29,7 +29,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
+                 bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -38,6 +38,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         @keyword oc_risk_factor_code: ovarian cancer risk factor code
         @keyword bc_prs: breast cancer PRS
         @keyword oc_prs: ovarian cancer PRS
+        @keyword pc_prs: prostate cancer PRS
         """
         self.people = []
         if pedigree_records is not None:
