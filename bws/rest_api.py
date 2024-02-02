@@ -109,7 +109,7 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
-                    if pedi.ethnicity is not None:
+                    if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
                         this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
 
                     if mname == "BC":
