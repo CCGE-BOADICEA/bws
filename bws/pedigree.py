@@ -29,7 +29,7 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
+                 bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -38,6 +38,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         @keyword oc_risk_factor_code: ovarian cancer risk factor code
         @keyword bc_prs: breast cancer PRS
         @keyword oc_prs: ovarian cancer PRS
+        @keyword pc_prs: prostate cancer PRS
         """
         self.people = []
         if pedigree_records is not None:
@@ -292,18 +293,22 @@ class Pedigree(metaclass=abc.ABCMeta):
         # list of the individuals not connected to the target.
         return [p.pid for p in self.people if p.pid not in connected]
 
-    def is_risks_calc_viable(self, target=None):
+    def is_risks_calc_viable(self, target=None, allowMale=False):
         """
-        Returns true if the target is female and unaffected or only one breast cancer. If
-        the target is male, female with additional cancers, age at last follow up is not
-        in specified range or year of birth is not valid return false.
+        Return False if the target meets any of the following:
+            - is male and allowMale is false
+            - has additional cancers to only one breast cancer
+            - has an age not in specified range or year of birth is not valid
+        otherwise return True.
         @return: true if risks calculation is viable
         """
+        allowFemale = not allowMale
         if target is None:
             target = self.get_target()
         d = target.cancers.diagnoses
         if ((target is None or
-             isinstance(target, Male) or
+             (not allowMale and isinstance(target, Male)) or
+             (not allowFemale and isinstance(target, Female)) or
              (d.bc2.age != "-1") or (d.pac.age != "-1") or (d.oc.age != "-1") or
              (int(target.age) > settings.MAX_AGE_FOR_RISK_CALCS) or
              (int(target.yob) < settings.MIN_YEAR_OF_BIRTH))):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-20 08:57+0100\n"
+"POT-Creation-Date: 2024-02-13 11:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,34 +16,35 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: bws/cancer.py:76
+#: bws/cancer.py:116
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
 "individual's ER status is unspecified, no pathology information for that "
 "individual will be taken into account in the calculation; (2) if a breast "
 "cancer is ER positive, no other pathology information for that individual "
 "will be taken into account in the calculation; (3) if a breast cancer is ER "
-"negative, information on PR and HER2 for that individual will only be taken "
-"into account in the calculation if both PR and HER2 are specified; and (4) "
-"an individual's CK14 and CK5/6 status will only be taken into account in the "
-"calculation if both CK14 and CK5/6 are specified and the breast cancer is "
-"triple negative (ER negative, PR negative and HER2 negative). "
+"negative, information on PR and HER2 are only employed jointly: i.e. either "
+"the cancer is triple negative (ER-/PR-/HER2-) or it's not (i.e. ER-/PR-/"
+"HER2+ or ER-/PR+/HER2- or ER-/PR+/HER2+), no other options are considered; "
+"and (4) an individual's CK14 and CK5/6 status will only be taken into "
+"account in the calculation if both CK14 and CK5/6 are specified and the "
+"breast cancer is triple negative (ER negative, PR negative and HER2 "
+"negative). "
 msgstr ""
-"Si tenga conto delle seguenti regole per i dati patologici del tumore: (1) "
-"se lo stato ER di un soggetto non è specificato, nel calcolo non sarà presa "
-"in considerazione alcuna informazione patologica per quel soggetto; (2) se "
-"un tumore della mammella è ER positivo, nel calcolo non saranno prese in "
-"considerazione altre informazioni patologiche per quel soggetto; (3) se un "
-"tumore della mammella è ER negativo, nel calcolo si terrà conto delle "
-"informazioni su PR e HER2 per quel soggetto solo se PR e HER2 sono entrambi "
-"specificati; e (4) lo stato CK14 e CK5/6 di un soggetto sarà preso in "
-"considerazione nel calcolo solo se CK14 e CK5/6 sono entrambi specificati e "
-"se il tumore della mammella è triplo negativo (ER negativo, PR negativo e "
-"HER2 negativo)."
+"Osservare le seguenti regole per i dati patologici del tumore della "
+"mammella: (1) se lo stato ER di un soggetto non è specificato, nel calcolo "
+"non sarà presa in considerazione alcuna informazione patologica per tale "
+"soggetto; (2) se un tumore della mammella è ER positivo, nel calcolo non "
+"saranno prese in considerazione altre informazioni patologiche per tale "
+"soggetto; (3) se un tumore della mammella è ER negativo, nel calcolo si "
+"terrà conto delle informazioni su PR e HER2 per tale soggetto solo se PR e "
+"HER2 sono entrambi specificati; e (4) lo stato CK14 e CK5/6 di un soggetto "
+"sarà preso in considerazione nel calcolo solo se CK14 e CK5/6 sono entrambi "
+"specificati e se il tumore della mammella è triplo negativo (ER negativo, PR "
+"negativo e HER2 negativo). "
 
-#: bws/cancer.py:91
+#: bws/cancer.py:133
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has an "
@@ -54,11 +55,11 @@ msgstr ""
 "Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
 "della mammella sviluppato dal membro della famiglia \"%(id)s\" lo stato ER "
 "non è specificato, tuttavia è stato specificato un altro parametro "
-"patologico (PR, HER2, CK14 o CK5/6). %(rules)s Di conseguenza, le "
-"informazioni patologiche di questo soggetto non saranno prese in "
-"considerazione in questo caso."
+"patologico (PR, HER2, CK14 o CK5/6). %(rules)s Di conseguenza, in questo "
+"caso non saranno prese in considerazione le informazioni patologiche di "
+"questo soggetto."
 
-#: bws/cancer.py:101
+#: bws/cancer.py:143
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -69,10 +70,10 @@ msgstr ""
 "Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
 "della mammella sviluppato dal membro della famiglia \"%(id)s\" lo stato PR è "
 "specificato ma lo stato HER2 non è specificato (o viceversa). %(rules)sDi "
-"conseguenza lo stato PR e HER2 non sarà preso in considerazione in questo "
-"caso."
+"conseguenza, in questo caso non sarà preso in considerazione lo stato PR e "
+"HER2."
 
-#: bws/cancer.py:110
+#: bws/cancer.py:152
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -80,12 +81,12 @@ msgid ""
 "%(rules)s As a result, CK14 and CK5/6 status will not be taken into account "
 "in this case."
 msgstr ""
-"Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
-"della mammella sviluppato dal membro della famiglia \"%(id)s\" solo lo stato "
-"CK14 o CK5/6 è stato specificato. %(rules)s Di conseguenza, lo stato CK14 e "
-"CK5/6 non sarà preso in considerazione in questo caso."
+"Dati incompleti nell’albero genealogico: nei dati patologici di tumore della "
+"mammella del membro della famiglia \"%(id)s\" è stato specificato solo lo "
+"stato CK14 o CK5/6. %(rules)s Di conseguenza in questo caso non saranno "
+"presi in considerazione gli stati CK14 e CK5/6."
 
-#: bws/cancer.py:119
+#: bws/cancer.py:161
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -95,26 +96,27 @@ msgid ""
 "taken into account in this case."
 msgstr ""
 "Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
-"della mammella sviluppato dal membro della famiglia \"%(id)s\" lo stato CK14 "
-"o CK5/6 è specificato, ma il tumore della mammella non è triplo negativo (ER "
-"negativo, PR negativo e HER2 negativo). %(rules)s Di conseguenza lo stato "
-"CK14 e CK5/6 non sarà preso in considerazione in questo caso."
+"della mammella del membro della famiglia \"%(id)s\" è specificato lo stato "
+"CK14 o CK5/6, ma la patologia del tumore della mammella non è triplo "
+"negativo (ER negativo, PR negativo e HER2 negativo). %(rules)s Di "
+"conseguenza in questo caso non saranno presi in considerazione gli stati "
+"CK14 e CK5/6."
 
-#: bws/cancer.py:129
+#: bws/cancer.py:171
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
-"breast cancer pathologythat is ER positive, where an additional pathology "
+"breast cancer pathology that is ER positive, where an additional pathology "
 "parameter (PR, HER2, CK14 or CK5/6) has been specified. %(rules)s As a "
 "result, only ER positive status will be taken into account in this case."
 msgstr ""
 "Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
-"della mammella sviluppato dal membro della famiglia \"%(id)s\" lo stato è ER "
-"positivo, tuttavia è stato specificato un parametro patologico aggiuntivo "
-"(PR, HER2, CK14 o CK5/6). %(rules)s Di conseguenza, solo lo stato ER "
-"positivo sarà preso in considerazione in questo caso."
+"della mammella del membro della famiglia \"%(id)s\" è indicato uno stato ER "
+"positivo ma è stato specificato anche un altro parametro patologico (PR, "
+"HER2, CK14 o CK5/6). %(rules)s Di conseguenza, in questo caso, sarà preso in "
+"considerazione solo lo stato ER positivo."
 
-#: bws/cancer.py:200
+#: bws/cancer.py:207
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test type. It "
@@ -122,10 +124,10 @@ msgid ""
 "direct gene test."
 msgstr ""
 "Al membro della famiglia \"%(id)s\" è stato assegnato un tipo di test "
-"genetico non valido. Deve essere specificato \"0\" per \"non testato\", \"S"
-"\" per \"ricerca di mutazioni\" o \"T\" per \"test genetico mirato\"."
+"genetico non valido. Deve essere specificato \"0\" per \"non testato\", "
+"\"S\" per \"ricerca di mutazioni\" o \"T\" per \"test genetico mirato\"."
 
-#: bws/cancer.py:206
+#: bws/cancer.py:213
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test result. "
@@ -134,10 +136,10 @@ msgid ""
 msgstr ""
 "Al membro della famiglia \"%(id)s\" è stato assegnato un risultato del test "
 "genetico non valido. Per i risultati del test genetico deve essere "
-"specificato \"0\" per \"non testato\", \"N\" per \"nessuna mutazione\" e \"P"
-"\" per \"mutazione rilevata\"."
+"specificato \"0\" per \"non testato\", \"N\" per \"nessuna mutazione\" e "
+"\"P\" per \"mutazione rilevata\"."
 
-#: bws/cancer.py:212
+#: bws/cancer.py:219
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had a genetic test but the corresponding test "
@@ -146,7 +148,7 @@ msgstr ""
 "Il membro della famiglia \"%(id)s\" si è sottoposto a un test genetico, ma "
 "il risultato del test corrispondente non è stato specificato."
 
-#: bws/cancer.py:217
+#: bws/cancer.py:224
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned a genetic test result, but the "
@@ -155,7 +157,7 @@ msgstr ""
 "Al membro della famiglia \"%(id)s\" è stato assegnato un risultato del test "
 "genetico, ma il tipo di test genetico corrispondente non è stato specificato."
 
-#: bws/cancer.py:346
+#: bws/cancer.py:351
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
@@ -169,7 +171,7 @@ msgstr ""
 "\"affetto a un'età non nota\", oppure specificata con un numero intero "
 "compreso nell'intervallo 1-%(max_age)s."
 
-#: bws/cancer.py:355
+#: bws/cancer.py:360
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
@@ -180,7 +182,7 @@ msgstr ""
 "di tumore che supera l'età all'ultimo follow-up. L'età alla diagnosi di "
 "tumore non deve superare l'età all'ultimo follow-up."
 
-#: bws/cancer.py:362
+#: bws/cancer.py:367
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
@@ -189,7 +191,7 @@ msgstr ""
 "Il membro della famiglia \"%(id)s\" è di sesso maschile, ma è stata "
 "assegnata al soggetto una diagnosi di tumore dell'ovaio."
 
-#: bws/cancer.py:368
+#: bws/cancer.py:373
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is female but has been assigned an prostate cancer "
@@ -198,7 +200,7 @@ msgstr ""
 "Il membro della famiglia \"%(id)s\" è di sesso femminile, ma è stata "
 "assegnata al soggetto una diagnosi di tumore della prostata."
 
-#: bws/cancer.py:376
+#: bws/cancer.py:381
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
@@ -213,7 +215,7 @@ msgstr ""
 "tumore non è noto, è sempre consigliabile fornire un anno di nascita "
 "presunto, in modo che i rischi non vengano sottostimati."
 
-#: bws/cancer.py:389 bws/cancer.py:400
+#: bws/cancer.py:394 bws/cancer.py:405
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -223,7 +225,7 @@ msgstr ""
 "controlaterale, ma l'età alla diagnosi del primo tumore della mammella non è "
 "stata specificata."
 
-#: bws/cancer.py:393
+#: bws/cancer.py:398
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -234,11 +236,11 @@ msgstr ""
 "controlaterale, ma l'età alla diagnosi del primo tumore della mammella "
 "supera quella associata al secondo tumore della mammella."
 
-#: bws/exceptions.py:90
+#: bws/exceptions.py:88
 msgid "Request has timed out."
 msgstr "La richiesta è scaduta."
 
-#: bws/pedigree.py:182
+#: bws/pedigree_file.py:211
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -247,54 +249,54 @@ msgstr ""
 "È necessario specificare l'anno di nascita e l'età all'ultimo follow-up "
 "affinché %(id)s sia incluso nel calcolo"
 
-#: bws/risk_factors/bc.py:12
-msgid "Age at First Occurrence of Menstruation"
-msgstr "Età alla prima mestruazione"
-
-#: bws/risk_factors/bc.py:18 bws/risk_factors/oc.py:12
-msgid "Number of Children"
-msgstr "Numero di figli"
-
-#: bws/risk_factors/bc.py:23
-msgid "Age of First Live Birth"
-msgstr "Età alla nascita del primo figlio"
-
-#: bws/risk_factors/bc.py:29
-msgid "Oral Contraception Usage"
-msgstr "Uso di contraccettivi orali"
-
-#: bws/risk_factors/bc.py:47 bws/risk_factors/oc.py:45
-msgid "Hormone Replacement Therapy"
-msgstr "Terapia ormonale sostitutiva"
-
-#: bws/risk_factors/bc.py:63 bws/risk_factors/oc.py:91
-msgid "Body Mass Index"
-msgstr "Indice di massa corporea"
-
-#: bws/risk_factors/bc.py:73
-msgid "Alcohol Intake (grams/day)"
-msgstr "Assunzione di alcol (grammi/giorno)"
-
-#: bws/risk_factors/bc.py:83
-msgid "Age of Menopause"
-msgstr "Età alla menopausa"
-
-#: bws/risk_factors/bc.py:89
+#: bws/rest_api.py:116
 msgid "Mammographic Density"
 msgstr "Densità mammografica"
 
-#: bws/risk_factors/bc.py:105 bws/risk_factors/oc.py:100
+#: bws/rest_api.py:119
 msgid "Height (cm)"
 msgstr "Altezza (cm)"
 
-#: bws/risk_factors/oc.py:17
+#: bws/risk_factors/bc.py:16
+msgid "Age at First Occurrence of Menstruation"
+msgstr "Età alla prima mestruazione"
+
+#: bws/risk_factors/bc.py:22 bws/risk_factors/oc.py:16
+msgid "Number of Children"
+msgstr "Numero di figli"
+
+#: bws/risk_factors/bc.py:27
+msgid "Age of First Live Birth"
+msgstr "Età alla nascita del primo figlio"
+
+#: bws/risk_factors/bc.py:33
+msgid "Oral Contraception Usage"
+msgstr "Uso di contraccettivi orali"
+
+#: bws/risk_factors/bc.py:51 bws/risk_factors/oc.py:49
+msgid "Hormone Replacement Therapy"
+msgstr "Terapia ormonale sostitutiva"
+
+#: bws/risk_factors/bc.py:67 bws/risk_factors/oc.py:95
+msgid "Body Mass Index"
+msgstr "Indice di massa corporea"
+
+#: bws/risk_factors/bc.py:77
+msgid "Alcohol Intake (grams/day)"
+msgstr "Assunzione di alcol (grammi/giorno)"
+
+#: bws/risk_factors/bc.py:87
+msgid "Age of Menopause"
+msgstr "Età alla menopausa"
+
+#: bws/risk_factors/oc.py:21
 msgid "Duration of Oral Contraception Use"
 msgstr "Durata dell'uso della contraccezione orale"
 
-#: bws/risk_factors/oc.py:60
+#: bws/risk_factors/oc.py:64
 msgid "Tubal Ligation"
 msgstr "Legatura delle tube"
 
-#: bws/risk_factors/oc.py:76
+#: bws/risk_factors/oc.py:80
 msgid "Endometriosis"
 msgstr "Endometriosi"

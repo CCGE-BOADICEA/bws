@@ -51,9 +51,10 @@ class ModelOpts():
         """
         mname = calc.model_settings.get('NAME', "")
         t = calc.pedi.get_target()
+        is_PC = (mname == 'PC')
         is_alive = (t.dead != "1")
         is_cancer_diagnosed = t.cancers.is_cancer_diagnosed()
-        is_risks_calc_viable = calc.pedi.is_risks_calc_viable() and is_alive and t.sex() == "F"
+        is_risks_calc_viable = calc.pedi.is_risks_calc_viable(allowMale=is_PC) and is_alive
         is_carr_probs_viable = calc.pedi.is_carrier_probs_viable()
         return ModelOpts(out=mname+"_predictions.txt",
                          probs=(is_carr_probs_viable and calc.is_calculate('carrier_probs')),

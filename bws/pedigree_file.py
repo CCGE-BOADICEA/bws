@@ -64,7 +64,7 @@ class CanRiskHeader():
         ''' Get breast and ovarian cancer risk factor code, height, BIRADS and PRS from header lines. '''
         bc_rfs = BCRiskFactors()
         oc_rfs = OCRiskFactors()
-        bc_prs = oc_prs = None
+        bc_prs = oc_prs = pc_prs = None
         hgt = -1
         ethnicity = None
         md = None
@@ -77,6 +77,8 @@ class CanRiskHeader():
                     oc_prs = self.get_prs(rfval)
                 elif rfnam == 'prs_bc':                 # get breast cancer prs
                     bc_prs = self.get_prs(rfval)
+                elif rfnam == 'prs_pc':                 # get prostate cancer prs
+                    pc_prs = self.get_prs(rfval)
                 else:                                   # lookup breast/ovarian cancer risk factors
                     if rfnam == 'height':
                         if rfval == 'NA':
@@ -98,7 +100,7 @@ class CanRiskHeader():
             except Exception as e:
                 logger.error("CanRisk header format contains an error.", e)
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, ethnicity, bc_prs, oc_prs)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, ethnicity, bc_prs, oc_prs, pc_prs)
 
 
 class PedigreeFile(object):
@@ -179,11 +181,12 @@ class PedigreeFile(object):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type.startswith('canrisk'):
-                bc_rfc, oc_rfc, hgt, mdensity, ethnicity, bc_prs, oc_prs = canrisk_headers[i].get_risk_factor_codes()
+                bc_rfc, oc_rfc, hgt, mdensity, ethnicity, bc_prs, oc_prs, pc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
                     CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
-                                    bc_prs=bc_prs, oc_prs=oc_prs, hgt=hgt, mdensity=mdensity, ethnicity=ethnicity))
+                                    bc_prs=bc_prs, oc_prs=oc_prs, pc_prs=pc_prs,
+                                    hgt=hgt, mdensity=mdensity, ethnicity=ethnicity))
 
     @classmethod
     def validate(cls, pedigrees):
