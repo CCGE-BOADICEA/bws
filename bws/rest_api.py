@@ -32,6 +32,8 @@ from bws.risk_factors.oc import OCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
+from bws.risk_factors.pc import PCRiskFactors
+from bws.exceptions import ModelError
 
 
 logger = logging.getLogger(__name__)
@@ -107,12 +109,14 @@ class ModelWebServiceMixin():
                     this_pedigree["family_id"] = pedi.famid
                     this_pedigree["proband_id"] = target.pid
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
-                    this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
+                    if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
+                        this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
 
                     if mname == "BC":
                         this_pedigree["risk_factors"][_('Mammographic Density')] = \
                                                             this_mdensity.get_display_str() if this_mdensity is not None else "-"
-                    this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
+                    if mname != "PC":
+                        this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
@@ -142,7 +146,16 @@ class ModelWebServiceMixin():
 
     def get_risk_factors(self, model_settings, risk_factor_code):
         ''' Get a dictionary of the decoded risk factor categories from the risk factor code. '''
-        rf_cls = BCRiskFactors if model_settings['NAME'] == 'BC' else OCRiskFactors
+        mname = model_settings['NAME']
+        if mname == 'BC':
+            rf_cls = BCRiskFactors
+        elif mname == 'OC':
+            rf_cls = OCRiskFactors
+        elif mname == 'PC':
+            rf_cls = PCRiskFactors
+        else:
+            raise ModelError("MODEL NOT RECOGNISED")
+
         rfcats = rf_cls.decode(risk_factor_code)
         rfs = rf_cls.risk_factors
         return {rfs[idx].snake_name(): rfs[idx].cats[val] for idx, val in enumerate(rfcats)}

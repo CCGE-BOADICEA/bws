@@ -175,7 +175,13 @@ class Predictions():
         rr, rl, ry, rj, mp = False, False, False, False, False
         mp_lines = ""
         model_settings = self.model_settings
-        ctype = "breast" if model_settings['NAME'] == 'BC' else "ovarian"
+
+        if model_settings['NAME'] == 'BC':
+            ctype = "breast"
+        elif model_settings['NAME'] == 'OC':
+            ctype = "ovarian"
+        else:
+            ctype = "prostate"
 
         for _idx, line in enumerate(lines):
             if line.startswith('##'):
@@ -228,19 +234,26 @@ class Predictions():
         probs_arr = []
         gene_columns = []
 
+        mname = str(model_settings.get('NAME', ""))
         for _idx, line in enumerate(probs.splitlines()):
             if consts.REGEX_ALPHANUM_COMMAS.match(line):
                 gene_columns = line.strip().split(sep=",")
             elif not line.startswith('#'):
                 parts = line.strip().split(sep=",")
-
                 probs_arr.append({"no mutation": {"decimal": float(parts[0]),
                                                   "percent": round(float(parts[0])*100, 2)}})
-                for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
-                    assert gene == gene_columns[i], "MUTATION CARRIER PROBABILITY - RESULTS COLUMN MISMATCH FOUND"
-                    probs_arr.append({gene:
-                                      {"decimal": float(parts[i]),
-                                       "percent": round(float(parts[i])*100, 2)}})
+                
+                if mname != 'PC':
+                    for i, gene in enumerate(model_settings['GENES'], 1):   # 1-based loop
+                        assert gene == gene_columns[i], "MUTATION CARRIER PROB - RESULTS COLUMN MISMATCH FOR: "+gene_columns[i]
+                        probs_arr.append({gene:
+                                          {"decimal": float(parts[i]),
+                                           "percent": round(float(parts[i])*100, 2)}})
+                else:
+                    for i, gene in enumerate(gene_columns[1:], 1):   # 1-based loop
+                        probs_arr.append({gene:
+                                          {"decimal": float(parts[i]),
+                                           "percent": round(float(parts[i])*100, 2)}})
         return probs_arr
 
     @classmethod
