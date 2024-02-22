@@ -150,12 +150,14 @@ class OutputSerializer(serializers.Serializer):
 
 
 class CombinedInputSerializer(serializers.Serializer):
-    ''' Results from both ovarian and breast cancer models. '''
+    ''' Results from ovarian, breast and prostate cancer models. '''
     ows_result = serializers.JSONField(required=True)
     bws_result = serializers.JSONField(required=True)
+    pws_result = serializers.JSONField(required=False)
 
 
 class CombinedOutputSerializer(serializers.Serializer):
-    """ Results from both ovarian and breast cancer models. """
+    """ Results from ovarian, breast and prostate cancer models. """
     ows_result = OutputSerializer(read_only=True)
     bws_result = OutputSerializer(read_only=True)
+    pws_result = OutputSerializer(read_only=True, required=False)

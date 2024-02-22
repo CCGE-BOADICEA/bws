@@ -567,6 +567,10 @@ class CombineModelResultsView(APIView):
              description: breast cancer web service result
              ptype: OutputSerializer
              required: true
+           - name: pws_result
+             description: prostate cancer web service result
+             ptype: OutputSerializer
+             required: true
 
         responseMessages:
            - code: 401
