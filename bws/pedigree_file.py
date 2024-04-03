@@ -92,7 +92,7 @@ class CanRiskHeader():
                         md = Volpara(rfval)
                     elif rfnam == 'ethnicity':
                         e = rfval.split(';')
-                        ons = ONSEthnicity(e[0], e[1])
+                        ons = ONSEthnicity(e[0], e[1] if len(e) > 1 and e[1] != "" else None)
                         ethnicity = ONSEthnicity.ons2UKBioBank(ons)
 
                     bc_rfs.add_category(rfnam, rfval)
