@@ -320,8 +320,6 @@ PC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': OrderedDict([
-        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
-        ('OCAC 36', 'OCAC_36_PRS.prs')
     ])
 }
 PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
