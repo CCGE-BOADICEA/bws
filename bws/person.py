@@ -192,7 +192,7 @@ class Person(object):
                 if idx < 0:
                     if gene == "BARD1" and file_type == "canrisk1":
                         return GeneticTest()
-                    raise PedigreeError("Genetic test column for '" + gene + "not found.")
+                    raise PedigreeError("Genetic test column for '" + gene + "' not found.")
                 gt = cols[idx].split(':')
                 return GeneticTest(gt[0], gt[1])
             gtests = CanRiskGeneticTests.factory([get_genetic_test(cols, gene) for gene in genes])
