@@ -18,17 +18,17 @@ class Genes():
     @staticmethod
     def get_unique_oc_genes():
         ''' Return genes unique to ovarian model. '''
-        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']) - set(settings.PC_MODEL['GENES']))
 
     @staticmethod
     def get_unique_pc_genes():
         ''' Return genes unique to prostate model. '''
-        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']) - set(settings.OC_MODEL['GENES']))
 
     @staticmethod
     def get_all_model_genes():
         ''' Return genes for breast and ovarian model. '''
-        return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]
+        return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5] + settings.PC_MODEL['GENES'][1:2]
 
 
 # BC pathology tests stored in named tuple
