@@ -99,6 +99,16 @@ BC_MODEL = {
             'RAD51C': 0.00035,
             'RAD51D': 0.00035
         }),
+        ('UK, non-European', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.00102,
+            'PALB2': 0.00064,
+            'ATM': 0.0018,
+            'CHEK2': 0.00109,
+            'BARD1': 0.00043,
+            'RAD51C': 0.00035,
+            'RAD51D': 0.00035
+        }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
             'BRCA2': 0.006,
@@ -185,6 +195,14 @@ OC_MODEL = {
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
+            'BRCA1': 0.0007947,
+            'BRCA2': 0.002576,
+            'RAD51D': 0.00035,
+            'RAD51C': 0.00035,
+            'BRIP1': 0.00071,
+            'PALB2': 0.00064
+        }),
+        ('UK, non-European', {
             'BRCA1': 0.0007947,
             'BRCA2': 0.002576,
             'RAD51D': 0.00035,
