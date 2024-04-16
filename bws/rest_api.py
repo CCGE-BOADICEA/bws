@@ -309,7 +309,7 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland']
+             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
@@ -405,7 +405,7 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland']
+             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true
@@ -501,7 +501,7 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              paramType: form
              defaultValue: 'UK'
-             enum: ['UK', 'Ashkenazi', 'Iceland']
+             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
            - name: cancer_rates
              description: cancer incidence rates
              required: true

@@ -164,7 +164,7 @@ BC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         # ('ANTEBC 2803', {'alpha': xxxx}),
         ('BCAC 77', 'BCAC_77_PRS.prs'),
-        ('BCAC 313', 'BCAC_313_PRS.prs'),
+        ('BCAC 313 - European', 'BCAC_313_PRS.prs'),
         ('BCAC 3820', 'BCAC_3820_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
         # ('DBDS 299', 'DBDS_299_PRS.prs'),
@@ -203,14 +203,12 @@ OC_MODEL = {
             'PALB2': 0.00064
         }),
         ('UK, non-European', {
-            'BRCA1': 0.0006394,
-            'BRCA2': 0.00102,
-            'PALB2': 0.00064,
-            'ATM': 0.0018,
-            'CHEK2': 0.00109,
-            'BARD1': 0.00043,
+            'BRCA1': 0.0007947,
+            'BRCA2': 0.002576,
+            'RAD51D': 0.00035,
             'RAD51C': 0.00035,
-            'RAD51D': 0.00035
+            'BRIP1': 0.00071,
+            'PALB2': 0.00064
         }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
