@@ -192,7 +192,7 @@ class Person(object):
                 if idx < 0:
                     if gene == "BARD1" and file_type == "canrisk1":
                         return GeneticTest()
-                    if gene == "HOXB13" and (file_type == "canrisk1" or file_type == "canrisk2"):
+                    if gene == "HOXB13" and (file_type == "canrisk1" or file_type == "canrisk2" or file_type == "canrisk3"):
                         return GeneticTest()
                     raise PedigreeError("Genetic test column for '" + gene + "' not found.")
                 gt = cols[idx].split(':')

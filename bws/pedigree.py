@@ -384,7 +384,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                     if mname == "OC" and isinstance(gtests, BWSGeneticTests):
                         if g in Genes.get_unique_oc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
-                    elif mname == "PC":
+                    elif mname == "PC" and isinstance(gtests, BWSGeneticTests):
                         logger.debug(g+" ==== "+mname)
                         if g in Genes.get_unique_pc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
@@ -594,6 +594,11 @@ class CanRiskPedigree(Pedigree):
                 "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
                 "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
 
+    COLUMNS4 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13", "ER:PR:HER2:CK14:CK56"]
+    
+
 #    COLUMNS3 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
 #                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
 #                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13",
@@ -622,8 +627,11 @@ class CanRiskPedigree(Pedigree):
         """
         if file_type == "canrisk1":
             cols = cls.COLUMNS1
+        elif file_type == "canrisk4":
+            cols = cls.COLUMNS4
         else:
             cols = cls.COLUMNS2
+
         for idx, val in enumerate(cols):
             if val == name or val.lower == name.lower():
                 return idx

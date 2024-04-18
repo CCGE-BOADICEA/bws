@@ -280,6 +280,11 @@ PC_MODEL = {
             'BRCA2': 0.00102,
             'HOXB13': 0.00212
         }),
+        ('UK, non-European', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.00102,
+            'HOXB13': 0.00212
+        }),
         ('Ashkenazi', {
             'BRCA1': 0.008,
             'BRCA2': 0.006,

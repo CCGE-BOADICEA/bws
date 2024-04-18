@@ -126,12 +126,14 @@ class PedigreeFile(object):
                     file_type = 'canrisk2'
                 elif consts.REGEX_CANRISK3_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk3'
+                elif consts.REGEX_CANRISK4_PEDIGREE_FILE_HEADER.match(line):
+                    file_type = 'canrisk4'
                 elif consts.REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
-                        "The first header record must be '##CanRisk 2.0'.")
+                        "The first header record must be '##CanRisk 3.0'.")
             elif (idx == 1 and file_type == 'bwa') or line.startswith('##FamID'):
                 self.column_names = line.replace("##FamID", "FamID").split()
                 if (((self.column_names[0] != 'FamID') or
