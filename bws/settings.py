@@ -171,6 +171,7 @@ BC_MODEL = {
         ('EGLH-CEN 301', 'EGLH-CEN_301_PRS.prs'),
         ('EGLH-CEN 303', 'EGLH-CEN_303_PRS.prs'),
         # ('EMERGE 309', 'EMERGE_309_PRS.prs'),
+        ('MAINZ 309', 'MAINZ_309_PRS.prs'),
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
         ('PRISMA 268', 'PRISM_268_PRS.prs'),
         ('WISDOM 75', 'WISDOM_75_PRS.prs'),
