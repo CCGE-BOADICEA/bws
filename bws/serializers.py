@@ -124,6 +124,7 @@ class PedigreeResultSerializer(serializers.Serializer):
     family_id = serializers.CharField(read_only=True)
     proband_id = serializers.CharField(read_only=True)
     ethnicity = serializers.CharField(read_only=True)
+    ons_ethnicity = serializers.CharField(read_only=True)
     mutation_frequency = serializers.DictField(read_only=True)
     risk_factors = serializers.DictField(read_only=True, required=False)
     prs = serializers.DictField(read_only=True, required=False)

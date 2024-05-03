@@ -111,6 +111,7 @@ class ModelWebServiceMixin():
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
                     if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
                         this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
+                        this_pedigree["ons_ethnicity"] = pedi.ons_ethnicity.get_string()
 
                     if mname == "BC":
                         this_pedigree["risk_factors"][_('Mammographic Density')] = \
