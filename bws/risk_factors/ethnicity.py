@@ -73,6 +73,12 @@ class ONSEthnicity(Ethnicity):
 
     def get_filename(self): raise NotImplementedError
 
+    ''' Get string representation '''
+    def get_string(self):
+        if self.ethnicityBackground is not None:
+            return self.ethnicity + ";" + self.ethnicityBackground
+        return self.ethnicity
+
     @classmethod
     def ons2UKBioBank(cls, onsEthnicity):
         '''
