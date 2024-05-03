@@ -18,7 +18,6 @@ from bws.pedigree import BwaPedigree, CanRiskPedigree, Pedigree
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.mdensity import Birads, Volpara, Stratus
 from bws.risk_factors.oc import OCRiskFactors
-from bws.risk_factors import ethnicity
 from bws.risk_factors.ethnicity import ONSEthnicity
 
 
@@ -66,7 +65,8 @@ class CanRiskHeader():
         oc_rfs = OCRiskFactors()
         bc_prs = oc_prs = pc_prs = None
         hgt = -1
-        ethnicity = None
+        ons_ethnicity = None
+        biobank_ethnicity = None
         md = None
         for line in self.lines:
             try:
@@ -92,15 +92,15 @@ class CanRiskHeader():
                         md = Volpara(rfval)
                     elif rfnam == 'ethnicity':
                         e = rfval.split(';')
-                        ons = ONSEthnicity(e[0], e[1] if len(e) > 1 and e[1] != "" else None)
-                        ethnicity = ONSEthnicity.ons2UKBioBank(ons)
+                        ons_ethnicity = ONSEthnicity(e[0], e[1] if len(e) > 1 and e[1] != "" else None)
+                        biobank_ethnicity = ONSEthnicity.ons2UKBioBank(ons_ethnicity)
 
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception as e:
                 logger.error("CanRisk header format contains an error.", e)
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
-        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, ethnicity, bc_prs, oc_prs, pc_prs)
+        return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, ons_ethnicity, biobank_ethnicity, bc_prs, oc_prs, pc_prs)
 
 
 class PedigreeFile(object):
@@ -183,12 +183,13 @@ class PedigreeFile(object):
             if file_type == 'bwa':
                 self.pedigrees.append(BwaPedigree(pedigree_records=pedigrees_records[i], file_type=file_type))
             elif file_type.startswith('canrisk'):
-                bc_rfc, oc_rfc, hgt, mdensity, ethnicity, bc_prs, oc_prs, pc_prs = canrisk_headers[i].get_risk_factor_codes()
+                bc_rfc, oc_rfc, hgt, mdensity, ons_ethnicity, biobank_ethnicity, bc_prs, oc_prs, pc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
                     CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
                                     bc_prs=bc_prs, oc_prs=oc_prs, pc_prs=pc_prs,
-                                    hgt=hgt, mdensity=mdensity, ethnicity=ethnicity))
+                                    hgt=hgt, mdensity=mdensity, ons_ethnicity=ons_ethnicity,
+                                    biobank_ethnicity=biobank_ethnicity))
 
     @classmethod
     def validate(cls, pedigrees):
