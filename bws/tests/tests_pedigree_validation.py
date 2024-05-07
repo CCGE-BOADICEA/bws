@@ -513,7 +513,7 @@ class GenesTests(TestCase):
     def test_all_genes(self):
         ''' Test method to get all genes. '''
         g_all = Genes.get_all_model_genes()
-        g_set = set(settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'])
+        g_set = set(settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'] + settings.PC_MODEL['GENES'])
         self.assertEqual(len(g_all), len(g_set))
         for g in g_set:
             self.assertTrue(g in g_all)
