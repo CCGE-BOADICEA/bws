@@ -84,10 +84,13 @@ class Pedigree(metaclass=abc.ABCMeta):
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
                 self.oc_risk_factor_code = oc_risk_factor_code
+
             if bc_prs is not None:
                 self.bc_prs = bc_prs
             if oc_prs is not None:
                 self.oc_prs = oc_prs
+            if pc_prs is not None:
+                self.pc_prs = pc_prs
 
     def validate(self):
         """ Validation check for pedigree input.
@@ -612,6 +615,8 @@ class CanRiskPedigree(Pedigree):
             return self.bc_prs
         elif mname == 'OC' and hasattr(self, 'oc_prs'):
             return self.oc_prs
+        elif mname == 'PC' and hasattr(self, 'pc_prs'):
+            return self.pc_prs
         return None
 
     def get_rfcode(self, mname):
