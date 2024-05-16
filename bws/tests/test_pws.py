@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2024 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -16,6 +17,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
+import unittest
 
 
 class PwsTests(TestCase):
@@ -26,6 +28,9 @@ class PwsTests(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(PwsTests, cls).setUpClass()
+        if not settings.PROSTATE_CANCER:
+            return
+
         cls.client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
@@ -41,6 +46,7 @@ class PwsTests(TestCase):
         TestCase.tearDown(self)
         self.pedigree_data.close()
 
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_pws_output(self):
         ''' Test output of POSTing to the PWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data,
@@ -58,6 +64,7 @@ class PwsTests(TestCase):
         self.assertGreater(len(pedigree_result["cancer_risks"]), 0)
         self.assertTrue("family_id" in pedigree_result)
 
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_pws_warnings(self):
         ''' Test warning when proband has already had prostate cancer and no risks are reported. '''
         # change proband to have had OC
@@ -69,6 +76,7 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('PROBAND HAS ALREADY HAD A CANCER' in content['Model Error'])
 
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     @override_settings(FORTRAN_TIMEOUT=0.01)
     def test_pws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
@@ -88,6 +96,9 @@ class PwsTestsPRS(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(PwsTestsPRS, cls).setUpClass()
+        if not settings.PROSTATE_CANCER:
+            return
+
         cls.client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
@@ -103,6 +114,7 @@ class PwsTestsPRS(TestCase):
     def setUp(self):
         self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
 
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_prs_in_canrisk_file(self):
         '''
         Test prostate cancer PRS parameters defined in the header of CanRisk formatted file.
