@@ -272,7 +272,7 @@ PC_MODEL = {
     'NAME': 'PC',
     'HOME': os.path.join(FORTRAN_HOME, 'prostate'),
     'EXE': 'prostate.exe',
-    'CANCERS': ['prc', 'bc1', 'oc'],        # NOTE: order used by fortran pedigree file
+    'CANCERS': ['prc', 'bc1', 'oc', 'pac'], # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA2', 'HOXB13', 'BRCA1'],  # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
@@ -301,7 +301,7 @@ PC_MODEL = {
     'GENETIC_TEST_SENSITIVITY': {
         "BRCA1": 0.89,
         "BRCA2": 0.96,
-        "HOXB13": 0.86
+        "HOXB13": 1
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
