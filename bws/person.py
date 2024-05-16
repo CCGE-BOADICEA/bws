@@ -195,8 +195,11 @@ class Person(object):
                     if gene == "HOXB13" and (file_type == "canrisk1" or file_type == "canrisk2" or file_type == "canrisk3"):
                         return GeneticTest()
                     raise PedigreeError("Genetic test column for '" + gene + "' not found.")
-                gt = cols[idx].split(':')
-                return GeneticTest(gt[0], gt[1])
+
+                v = cols[idx]
+                isHOXB13 = (gene == "HOXB13")
+                gt = v.split(':')
+                return GeneticTest(gt[0], gt[1], isHOXB13)
             gtests = CanRiskGeneticTests.factory([get_genetic_test(cols, gene) for gene in genes])
 
             path = cols[pedigree.CanRiskPedigree.get_column_idx("ER:PR:HER2:CK14:CK56", file_type)].split(':')
