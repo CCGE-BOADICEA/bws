@@ -176,7 +176,8 @@ BC_MODEL = {
         ('PRISMA 268', 'PRISM_268_PRS.prs'),
         ('WISDOM 75', 'WISDOM_75_PRS.prs'),
         ('WISDOM 128', 'WISDOM_128_PRS.prs')
-    ])
+    ]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
 BC_MODEL['PRS_ALPHA'] = {
@@ -260,7 +261,8 @@ OC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
         ('OCAC 36', 'OCAC_36_PRS.prs')
-    ])
+    ]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
@@ -323,8 +325,8 @@ PC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict([
-    ])
+    'PRS_REFERENCE_FILES': OrderedDict([]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
 PC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in PC_MODEL['PRS_REFERENCE_FILES'].items()}
