@@ -341,7 +341,9 @@ class Pedigree(metaclass=abc.ABCMeta):
         Write input pedigree file for fortran.
         """
         
-        if mdensity is not None and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus)):
+        if (mdensity is not None
+            and not settings.IS_VOLPARA_STRATUS_SUPPORTED
+            and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus))):
             raise Exception("Unsupported mammographic density type")
         
         f = open(filepath, "w")
