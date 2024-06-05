@@ -172,6 +172,12 @@ def get_rfs(bwa):
                         line[1] = parts[0]
                 elif line[0] == 'birads':
                     name = 'Mamm_density'
+                elif line[0] == 'stratus':
+                    name = 'Mamm_density'
+                    line[1] = str(10+(float(line[1])/100.))
+                elif line[0] == 'volpara':
+                    name = 'Mamm_density'
+                    line[1] = str(20+(float(line[1])/100.))
                 elif line[0] == 'endo':
                     name = 'Endometriosis'
                 else:
