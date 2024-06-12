@@ -7,7 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 """
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -34,6 +34,7 @@ class PwsTests(TestCase):
         cls.client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
+        cls.user.user_permissions.add(Permission.objects.get(name='Commercial PC webservices'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
@@ -105,7 +106,7 @@ class PwsTestsPRS(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
-        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()

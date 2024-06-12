@@ -12,9 +12,10 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.http.response import JsonResponse
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.compat import coreapi, coreschema
 from rest_framework.exceptions import ValidationError
@@ -24,19 +25,30 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calc.model import ModelParams
 from bws.calc.calcs import Predictions
+from bws.calc.model import ModelParams
+from bws.exceptions import ModelError
 from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
+from bws.risk_factors.pc import PCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-from bws.risk_factors.pc import PCRiskFactors
-from bws.exceptions import ModelError
 
 
 logger = logging.getLogger(__name__)
+
+
+class RequiredAnyPermission(permissions.BasePermission):
+    """ Check that one of the permissions is met in the class variable any_perms """
+    def has_permission(self, request, view):
+        def test_func(user):
+            for perm in view.any_perms:
+                if user.has_perm(perm):
+                    return True
+            raise PermissionDenied()
+        return test_func(request.user)
 
 
 class ModelWebServiceMixin():
@@ -270,10 +282,11 @@ class BwsView(APIView, ModelWebServiceMixin):
     """
     BOADICEA Web-Service
     """
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
     if coreapi is not None and coreschema is not None:
@@ -366,10 +379,11 @@ class OwsView(APIView, ModelWebServiceMixin):
     """
     Ovarian Model Web-Service
     """
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = OwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.OC_MODEL
     if coreapi is not None and coreschema is not None:
@@ -462,10 +476,11 @@ class PwsView(APIView, ModelWebServiceMixin):
     """
     Prostate Model Web-Service
     """
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = PwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.PC_MODEL
     if coreapi is not None and coreschema is not None:

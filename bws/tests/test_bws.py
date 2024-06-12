@@ -12,7 +12,7 @@ from bws.exceptions import ModelError
 from bws.pedigree import CanRiskPedigree, Female
 from datetime import date
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -36,6 +36,7 @@ class BwsMixin(TestCase):
         cls.user = User.objects.create_user('testuser', email='testuser@test.com', password='testing')
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
+        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.token.save()
         cls.url = reverse('bws')
         cls.client = APIClient(enforce_csrf_checks=True)

@@ -6,8 +6,15 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
+import io
+import logging
 import os
+from pathlib import Path
+from statistics import NormalDist
+import time
+import traceback
 
+from django.conf import settings
 from rest_framework import serializers, status
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
@@ -18,20 +25,14 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
+import vcf
 
+from bws.rest_api import RequiredAnyPermission
 from bws.serializers import FileField
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-import time
-import logging
-import io
-import vcf
-import traceback
-from django.conf import settings
 import vcf2prs
-from vcf2prs.prs import Prs
 from vcf2prs.exception import Vcf2PrsError
-from pathlib import Path
-from statistics import NormalDist
+from vcf2prs.prs import Prs
 
 
 logger = logging.getLogger(__name__)
@@ -58,10 +59,14 @@ class Vcf2PrsOutputSerializer(serializers.Serializer):
 
 
 class Vcf2PrsView(APIView):
+    any_perms = ['boadicea_auth.can_risk',
+                 'boadicea_auth.commercial_api_breast',
+                 'boadicea_auth.commercial_api_ovarian',
+                 'boadicea_auth.commercial_api_prostate']   # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = Vcf2PrsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     if coreapi is not None and coreschema is not None:
         schema = ManualSchema(
@@ -214,10 +219,14 @@ class ZscoreOutputSerializer(serializers.Serializer):
 
 
 class Zscore2PercentView(APIView):
+    any_perms = ['boadicea_auth.can_risk',
+                 'boadicea_auth.commercial_api_breast',
+                 'boadicea_auth.commercial_api_ovarian',
+                 'boadicea_auth.commercial_api_prostate']   # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = ZscoreInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     if coreapi is not None and coreschema is not None:
         schema = ManualSchema(
