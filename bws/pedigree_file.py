@@ -68,6 +68,7 @@ class CanRiskHeader():
         ons_ethnicity = None
         biobank_ethnicity = None
         md = None
+        menopause_status = "0"
         for line in self.lines:
             try:
                 parts = line.split('=', 1)
@@ -94,12 +95,18 @@ class CanRiskHeader():
                         e = rfval.split(';')
                         ons_ethnicity = ONSEthnicity(e[0], e[1] if len(e) > 1 and e[1] != "" else None)
                         biobank_ethnicity = ONSEthnicity.ons2UKBioBank(ons_ethnicity)
+                    elif rfnam == 'menopause':
+                        menopause_status = "N" if rfval == "N" else "Y"
 
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception as e:
                 logger.error("CanRisk header format contains an error.", e)
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
+
+        # add menopause status to volpara/stratus
+        if md is not None  and (isinstance(md, Volpara) or isinstance(md, Stratus)):
+            md.set_menopause_status(menopause_status)
         return (BCRiskFactors.encode(bc_rfs.cats), OCRiskFactors.encode(oc_rfs.cats), hgt, md, ons_ethnicity, biobank_ethnicity, bc_prs, oc_prs, pc_prs)
 
 

@@ -87,7 +87,13 @@ class AgeOfMenopause(RiskFactor):
     help_text = _('Age of Menopause')
     synonyms = ['menopause']
 
-    
+    @classmethod
+    def get_category(cls, val):
+        if val is 'N':
+            val = "-"
+        return super(AgeOfMenopause, cls).get_category(val)
+
+
 class BCRiskFactors(RiskFactors):
     ''' Each risk factor for an individual is defined in terms of a category they are in.
         If a factor is unobserved, missing or not applicable, it is assigned category 0,

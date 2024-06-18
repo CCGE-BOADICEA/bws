@@ -185,6 +185,7 @@ class RiskFactorsCategoryTests(TestCase):
     def test_get_AgeOfMenopause_category(self):
         ''' Given an Age Of Menopause value check the category is correctly assigned. '''
         self.assertEqual(bc.AgeOfMenopause.get_category('-'), 0)
+        self.assertEqual(bc.AgeOfMenopause.get_category('N'), 0)
         self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
 
