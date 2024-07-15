@@ -53,7 +53,7 @@ class Birads(MammographicDensity):
         return "00000000"
     
     def get_display_str(self):
-        return "BI-RADS "+str(Birads.get_category(self.md))
+        return "BI-RADS "+str(self.md)
         
     @classmethod
     def get_category(cls, val):
