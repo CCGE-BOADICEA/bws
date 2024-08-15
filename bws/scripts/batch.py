@@ -57,6 +57,8 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
     if _exit_code != 0:
         print(outs)
         print(errs)
+        print(' '.join(cmd))
+        print("EXIT CODE "+str(_exit_code))
         exit(1)
     return outs, errs
 
