@@ -1,5 +1,5 @@
 '''
-API for the BWS/OWS REST resources.
+API for the BWS/OWS/PWS REST resources.
 
 © 2023 University of Cambridge
 SPDX-FileCopyrightText: 2023 University of Cambridge
@@ -15,14 +15,13 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http.response import JsonResponse
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, permissions
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
-from rest_framework.compat import coreapi, coreschema
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer  # , BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
 from bws.calc.calcs import Predictions
@@ -184,104 +183,9 @@ class ModelWebServiceMixin():
                 output['warnings'] = [attr_name+' not provided']
             logger.debug(f'{attr_name} not provided :: {e}')
 
-    @classmethod
-    def get_fields(cls, model):
-        ''' Generate schema fields used to generate API docs. '''
-        fields = [
-            coreapi.Field(
-                name="pedigree_data",
-                required=True,
-                location='form',
-                schema=coreschema.String(
-                    title="Pedigree",
-                    description="CanRisk File Format",
-                    format='textarea',
-                ),
-            ),
-            coreapi.Field(
-                name="user_id",
-                required=True,
-                location='form',
-                schema=coreschema.String(
-                    title="User ID",
-                    description="Unique end user ID",
-                ),
-            ),
-            coreapi.Field(
-                name="cancer_rates",
-                required=True,
-                location='form',
-                schema=coreschema.Enum(
-                    list(settings.BC_MODEL['CANCER_RATES'].keys()),
-                    title="Cancer rates",
-                    description="Cancer incidence rates",
-                    default="UK",
-                ),
-            ),
-            coreapi.Field(
-                name="mut_freq",
-                required=True,
-                location='form',
-                schema=coreschema.Enum(
-                    list(settings.BC_MODEL['MUTATION_FREQUENCIES'].keys()),
-                    title="Mutation frequency",
-                    description="Mutation frequency",
-                    default="UK",
-                ),
-            ),
-            coreapi.Field(
-                name="prs",
-                required=False,
-                location='form',
-                schema=coreschema.Object(
-                    title="Polygenic risk score",
-                    description='PRS, e.g. {"alpha":0.45,"zscore":2.652}',
-                    properties={'alpha': coreschema.Number, 'zscore': coreschema.Number},
-                ),
-            ),
-            # coreapi.Field(
-            #    name="risk_factor_code",
-            #    required=False,
-            #    location='form',
-            #    schema=coreschema.Integer(
-            #        minimum=0,
-            #        description="Risk factor code",
-            #    ),
-            # ),
-        ]
-
-        # fields += [
-        #    coreapi.Field(
-        #        name=g.lower() + "_mut_frequency",
-        #        required=False,
-        #        location='form',
-        #        schema=coreschema.Number(
-        #            title=g+" mutation frequency",
-        #            description=g+' mutation frequency',
-        #            minimum=settings.MIN_MUTATION_FREQ,
-        #            maximum=settings.MAX_MUTATION_FREQ
-        #        ),
-        #    ) for g in model['GENES']
-        # ]
-        fields += [
-            coreapi.Field(
-                name=g.lower() + "_mut_sensitivity",
-                required=False,
-                location='form',
-                schema=coreschema.Number(
-                    title=g+" mutation sensitivity",
-                    description=g+' mutation sensitivity',
-                    maximum=1,
-                ),
-            ) for g in model['GENES']
-        ]
-        return fields
-
 
 class BwsView(APIView, ModelWebServiceMixin):
-    """
-    BOADICEA Web-Service
-    """
+    """ Breast Cancer Risk Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = BwsInputSerializer
@@ -289,22 +193,12 @@ class BwsView(APIView, ModelWebServiceMixin):
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-            fields=ModelWebServiceMixin.get_fields(model),
-            encoding="application/json",
-            description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-        )
 
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        BOADICEA Web-Service (BWS).
+        Calculates the risks of breast cancer using family history, genetic and other risk factors.
+        It also calculates mutation carrier probabilities in breast cancer susceptibility genes.
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -314,7 +208,7 @@ for each the genes and the population to use for cancer incidence rates.
              type: string
              required: true
            - name: pedigree_data
-             description: BOADICEA pedigree data file
+             description: CanRisk pedigree data file
              type: file
              required: true
            - name: mut_freq
@@ -376,9 +270,7 @@ for each the genes and the population to use for cancer incidence rates.
 
 
 class OwsView(APIView, ModelWebServiceMixin):
-    """
-    Ovarian Model Web-Service
-    """
+    """ Ovarian Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = OwsInputSerializer
@@ -386,22 +278,12 @@ class OwsView(APIView, ModelWebServiceMixin):
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.OC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-                fields=ModelWebServiceMixin.get_fields(model),
-                encoding="application/json",
-                description="""
-Ovarian Web-Service (OWS) used to calculate the risks of ovarian cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-            )
 
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        Ovarian Web-Service (OWS).
+        Calculates the risks of ovarian cancer using family history, genetic and other risk factors. 
+        It also calculates mutation carrier probabilities in ovarian cancer susceptibility genes.
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -473,9 +355,7 @@ for each the genes and the population to use for cancer incidence rates.
 
 
 class PwsView(APIView, ModelWebServiceMixin):
-    """
-    Prostate Model Web-Service
-    """
+    """ Prostate Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
     serializer_class = PwsInputSerializer
@@ -483,22 +363,11 @@ class PwsView(APIView, ModelWebServiceMixin):
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.PC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-                fields=ModelWebServiceMixin.get_fields(model),
-                encoding="application/json",
-                description="""
-Prostate Web-Service (PWS) used to calculate the risks of prostate cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-            )
 
     # @profile("profile_bws.profile")
     def post(self, request):
         """
-        Prostate Web-Service (PWS).
+        Calculates the risks of prostate cancer using family history, genetic and other risk factors.
         ---
         parameters_strategy: merge
         response_serializer: OutputSerializer
@@ -567,6 +436,7 @@ class CombineModelResultsView(APIView):
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
+    @extend_schema(exclude=True)
     def post(self, request):
         """
         Web-service to combine results from the BOADICEA and Ovarian web-services to produce

@@ -340,10 +340,28 @@ MAX_MUTATION_FREQ = 0.008
 
 # rest framework throttle settings
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_THROTTLE_RATES': {
         'sustained': '6000/day',
         'burst': '250/min',
         'enduser_burst': '150/min'
     }
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'CanRisk API',
+    'DESCRIPTION': ("API for BOADICEA models to calculate breast and ovarian cancer risks "
+                    "based on information entered for the individual which can include "
+                    "personal risk factors, cancer family history, genetic testing for "
+                    "high- and moderate-risk genes, polygenic scores and mammographic density."),
+    'SERVE_URLCONF':  ("boadicea.urls"),
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    # OTHER SETTINGS
+    "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
+    "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest", # default
 }
