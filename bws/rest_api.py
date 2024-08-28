@@ -50,7 +50,7 @@ class RequiredAnyPermission(permissions.BasePermission):
         return test_func(request.user)
 
 
-class ModelWebServiceMixin():
+class ModelWebServiceMixin(APIView):
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
@@ -184,10 +184,13 @@ class ModelWebServiceMixin():
             logger.debug(f'{attr_name} not provided :: {e}')
 
 
-class BwsView(APIView, ModelWebServiceMixin):
-    """ Breast Cancer Risk Web-Service """
+class BwsView(ModelWebServiceMixin):
+    """
+    Calculates the risks of breast cancer using family history, genetic and other risk factors.
+    It also calculates mutation carrier probabilities in breast cancer susceptibility genes.
+    """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    renderer_classes = (JSONRenderer, )
     serializer_class = BwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
@@ -195,169 +198,40 @@ class BwsView(APIView, ModelWebServiceMixin):
     model = settings.BC_MODEL
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=BwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
-        """
-        Calculates the risks of breast cancer using family history, genetic and other risk factors.
-        It also calculates mutation carrier probabilities in breast cancer susceptibility genes.
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: CanRisk pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: palb2_mut_sensitivity
-             description: PALB2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: atm_mut_sensitivity
-             description: ATM mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: chek2_mut_sensitivity
-             description: CHEK2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 1.0
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
-        """
         return self.post_to_model(request, settings.BC_MODEL)
 
 
-class OwsView(APIView, ModelWebServiceMixin):
+class OwsView(ModelWebServiceMixin):
     """ Ovarian Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    renderer_classes = (JSONRenderer, )
     serializer_class = OwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
-    model = settings.OC_MODEL
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=OwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
         """
         Calculates the risks of ovarian cancer using family history, genetic and other risk factors. 
         It also calculates mutation carrier probabilities in ovarian cancer susceptibility genes.
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: CanRisk pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: rad51d_mut_sensitivity
-             description: RAD51D mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: rad51c_mut_sensitivity
-             description: RAD51C mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brip1_mut_sensitivity
-             description: BRIP1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 1.0
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
         """
         return self.post_to_model(request, settings.OC_MODEL)
 
 
-class PwsView(APIView, ModelWebServiceMixin):
+class PwsView(ModelWebServiceMixin):
     """ Prostate Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    renderer_classes = (JSONRenderer, )
     serializer_class = PwsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
@@ -365,63 +239,13 @@ class PwsView(APIView, ModelWebServiceMixin):
     model = settings.PC_MODEL
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=PwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
         """
         Calculates the risks of prostate cancer using family history, genetic and other risk factors.
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: CanRisk pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: hoxb13_mut_sensitivity
-             description: HOXB13 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
         """
         return self.post_to_model(request, settings.PC_MODEL)
 

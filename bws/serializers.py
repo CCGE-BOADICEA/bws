@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 from rest_framework import serializers
 from django.conf import settings
 from django.core.files.base import File
+from rest_framework.fields import JSONField
 
 
 class FileField(serializers.Field):
@@ -31,10 +32,17 @@ class FileField(serializers.Field):
             return obj
 
 
+class PRSField(JSONField):
+    alpha = serializers.FloatField(required=True, min_value=0, max_value=1)
+    zscore = serializers.FloatField(required=True)
+    percent = serializers.FloatField(required=False)
+
+
 class BaseInputSerializer(serializers.Serializer):
     """ Base serializer for cancer risk calculation input. """
-    user_id = serializers.CharField(min_length=4, max_length=40, required=True)
-    pedigree_data = FileField()
+    user_id = serializers.CharField(min_length=4, max_length=40, required=True, help_text="Unique end user ID")
+    pedigree_data = FileField(help_text="CanRisk pedigree data file")
+    prs = PRSField(label="Polygenic Risk Score", help_text='JSON of alpha and zscore values, e.g. {"alpha":0.501,"zscore":1.65}', required=False)
 
     @classmethod
     def get_mutation_frequency_field(cls, model):
@@ -60,13 +68,13 @@ class BaseInputSerializer(serializers.Serializer):
         fields = []
         for gene in model['GENES']:
             fields.append(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +
-                          str(gts[gene]) + ", max_value=1, min_value=0)")
+                          str(gts[gene]) + ", max_value=1, min_value=0, help_text='"+gene+" test sensitivity')")
         return fields
 
     @classmethod
     def get_cancer_rates_field(cls, model):
         """ Get the cancer rates choice field. """
-        return serializers.ChoiceField(choices=list(model['CANCER_RATES'].keys()))
+        return serializers.ChoiceField(choices=list(model['CANCER_RATES'].keys()), help_text="Cancer incidence rates")
 
     def is_valid(self, raise_exception=True):
         """ Check that superfluous input flags have not been included. """
@@ -91,7 +99,6 @@ class BwsInputSerializer(BaseInputSerializer):
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(bc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(bc_model)
-    prs = serializers.JSONField(required=False)
 
 
 class OwsInputSerializer(BaseInputSerializer):
@@ -105,7 +112,6 @@ class OwsInputSerializer(BaseInputSerializer):
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(oc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(oc_model)
-    prs = serializers.JSONField(required=False)
 
 
 class PwsInputSerializer(BaseInputSerializer):
@@ -116,15 +122,14 @@ class PwsInputSerializer(BaseInputSerializer):
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(pc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(pc_model)
-    prs = serializers.JSONField(required=False)
 
 
 class PedigreeResultSerializer(serializers.Serializer):
     """ Cancer model risks and mutation probabilities for a pedigree. """
-    family_id = serializers.CharField(read_only=True)
-    proband_id = serializers.CharField(read_only=True)
-    ethnicity = serializers.CharField(read_only=True)
-    ons_ethnicity = serializers.CharField(read_only=True)
+    family_id = serializers.CharField(read_only=True, help_text="Family ID")
+    proband_id = serializers.CharField(read_only=True, help_text="Proband ID")
+    ethnicity = serializers.CharField(read_only=True, help_text="BioBank ethnicity (UK only)")
+    ons_ethnicity = serializers.CharField(read_only=True, help_text="ONS ethnicity (UK only)")
     mutation_frequency = serializers.DictField(read_only=True)
     risk_factors = serializers.DictField(read_only=True, required=False)
     prs = serializers.DictField(read_only=True, required=False)

@@ -363,5 +363,5 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
     # OTHER SETTINGS
     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
-    "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest", # default
+    'SORT_OPERATION_PARAMETERS': False,
 }
