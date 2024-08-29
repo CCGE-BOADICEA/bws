@@ -6,28 +6,24 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-from rest_framework import serializers
+import io
+
 from django.conf import settings
 from django.core.files.base import File
+from rest_framework import serializers
 from rest_framework.fields import JSONField
 
 
-class FileField(serializers.Field):
+class FileField(serializers.FileField):
     """
     Pedigree field object serialized into a string representation. The field can
     be a str or and uploaded file type.
     """
-    def to_representation(self, obj):
-        return obj
 
     def to_internal_value(self, obj):
         assert(isinstance(obj, str) or isinstance(obj, File))
-
         if isinstance(obj, File):
-            pedigree_data = ''
-            for chunk in obj.chunks():
-                pedigree_data += chunk.decode("utf-8")
-            return pedigree_data
+            return io.TextIOWrapper(obj.file).read()
         else:
             return obj
 
