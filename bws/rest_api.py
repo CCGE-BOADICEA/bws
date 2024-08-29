@@ -16,7 +16,7 @@ from django.core.exceptions import PermissionDenied
 from django.http.response import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
-from rest_framework import status, permissions
+from rest_framework import status, permissions, parsers
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -51,6 +51,12 @@ class RequiredAnyPermission(permissions.BasePermission):
 
 
 class ModelWebServiceMixin(APIView):
+
+    parser_classes = parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser
+    renderer_classes = (JSONRenderer, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
@@ -190,11 +196,7 @@ class BwsView(ModelWebServiceMixin):
     It also calculates mutation carrier probabilities in breast cancer susceptibility genes.
     """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, )
     serializer_class = BwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated, RequiredAnyPermission)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
 
     # @profile("profile_bws.profile")
@@ -209,11 +211,8 @@ class BwsView(ModelWebServiceMixin):
 class OwsView(ModelWebServiceMixin):
     """ Ovarian Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, )
     serializer_class = OwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated, RequiredAnyPermission)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    model = settings.OC_MODEL
 
     # @profile("profile_bws.profile")
     @extend_schema(
@@ -231,11 +230,7 @@ class OwsView(ModelWebServiceMixin):
 class PwsView(ModelWebServiceMixin):
     """ Prostate Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
-    renderer_classes = (JSONRenderer, )
     serializer_class = PwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated, RequiredAnyPermission)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.PC_MODEL
 
     # @profile("profile_bws.profile")
