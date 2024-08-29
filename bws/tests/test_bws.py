@@ -199,7 +199,7 @@ class BwsTests(BwsMixin):
         content = json.loads(force_str(response.content))
         self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
-        self.assertEqual(content['pedigree_data'][0], 'This field is required.')
+        self.assertEqual(content['pedigree_data'][0], 'No file was submitted.')
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''

@@ -76,7 +76,7 @@ class Vcf2PrsWebServices(TestCase):
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['vcf_file'][0], 'This field is required.')
+        self.assertEqual(response.data['vcf_file'][0], 'No file was submitted.')
 
     @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=1)
     def test_prs_upload_limit(self):
