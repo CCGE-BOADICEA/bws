@@ -10,16 +10,16 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='bws',
-    version='v2.0.0',
+    version='v3.0.0',
     packages=find_packages(),
     package_data={'bws': ['tests/data/*txt'], },
     include_package_data=True,
     zip_safe=False,
     url='https://github.com/CCGE-BOADICEA/bws',
-    description='A Django app for web-services for BOADICEA.',
+    description='Django app for web-services for CaanRisk',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
-    install_requires=["requests>=2.26.0", "Django>=4.2.3,<5", "djangorestframework>=3.14.0",
-                      "coreapi==2.3.3", "PyVCF==0.6.8"],
+    install_requires=["requests>=2.26.0", "Django>=4.2.3,<5", "djangorestframework>=3.15.0",
+                      "drf-spectacular==0.27.2", "PyVCF==0.6.8"],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
