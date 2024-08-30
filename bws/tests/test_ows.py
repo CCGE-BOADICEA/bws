@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -32,7 +32,7 @@ class OwsTests(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
-        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        cls.user.user_permissions.add(Permission.objects.get(name='Commercial OC webservices'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
@@ -125,7 +125,7 @@ class OwsTestsPRS(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
-        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
+        cls.user.user_permissions.add(Permission.objects.get(name='Commercial OC webservices'))
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()

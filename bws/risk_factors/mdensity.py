@@ -14,12 +14,29 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 '''
 from abc import ABC, abstractmethod
+from bws.exceptions import RiskFactorError
 
 
 class MammographicDensity(ABC):
+
     def __init__(self, md):
         self.md = md
-    
+
+    def set_menopause_status(self, menopause_status='0'):
+        '''
+        Menopause status code to be used with Volpara/Stratus mammographic densities.
+        Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        '''
+        valid_menopause_status = ['0', 'N', 'Y']    # 0 - unspecified, N - premenopause, Y - postmenopause
+        if menopause_status not in valid_menopause_status:
+            raise RiskFactorError("Unknown menopause status: "+str(menopause_status))
+        if menopause_status == "0":
+            self.menopause_status_code = float(0)
+        elif menopause_status == "N":
+            self.menopause_status_code = float(1)
+        elif menopause_status == "Y":
+            self.menopause_status_code = float(2)
+
     @abstractmethod
     def get_pedigree_str(self): raise NotImplementedError
     
@@ -36,7 +53,7 @@ class Birads(MammographicDensity):
         return "00000000"
     
     def get_display_str(self):
-        return "BI-RADS "+str(Birads.get_category(self.md))
+        return "BI-RADS "+str(self.md)
         
     @classmethod
     def get_category(cls, val):
@@ -53,6 +70,8 @@ class Stratus(MammographicDensity):
 
     def get_pedigree_str(self):
         stratus = 10 + (float(self.md)/100)
+        if hasattr(self, 'menopause_status_code'):
+            stratus += self.menopause_status_code
         return format(stratus, '.5f')
     
     def get_display_str(self):
@@ -63,6 +82,8 @@ class Volpara(MammographicDensity):
 
     def get_pedigree_str(self):
         volpara = 20 + (float(self.md)/100)
+        if hasattr(self, 'menopause_status_code'):
+            volpara += self.menopause_status_code
         return format(volpara, '.5f')
     
     def get_display_str(self):

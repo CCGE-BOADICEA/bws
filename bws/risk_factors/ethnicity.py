@@ -69,9 +69,16 @@ class ONSEthnicity(Ethnicity):
             raise Exception(self.ethnicity.title()+" not an ONS ethnic group")
         if (self.ethnicityBackground is not None and 
             self.ethnicityBackground not in ONSEthnicity.GROUPS_LOWERCASE[self.ethnicity]):
-            raise Exception(self.ethnicityBackground+" not an ethnic background for the ONS ethnic group: "+self.ethnicity)
+            pass    # looks like "any other" ethnic background
+            # raise Exception(self.ethnicityBackground+" not an ethnic background for the ONS ethnic group: "+self.ethnicity)
 
     def get_filename(self): raise NotImplementedError
+
+    ''' Get string representation '''
+    def get_string(self):
+        if self.ethnicityBackground is not None:
+            return self.ethnicity + ";" + self.ethnicityBackground
+        return self.ethnicity
 
     @classmethod
     def ons2UKBioBank(cls, onsEthnicity):

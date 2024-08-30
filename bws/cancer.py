@@ -18,17 +18,18 @@ class Genes():
     @staticmethod
     def get_unique_oc_genes():
         ''' Return genes unique to ovarian model. '''
-        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+        return list(set(settings.OC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']) - set(settings.PC_MODEL['GENES']))
 
     @staticmethod
     def get_unique_pc_genes():
         ''' Return genes unique to prostate model. '''
-        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']))
+        return list(set(settings.PC_MODEL['GENES']) - set(settings.BC_MODEL['GENES']) - set(settings.OC_MODEL['GENES']))
 
     @staticmethod
     def get_all_model_genes():
         ''' Return genes for breast and ovarian model. '''
-        return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5]
+        return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5] + \
+            (settings.PC_MODEL['GENES'][1:2] if settings.PROSTATE_CANCER else [])
 
 
 # BC pathology tests stored in named tuple
@@ -183,10 +184,11 @@ class GeneticTest(object):
     """
 
     REGEX_GENETIC_TEST_TYPE = re.compile("^[0ST]$")
-    REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT = re.compile("^[0NP]$")
+    REGEX_GENETIC_TEST_RESULT = re.compile("^[0NP]$")
+    REGEX_GENETIC_TEST_RESULT_HOXB13 = re.compile("^([0N])|(H((OM)|(ET)))$")
     REGEX_GENETIC_TEST_TYPE_IS_TESTED = re.compile("^[ST]$")
 
-    def __init__(self, test_type="0", result="0"):
+    def __init__(self, test_type="0", result="0", isHOXB13=False):
         """
         Genetic test.
         @keyword test_type: genetic test type ('0', 'S' or 'T')
@@ -196,6 +198,7 @@ class GeneticTest(object):
         """
         self.test_type = test_type
         self.result = result
+        self.isHOXB13 = isHOXB13
 
     @classmethod
     def validate(cls, person):
@@ -203,17 +206,20 @@ class GeneticTest(object):
         gtests = person.gtests
         for t in gtests:
             # Check that the genetic test type is valid
-            if not GeneticTest.REGEX_GENETIC_TEST_TYPE.match(t.test_type):
+            if not GeneticTest.REGEX_GENETIC_TEST_TYPE.match(t.test_type) and not t.isHOXB13:
                 raise GeneticTestError(_("Family member \"%(id)s\" has been assigned an invalid "
                                          "genetic test type. It must be specified with '0' for untested, "
                                          "'S' for mutation search or 'T' for direct gene test.")
                                        % {'id': person.pid}, person.famid)
             # Check that the mutation status is valid
-            if not GeneticTest.REGEX_BOADICEA_FORMAT_4_GENETIC_TEST_RESULT.match(t.result):
-                raise GeneticTestError(_("Family member \"%(id)s\" has been assigned an invalid "
-                                         "genetic test result. Genetic test results must be '0' for untested, "
-                                         "'N' for no mutation, 'P' mutation detected.")
-                                       % {'id': person.pid}, person.famid)
+            if not GeneticTest.REGEX_GENETIC_TEST_RESULT.match(t.result):
+                if t.isHOXB13 and GeneticTest.REGEX_GENETIC_TEST_RESULT_HOXB13.match(t.result):
+                    pass
+                else:
+                    raise GeneticTestError(_("Family member \"%(id)s\" has been assigned an invalid "
+                                             "genetic test result. Genetic test results must be '0' for untested, "
+                                             "'N' for no mutation, 'P' mutation detected.")
+                                             % {'id': person.pid}, person.famid)
             # If tested, check that there us a test result
             if t.test_type != "0" and t.result == '0':
                 raise GeneticTestError(_("Family member \"%(id)s\" has had a genetic test but the "
@@ -252,9 +258,22 @@ class GeneticTest(object):
                  2 gene test, no mutation detected
                  3 gene test, mutation detected
                 -1 untested, unknown or not applicable
+                6 HOXB13 pathogenic variant detected, heterozygous
+                7 HOXB13 pathogenic variant detected, homozygous
         """
         ttype = self.test_type
         result = self.result
+
+        if self.isHOXB13:
+            if result == '0':
+                return '-1'  # untested
+            elif result == 'N':
+                return '2'  # no mutation
+            elif result == 'HET':
+                return '6'  # HOXB14 pathogenic variant detected, heterozygous
+            elif result == 'HOM':
+                return '7'  # HOXB14 pathogenic variant detected, homozygous
+
         if((ttype == '0') and (result == '0')):
             return -1  # untested
 
@@ -263,7 +282,7 @@ class GeneticTest(object):
            ((ttype == 'T') and (result == '0')) or   # (T,0) 'T' for direct gene test
            ((ttype == '0') and (result == 'N')) or   # (0,N) untested and test result is 'N' for -ve
            ((ttype == '0') and (result == 'P'))):    # (0,P) unknown and genetic test result is 'P' for +ve
-            raise GeneticTestError("Invalid BOADICEA format for genetic test summary.")
+            raise GeneticTestError("Invalid CanRisk format (type="+ttype+") for genetic test summary.")
 
         if((ttype == 'S') and (result == 'N')):
             return '0'   # 0 mutation search test, no mutation detected
@@ -276,7 +295,8 @@ class GeneticTest(object):
 
         if((ttype == 'T') and (result == 'P')):
             return '3'   # 3 gene test, mutation detected
-        raise GeneticTestError("Invalid BOADICEA format for genetic test summary.")
+
+        raise GeneticTestError("Invalid CanRisk format (type="+ttype+"; result="+result+" )  for genetic test summary.")
 
 
 class GeneticTestsMixin():
