@@ -12,6 +12,7 @@ REGEX_BWA_PEDIGREE_FILE_HEADER_ONE = \
 REGEX_CANRISK1_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s1(.0)*)$")
 REGEX_CANRISK2_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s2(.\\d)*)$")
 REGEX_CANRISK3_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s3(.0)*)$")
+REGEX_CANRISK4_PEDIGREE_FILE_HEADER = re.compile("^(##CanRisk\\s4(.0)*)$")
     
 REGEX_ALPHANUM_COMMAS = re.compile("^([\\w,]+)$")
 REGEX_ALPHANUM_HYPHENS = re.compile("^([\\w\-]+)$")

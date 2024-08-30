@@ -164,18 +164,20 @@ BC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         # ('ANTEBC 2803', {'alpha': xxxx}),
         ('BCAC 77', 'BCAC_77_PRS.prs'),
-        ('BCAC 313 - European', 'BCAC_313_PRS.prs'),
+        ('BCAC 313', 'BCAC_313_PRS.prs'),
         ('BCAC 3820', 'BCAC_3820_PRS.prs'),
         ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
         # ('DBDS 299', 'DBDS_299_PRS.prs'),
         ('EGLH-CEN 301', 'EGLH-CEN_301_PRS.prs'),
         ('EGLH-CEN 303', 'EGLH-CEN_303_PRS.prs'),
         # ('EMERGE 309', 'EMERGE_309_PRS.prs'),
+        ('MAINZ 309', 'MAINZ_309_PRS.prs'),
         ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
         ('PRISMA 268', 'PRISM_268_PRS.prs'),
         ('WISDOM 75', 'WISDOM_75_PRS.prs'),
         ('WISDOM 128', 'WISDOM_128_PRS.prs')
-    ])
+    ]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
 BC_MODEL['PRS_ALPHA'] = {
@@ -259,7 +261,8 @@ OC_MODEL = {
     'PRS_REFERENCE_FILES': OrderedDict([
         ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
         ('OCAC 36', 'OCAC_36_PRS.prs')
-    ])
+    ]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
 OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
@@ -271,11 +274,16 @@ PC_MODEL = {
     'NAME': 'PC',
     'HOME': os.path.join(FORTRAN_HOME, 'prostate'),
     'EXE': 'prostate.exe',
-    'CANCERS': ['prc', 'bc1', 'oc'],        # NOTE: order used by fortran pedigree file
+    'CANCERS': ['prc', 'bc1', 'oc', 'pac'], # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA2', 'HOXB13', 'BRCA1'],  # NOTE: order used by fortran pedigree file
     'CALCS': ['carrier_probs', 'remaining_lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
+            'BRCA1': 0.0006394,
+            'BRCA2': 0.00102,
+            'HOXB13': 0.00212
+        }),
+        ('UK, non-European', {
             'BRCA1': 0.0006394,
             'BRCA2': 0.00102,
             'HOXB13': 0.00212
@@ -295,7 +303,7 @@ PC_MODEL = {
     'GENETIC_TEST_SENSITIVITY': {
         "BRCA1": 0.89,
         "BRCA2": 0.96,
-        "HOXB13": 0.86
+        "HOXB13": 1
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -317,10 +325,8 @@ PC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict([
-        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
-        ('OCAC 36', 'OCAC_36_PRS.prs')
-    ])
+    'PRS_REFERENCE_FILES': OrderedDict([]),
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
 }
 PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
 PC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in PC_MODEL['PRS_REFERENCE_FILES'].items()}
@@ -334,10 +340,28 @@ MAX_MUTATION_FREQ = 0.008
 
 # rest framework throttle settings
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_THROTTLE_RATES': {
         'sustained': '6000/day',
         'burst': '250/min',
         'enduser_burst': '150/min'
     }
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'CanRisk API',
+    'DESCRIPTION': ("API for BOADICEA models to calculate breast and ovarian cancer risks "
+                    "based on information entered for the individual which can include "
+                    "personal risk factors, cancer family history, genetic testing for "
+                    "high- and moderate-risk genes, polygenic scores and mammographic density."),
+    'SERVE_URLCONF':  ("boadicea.urls"),
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    # OTHER SETTINGS
+    "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
+    'SORT_OPERATION_PARAMETERS': False,
 }

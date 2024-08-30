@@ -1,5 +1,5 @@
 '''
-API for the BWS/OWS REST resources.
+API for the BWS/OWS/PWS REST resources.
 
 © 2023 University of Cambridge
 SPDX-FileCopyrightText: 2023 University of Cambridge
@@ -12,34 +12,51 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.http.response import JsonResponse
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status
+from drf_spectacular.utils import extend_schema
+from rest_framework import status, permissions, parsers
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication, SessionAuthentication
-from rest_framework.compat import coreapi, coreschema
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer  # , BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from bws.calc.model import ModelParams
 from bws.calc.calcs import Predictions
+from bws.calc.model import ModelParams
+from bws.exceptions import ModelError
 from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
+from bws.risk_factors.pc import PCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-from bws.risk_factors.pc import PCRiskFactors
-from bws.exceptions import ModelError
 
 
 logger = logging.getLogger(__name__)
 
 
-class ModelWebServiceMixin():
+class RequiredAnyPermission(permissions.BasePermission):
+    """ Check that one of the permissions is met in the class variable any_perms """
+    def has_permission(self, request, view):
+        def test_func(user):
+            for perm in view.any_perms:
+                if user.has_perm(perm):
+                    return True
+            raise PermissionDenied()
+        return test_func(request.user)
+
+
+class ModelWebServiceMixin(APIView):
+
+    parser_classes = parsers.MultiPartParser, parsers.JSONParser, parsers.FormParser
+    renderer_classes = (JSONRenderer, )
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
+    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
@@ -111,6 +128,7 @@ class ModelWebServiceMixin():
                     this_pedigree["risk_factors"] = self.get_risk_factors(model_settings, risk_factor_code)
                     if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
                         this_pedigree["ethnicity"] = this_params.ethnicity.get_group()
+                        this_pedigree["ons_ethnicity"] = pedi.ons_ethnicity.get_string()
 
                     if mname == "BC":
                         this_pedigree["risk_factors"][_('Mammographic Density')] = \
@@ -171,372 +189,58 @@ class ModelWebServiceMixin():
                 output['warnings'] = [attr_name+' not provided']
             logger.debug(f'{attr_name} not provided :: {e}')
 
-    @classmethod
-    def get_fields(cls, model):
-        ''' Generate schema fields used to generate API docs. '''
-        fields = [
-            coreapi.Field(
-                name="pedigree_data",
-                required=True,
-                location='form',
-                schema=coreschema.String(
-                    title="Pedigree",
-                    description="CanRisk File Format",
-                    format='textarea',
-                ),
-            ),
-            coreapi.Field(
-                name="user_id",
-                required=True,
-                location='form',
-                schema=coreschema.String(
-                    title="User ID",
-                    description="Unique end user ID",
-                ),
-            ),
-            coreapi.Field(
-                name="cancer_rates",
-                required=True,
-                location='form',
-                schema=coreschema.Enum(
-                    list(settings.BC_MODEL['CANCER_RATES'].keys()),
-                    title="Cancer rates",
-                    description="Cancer incidence rates",
-                    default="UK",
-                ),
-            ),
-            coreapi.Field(
-                name="mut_freq",
-                required=True,
-                location='form',
-                schema=coreschema.Enum(
-                    list(settings.BC_MODEL['MUTATION_FREQUENCIES'].keys()),
-                    title="Mutation frequency",
-                    description="Mutation frequency",
-                    default="UK",
-                ),
-            ),
-            coreapi.Field(
-                name="prs",
-                required=False,
-                location='form',
-                schema=coreschema.Object(
-                    title="Polygenic risk score",
-                    description='PRS, e.g. {"alpha":0.45,"zscore":2.652}',
-                    properties={'alpha': coreschema.Number, 'zscore': coreschema.Number},
-                ),
-            ),
-            # coreapi.Field(
-            #    name="risk_factor_code",
-            #    required=False,
-            #    location='form',
-            #    schema=coreschema.Integer(
-            #        minimum=0,
-            #        description="Risk factor code",
-            #    ),
-            # ),
-        ]
 
-        # fields += [
-        #    coreapi.Field(
-        #        name=g.lower() + "_mut_frequency",
-        #        required=False,
-        #        location='form',
-        #        schema=coreschema.Number(
-        #            title=g+" mutation frequency",
-        #            description=g+' mutation frequency',
-        #            minimum=settings.MIN_MUTATION_FREQ,
-        #            maximum=settings.MAX_MUTATION_FREQ
-        #        ),
-        #    ) for g in model['GENES']
-        # ]
-        fields += [
-            coreapi.Field(
-                name=g.lower() + "_mut_sensitivity",
-                required=False,
-                location='form',
-                schema=coreschema.Number(
-                    title=g+" mutation sensitivity",
-                    description=g+' mutation sensitivity',
-                    maximum=1,
-                ),
-            ) for g in model['GENES']
-        ]
-        return fields
-
-
-class BwsView(APIView, ModelWebServiceMixin):
+class BwsView(ModelWebServiceMixin):
     """
-    BOADICEA Web-Service
+    Calculates the risks of breast cancer using family history, genetic and other risk factors.
+    It also calculates mutation carrier probabilities in breast cancer susceptibility genes.
     """
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
     serializer_class = BwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.BC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-            fields=ModelWebServiceMixin.get_fields(model),
-            encoding="application/json",
-            description="""
-BOADICEA Web-Service (BWS) used to calculate the risks of breast cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-        )
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=BwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
-        """
-        BOADICEA Web-Service (BWS).
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: BOADICEA pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: palb2_mut_sensitivity
-             description: PALB2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: atm_mut_sensitivity
-             description: ATM mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: chek2_mut_sensitivity
-             description: CHEK2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 1.0
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
-        """
         return self.post_to_model(request, settings.BC_MODEL)
 
 
-class OwsView(APIView, ModelWebServiceMixin):
-    """
-    Ovarian Model Web-Service
-    """
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+class OwsView(ModelWebServiceMixin):
+    """ Ovarian Cancer Risk Model Web-Service """
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
     serializer_class = OwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.OC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-                fields=ModelWebServiceMixin.get_fields(model),
-                encoding="application/json",
-                description="""
-Ovarian Web-Service (OWS) used to calculate the risks of ovarian cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-            )
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=OwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
         """
-        Ovarian Web-Service (OWS).
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: CanRisk pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: rad51d_mut_sensitivity
-             description: RAD51D mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: rad51c_mut_sensitivity
-             description: RAD51C mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brip1_mut_sensitivity
-             description: BRIP1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 1.0
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
+        Calculates the risks of ovarian cancer using family history, genetic and other risk factors. 
+        It also calculates mutation carrier probabilities in ovarian cancer susceptibility genes.
         """
         return self.post_to_model(request, settings.OC_MODEL)
 
 
-class PwsView(APIView, ModelWebServiceMixin):
-    """
-    Prostate Model Web-Service
-    """
-    renderer_classes = (JSONRenderer, TemplateHTMLRenderer, )
+class PwsView(ModelWebServiceMixin):
+    """ Prostate Cancer Risk Model Web-Service """
+    any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
     serializer_class = PwsInputSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
     model = settings.PC_MODEL
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-                fields=ModelWebServiceMixin.get_fields(model),
-                encoding="application/json",
-                description="""
-Prostate Web-Service (PWS) used to calculate the risks of prostate cancer and the probability
-that an individual is a carrier of cancer-associated mutations in genes (""" + ', '.join([g for g in model['GENES']]) + """).
-As well as the individuals pedigree, the prediction model takes as input mutation frequency and sensitivity
-for each the genes and the population to use for cancer incidence rates.
-"""
-            )
 
     # @profile("profile_bws.profile")
+    @extend_schema(
+        request=PwsInputSerializer,
+        responses=OutputSerializer,
+    )
     def post(self, request):
         """
-        Prostate Web-Service (PWS).
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: user_id
-             description: unique end user ID, e.g. IP address
-             type: string
-             required: true
-           - name: pedigree_data
-             description: CanRisk pedigree data file
-             type: file
-             required: true
-           - name: mut_freq
-             description: mutation frequency
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'UK, non-European', 'Ashkenazi', 'Iceland']
-           - name: cancer_rates
-             description: cancer incidence rates
-             required: true
-             type: string
-             paramType: form
-             defaultValue: 'UK'
-             enum: ['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
-                    'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden']
-           - name: brca1_mut_sensitivity
-             description: BRCA1 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: brca2_mut_sensitivity
-             description: BRCA2 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-           - name: hoxb13_mut_sensitivity
-             description: HOXB13 mutation sensitivity
-             required: false
-             type: float
-             paramType: form
-             defaultValue: 0.9
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
+        Calculates the risks of prostate cancer using family history, genetic and other risk factors.
         """
         return self.post_to_model(request, settings.PC_MODEL)
 
@@ -551,6 +255,7 @@ class CombineModelResultsView(APIView):
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
+    @extend_schema(exclude=True)
     def post(self, request):
         """
         Web-service to combine results from the BOADICEA and Ovarian web-services to produce
@@ -565,6 +270,10 @@ class CombineModelResultsView(APIView):
              required: true
            - name: bws_result
              description: breast cancer web service result
+             ptype: OutputSerializer
+             required: true
+           - name: pws_result
+             description: prostate cancer web service result
              ptype: OutputSerializer
              required: true
 

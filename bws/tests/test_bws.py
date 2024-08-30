@@ -12,7 +12,7 @@ from bws.exceptions import ModelError
 from bws.pedigree import CanRiskPedigree, Female
 from datetime import date
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -36,6 +36,7 @@ class BwsMixin(TestCase):
         cls.user = User.objects.create_user('testuser', email='testuser@test.com', password='testing')
         cls.user.save()
         cls.token = Token.objects.create(user=cls.user)
+        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.token.save()
         cls.url = reverse('bws')
         cls.client = APIClient(enforce_csrf_checks=True)
@@ -198,7 +199,7 @@ class BwsTests(BwsMixin):
         content = json.loads(force_str(response.content))
         self.assertEqual(content['user_id'][0], 'This field is required.')
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
-        self.assertEqual(content['pedigree_data'][0], 'This field is required.')
+        self.assertEqual(content['pedigree_data'][0], 'No file was submitted.')
 
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''

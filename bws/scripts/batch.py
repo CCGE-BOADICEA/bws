@@ -57,6 +57,8 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
     if _exit_code != 0:
         print(outs)
         print(errs)
+        print(' '.join(cmd))
+        print("EXIT CODE "+str(_exit_code))
         exit(1)
     return outs, errs
 
@@ -136,11 +138,31 @@ def add_prs(line, cancer, rfsnames, rfs):
         rfs['PRS_'+cancer+'_alpha'] = alpha.group(2)
 
 
+def get_menopause_status_code(bwa):
+    '''
+    Menopause code to be used with Volpara/Stratus mammographic densities
+    '''
+    f = open(bwa, "r")
+    try:
+        for line in f:
+            if line.startswith("##") and "##CanRisk" not in line and "##FamID" not in line:
+                line = line.replace("##", "").strip().split("=")
+                name = line[0].capitalize()
+                if name == "Menopause":
+                    if line[1] == "N":
+                        return float(1)
+                    else:
+                        return float(2)
+    finally:
+        f.close()
+    return float(0)
+    
 def get_rfs(bwa):
     '''  Get risk factor names and values plus PRS from CanRisk file for CSV file '''
     rfsnames = []
     rfs = {}
-    f = open(bwa, "r")
+    menopause_status_code = get_menopause_status_code(bwa)
+    f = open(bwa, "r")    
     for line in f:
         if line.startswith("##") and "##CanRisk" not in line and "##FamID" not in line:
             if "PRS_BC" in line:      # alpha=0.45,zscore=0.1234
@@ -172,13 +194,22 @@ def get_rfs(bwa):
                         line[1] = parts[0]
                 elif line[0] == 'birads':
                     name = 'Mamm_density'
+                elif line[0] == 'stratus':
+                    name = 'Mamm_density'
+                    line[1] = str(10+(float(line[1])/100.)+menopause_status_code)
+                elif line[0] == 'volpara':
+                    name = 'Mamm_density'
+                    line[1] = str(20+(float(line[1])/100.)+menopause_status_code)
                 elif line[0] == 'endo':
                     name = 'Endometriosis'
                 else:
                     name = line[0].capitalize()
 
+                if name == "Menopause" and line[1] == "N":
+                    continue            
                 rfsnames.append([line[0], name])
                 rfs[line[0]] = line[1]
+
     f.close()
 
     with open(bwa, 'r') as f:

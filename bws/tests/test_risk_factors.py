@@ -7,8 +7,7 @@ from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
-from coreapi.compat import force_text
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -18,12 +17,19 @@ import json
 import os
 from bws.risk_factors.mdensity import Birads, Stratus, Volpara
 from bws.risk_factors.ethnicity import ONSEthnicity
+from django.utils.encoding import force_str
 
 
 class UKBioBankEthnictyTests(TestCase):
     
     def test_white(self):
         onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
+
+    def test_white_other(self):
+        onsEthnicity = ONSEthnicity("White", "XXXX")    # white / any other white background
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
@@ -54,7 +60,7 @@ class UKBioBankEthnictyTests(TestCase):
         self.assertEqual(ethnicityUKBioBank.ethnicity, "black")
 
     def test_other(self):
-        onsEthnicity = ONSEthnicity("Other ethnic group", "Any other ethnic group, please describe")
+        onsEthnicity = ONSEthnicity("Other ethnic group", "other ethnic")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "other")
 
@@ -185,6 +191,7 @@ class RiskFactorsCategoryTests(TestCase):
     def test_get_AgeOfMenopause_category(self):
         ''' Given an Age Of Menopause value check the category is correctly assigned. '''
         self.assertEqual(bc.AgeOfMenopause.get_category('-'), 0)
+        self.assertEqual(bc.AgeOfMenopause.get_category('N'), 0)
         self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
 
@@ -335,8 +342,7 @@ class WSRiskFactors(TestCase):
         # add user details
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                           country='UK')
-        # cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
-        # cls.user.save()
+        cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.bws_url = reverse('bws')
@@ -357,14 +363,14 @@ class WSRiskFactors(TestCase):
         response = self.client.post(url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        cancer_risks1 = json.loads(force_str(response.content))['pedigree_result'][0]['cancer_risks']
 
         # add BMI
         data['pedigree_data'] = self.pedigree_data.replace("##CanRisk 2.0", f"##CanRisk 2.0\n##BMI={bmi}")
         response = self.client.post(url, data, format='multipart',
                                     HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        cancer_risks2 = json.loads(force_str(response.content))['pedigree_result'][0]['cancer_risks']
         self.assertLess(cancer_risks1[0][f'{cancer} cancer risk']['decimal'],
                         cancer_risks2[0][f'{cancer} cancer risk']['decimal'])
 
@@ -384,13 +390,13 @@ class WSRiskFactors(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + WSRiskFactors.token.key)
         response = self.client.post(url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks1 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        cancer_risks1 = json.loads(force_str(response.content))['pedigree_result'][0]['cancer_risks']
 
         # add PRS
         data['prs'] = json.dumps({'alpha': 0.45, 'zscore': 2.652})
         response = self.client.post(url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        cancer_risks2 = json.loads(force_text(response.content))['pedigree_result'][0]['cancer_risks']
+        cancer_risks2 = json.loads(force_str(response.content))['pedigree_result'][0]['cancer_risks']
         self.assertLess(cancer_risks1[0][f'{cancer} cancer risk']['decimal'],
                         cancer_risks2[0][f'{cancer} cancer risk']['decimal'])
 
