@@ -89,7 +89,7 @@ class AgeOfMenopause(RiskFactor):
 
     @classmethod
     def get_category(cls, val):
-        if val is 'N':
+        if val == 'N':
             val = "-"
         return super(AgeOfMenopause, cls).get_category(val)
 
