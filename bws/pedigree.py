@@ -29,7 +29,8 @@ class Pedigree(metaclass=abc.ABCMeta):
 
     def __init__(self, pedigree_records=None, people=None, file_type=None,
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
-                 bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, ethnicity=None):
+                 bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, 
+                 ons_ethnicity=None, biobank_ethnicity=None):
         """
         @keyword pedigree_records: the pedigree records section of the BOADICEA import pedigree file.
         @keyword people: members of the pedigree.
@@ -77,15 +78,19 @@ class Pedigree(metaclass=abc.ABCMeta):
         if file_type is not None and file_type.startswith('canrisk'):
             self.hgt = hgt
             self.mdensity = mdensity
-            self.ethnicity = ethnicity
+            self.ethnicity = biobank_ethnicity
+            self.ons_ethnicity = ons_ethnicity
             if bc_risk_factor_code is not None:
                 self.bc_risk_factor_code = bc_risk_factor_code
             if oc_risk_factor_code is not None:
                 self.oc_risk_factor_code = oc_risk_factor_code
+
             if bc_prs is not None:
                 self.bc_prs = bc_prs
             if oc_prs is not None:
                 self.oc_prs = oc_prs
+            if pc_prs is not None:
+                self.pc_prs = pc_prs
 
     def validate(self):
         """ Validation check for pedigree input.
@@ -336,7 +341,9 @@ class Pedigree(metaclass=abc.ABCMeta):
         Write input pedigree file for fortran.
         """
         
-        if mdensity is not None and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus)):
+        if (mdensity is not None
+            and not settings.IS_VOLPARA_STRATUS_SUPPORTED
+            and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus))):
             raise Exception("Unsupported mammographic density type")
         
         f = open(filepath, "w")
@@ -384,7 +391,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                     if mname == "OC" and isinstance(gtests, BWSGeneticTests):
                         if g in Genes.get_unique_oc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
-                    elif mname == "PC":
+                    elif mname == "PC" and isinstance(gtests, BWSGeneticTests):
                         logger.debug(g+" ==== "+mname)
                         if g in Genes.get_unique_pc_genes():
                             print("%2s " % GeneticTest().get_genetic_test_data(), file=f, end="")
@@ -594,6 +601,11 @@ class CanRiskPedigree(Pedigree):
                 "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
                 "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "ER:PR:HER2:CK14:CK56"]
 
+    COLUMNS4 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
+                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
+                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13", "ER:PR:HER2:CK14:CK56"]
+    
+
 #    COLUMNS3 = ["FamID", "Name", "Target", "IndivID", "FathID", "MothID", "Sex", "MZtwin", "Dead", "Age", "Yob",
 #                "BC1", "BC2", "OC", "PRO", "PAN", "Ashkn",
 #                "BRCA1", "BRCA2", "PALB2", "ATM", "CHEK2", "BARD1", "RAD51D", "RAD51C", "BRIP1", "HOXB13",
@@ -605,6 +617,8 @@ class CanRiskPedigree(Pedigree):
             return self.bc_prs
         elif mname == 'OC' and hasattr(self, 'oc_prs'):
             return self.oc_prs
+        elif mname == 'PC' and hasattr(self, 'pc_prs'):
+            return self.pc_prs
         return None
 
     def get_rfcode(self, mname):
@@ -622,8 +636,11 @@ class CanRiskPedigree(Pedigree):
         """
         if file_type == "canrisk1":
             cols = cls.COLUMNS1
+        elif file_type == "canrisk4":
+            cols = cls.COLUMNS4
         else:
             cols = cls.COLUMNS2
+
         for idx, val in enumerate(cols):
             if val == name or val.lower == name.lower():
                 return idx

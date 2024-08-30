@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -33,8 +33,7 @@ class Vcf2PrsWebServices(TestCase):
         # UserDetails.objects.create(user=cls.user, job_title=UserDetails.CGEN,
         #                            country='UK')
         cls.user.save()
-        # cls.permission = Permission.objects.get(name='Can risk')
-        # cls.user.user_permissions.add(cls.permission)
+        cls.user.user_permissions.add(Permission.objects.get(name='Commercial BC webservices'))
         cls.token = Token.objects.create(user=cls.user)
         cls.token.save()
         cls.url = reverse('prs')
@@ -77,7 +76,7 @@ class Vcf2PrsWebServices(TestCase):
         response = Vcf2PrsWebServices.client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['vcf_file'][0], 'This field is required.')
+        self.assertEqual(response.data['vcf_file'][0], 'No file was submitted.')
 
     @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=1)
     def test_prs_upload_limit(self):

@@ -6,135 +6,73 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
+import io
+import logging
 import os
+from pathlib import Path
+from statistics import NormalDist
+import time
+import traceback
 
-from rest_framework import serializers, status
+from drf_spectacular.utils import extend_schema
+from rest_framework import serializers, status, parsers
 from rest_framework.authentication import BasicAuthentication, \
     SessionAuthentication, TokenAuthentication
-from rest_framework.compat import coreapi, coreschema
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
-from rest_framework.schemas import ManualSchema
+from rest_framework.serializers import FileField
 from rest_framework.views import APIView
-
-from bws.serializers import FileField
-from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-import time
-import logging
-import io
 import vcf
-import traceback
-from django.conf import settings
 import vcf2prs
-from vcf2prs.prs import Prs
 from vcf2prs.exception import Vcf2PrsError
-from pathlib import Path
-from statistics import NormalDist
+from vcf2prs.prs import Prs
+
+from bws.rest_api import RequiredAnyPermission
+from bws.settings import BC_MODEL, OC_MODEL
+from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
+from bws.serializers import PRSField
 
 
+#from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
 class Vcf2PrsInputSerializer(serializers.Serializer):
     ''' Vcf2Prs input. '''
-    sample_name = serializers.CharField(min_length=1, max_length=40, required=False)
-    vcf_file = FileField(required=True)
-    bc_prs_reference_file = serializers.CharField(min_length=1, max_length=40, required=False)
-    oc_prs_reference_file = serializers.CharField(min_length=1, max_length=40, required=False)
-
-
-class PrsSerializer(serializers.Serializer):
-    alpha = serializers.FloatField()
-    zscore = serializers.FloatField()
-    percent = serializers.FloatField()
+    vcf_file = FileField(required=True, help_text=(
+        "VCF genotype file. The file should be VCF format v4.0 or v4.1. It can contain "
+        "both additional samples and variants not used in the PRS and are ignored."))
+    sample_name = serializers.CharField(min_length=1, max_length=40, required=False,
+                                        help_text="Name of the sample in the genotype file to be used to calculate the PRS")
+    bc_prs_reference_file = serializers.ChoiceField(choices=list(BC_MODEL['PRS_REFERENCE_FILES'].values()),
+                                                    help_text="Breast cancer PRS reference file", required=False)
+    oc_prs_reference_file = serializers.ChoiceField(choices=list(OC_MODEL['PRS_REFERENCE_FILES'].values()),
+                                                    help_text="Ovarian cancer PRS reference file", required=False)
 
 
 class Vcf2PrsOutputSerializer(serializers.Serializer):
     """ Vcf2Prs result. """
-    breast_cancer_prs = PrsSerializer(read_only=True)
-    ovarian_cancer_prs = PrsSerializer(read_only=True)
+    breast_cancer_prs = PRSField(read_only=True)
+    ovarian_cancer_prs = PRSField(read_only=True)
 
 
 class Vcf2PrsView(APIView):
+    any_perms = ['boadicea_auth.can_risk',
+                 'boadicea_auth.commercial_api_breast',
+                 'boadicea_auth.commercial_api_ovarian',
+                 'boadicea_auth.commercial_api_prostate']   # for RequiredAnyPermission
+    parser_classes = [parsers.MultiPartParser]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = Vcf2PrsInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-            fields=[
-                coreapi.Field(
-                    name="vcf_file",
-                    required=True,
-                    location='form',
-                    schema=coreschema.String(
-                        title="VCF",
-                        description="VCF File Format",
-                        format='textarea',
-                    ),
-                ),
-                coreapi.Field(
-                    name="sample_name",
-                    required=True,
-                    location='form',
-                    schema=coreschema.String(
-                        title="Sample Name",
-                        description="Sample Name",
-                    ),
-                ),
-                coreapi.Field(
-                    name="bc_prs_reference_file",
-                    location='form',
-                    schema=coreschema.Enum(
-                        list(settings.BC_MODEL['PRS_REFERENCE_FILES'].values()),
-                        title="Breast cancer PRS reference file",
-                        description="Breast cancer PRS reference file",
-                        default=None,
-                    ),
-                ),
-                coreapi.Field(
-                    name="oc_prs_reference_file",
-                    location='form',
-                    schema=coreschema.Enum(
-                        list(settings.OC_MODEL['PRS_REFERENCE_FILES'].values()),
-                        title="Ovarian cancer PRS reference file",
-                        description="Ovarian cancer PRS reference file",
-                        default=None,
-                    ),
-                ),
-            ],
-            encoding="application/json",
-            description="""
-Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
-"""
-        )
 
     def post(self, request):
         """
-        Calculate PRS from a vcf file.
-        ---
-        response_serializer: Vcf2PrsOutputSerializer
-        parameters:
-           - name: sample_name
-             description: name of the sample in the genotype file to be used to calculate the PRS
-             type: string
-             required: true
-           - name: vcf_file
-             description: VCF genotype file
-             type: file
-             required: true
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
+        Calculate PRS from a VCF file.
         """
         start = time.time()
         serializer = self.serializer_class(data=request.data)
@@ -156,29 +94,24 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
             sample_name = validated_data.get("sample_name", None)
 
             try:
+                data = {}
+                vcfStr = io.TextIOWrapper(vcf_file.file).read()
                 if bc_prs_ref_file is not None:
-                    vcf_stream = io.StringIO(vcf_file)
+                    vcf_stream = io.StringIO(vcfStr)
                     breast_prs = Prs(prs_file=bc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
                     bc_alpha = breast_prs.alpha
                     bc_zscore = breast_prs.z_Score
-                else:
-                    bc_alpha = 0
-                    bc_zscore = 0
+                    data['breast_cancer_prs'] = {'alpha': bc_alpha, 'zscore': bc_zscore,
+                                                 'percent': Zscore2PercentView.get_percentage(bc_zscore)}
 
                 if oc_prs_ref_file is not None:
-                    vcf_stream = io.StringIO(vcf_file)
+                    vcf_stream = io.StringIO(vcfStr)
                     ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
                     oc_alpha = ovarian_prs.alpha
                     oc_zscore = ovarian_prs.z_Score
-                else:
-                    oc_alpha = 0
-                    oc_zscore = 0
-                data = {
-                    'breast_cancer_prs': {'alpha': bc_alpha, 'zscore': bc_zscore,
-                                          'percent': Zscore2PercentView.get_percentage(bc_zscore)},
-                    'ovarian_cancer_prs': {'alpha': oc_alpha, 'zscore': oc_zscore,
-                                           'percent': Zscore2PercentView.get_percentage(oc_zscore)}
-                }
+                    data['ovarian_cancer_prs'] = {'alpha': oc_alpha, 'zscore': oc_zscore,
+                                                  'percent': Zscore2PercentView.get_percentage(oc_zscore)}
+
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
                 return Response(prs_serializer.data)
@@ -186,7 +119,7 @@ Variant Call Format (VCF) file to Polygenic Risk Score (PRS) web-service.
                 logger.debug(ex)
                 data = {
                     'error': str(ex),
-                    'samples': self.get_samples(vcf_file)
+                    'samples': self.get_samples(vcfStr)
                 }
                 raise NotAcceptable(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -214,30 +147,17 @@ class ZscoreOutputSerializer(serializers.Serializer):
 
 
 class Zscore2PercentView(APIView):
+    any_perms = ['boadicea_auth.can_risk',
+                 'boadicea_auth.commercial_api_breast',
+                 'boadicea_auth.commercial_api_ovarian',
+                 'boadicea_auth.commercial_api_prostate']   # for RequiredAnyPermission
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer, )
     serializer_class = ZscoreInputSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
-    if coreapi is not None and coreschema is not None:
-        schema = ManualSchema(
-            fields=[
-                coreapi.Field(
-                    name="sample_name",
-                    required=True,
-                    location='form',
-                    schema=coreschema.Number(
-                        title="z-score",
-                        description="Standard normal PRS",
-                    ),
-                ),
-            ],
-            encoding="application/json",
-            description="""
-Returns PRS represented as a percentage of those with a lower PRS.
-"""
-        )
 
+    @extend_schema(exclude=True)
     def post(self, request):
         """
         Returns PRS represented as a percentage of those with a lower PRS.
