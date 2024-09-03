@@ -56,7 +56,7 @@ class ModelWebServiceMixin(APIView):
     renderer_classes = (JSONRenderer, )
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    throttle_classes = [BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle]
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
