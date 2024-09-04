@@ -56,7 +56,7 @@ class ModelWebServiceMixin(APIView):
     renderer_classes = (JSONRenderer, )
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
-    throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
+    throttle_classes = [BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle]
 
     def post_to_model(self, request, model_settings):
         serializer = self.serializer_class(data=request.data)
@@ -132,7 +132,7 @@ class ModelWebServiceMixin(APIView):
 
                     if mname == "BC":
                         this_pedigree["risk_factors"][_('Mammographic Density')] = \
-                                                            this_mdensity.get_display_str() if this_mdensity is not None else "-"
+                                            this_mdensity.get_display_str() if this_mdensity is not None else "-"
                     if mname != "PC":
                         this_pedigree["risk_factors"][_('Height (cm)')] = this_hgt if this_hgt != -1 else "-"
                     if prs is not None:
@@ -197,7 +197,6 @@ class BwsView(ModelWebServiceMixin):
     """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_breast']   # for RequiredAnyPermission
     serializer_class = BwsInputSerializer
-    model = settings.BC_MODEL
 
     # @profile("profile_bws.profile")
     @extend_schema(
@@ -212,7 +211,6 @@ class OwsView(ModelWebServiceMixin):
     """ Ovarian Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_ovarian']      # for RequiredAnyPermission
     serializer_class = OwsInputSerializer
-    model = settings.OC_MODEL
 
     # @profile("profile_bws.profile")
     @extend_schema(
@@ -231,7 +229,6 @@ class PwsView(ModelWebServiceMixin):
     """ Prostate Cancer Risk Model Web-Service """
     any_perms = ['boadicea_auth.can_risk', 'boadicea_auth.commercial_api_prostate']     # for RequiredAnyPermission
     serializer_class = PwsInputSerializer
-    model = settings.PC_MODEL
 
     # @profile("profile_bws.profile")
     @extend_schema(
@@ -255,36 +252,11 @@ class CombineModelResultsView(APIView):
     permission_classes = (IsAuthenticated,)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
-    @extend_schema(exclude=True)
+    @extend_schema(exclude=True)    # exclude from the swagger docs
     def post(self, request):
         """
         Web-service to combine results from the BOADICEA and Ovarian web-services to produce
         HTML results.
-        ---
-        parameters_strategy: merge
-        response_serializer: OutputSerializer
-        parameters:
-           - name: ows_result
-             description: ovarian cancer web service result
-             ptype: OutputSerializer
-             required: true
-           - name: bws_result
-             description: breast cancer web service result
-             ptype: OutputSerializer
-             required: true
-           - name: pws_result
-             description: prostate cancer web service result
-             ptype: OutputSerializer
-             required: true
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
         """
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
