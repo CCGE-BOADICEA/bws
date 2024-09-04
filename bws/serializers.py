@@ -45,18 +45,7 @@ class BaseInputSerializer(serializers.Serializer):
     def get_mutation_frequency_field(cls, model):
         """ Get the mutation frequency choice field. """
         return serializers.ChoiceField(choices=list(model['MUTATION_FREQUENCIES'].keys()),
-                                       default='UK', help_text="Mutation frequency")
-
-    # @classmethod
-    # def get_gene_mutation_frequency_fields(cls, model):
-    #     """ Get a list of the gene mutation frequency fields strings. """
-    #     MIN_MUT_FREQ = str(settings.MIN_MUTATION_FREQ)
-    #     MAX_MUT_FREQ = str(settings.MAX_MUTATION_FREQ)
-    #     fields = []
-    #     for gene in model['GENES']:
-    #         fields.append(gene.lower() + "_mut_frequency = serializers.FloatField(required=False, "
-    #                       "max_value="+MAX_MUT_FREQ+", min_value="+MIN_MUT_FREQ+")")
-    #     return fields
+                                       default='UK', help_text="Pathogenic variant frequency")
 
     @classmethod
     def get_gene_mutation_sensitivity_fields(cls, model):
@@ -90,9 +79,6 @@ class BwsInputSerializer(BaseInputSerializer):
     bc_model = settings.BC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(bc_model)
 
-    # for f in BaseInputSerializer.get_gene_mutation_frequency_fields(bc_model):
-    #     exec(f)
-
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(bc_model):
         exec(f)
     cancer_rates = BaseInputSerializer.get_cancer_rates_field(bc_model)
@@ -102,9 +88,6 @@ class OwsInputSerializer(BaseInputSerializer):
     """ Ovarian cancer input fields. """
     oc_model = settings.OC_MODEL
     mut_freq = BaseInputSerializer.get_mutation_frequency_field(oc_model)
-
-    # for f in BaseInputSerializer.get_gene_mutation_frequency_fields(oc_model):
-    #     exec(f)
 
     for f in BaseInputSerializer.get_gene_mutation_sensitivity_fields(oc_model):
         exec(f)
@@ -149,7 +132,6 @@ class OutputSerializer(serializers.Serializer):
     cancer_incidence_rates = serializers.CharField(read_only=True, help_text="Cancer incidence rates")
     warnings = serializers.ListField(read_only=True, required=False, help_text="Advisories")
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True, help_text="Results")
-    #nocalc = serializers.CharField(read_only=True, help_text="")
 
 
 class CombinedInputSerializer(serializers.Serializer):
