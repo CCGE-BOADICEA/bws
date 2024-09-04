@@ -157,26 +157,10 @@ class Zscore2PercentView(APIView):
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
     throttle_classes = (BurstRateThrottle, SustainedRateThrottle, EndUserIDRateThrottle)
 
-    @extend_schema(exclude=True)
+    @extend_schema(exclude=True)        # exclude from the swagger docs
     def post(self, request):
         """
         Returns PRS represented as a percentage of those with a lower PRS.
-        ---
-        response_serializer: Vcf2PrsOutputSerializer
-        parameters:
-           - name: z-score
-             description: Standard normal PRS
-             type: number
-             required: true
-
-        responseMessages:
-           - code: 401
-             message: Not authenticated
-
-        consumes:
-           - application/json
-           - application/xml
-        produces: ['application/json', 'application/xml']
         """
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
