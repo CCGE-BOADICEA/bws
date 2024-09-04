@@ -38,8 +38,8 @@ class BaseInputSerializer(serializers.Serializer):
     """ Base serializer for cancer risk calculation input. """
     user_id = serializers.CharField(min_length=4, max_length=40, required=True, help_text="Unique end user ID")
     pedigree_data = FileField(help_text="CanRisk pedigree data file")
-    prs = PRSField(label="Polygenic Risk Score",
-                   help_text='JSON of alpha and zscore values, e.g. {"alpha":0.501,"zscore":1.65}', required=False)
+    prs = PRSField(required=False, label="Polygenic Risk Score",
+                   help_text='JSON of alpha and zscore values, e.g. {"alpha":0.501,"zscore":1.65}')
 
     @classmethod
     def get_mutation_frequency_field(cls, model):
