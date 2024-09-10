@@ -33,8 +33,12 @@ def get_alpha(ref_file):
         finally:
             snp_file.close()
     except NameError:
-        pass 
+        pass
     return alpha
+
+def validate_prs_reference_keys(model):
+    rkeys = (list(model['PRS_REFERENCE_FILES'].keys()) + list(model['PRS_REFERENCE_FILES_NON_EU'].keys()))
+    assert len(rkeys) == len(set(rkeys)), 'PRS_REFERENCE_FILES & PRS_REFERENCE_FILES_NON_EU are not unique'
 
 
 # FORTRAN settings
@@ -177,12 +181,16 @@ BC_MODEL = {
         ('WISDOM 75', 'WISDOM_75_PRS.prs'),
         ('WISDOM 128', 'WISDOM_128_PRS.prs')
     ]),
-    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
+    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([
+        ('TEMP (NON EU)', 'BCAC_313_PRS.prs'),
+    ])
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
+
+validate_prs_reference_keys(BC_MODEL)
 BC_MODEL['PRS_ALPHA'] = {
     k: get_alpha(v) if isinstance(v, str) else v['alpha']
-    for k, v in BC_MODEL['PRS_REFERENCE_FILES'].items()
+    for k, v in (list(BC_MODEL['PRS_REFERENCE_FILES'].items()) + list(BC_MODEL['PRS_REFERENCE_FILES_NON_EU'].items()))
 }
 
 #
