@@ -33,8 +33,24 @@ def get_alpha(ref_file):
         finally:
             snp_file.close()
     except NameError:
-        pass 
+        pass
     return alpha
+
+def get_prs_alpha_dict(model):
+    ''' Get a dictionary of PRS name and alpha values '''
+    # validate keys are unique
+    rkeys =[k for k, _v in (model['PRS_REFERENCE_FILES']['EUROPEAN'] +
+                            model['PRS_REFERENCE_FILES']['AFRICAN'] +
+                            model['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                            model['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+    assert len(rkeys) == len(set(rkeys)), 'PRS_REFERENCE_FILES keys are not unique'
+    return {
+        k: get_alpha(v) if isinstance(v, str) else v['alpha']
+        for k, v in (model['PRS_REFERENCE_FILES']['EUROPEAN'] +
+                     model['PRS_REFERENCE_FILES']['AFRICAN'] +
+                     model['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                     model['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])
+    }
 
 
 # FORTRAN settings
@@ -161,29 +177,41 @@ BC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict([
-        # ('ANTEBC 2803', {'alpha': xxxx}),
-        ('BCAC 77', 'BCAC_77_PRS.prs'),
-        ('BCAC 313', 'BCAC_313_PRS.prs'),
-        ('BCAC 3820', 'BCAC_3820_PRS.prs'),
-        ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
-        # ('DBDS 299', 'DBDS_299_PRS.prs'),
-        ('EGLH-CEN 301', 'EGLH-CEN_301_PRS.prs'),
-        ('EGLH-CEN 303', 'EGLH-CEN_303_PRS.prs'),
-        # ('EMERGE 309', 'EMERGE_309_PRS.prs'),
-        ('MAINZ 309', 'MAINZ_309_PRS.prs'),
-        ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
-        ('PRISMA 268', 'PRISM_268_PRS.prs'),
-        ('WISDOM 75', 'WISDOM_75_PRS.prs'),
-        ('WISDOM 128', 'WISDOM_128_PRS.prs')
-    ]),
-    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
+    'PRS_REFERENCE_FILES': {
+        "EUROPEAN": [
+            # ('ANTEBC 2803', {'alpha': xxxx}),
+            ('BCAC 77', 'BCAC_77_PRS.prs'),
+            ('BCAC 307 European', 'BCAC_307_PRS-UKB_european.prs'),
+            ('BCAC 309 European', 'BCAC_309_PRS-UKB_european.prs'),
+            ('BCAC 313', 'BCAC_313_PRS.prs'),
+            ('BCAC 3820', 'BCAC_3820_PRS.prs'),
+            ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
+            # ('DBDS 299', 'DBDS_299_PRS.prs'),
+            ('EGLH-CEN 301', 'EGLH-CEN_301_PRS.prs'),
+            ('EGLH-CEN 303', 'EGLH-CEN_303_PRS.prs'),
+            # ('EMERGE 309', 'EMERGE_309_PRS.prs'),
+            ('MAINZ 309', 'MAINZ_309_PRS.prs'),
+            ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
+            ('PRISMA 268', 'PRISM_268_PRS.prs'),
+            ('WISDOM 75', 'WISDOM_75_PRS.prs'),
+            ('WISDOM 128', 'WISDOM_128_PRS.prs')
+        ],
+        "AFRICAN": [
+            ('BCAC 307 African', 'BCAC_307_PRS-UKB_african.prs'),
+            ('BCAC 309 African', 'BCAC_309_PRS-UKB_african.prs')
+        ],
+        "EAST_ASIAN": [
+            ('BCAC 307 East Asian', 'BCAC_307_PRS-UKB_eastAsian.prs'),
+            ('BCAC 309 East Asian', 'BCAC_309_PRS-UKB_eastAsian.prs')
+        ],
+        "SOUTH_ASIAN": [
+            ('BCAC 307 South Asian', 'BCAC_307_PRS-UKB_southAsian.prs'),
+            ('BCAC 309 South Asian', 'BCAC_309_PRS-UKB_southAsian.prs')
+        ]
+    },
 }
 BC_MODEL["INCIDENCE"] = os.path.join(BC_MODEL["HOME"], 'Data') + "/incidences_"
-BC_MODEL['PRS_ALPHA'] = {
-    k: get_alpha(v) if isinstance(v, str) else v['alpha']
-    for k, v in BC_MODEL['PRS_REFERENCE_FILES'].items()
-}
+BC_MODEL['PRS_ALPHA'] = get_prs_alpha_dict(BC_MODEL)
 
 #
 # OVARIAN CANCER MODEL
@@ -258,14 +286,24 @@ OC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict([
-        ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
-        ('OCAC 36', 'OCAC_36_PRS.prs')
-    ]),
-    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
+    'PRS_REFERENCE_FILES': {
+        "EUROPEAN": [
+            ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
+            ('OCAC 36 European', 'OCAC_36_PRS-UKB_european.prs')
+        ],
+        "AFRICAN": [
+            ('OCAC 36 African', 'OCAC_36_PRS-UKB_african.prs'),
+        ],
+        "EAST_ASIAN": [
+            ('OCAC 36 East Asian', 'OCAC_36_PRS-UKB_eastAsian.prs'),
+        ],
+        "SOUTH_ASIAN": [
+            ('OCAC 36  South Asian', 'OCAC_36_PRS-UKB_southAsian.prs'),
+        ]
+    }
 }
 OC_MODEL["INCIDENCE"] = os.path.join(OC_MODEL["HOME"], 'Data') + "/incidences_"
-OC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in OC_MODEL['PRS_REFERENCE_FILES'].items()}
+OC_MODEL['PRS_ALPHA'] = get_prs_alpha_dict(OC_MODEL)
 
 
 #
@@ -325,12 +363,15 @@ PC_MODEL = {
         ('Sweden', 'Sweden'),
         ('Other', 'UK')
     ]),
-    'PRS_REFERENCE_FILES': OrderedDict([]),
-    'PRS_REFERENCE_FILES_NON_EU': OrderedDict([])
+    'PRS_REFERENCE_FILES': {
+        "EUROPEAN": [],
+        "AFRICAN": [],
+        "EAST_ASIAN": [],
+        "SOUTH_ASIAN": []
+    }
 }
 PC_MODEL["INCIDENCE"] = os.path.join(PC_MODEL["HOME"], 'Data') + "/incidences_"
-PC_MODEL['PRS_ALPHA'] = {key: get_alpha(value) for key, value in PC_MODEL['PRS_REFERENCE_FILES'].items()}
-
+PC_MODEL['PRS_ALPHA'] = get_prs_alpha_dict(PC_MODEL)
 
 # Minimum allowable BRCA1/2 mutation is set to 0.0001. We should not allow zero, because if
 # there is a mutation it will give an inconsistency, and we know that zero is unrealistic.
