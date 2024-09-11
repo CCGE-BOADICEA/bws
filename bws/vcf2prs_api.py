@@ -46,9 +46,20 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
         "both additional samples and variants not used in the PRS and are ignored."))
     sample_name = serializers.CharField(min_length=1, max_length=40, required=False,
                                         help_text="Name of the sample in the genotype file to be used to calculate the PRS")
-    bc_prs_reference_file = serializers.ChoiceField(choices=list(BC_MODEL['PRS_REFERENCE_FILES'].values()),
+
+    bc_choices = [v for k, v in (BC_MODEL['PRS_REFERENCE_FILES']['EUROPEAN'] +
+                                BC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
+                                BC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                                BC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+
+    oc_choices = [v for k, v in (OC_MODEL['PRS_REFERENCE_FILES']['EUROPEAN'] +
+                                OC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
+                                OC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                                OC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+    
+    bc_prs_reference_file = serializers.ChoiceField(choices=bc_choices,
                                                     help_text="Breast cancer PRS reference file", required=False)
-    oc_prs_reference_file = serializers.ChoiceField(choices=list(OC_MODEL['PRS_REFERENCE_FILES'].values()),
+    oc_prs_reference_file = serializers.ChoiceField(choices=oc_choices,
                                                     help_text="Ovarian cancer PRS reference file", required=False)
 
 
