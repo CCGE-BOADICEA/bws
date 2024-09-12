@@ -38,19 +38,12 @@ def get_alpha(ref_file):
 
 def get_prs_alpha_dict(model):
     ''' Get a dictionary of PRS name and alpha values '''
+    r = model['PRS_REFERENCE_FILES']
+    ref_files = (r['EUROPEAN'] + r['AFRICAN'] + r['EAST_ASIAN'] + r['SOUTH_ASIAN'])
+    rkeys = [k for k, _v in ref_files]
     # validate keys are unique
-    rkeys =[k for k, _v in (model['PRS_REFERENCE_FILES']['EUROPEAN'] +
-                            model['PRS_REFERENCE_FILES']['AFRICAN'] +
-                            model['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
-                            model['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
     assert len(rkeys) == len(set(rkeys)), 'PRS_REFERENCE_FILES keys are not unique'
-    return {
-        k: get_alpha(v) if isinstance(v, str) else v['alpha']
-        for k, v in (model['PRS_REFERENCE_FILES']['EUROPEAN'] +
-                     model['PRS_REFERENCE_FILES']['AFRICAN'] +
-                     model['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
-                     model['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])
-    }
+    return { k: get_alpha(v) if isinstance(v, str) else v['alpha'] for k, v in ref_files }
 
 
 # FORTRAN settings
@@ -65,9 +58,6 @@ FORTRAN_ENV['LD_LIBRARY_PATH'] = (FORTRAN_ENV['LD_LIBRARY_PATH']
 FORTRAN_ENV['OMP_STACKSIZE'] = '10M'
 FORTRAN_ENV['OPENBLAS_NUM_THREADS'] = '1'
 
-# wkhtmltopdf executable used to generate PDF from HTML
-# WKHTMLTOPDF = '/usr/bin/wkhtmltopdf'
-# WKHTMLTOPDF_TIMEOUT = 10  # seconds
 REGEX_ASHKN = re.compile("^(Ashkenazi)$")
 
 MAX_PEDIGREE_SIZE = 275
@@ -160,7 +150,6 @@ BC_MODEL = {
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
         ('UK', 'UK'),
-        # ('UK-version-1', 'UKold'),
         ('Australia', 'Australia'),
         ('Canada', 'Canada'),
         ('USA', 'USA'),
@@ -179,17 +168,14 @@ BC_MODEL = {
     ]),
     'PRS_REFERENCE_FILES': {
         "EUROPEAN": [
-            # ('ANTEBC 2803', {'alpha': xxxx}),
             ('BCAC 77', 'BCAC_77_PRS.prs'),
             ('BCAC 307 European', 'BCAC_307_PRS-UKB_european.prs'),
             ('BCAC 309 European', 'BCAC_309_PRS-UKB_european.prs'),
             ('BCAC 313', 'BCAC_313_PRS.prs'),
             ('BCAC 3820', 'BCAC_3820_PRS.prs'),
             ('BRIDGES 306', 'BRIDGES_306_PRS.prs'),
-            # ('DBDS 299', 'DBDS_299_PRS.prs'),
             ('EGLH-CEN 301', 'EGLH-CEN_301_PRS.prs'),
             ('EGLH-CEN 303', 'EGLH-CEN_303_PRS.prs'),
-            # ('EMERGE 309', 'EMERGE_309_PRS.prs'),
             ('MAINZ 309', 'MAINZ_309_PRS.prs'),
             ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
             ('PRISMA 268', 'PRISM_268_PRS.prs'),
@@ -269,7 +255,6 @@ OC_MODEL = {
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
         ('UK', 'UK'),
-        # ('UK-version-1', 'UKold'),
         ('Australia', 'Australia'),
         ('Canada', 'Canada'),
         ('USA', 'USA'),
@@ -346,7 +331,6 @@ PC_MODEL = {
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
         ('UK', 'UK'),
-        # ('UK-version-1', 'UKold'),
         ('Australia', 'Australia'),
         ('Canada', 'Canada'),
         ('USA', 'USA'),
