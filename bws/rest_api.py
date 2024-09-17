@@ -52,7 +52,7 @@ class RequiredAnyPermission(permissions.BasePermission):
 
 class ModelWebServiceMixin(APIView):
 
-    parser_classes = parsers.MultiPartParser, parsers.JSONParser, parsers.FormParser
+    parser_classes = parsers.MultiPartParser, parsers.JSONParser
     renderer_classes = (JSONRenderer, )
     authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication, )
     permission_classes = (IsAuthenticated, RequiredAnyPermission)
