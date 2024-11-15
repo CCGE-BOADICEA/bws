@@ -209,8 +209,6 @@ class RiskFactorsCodeTests(TestCase):
                 BMI category * 3200 +
                 alcohol category * 16000 +
                 menopause category * 128000 +
-                density category * 768000 +
-                height category * 3840000
         '''
         bc_risk_categories = [0 for _k in BCRiskFactors.categories.keys()]
         bc_risk_categories[0] = bc.MenarcheAge.get_category('12')
@@ -245,8 +243,6 @@ class RiskFactorsCodeTests(TestCase):
         rfc += 4*128000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
-        # bc_risk_categories[9] = bc.Height.get_category('174.21')
-        # rfc += 5*3840000
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
     def test_OC_risk_factor_code(self):
