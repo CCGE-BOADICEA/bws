@@ -66,6 +66,17 @@ class PwsTests(TestCase):
         self.assertTrue("family_id" in pedigree_result)
 
     @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
+    def test_bws_file(self):
+        '''
+        Test running prostate cancer model using a BOADICEA v4 formatted file.
+        '''
+        bwa = open(os.path.join(PwsTests.TEST_DATA_DIR, "d3.male.bwa"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': bwa, 'user_id': 'test_XXX'}
+        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_pws_warnings(self):
         ''' Test warning when proband has already had prostate cancer and no risks are reported. '''
         # change proband to have had OC

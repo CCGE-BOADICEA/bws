@@ -127,7 +127,7 @@ class UKBioBankEthnicty(Ethnicity):
         "black": "UK-african",
         "chinese": "UK-eastAsian",
         "other": "UK-other",
-        "unknown": "UK-unknown",
+        "unknown": "UK-pop",
         "na": "UK-pop"
     }
 
