@@ -89,7 +89,7 @@ class PwsTests(TestCase):
         self.assertTrue('PROBAND HAS ALREADY HAD A CANCER' in content['Model Error'])
 
     @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
-    @override_settings(FORTRAN_TIMEOUT=0.01)
+    @override_settings(FORTRAN_TIMEOUT=0.001)
     def test_pws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
