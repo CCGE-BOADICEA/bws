@@ -100,7 +100,7 @@ class OwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
 
-    @override_settings(FORTRAN_TIMEOUT=0.01)
+    @override_settings(FORTRAN_TIMEOUT=0.001)
     def test_ows_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
