@@ -26,7 +26,7 @@ from rest_framework.views import APIView
 
 from bws.calc.calcs import Predictions
 from bws.calc.model import ModelParams
-from bws.exceptions import ModelError
+from bws.exceptions import ModelError, PedigreeError
 from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
@@ -115,6 +115,8 @@ class ModelWebServiceMixin(APIView):
                     this_hgt = (pedi.hgt if hasattr(pedi, 'hgt') else -1)
                     this_mdensity = (pedi.mdensity if hasattr(pedi, 'mdensity') and pedi.mdensity is not None else None)
                     if hasattr(pedi, 'ethnicity') and pedi.ethnicity is not None:
+                        if params.cancer_rates != "UK":
+                            raise PedigreeError(params.cancer_rates+" cancer rates with a UK ethnicity parameter ("+pedi.ons_ethnicity.get_string()+") is not valid.")
                         this_params.ethnicity = pedi.ethnicity
 
                     calcs = Predictions(pedi, model_params=this_params, risk_factor_code=risk_factor_code,

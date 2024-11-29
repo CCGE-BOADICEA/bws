@@ -61,7 +61,7 @@ class ONSEthnicity(Ethnicity):
     GROUPS_LOWERCASE = dict((k.lower(), ([v.lower() for v in vs]) if vs is not None else None) for k,vs in GROUPS.items())
 
     def __init__(self, ethnicity="Unknown", ethnicityBackground=None):
-        assert(ethnicity in ONSEthnicity.GROUPS)
+        assert ethnicity in ONSEthnicity.GROUPS, "Invalid ethnicity"
         super().__init__(ethnicity, ethnicityBackground)
 
     def validate(self):
