@@ -130,6 +130,12 @@ class Pedigree(metaclass=abc.ABCMeta):
                 " years old or (2) male, or (3) an affected female who has developed contralateral "
                 "breast cancer, ovarian cancer or pancreatic cancer.", target.famid)
 
+        # Volpara and Stratus are currently not configured for all ethnic groups.
+        if hasattr(self, 'ons_ethnicity') and hasattr(self, 'mdensity'):
+            if self.ons_ethnicity is not None and self.mdensity is not None:
+                if self.ons_ethnicity.ethnicity != 'white':
+                    if isinstance(self.mdensity, Volpara) or isinstance(self.mdensity, Stratus):
+                        raise PedigreeError("Volpara and Stratus are currently not configured for all ethnic groups.")
         #
         # Check monozygotic (MZ) twin data
         twin_store = self.get_twins()
