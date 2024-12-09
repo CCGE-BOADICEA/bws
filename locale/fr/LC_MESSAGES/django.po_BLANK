@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-12 15:31+0000\n"
+"POT-Creation-Date: 2024-12-05 15:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: bws/cancer.py:116
+#: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
 "individual's ER status is unspecified, no pathology information for that "
@@ -33,7 +33,7 @@ msgid ""
 "negative). "
 msgstr ""
 
-#: bws/cancer.py:133
+#: bws/cancer.py:134
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has an "
@@ -42,7 +42,7 @@ msgid ""
 "pathology information will not be taken into account in this case."
 msgstr ""
 
-#: bws/cancer.py:143
+#: bws/cancer.py:144
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -51,7 +51,7 @@ msgid ""
 "not be taken into account in this case."
 msgstr ""
 
-#: bws/cancer.py:152
+#: bws/cancer.py:153
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -60,7 +60,7 @@ msgid ""
 "in this case."
 msgstr ""
 
-#: bws/cancer.py:161
+#: bws/cancer.py:162
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -70,7 +70,7 @@ msgid ""
 "taken into account in this case."
 msgstr ""
 
-#: bws/cancer.py:171
+#: bws/cancer.py:172
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -79,7 +79,7 @@ msgid ""
 "result, only ER positive status will be taken into account in this case."
 msgstr ""
 
-#: bws/cancer.py:207
+#: bws/cancer.py:210
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test type. It "
@@ -87,7 +87,7 @@ msgid ""
 "direct gene test."
 msgstr ""
 
-#: bws/cancer.py:213
+#: bws/cancer.py:219
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test result. "
@@ -95,21 +95,21 @@ msgid ""
 "mutation detected."
 msgstr ""
 
-#: bws/cancer.py:219
+#: bws/cancer.py:225
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had a genetic test but the corresponding test "
 "result has not been specified."
 msgstr ""
 
-#: bws/cancer.py:224
+#: bws/cancer.py:230
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned a genetic test result, but the "
 "corresponding genetic test type has not been specified."
 msgstr ""
 
-#: bws/cancer.py:351
+#: bws/cancer.py:371
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
@@ -118,7 +118,7 @@ msgid ""
 "in the range 1-%(max_age)s."
 msgstr ""
 
-#: bws/cancer.py:360
+#: bws/cancer.py:380
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
@@ -126,21 +126,21 @@ msgid ""
 "age at last follow up."
 msgstr ""
 
-#: bws/cancer.py:367
+#: bws/cancer.py:387
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
 "diagnosis."
 msgstr ""
 
-#: bws/cancer.py:373
+#: bws/cancer.py:393
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is female but has been assigned an prostate cancer "
 "diagnosis."
 msgstr ""
 
-#: bws/cancer.py:381
+#: bws/cancer.py:401
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
@@ -149,14 +149,14 @@ msgid ""
 "better to provide some estimate of it so that risks are not underestimated."
 msgstr ""
 
-#: bws/cancer.py:394 bws/cancer.py:405
+#: bws/cancer.py:414 bws/cancer.py:425
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
 "diagnosis of the first breast cancer is missing."
 msgstr ""
 
-#: bws/cancer.py:398
+#: bws/cancer.py:418
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -168,18 +168,18 @@ msgstr ""
 msgid "Request has timed out."
 msgstr ""
 
-#: bws/pedigree_file.py:208
+#: bws/pedigree_file.py:221
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
 "%(id)s to be included in a calculation"
 msgstr ""
 
-#: bws/rest_api.py:113
+#: bws/rest_api.py:136
 msgid "Mammographic Density"
 msgstr ""
 
-#: bws/rest_api.py:115
+#: bws/rest_api.py:139
 msgid "Height (cm)"
 msgstr ""
 
