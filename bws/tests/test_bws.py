@@ -151,6 +151,14 @@ class BwsTests(BwsMixin):
         content = json.loads(force_str(response.content))
         self.assertTrue('cancer rates with a UK ethnicity parameter' in content['Pedigree Error'])
         uk_ped.close()
+
+    def test_UK_cancer_rates_ethnicity(self):
+        ''' Test POSTing ethnicity with UK cancer rates. '''
+        uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': uk_ped, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        uk_ped.close()
    
     def test_ethnicity_error(self):
         ''' Test ethnicity not valid ONS category. '''
@@ -164,10 +172,10 @@ class BwsTests(BwsMixin):
         self.assertTrue('CanRisk header format contains an error in: ##ethnicity=XXX;YYYY' in content['Pedigree File Error'])
         ped.close()
 
-    def test_volpara(self):
+    def test_volpara_asian(self):
         ''' Test an error is reported for volpara with an ethnic group it's not configured for. '''
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
-        # force an error adding volpara with an ethnic group it's configured for
+        # add volpara with an ethnic group it's configured for
         pd = ped.read().replace('menopause', 'volpara')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -175,9 +183,11 @@ class BwsTests(BwsMixin):
         content = json.loads(force_str(response.content))
         ped.close()
         self.assertTrue('Volpara and Stratus are currently not configured for all ethnic groups' in content['Pedigree Error'])
-        
-        # add volpara with an ethnic group it's configured for
+
+    def test_volpara_white(self):
+        ''' Test volpara with an ethnic group it's configured for. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
+        # add volpara with an ethnic group it's configured for
         pd = ped.read().replace('Asian or Asian British;Chinese', 'White;Irish').replace('menopause', 'volpara')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
