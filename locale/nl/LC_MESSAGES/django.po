@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-12 15:31+0000\n"
+"POT-Creation-Date: 2024-12-16 15:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: bws/cancer.py:116
+#: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
 "individual's ER status is unspecified, no pathology information for that "
@@ -47,7 +47,7 @@ msgstr ""
 "individuen als zowel CK14 als CK5/6 zijn gespecificeerd en de borstkanker "
 "triple-negatief is (ER-negatief, PR-negatief en HER2-negatief). "
 
-#: bws/cancer.py:133
+#: bws/cancer.py:134
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has an "
@@ -60,7 +60,7 @@ msgstr ""
 "CK14 of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval geen "
 "rekening gehouden met de pathologiegegevens van dit individu."
 
-#: bws/cancer.py:143
+#: bws/cancer.py:144
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -73,7 +73,7 @@ msgstr ""
 "gespecificeerd (of omgekeerd).  %(rules)sDaarom wordt in dit geval geen "
 "rekening gehouden met de PR-status en HER2-status."
 
-#: bws/cancer.py:152
+#: bws/cancer.py:153
 #, python-format
 msgid ""
 "Incomplete data record in the pedigree: family member \"%(id)s\" has a "
@@ -85,7 +85,7 @@ msgstr ""
 "waarbij alleen de status CK14 of CK5/6 is gespecificeerd. %(rules)s Daarom "
 "wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
-#: bws/cancer.py:161
+#: bws/cancer.py:162
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -99,7 +99,7 @@ msgstr ""
 "niet triple-negatief is (ER-negatief, PR-negatief en HER2-negatief).  %(rules)s "
 "Daarom wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
-#: bws/cancer.py:171
+#: bws/cancer.py:172
 #, python-format
 msgid ""
 "Incomplete data record in your pedigree: family member \"%(id)s\" has a "
@@ -112,7 +112,7 @@ msgstr ""
 "CK14 of CK5/6) is gespecificeerd. %(rules)s Daarom wordt in dit geval alleen "
 "rekening gehouden met de status ER-positief."
 
-#: bws/cancer.py:207
+#: bws/cancer.py:210
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test type. It "
@@ -123,7 +123,7 @@ msgstr ""
 "Deze persoon dient gespecificeerd te worden als '0' (voor niet getest), "
 "'S' (voor zoekactie naar mutatie) of 'T' (voor directe genetische test)."
 
-#: bws/cancer.py:213
+#: bws/cancer.py:219
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an invalid genetic test result. "
@@ -135,7 +135,7 @@ msgstr ""
 "gespecificeerd als '0' voor niet getest, 'N' voor geen mutatie, 'P' voor "
 "mutatie gedetecteerd."
 
-#: bws/cancer.py:219
+#: bws/cancer.py:225
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had a genetic test but the corresponding test "
@@ -144,7 +144,7 @@ msgstr ""
 "Familielid \"%(id)s\" heeft een genetische test ondergaan, maar het "
 "bijbehorende testresultaat is niet gespecificeerd."
 
-#: bws/cancer.py:224
+#: bws/cancer.py:230
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned a genetic test result, but the "
@@ -154,7 +154,7 @@ msgstr ""
 "\"%(id)s\", maar het bijbehorende type genetische test is niet "
 "gespecificeerd."
 
-#: bws/cancer.py:351
+#: bws/cancer.py:371
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has an age at cancer diagnosis (%(ctype)s) "
@@ -168,7 +168,7 @@ msgstr ""
 "'AU' voor beïnvloed op onbekende leeftijd, of worden gespecificeerd met een "
 "geheel getal in het bereik 1-%(max_age)s."
 
-#: bws/cancer.py:360
+#: bws/cancer.py:380
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been assigned an age at cancer diagnosis that "
@@ -180,7 +180,7 @@ msgstr ""
 "ten tijde van de diagnose van kanker mag niet hoger zijn dan de leeftijd bij "
 "de laatste follow up."
 
-#: bws/cancer.py:367
+#: bws/cancer.py:387
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is male but has been assigned an ovarian cancer "
@@ -189,7 +189,7 @@ msgstr ""
 "Het familielid \"%(id)s\" is mannelijk, maar er is een diagnose van "
 "eierstokkanker toegewezen."
 
-#: bws/cancer.py:373
+#: bws/cancer.py:393
 #, python-format
 msgid ""
 "Family member \"%(id)s\" is female but has been assigned an prostate cancer "
@@ -198,7 +198,7 @@ msgstr ""
 "Het familielid \"%(id)s\" is vrouwelijk, maar er is een diagnose van "
 "prostaatkanker toegewezen."
 
-#: bws/cancer.py:381
+#: bws/cancer.py:401
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has been diagnosed with cancer but has no year of "
@@ -212,7 +212,7 @@ msgstr ""
 "familielid onbekend is, dan is het altijd beter een schatting te geven, "
 "zodat risico’s niet worden onderschat."
 
-#: bws/cancer.py:394 bws/cancer.py:405
+#: bws/cancer.py:414 bws/cancer.py:425
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -221,7 +221,7 @@ msgstr ""
 "Familielid \"%(id)s\" heeft contralaterale borstkanker gehad, maar de "
 "leeftijd ten tijde van de diagnose van de eerste borstkanker ontbreekt."
 
-#: bws/cancer.py:398
+#: bws/cancer.py:418
 #, python-format
 msgid ""
 "Family member \"%(id)s\" has had contralateral breast cancer, but the age at "
@@ -236,7 +236,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "Time-out bij verzoek."
 
-#: bws/pedigree_file.py:208
+#: bws/pedigree_file.py:221
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -245,11 +245,11 @@ msgstr ""
 "Geboortejaar en leeftijd ten tijde van laatste follow-up moet worden "
 "gespecificeerd voor %(id)s opname in een berekening"
 
-#: bws/rest_api.py:113
+#: bws/rest_api.py:136
 msgid "Mammographic Density"
 msgstr "Borstdensiteit"
 
-#: bws/rest_api.py:115
+#: bws/rest_api.py:139
 msgid "Height (cm)"
 msgstr "Lengte (cm)"
 
