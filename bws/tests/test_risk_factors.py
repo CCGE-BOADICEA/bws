@@ -25,13 +25,13 @@ class UKBioBankEthnictyTests(TestCase):
     def test_white(self):
         onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
-        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-white.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
 
     def test_white_other(self):
         onsEthnicity = ONSEthnicity("White", "XXXX")    # white / any other white background
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
-        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-european.nml")
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-white.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
 
     def test_chinese(self):
@@ -57,6 +57,7 @@ class UKBioBankEthnictyTests(TestCase):
     def test_black(self):
         onsEthnicity = ONSEthnicity("Black or Black British", "Caribbean")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-black.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "black")
 
     def test_other(self):
