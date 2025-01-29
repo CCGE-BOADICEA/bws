@@ -121,10 +121,10 @@ class UKBioBankEthnicty(Ethnicity):
     '''
 
     GROUPS = {
-        "white": "UK-european",
+        "white": "UK-white",
         "mixed": "UK-mixed",
         "asian": "UK-southAsian",
-        "black": "UK-african",
+        "black": "UK-black",
         "chinese": "UK-eastAsian",
         "other": "UK-other",
         "unknown": "UK-pop",
