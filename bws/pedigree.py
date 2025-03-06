@@ -16,7 +16,7 @@ from bws.cancer import GeneticTest, PathologyTest, BWSGeneticTests, Genes
 import bws.consts as consts
 from bws.exceptions import PedigreeError
 from bws.person import Person, Male, Female
-from bws.risk_factors.mdensity import Volpara, Stratus
+from bws.risk_factors.mdensity import Volpara, Stratus, Birads
 
 
 logger = logging.getLogger(__name__)
@@ -346,11 +346,12 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         Write input pedigree file for fortran.
         """
-        
-        if (mdensity is not None
-            and not settings.IS_VOLPARA_STRATUS_SUPPORTED
-            and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus))):
-            raise Exception("Unsupported mammographic density type")
+
+        if (mdensity is not None):
+            if not isinstance(mdensity, (Birads, Volpara, Stratus)):
+                raise Exception("Unsupported mammographic density type")
+            elif mdensity.md.lower() == "na":
+                mdensity = None
         
         f = open(filepath, "w")
         
