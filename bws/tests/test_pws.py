@@ -66,6 +66,22 @@ class PwsTests(TestCase):
         self.assertTrue("family_id" in pedigree_result)
 
     @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
+    def test_pws_output_prs(self):
+        ''' Test output of POSTing to the PWS with different PRS zscore. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data,
+                'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
+        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        res1 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
+
+        data['pedigree_data'] = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        data['prs'] = json.dumps({'alpha': 0.45, 'zscore': 1.12})
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        res2 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
+        self.assertEqual(res1['age'], res2['age'])
+        self.assertGreater(res1['prostate cancer risk']['percent'], res2['prostate cancer risk']['percent'])
+
+    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_bws_file(self):
         '''
         Test running prostate cancer model using a BOADICEA v4 formatted file.
