@@ -29,7 +29,7 @@ class Genes():
     def get_all_model_genes():
         ''' Return genes for breast and ovarian model. '''
         return settings.BC_MODEL['GENES'] + settings.OC_MODEL['GENES'][4:5] + \
-            (settings.PC_MODEL['GENES'][1:2] if settings.PROSTATE_CANCER else [])
+            (settings.PC_MODEL['GENES'][1:2])
 
 
 # BC pathology tests stored in named tuple
