@@ -34,6 +34,7 @@ from bws.risk_factors.pc import PCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
+from bws.person import Female
 
 
 logger = logging.getLogger(__name__)
@@ -105,6 +106,9 @@ class ModelWebServiceMixin(APIView):
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
 
                     mname = model_settings['NAME']
+                    if isinstance(pedi.get_target(), Female) and mname == "PC":
+                        continue
+
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
                         risk_factor_code = pedi.get_rfcode(mname)
