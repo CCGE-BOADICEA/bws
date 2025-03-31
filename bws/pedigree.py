@@ -9,6 +9,7 @@ import abc
 import logging
 import os
 from random import randint
+import re
 
 from django.conf import settings
 
@@ -27,7 +28,7 @@ class Pedigree(metaclass=abc.ABCMeta):
     A pedigree object.
     """
 
-    def __init__(self, pedigree_records=None, people=None, file_type=None,
+    def __init__(self, pedigree_records=None, people=None, file_type=None, delim=r'\s+',
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
                  bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, 
                  ons_ethnicity=None, biobank_ethnicity=None):
@@ -43,10 +44,10 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         self.people = []
         if pedigree_records is not None:
-            self.famid = pedigree_records[0].split("\t" if "\t" in pedigree_records[0] else " ")[0]
+            self.famid = re.split(delim, pedigree_records[0])[0]
             ids = []
             for record in pedigree_records:
-                p = Person.factory(record, file_type=file_type)
+                p = Person.factory(record, file_type=file_type, delim=delim)
                 if p.target != '0' and p.target != '1':
                     raise PedigreeError("A value in the Target data column has been set to '" + p.target +
                                         "'. Target column parameters must be set to '0' or '1'.", p.famid)

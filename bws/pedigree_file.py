@@ -19,6 +19,7 @@ from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.mdensity import Birads, Volpara, Stratus
 from bws.risk_factors.oc import OCRiskFactors
 from bws.risk_factors.ethnicity import ONSEthnicity
+import re
 
 
 logger = logging.getLogger(__name__)
@@ -129,14 +130,19 @@ class PedigreeFile(object):
             if idx == 0:
                 if consts.REGEX_CANRISK1_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk1'
+                    nfields = settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS
                 elif consts.REGEX_CANRISK2_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk2'
+                    nfields = settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS
                 elif consts.REGEX_CANRISK3_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk3'
+                    nfields = settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS
                 elif consts.REGEX_CANRISK4_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk4'
+                    nfields = settings.BOADICEA_CANRISK_FORMAT_FOUR_DATA_FIELDS
                 elif consts.REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
+                    nfields = settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
@@ -158,7 +164,8 @@ class PedigreeFile(object):
             elif consts.BLANK_LINE.match(line):
                 continue
             else:
-                record = line.split("\t" if "\t" in line else " ")
+                delim = ("\t" if line.count("\\t") == nfields-1 else r'\s+')
+                record = re.split(delim, line.rstrip())
                 if famid is None or famid != record[0]:         # start of pedigree
                     canrisk_headers.append(canrisk_header)
                     canrisk_header = CanRiskHeader()
@@ -167,21 +174,25 @@ class PedigreeFile(object):
                     pid += 1
                 famid = record[0]
 
-                if file_type == 'bwa' and len(record) != settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS:
+                if file_type == 'bwa' and len(record) != nfields:
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "BOADICEA format 4 pedigree files should have " +
-                                            str(settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS) +
+                                            str(nfields) +
                                             " data items per line.")
-                elif file_type == 'canrisk1' and len(record) != settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS:
+                elif file_type == 'canrisk1' and len(record) != nfields:
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "CanRisk format 1 pedigree files should have " +
-                                            str(settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS) +
+                                            str(nfields) +
                                             " data items per line.")
-                elif ((file_type == 'canrisk2' or file_type == 'canrisk3') and
-                      len(record) != settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS):
+                elif ((file_type == 'canrisk2' or file_type == 'canrisk3') and len(record) != nfields):
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
                                             "CanRisk format 2 pedigree files should have " +
                                             str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
+                                            " data items per line.")
+                elif ((file_type == 'canrisk4') and len(record) != nfields):
+                    raise PedigreeFileError("A data record has an unexpected number of data items. " +
+                                            "CanRisk format 4 pedigree files should have " +
+                                            str(nfields) +
                                             " data items per line.")
                 pedigrees_records[pid].append(line)
 
@@ -192,7 +203,7 @@ class PedigreeFile(object):
             elif file_type.startswith('canrisk'):
                 bc_rfc, oc_rfc, hgt, mdensity, ons_ethnicity, biobank_ethnicity, bc_prs, oc_prs, pc_prs = canrisk_headers[i].get_risk_factor_codes()
                 self.pedigrees.append(
-                    CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type,
+                    CanRiskPedigree(pedigree_records=pedigrees_records[i], file_type=file_type, delim=delim,
                                     bc_risk_factor_code=bc_rfc, oc_risk_factor_code=oc_rfc,
                                     bc_prs=bc_prs, oc_prs=oc_prs, pc_prs=pc_prs,
                                     hgt=hgt, mdensity=mdensity, ons_ethnicity=ons_ethnicity,
