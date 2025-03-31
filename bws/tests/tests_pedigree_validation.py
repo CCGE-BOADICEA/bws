@@ -112,6 +112,14 @@ class PedigreeFileTests(TestCase, ErrorTests):
                                     r"CanRisk format 2 pedigree files should have 27 data items per line."):
             PedigreeFile(pd)
 
+    def test_num_columns3(self):
+        ''' Test number of columns in file with CanRisk version 4 header. '''
+        pd = self.canrisk2_data
+        pd = pd.replace('CanRisk 2', 'CanRisk 4', 1)
+        with self.assertRaisesRegex(PedigreeFileError,
+                                    r"CanRisk format 4 pedigree files should have 28 data items per line."):
+            PedigreeFile(pd)
+
 
 class PersonTests(TestCase, ErrorTests):
     """ Tests related to individuals in the pedigree. """
