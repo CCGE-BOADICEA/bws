@@ -43,7 +43,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         self.people = []
         if pedigree_records is not None:
-            self.famid = pedigree_records[0].split()[0]
+            self.famid = pedigree_records[0].split("\t" if "\t" in pedigree_records[0] else " ")[0]
             ids = []
             for record in pedigree_records:
                 p = Person.factory(record, file_type=file_type)

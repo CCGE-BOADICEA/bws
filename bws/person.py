@@ -161,7 +161,7 @@ class Person(object):
         @type  ped_file_line: str
         @param ped_file_line: Pedigree file line.
         '''
-        cols = ped_file_line.split()
+        cols = ped_file_line.split("\t" if "\t" in ped_file_line else " ")
 
         famid = cols[0]
         name = cols[1]

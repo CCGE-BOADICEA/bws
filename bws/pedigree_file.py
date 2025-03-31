@@ -158,7 +158,7 @@ class PedigreeFile(object):
             elif consts.BLANK_LINE.match(line):
                 continue
             else:
-                record = line.split()
+                record = line.split("\t" if "\t" in line else " ")
                 if famid is None or famid != record[0]:         # start of pedigree
                     canrisk_headers.append(canrisk_header)
                     canrisk_header = CanRiskHeader()
