@@ -26,7 +26,7 @@ from rest_framework.views import APIView
 
 from bws.calc.calcs import Predictions
 from bws.calc.model import ModelParams
-from bws.exceptions import ModelError, PedigreeError
+from bws.exceptions import ModelError, PedigreeError, CanRiskError
 from bws.pedigree_file import PedigreeFile, CanRiskPedigree, Prs
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
@@ -34,7 +34,7 @@ from bws.risk_factors.pc import PCRiskFactors
 from bws.serializers import BwsInputSerializer, OutputSerializer, OwsInputSerializer, CombinedInputSerializer, \
     CombinedOutputSerializer, PwsInputSerializer
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-from bws.person import Female
+from bws.person import Female, Male
 
 
 logger = logging.getLogger(__name__)
@@ -78,18 +78,30 @@ class ModelWebServiceMixin(APIView):
             if prs is not None:
                 prs = Prs(prs.get('alpha'), prs.get('zscore'))
 
-            try:
-                warnings = PedigreeFile.validate(pf.pedigrees)
-                if len(warnings) > 0:
-                    output['warnings'] = warnings
-            except ValidationError as e:
-                logger.error(e)
-                return JsonResponse(e.detail, content_type="application/json", status=status.HTTP_400_BAD_REQUEST)
-
+            errors = []
+            warnings = PedigreeFile.get_incomplete_age_yob(pf.pedigrees)
+            mname = model_settings['NAME']
             # note limit username string length used here to avoid paths too long for model code
             cwd = tempfile.mkdtemp(prefix=str(request.user)[:20]+"_", dir=settings.CWD_DIR)
             try:
                 for pedi in pf.pedigrees:
+                    if isinstance(pedi.get_target(), Male) and mname != "PC" and not pedi.is_carrier_probs_viable():
+                        warnings.append("No pathogenic variant probabilities calculated.") # BC or OC model for male
+                        continue
+                    elif isinstance(pedi.get_target(), Female) and mname == "PC":
+                        continue
+
+                    try:
+                        pedigree_warnings = pedi.validateAll()
+                        warnings.extend(pedigree_warnings)
+                    except CanRiskError as e:
+                        # raise an error in the case of single pedigree and continue if there are multiple pedigrees
+                        if len(pf.pedigrees) == 1:
+                            raise
+                        logger.error(f"{e.err}:: {e.detail[e.err]}")
+                        errors.append(f"{e.err}:: FamID:{pedi.famid}; {e.detail[e.err]}")
+                        continue
+
                     risk_factor_code = 0
                     this_params = deepcopy(params)
                     # check if Ashkenazi Jewish status set & correct mutation frequencies
@@ -97,17 +109,10 @@ class ModelWebServiceMixin(APIView):
                         msg = 'mutation frequencies set to Ashkenazi Jewish population values ' \
                               'for family ('+pedi.famid+') as a family member has Ashkenazi Jewish status.'
                         logger.debug('mutation frequencies set to Ashkenazi Jewish population values')
-                        if 'warnings' in output:
-                            output['warnings'].append(msg)
-                        else:
-                            output['warnings'] = [msg]
+                        warnings.append(msg)
                         this_params.isashk = True
                         this_params.population = 'Ashkenazi'
                         this_params.mutation_frequency = model_settings['MUTATION_FREQUENCIES']['Ashkenazi']
-
-                    mname = model_settings['NAME']
-                    if isinstance(pedi.get_target(), Female) and mname == "PC":
-                        continue
 
                     if isinstance(pedi, CanRiskPedigree):
                         # for canrisk format files check if risk factors and/or prs set in the header
@@ -156,8 +161,15 @@ class ModelWebServiceMixin(APIView):
                         self.add_attr("ten_yr_nhs_protocol", this_pedigree, calcs, output)
 
                     output["pedigree_result"].append(this_pedigree)
+                if len(warnings) > 0:
+                    if 'warnings' in output:
+                        output['warnings'].extend(warnings)
+                    else:
+                        output['warnings'] = warnings
+                if len(errors) > 0:
+                    output['errors'] = errors
             except ValidationError as e:
-                logger.error(e)
+                logger.error(f"{e.err}:: {e.detail[e.err]}" if isinstance(e, CanRiskError) else e)
                 return JsonResponse(e.detail, content_type="application/json",
                                     status=status.HTTP_400_BAD_REQUEST, safe=False)
             finally:

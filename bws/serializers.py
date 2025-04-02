@@ -131,6 +131,7 @@ class OutputSerializer(serializers.Serializer):
     mutation_sensitivity = serializers.DictField(read_only=True, help_text="Test sensitivity")
     cancer_incidence_rates = serializers.CharField(read_only=True, help_text="Cancer incidence rates")
     warnings = serializers.ListField(read_only=True, required=False, help_text="Advisories")
+    errors = serializers.ListField(read_only=True, required=False, help_text="Errors")
     pedigree_result = PedigreeResultSerializer(read_only=True, many=True, help_text="Results")
 
 

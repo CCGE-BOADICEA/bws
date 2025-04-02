@@ -93,10 +93,19 @@ class Pedigree(metaclass=abc.ABCMeta):
             if pc_prs is not None:
                 self.pc_prs = pc_prs
 
+    def validateAll(self):
+        """ Validation check for pedigree, people, cancers, pathology and genetic tests. """
+        warnings = []
+        self.validate()                                 # Validate pedigree input data
+        for p in self.people:
+            p.validate(self)                            # Validate person data
+            type(p.cancers).validate(p)                 # Validate cancer diagnoses
+            warnings.extend(PathologyTest.validate(p))  # Validate pathology status
+            GeneticTest.validate(p)                     # Validate genetic tests
+        return warnings
+
     def validate(self):
-        """ Validation check for pedigree input.
-        @param p: Person to validate pedigree data.
-        """
+        """ Validation check for pedigree input. """
         if(len(self.famid) > settings.MAX_LENGTH_PEDIGREE_NUMBER_STR or
            not consts.REGEX_ALPHANUM_HYPHENS.match(self.famid) or       # must be alphanumeric plus hyphen
            consts.REGEX_ONLY_HYPHENS.match(self.famid) or               # but not just hyphens
@@ -305,7 +314,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         # list of the individuals not connected to the target.
         return [p.pid for p in self.people if p.pid not in connected]
 
-    def is_risks_calc_viable(self, target=None, allowMale=False):
+    def is_risks_calc_viable(self, target=None, allowMale=None):
         """
         Return False if the target meets any of the following:
             - is male and allowMale is false
@@ -314,9 +323,11 @@ class Pedigree(metaclass=abc.ABCMeta):
         otherwise return True.
         @return: true if risks calculation is viable
         """
-        allowFemale = not allowMale
         if target is None:
             target = self.get_target()
+        if allowMale is None:
+            allowMale = isinstance(target, Male)
+        allowFemale = not allowMale
         d = target.cancers.diagnoses
         if ((target is None or
              (not allowMale and isinstance(target, Male)) or

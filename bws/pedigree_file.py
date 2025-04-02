@@ -11,7 +11,6 @@ import logging
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from bws.cancer import GeneticTest, PathologyTest
 import bws.consts as consts
 from bws.exceptions import PedigreeFileError
 from bws.pedigree import BwaPedigree, CanRiskPedigree, Pedigree
@@ -210,24 +209,17 @@ class PedigreeFile(object):
                                     biobank_ethnicity=biobank_ethnicity))
 
     @classmethod
-    def validate(cls, pedigrees):
+    def get_incomplete_age_yob(cls, pedigrees):
         if isinstance(pedigrees, Pedigree):
             pedigrees = [pedigrees]
-        warnings = []
         incomplete = []
         for pedigree in pedigrees:
             people = pedigree.people
-            pedigree.validate()             # Validate pedigree input data
-
             for p in people:
                 if not p.is_complete():
                     incomplete.append(p.pid)
 
-                p.validate(pedigree)                        # Validate person data
-                type(p.cancers).validate(p)                 # Validate cancer diagnoses
-                warnings.extend(PathologyTest.validate(p))  # Validate pathology status
-                GeneticTest.validate(p)                     # Validate genetic tests
-
+        warnings = []
         if len(incomplete) > 0:
             warnings.append(_('year of birth and age at last follow up must be specified in order for ' +
                                       '%(id)s to be included in a calculation') % {'id': ', '.join(incomplete)})
