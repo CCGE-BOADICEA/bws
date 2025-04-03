@@ -98,8 +98,10 @@ class ModelWebServiceMixin(APIView):
                         # raise an error in the case of single pedigree and continue if there are multiple pedigrees
                         if len(pf.pedigrees) == 1:
                             raise
-                        logger.error(f"{e.err}:: {e.detail[e.err]}")
-                        errors.append(f"{e.err}:: FamID:{pedi.famid}; {e.detail[e.err]}")
+                        m = f"{e.err}: {e.detail[e.err]}"
+                        if pedi.famid not in m:
+                            m = f"{e.err}: FamID:{pedi.famid}; {e.detail[e.err]}"
+                        errors.append(m)
                         continue
 
                     risk_factor_code = 0
