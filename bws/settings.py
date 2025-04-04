@@ -24,10 +24,10 @@ def get_alpha(ref_file):
     alpha = ""
     try:
         moduledir = Path(vcf2prs.__file__).parent.parent
-        ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+        ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", ref_file)
         try:
             snp_file = open(ref_file, 'r')
-            alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
+            alpha = float(re.sub('^\s*alpha\s*=', '', line_that_contain('alpha', "=", snp_file).lower()))
         except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
             raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
         finally:
@@ -350,7 +350,9 @@ PC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': {
-        "EUROPEAN": [],
+        "EUROPEAN": [
+            ('Nyberg 268', 'PC_Nyberg_268_PRS-pop.prs')
+        ],
         "AFRICAN": [],
         "EAST_ASIAN": [],
         "SOUTH_ASIAN": []

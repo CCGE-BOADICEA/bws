@@ -30,7 +30,7 @@ from vcf2prs.exception import Vcf2PrsError
 from vcf2prs.prs import Prs
 
 from bws.rest_api import RequiredAnyPermission
-from bws.settings import BC_MODEL, OC_MODEL
+from bws.settings import BC_MODEL, OC_MODEL, PC_MODEL
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
 from bws.serializers import PRSField
 
@@ -48,25 +48,33 @@ class Vcf2PrsInputSerializer(serializers.Serializer):
                                         help_text="Name of the sample in the genotype file to be used to calculate the PRS")
 
     bc_choices = [v for k, v in (BC_MODEL['PRS_REFERENCE_FILES']['EUROPEAN'] +
-                                BC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
-                                BC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
-                                BC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+                                 BC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
+                                 BC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                                 BC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
 
     oc_choices = [v for k, v in (OC_MODEL['PRS_REFERENCE_FILES']['EUROPEAN'] +
-                                OC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
-                                OC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
-                                OC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+                                 OC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
+                                 OC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                                 OC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
+
+    pc_choices = [v for k, v in (PC_MODEL['PRS_REFERENCE_FILES']['EUROPEAN'] +
+                                 PC_MODEL['PRS_REFERENCE_FILES']['AFRICAN'] +
+                                 PC_MODEL['PRS_REFERENCE_FILES']['EAST_ASIAN'] +
+                                 PC_MODEL['PRS_REFERENCE_FILES']['SOUTH_ASIAN'])]
     
     bc_prs_reference_file = serializers.ChoiceField(choices=bc_choices,
                                                     help_text="Breast cancer PRS reference file", required=False)
     oc_prs_reference_file = serializers.ChoiceField(choices=oc_choices,
                                                     help_text="Ovarian cancer PRS reference file", required=False)
+    pc_prs_reference_file = serializers.ChoiceField(choices=pc_choices,
+                                                    help_text="Prostate cancer PRS reference file", required=False)
 
 
 class Vcf2PrsOutputSerializer(serializers.Serializer):
     """ Vcf2Prs result. """
     breast_cancer_prs = PRSField(read_only=True)
     ovarian_cancer_prs = PRSField(read_only=True)
+    prostate_cancer_prs = PRSField(read_only=True)
 
 
 class Vcf2PrsView(APIView):
@@ -94,13 +102,16 @@ class Vcf2PrsView(APIView):
             moduledir = Path(vcf2prs.__file__).parent.parent
             bc_prs_ref_file = validated_data.get("bc_prs_reference_file", None)
             oc_prs_ref_file = validated_data.get("oc_prs_reference_file", None)
-            if bc_prs_ref_file is None and oc_prs_ref_file is None:
-                raise ValidationError('No breast or ovarian cancer PRS reference file provided')
+            pc_prs_ref_file = validated_data.get("pc_prs_reference_file", None)
+            if bc_prs_ref_file is None and oc_prs_ref_file is None and pc_prs_ref_file is None:
+                raise ValidationError('No breast, ovarian or prostate cancer PRS reference file provided')
             else:
                 if bc_prs_ref_file is not None:
-                    bc_prs_ref_file = os.path.join(moduledir, "PRS_files", bc_prs_ref_file)
+                    bc_prs_ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", bc_prs_ref_file)
                 if oc_prs_ref_file is not None:
-                    oc_prs_ref_file = os.path.join(moduledir, "PRS_files", oc_prs_ref_file)
+                    oc_prs_ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", oc_prs_ref_file)
+                if pc_prs_ref_file is not None:
+                    pc_prs_ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", pc_prs_ref_file)
 
             sample_name = validated_data.get("sample_name", None)
 
@@ -108,20 +119,13 @@ class Vcf2PrsView(APIView):
                 data = {}
                 vcfStr = io.TextIOWrapper(vcf_file.file).read()
                 if bc_prs_ref_file is not None:
-                    vcf_stream = io.StringIO(vcfStr)
-                    breast_prs = Prs(prs_file=bc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
-                    bc_alpha = breast_prs.alpha
-                    bc_zscore = breast_prs.z_Score
-                    data['breast_cancer_prs'] = {'alpha': bc_alpha, 'zscore': bc_zscore,
-                                                 'percent': Zscore2PercentView.get_percentage(bc_zscore)}
+                    data['breast_cancer_prs'] = Vcf2PrsView.get_prs(vcfStr, bc_prs_ref_file, sample_name)
 
                 if oc_prs_ref_file is not None:
-                    vcf_stream = io.StringIO(vcfStr)
-                    ovarian_prs = Prs(prs_file=oc_prs_ref_file, geno_file=vcf_stream, sample=sample_name)
-                    oc_alpha = ovarian_prs.alpha
-                    oc_zscore = ovarian_prs.z_Score
-                    data['ovarian_cancer_prs'] = {'alpha': oc_alpha, 'zscore': oc_zscore,
-                                                  'percent': Zscore2PercentView.get_percentage(oc_zscore)}
+                    data['ovarian_cancer_prs'] = Vcf2PrsView.get_prs(vcfStr, oc_prs_ref_file, sample_name)
+
+                if pc_prs_ref_file is not None:
+                    data['prostate_cancer_prs'] = Vcf2PrsView.get_prs(vcfStr, pc_prs_ref_file, sample_name)
 
                 prs_serializer = Vcf2PrsOutputSerializer(data)
                 logger.info("PRS elapsed time=" + str(time.time() - start))
@@ -134,6 +138,22 @@ class Vcf2PrsView(APIView):
                 }
                 raise NotAcceptable(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def get_prs(vcfStr, ref_file, sample_name):
+        try:
+            vcf_stream = io.StringIO(vcfStr)
+            prs = Prs(prs_file=ref_file)
+            prs.calculate_prs_from_vcf(vcf_stream, sample_name)
+            if sample_name is None and len(prs.raw_PRS) > 1:
+                raise Vcf2PrsError("Please select a sample name to use")
+            
+            prs.calculate_z_from_raw(prs.raw_PRS)
+            alpha = prs.alpha
+            zscore = prs.z_Score[0]
+        finally:
+            vcf_stream.close()
+        return {'alpha': alpha, 'zscore': zscore, 'percent': Zscore2PercentView.get_percentage(zscore)}
 
     def get_samples(self, vcf_file):
         """ Get the samples in the VCF file. """
