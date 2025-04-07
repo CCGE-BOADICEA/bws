@@ -276,7 +276,8 @@ OC_MODEL = {
     'PRS_REFERENCE_FILES': {
         "EUROPEAN": [
             ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
-            ('OCAC 36 European', 'OCAC_36_PRS-UKB_european.prs')
+            ('OCAC 36 European', 'OCAC_36_PRS-UKB_european.prs'),
+            ('OCAC 36 Unknown ancestry', 'OCAC_36_PRS-pop.prs')
         ],
         "AFRICAN": [
             ('OCAC 36 African', 'OCAC_36_PRS-UKB_african.prs'),
