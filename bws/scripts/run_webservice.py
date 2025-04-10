@@ -59,6 +59,10 @@ from os import listdir
 from os.path import join, isfile
 
 
+bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm', 'bard1']
+oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
+
+
 def post_requests(url, **kwargs):
     ''' Post requests via <code>grequests</code> if installed otherwise via <code>requests</code>. '''
     if 'grequests' in sys.modules:
@@ -295,8 +299,6 @@ if __name__ == "__main__":
     parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland'],
                         help='Mutation Frequencies (default: %(default)s)')
 
-    bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm', 'bard1']
-    oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
     genes = list(set(bc_genes + oc_genes))
 
     group2 = parser.add_argument_group('Genetic test sensitivity')
