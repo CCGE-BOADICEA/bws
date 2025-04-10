@@ -37,9 +37,6 @@
 # run_webservice.py -u username -p boadicea/tests_selenium/canrisk_format_data/canrisk_data1.txt \
 #       --vcf sample_data/sample_BCAC_313.vcf -s SampleA --bc_prs_reference_file BCAC_313_PRS.prs
 #
-# © 2023 University of Cambridge
-# SPDX-FileCopyrightText: 2023 University of Cambridge
-# SPDX-License-Identifier: GPL-3.0-or-later
 
 import getpass
 import json
@@ -108,8 +105,10 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
         writer = csv.writer(csvfile, delimiter='\t')
         writer.writerow([rjson["version"].upper()])
         writer.writerow(["===================================="])
-        writer.writerow(["pedigree", bwa, "version",  "timestamp", rjson["timestamp"],
-                         "cancer incidence rates", rjson["cancer_incidence_rates"]])
+        writer.writerow(["Pedigree: "+bwa])
+        writer.writerow([rjson["timestamp"]])
+        writer.writerow(["Cancer incidence rates: "+rjson["cancer_incidence_rates"]])
+        writer.writerow(["Pathogenic Variant Frequency: "+list(rjson["mutation_frequency"].keys())[0]])
 
         results = rjson["pedigree_result"]
         for res in results:
@@ -165,10 +164,11 @@ def output_tab(tabf, cmodel, rjson, bwa):
         writer = csv.writer(csvfile, delimiter='\t')
         writer.writerow([rjson["version"].upper()])
         writer.writerow(["===================================="])
-        writer.writerow(["pedigree", bwa])
-        writer.writerow(["timestamp", rjson["timestamp"]])
-        writer.writerow(["cancer incidence rates", rjson["cancer_incidence_rates"]])
-        writer.writerow(["note: baseline cancer risks are provided in brackets"])
+        writer.writerow(["Pedigree", bwa])
+        writer.writerow([rjson["timestamp"]])
+        writer.writerow(["Cancer Incidence Rates", rjson["cancer_incidence_rates"]])
+        writer.writerow(["Pathogenic Variant Frequency", list(rjson["mutation_frequency"].keys())[0]])
+        writer.writerow(["NOTE: baseline cancer risks are provided in brackets"])
         results = rjson["pedigree_result"]
         for res in results:
             famid = res["family_id"]
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     group1.add_argument('--vcfonly', help='Only run VCF to PRS', action='store_true')
 
     # Mutation frequencies
-    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland'],
+    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'UK, non-European', 'Ashkenazi', 'Iceland'],
                         help='Mutation Frequencies (default: %(default)s)')
 
     genes = list(set(bc_genes + oc_genes + pc_genes))
