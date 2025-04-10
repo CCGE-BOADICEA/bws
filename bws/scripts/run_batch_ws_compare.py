@@ -29,9 +29,9 @@ def get_ws_results(args, calc_ages):
     with open(args.tab, 'r') as f:
         model = 'BC'
         for line in f:
-            if 'boadicea model' in line:
+            if 'BOADICEA MODEL' in line:
                 model = 'BC'
-            elif 'ovarian model' in line:
+            elif 'OVARIAN MODEL' in line:
                 model = 'OC'
             crisks = re.match("^(.*\t.+\t("+sages+")\t(\d*\.?\d*[e\-\d*]*)).*", line)
             if crisks:
@@ -39,13 +39,13 @@ def get_ws_results(args, calc_ages):
                     bc_ws[int(crisks.group(2))] = crisks.group(3)
                 elif model == 'OC':
                     oc_ws[int(crisks.group(2))] = crisks.group(3)
-            elif line.startswith('no mutation'):
-                gkeys = line.strip().split('\t')
-                vals = next(f).strip().split('\t')
+            elif 'no mutation' in line:
+                gkeys = line.strip().split('\t')[1:]    # ignore FamID in first column
+                vals = next(f).strip().split('\t')[1:]
                 if model == 'BC':
-                    bc_mp_ws = {gkeys[idx]: val for idx, val in enumerate(vals)}
+                    bc_mp_ws = {gkeys[idx].strip(): val for idx, val in enumerate(vals)}
                 else:
-                    oc_mp_ws = {gkeys[idx]: val for idx, val in enumerate(vals)}
+                    oc_mp_ws = {gkeys[idx].strip(): val for idx, val in enumerate(vals)}
         f.close()
     return bc_ws, oc_ws, bc_mp_ws, oc_mp_ws
 
