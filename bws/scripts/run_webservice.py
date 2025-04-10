@@ -67,7 +67,7 @@ def post_requests(url, **kwargs):
     return requests.post(url, **kwargs)
 
 
-def mutation_probability_output(res, writer):
+def mutation_probability_output(res, writer, genes):
     ''' Write out mutation carrier probabilities '''
     if 'mutation_probabilties' in res:
         writer.writerow(['Mutation Carrier Probabilties'])
@@ -76,8 +76,9 @@ def mutation_probability_output(res, writer):
         val = []
         for m in muts:
             k = list(m.keys())[0]
-            col.append(k)
-            val.append(m[k]['decimal'])
+            if k.lower() in genes or k == "no mutation":
+                col.append(k)
+                val.append(m[k]['decimal'])
         writer.writerow(col)
         writer.writerow(val)
         writer.writerow([])
@@ -128,8 +129,7 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
                 clt = cr["breast cancer risk"]["decimal"]
 
             writer.writerow([famid, indivID, age, c5, c10, c80, clt])
-
-            mutation_probability_output(res, writer)
+            mutation_probability_output(res, writer, bc_genes if cmodel == 'boadicea' else oc_genes)
         writer.writerow([])
     csvfile.close()
 
@@ -181,7 +181,7 @@ def output_tab(tabf, cmodel, rjson, bwa):
 
             writer.writerow([])
 
-            mutation_probability_output(res, writer)
+            mutation_probability_output(res, writer, bc_genes if cmodel == 'breast' else oc_genes)
 
     csvfile.close()
 
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland'],
                         help='Mutation Frequencies (default: %(default)s)')
 
-    bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm']
+    bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm', 'bard1']
     oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
     genes = list(set(bc_genes + oc_genes))
 
