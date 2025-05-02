@@ -1,0 +1,15 @@
+##CanRisk 4
+##menarche=15
+##oc_use=N
+##mht_use=C
+##BMI=24.58
+##alcohol=36.8
+##menopause=42
+##height=177
+##ethnicity=White;Gypsy or Irish Traveller
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	BARD1	RAD51D	RAD51C	BRIP1	HOXB13	ER:PR:HER2:CK14:CK56
+XXXA	F1	1	PB	PF	PM	F	0	0	45	1979	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXA	202	0	PM	0	0	F	0	0	67	1958	55	0	0	0	0	0	S:N	S:P	S:N	S:N	S:N	S:N	S:N	S:N	S:N	T:N	N:N:N:0:0
+XXXA	201	0	PF	PGA	PGO	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXA	NA	0	PGA	0	0	M	0	1	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+XXXA	NA	0	PGO	0	0	F	0	1	40	1915	40	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
