@@ -6,7 +6,6 @@ SPDX-FileCopyrightText: 2024 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -17,7 +16,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
-import unittest
 
 
 class PwsTests(TestCase):
@@ -38,15 +36,17 @@ class PwsTests(TestCase):
         cls.url = reverse('pws')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        self.pedigree_datav3 = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        self.pedigree_datav4 = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk4"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
-        self.pedigree_data.close()
+        self.pedigree_datav3.close()
+        self.pedigree_datav4.close()
 
     def test_pws_output(self):
         ''' Test output of POSTing to the PWS using token authentication. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data,
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav4,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
         PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -63,7 +63,7 @@ class PwsTests(TestCase):
 
     def test_pws_output_prs(self):
         ''' Test output of POSTing to the PWS with different PRS zscore. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data,
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav3,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
         PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -89,7 +89,7 @@ class PwsTests(TestCase):
     def test_pws_warnings(self):
         ''' Test warning when proband has already had prostate cancer and no risks are reported. '''
         # change proband to have had OC
-        pd = self.pedigree_data.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t51')
+        pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t51')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         PwsTests.client.force_authenticate(user=PwsTests.user)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -101,7 +101,7 @@ class PwsTests(TestCase):
     def test_pws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
+                'pedigree_data': self.pedigree_datav4, 'user_id': 'test_XXX'}
         PwsTests.client.force_authenticate(user=PwsTests.user)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
@@ -143,11 +143,9 @@ class PwsTestsPRS(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         prisk1 = json.loads(force_str(response.content))
 
-        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
-        pd = ped.read().replace('##CanRisk 3', '##CanRisk 4\n##PRS_PC=alpha=0.45,zscore=0.982')
+        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk4"), "r")
+        pd = ped.read().replace('##CanRisk 4', '##CanRisk 4\n##PRS_PC=alpha=0.45,zscore=0.982')
         ped.close()
-        pd = pd.replace("\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0",         # add extra column for HOXB13
-                        "\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
 
         response = PwsTestsPRS.client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
