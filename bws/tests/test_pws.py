@@ -97,6 +97,17 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('PROBAND HAS ALREADY HAD A CANCER' in content['Model Error'])
 
+    def test_pws_err(self):
+        ''' Test error with an invalid gene test resuly. '''
+        # change proband to have had OC
+        pd = self.pedigree_datav4.read().replace('T:HOM', 'T:ZZZ')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        PwsTests.client.force_authenticate(user=PwsTests.user)
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_str(response.content))
+        self.assertTrue('assigned an invalid genetic test result' in content['Gene Test Error'])
+
     @override_settings(FORTRAN_TIMEOUT=0.0001)
     def test_pws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
