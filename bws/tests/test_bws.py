@@ -113,7 +113,7 @@ class BwsTests(BwsMixin):
             self.assertTrue(res['family_id'] in family_ids)
         multi_pedigree_data.close()
 
-    def test_canrisk_format_bws(self):
+    def test_canrisk_format(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
@@ -126,7 +126,7 @@ class BwsTests(BwsMixin):
             self.assertTrue(g in content['mutation_frequency']['UK'])
         canrisk_data.close()
 
-    def test_canrisk_v2_format_bws(self):
+    def test_canrisk_v2_format(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d1.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
@@ -140,6 +140,22 @@ class BwsTests(BwsMixin):
 
         self.assertDictEqual(settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
         self.assertEqual(content['cancer_incidence_rates'], 'France')
+        canrisk_data.close()
+
+    def test_canrisk_v4_format(self):
+        ''' Test POSTing canrisk v4 format pedigree to the BWS. '''
+        canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d7.canrisk4"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertTrue("pedigree_result" in content)
+        genes = settings.BC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
+        self.assertDictEqual(settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
+        self.assertEqual(content['cancer_incidence_rates'], 'UK')
         canrisk_data.close()
 
     def test_non_UK_cancer_rates_ethnicity(self):
