@@ -535,6 +535,12 @@ class GenesTests(TestCase):
         self.assertEqual(len(g_oc), 1)
         self.assertListEqual(g_oc, ['BRIP1'])
 
+    def test_unique_pc_genes(self):
+        ''' Test method to get genes unique to prostate cancer model. '''
+        g_oc = Genes.get_unique_pc_genes()
+        self.assertEqual(len(g_oc), 1)
+        self.assertListEqual(g_oc, ['HOXB13'])
+
     def test_all_genes(self):
         ''' Test method to get all genes. '''
         g_all = Genes.get_all_model_genes()
