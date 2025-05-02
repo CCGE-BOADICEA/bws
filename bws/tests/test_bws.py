@@ -158,6 +158,21 @@ class BwsTests(BwsMixin):
         self.assertEqual(content['cancer_incidence_rates'], 'UK')
         canrisk_data.close()
 
+    def test_multi_with_err(self):
+        '''
+        Test POSTing CanRisk file with multiple families with an error in one of them.
+        '''
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "multi.canrisk4"), "r")
+        pd = ped.read().replace('1961\t57', '1961\t97')
+
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        ped.close()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertEqual(len(content['pedigree_result']), 2, "two results")
+        self.assertEqual(len(content['errors']), 1, "one pedigree with an error")
+
     def test_non_UK_cancer_rates_ethnicity(self):
         ''' Test POSTing ethnicity with non UK cancer rates. '''
         uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
