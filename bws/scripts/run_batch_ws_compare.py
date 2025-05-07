@@ -20,6 +20,7 @@ import os
 import re
 import shutil
 import tempfile
+from bws.risk_factors.ethnicity import UKBioBankEthnicty
 
 
 def get_ws_results(args, calc_ages):
@@ -78,7 +79,6 @@ parser.add_argument('--bc_probs_tolerance', default=1e-09, help='BC tolerance co
 parser.add_argument('--oc_probs_tolerance', default=1e-09, help='OC tolerance comparing web-service & batch probs')
 
 args = parser.parse_args()
-args.mut_freq = 'UK'
 
 bc_rr_tol = float(args.bc_rr_tolerance)
 oc_rr_tol = float(args.oc_rr_tolerance)
@@ -120,25 +120,29 @@ diffs = []
 for bwa in bwalist:
     try:
         cwd = tempfile.mkdtemp(prefix="canrisk_batch_")
+        rfsnames, rfs, ashkn, biobank_ethnicity = get_rfs(bwa)
 
         # run webservice
+        if UKBioBankEthnicty.GROUPS[biobank_ethnicity.ethnicity] ==  "UK-pop":
+            args.mut_freq = 'UK'
+        else:
+            args.mut_freq = 'UK, non-European'
         args.tab = os.path.join(cwd, 'webservice.tab')
         runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea', 'ovarian'], token, url)
 
         # create pedigree csv file for batch script
-        rfsnames, rfs, ashkn = get_rfs(bwa)
         csvfile = os.path.join(cwd, "ped.csv")
         convert2csv(bwa, csvfile, rfsnames, rfs)
 
         # run batch script
         BC_BATCH_RISKS = os.path.join(cwd, "batch_boadicea_risks.out")
         BC_BATCH_PROBS = os.path.join(cwd, "batch_boadicea_probs.out")
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_RISKS, irates, ashkn=ashkn)
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_PROBS, irates, ashkn=ashkn, muts=True)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_PROBS, irates, ashkn=ashkn, biobank_ethnicity=biobank_ethnicity, muts=True)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_RISKS, irates, ashkn=ashkn, biobank_ethnicity=biobank_ethnicity)
         OC_BATCH_RISKS = os.path.join(cwd, "batch_ovarian_risks.out")
         OC_BATCH_PROBS = os.path.join(cwd, "batch_ovarian_probs.out")
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_RISKS, irates, ashkn=ashkn, model='OC')
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_PROBS, irates, ashkn=ashkn, model='OC', muts=True)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_RISKS, irates, ashkn=ashkn, model='OC', biobank_ethnicity=biobank_ethnicity)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_PROBS, irates, ashkn=ashkn, model='OC', biobank_ethnicity=biobank_ethnicity, muts=True)
 
         # get results
         c_ages = get_censoring_ages(bwa)
