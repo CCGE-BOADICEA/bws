@@ -131,6 +131,7 @@ else:
 # loop over canrisk files and compare results from webservices with those from the batch script
 exact_matches = 0
 diffs = []
+mut_freq = args.mut_freq
 for bwa in bwalist:
     try:
         cwd = tempfile.mkdtemp(prefix="canrisk_batch_")
@@ -138,13 +139,13 @@ for bwa in bwalist:
 
         # run webservice
         if UKBioBankEthnicty.GROUPS[biobank_ethnicity.ethnicity] ==  "UK-pop":
-            oc_mut_freq = args.mut_freq.upper()
-            bc_mut_freq = args.mut_freq.upper()
-            pc_mut_freq = args.mut_freq.upper()
+            oc_mut_freq = mut_freq.upper()
+            bc_mut_freq = mut_freq.upper()
+            pc_mut_freq = mut_freq.upper()
         else:
-            oc_mut_freq = args.mut_freq.upper()
+            oc_mut_freq = mut_freq.upper()
             bc_mut_freq = 'UK, non-European'
-            pc_mut_freq = args.mut_freq.upper()
+            pc_mut_freq = mut_freq.upper()
 
         args.mut_freq = bc_mut_freq
         args.tab = os.path.join(cwd, 'webservice.tab')
