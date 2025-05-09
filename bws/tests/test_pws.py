@@ -37,7 +37,7 @@ class PwsTests(TestCase):
 
     def setUp(self):
         self.pedigree_datav3 = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
-        self.pedigree_datav4 = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk4"), "r")
+        self.pedigree_datav4 = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
@@ -154,7 +154,7 @@ class PwsTestsPRS(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         prisk1 = json.loads(force_str(response.content))
 
-        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk4"), "r")
+        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
         pd = ped.read().replace('##CanRisk 4', '##CanRisk 4\n##PRS_PC=alpha=0.45,zscore=0.982')
         ped.close()
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
