@@ -30,6 +30,8 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
         model_path = os.path.join(FORTRAN, "Ovarian-Cancer-Model")
     elif model == 'BC':
         model_path = os.path.join(FORTRAN, "Breast-Cancer-Model")
+    elif model == 'PC':
+        model_path = os.path.join(FORTRAN, "Prostate-Cancer-Model")
     cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
            "-i", os.path.join(model_path, "Data/incidences_"+irates.replace('New-Zealand', 'New_Zealand')),
@@ -49,7 +51,12 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
         cmd.append('-c')
         cmd.append('b')
         cmd.append('-e')
-        cmd.append(os.path.join(model_path, "Data/coeffs-BC_"+biobank_ethnicity.get_filename()))     
+        cmd.append(os.path.join(model_path, "Data/coeffs-BC_"+biobank_ethnicity.get_filename()))
+    elif model == 'PC':
+        cmd.append('-c')
+        cmd.append('p')
+        cmd.append('-e')
+        cmd.append(os.path.join(model_path, "Data/coeffs-PC_"+biobank_ethnicity.get_filename()))
 
     cmd.append(csvfile)
     
@@ -175,6 +182,8 @@ def get_rfs(bwa):
                 add_prs(line, 'BC', rfsnames, rfs)
             elif "PRS_OC" in line:    # alpha=0.45,zscore=0.1234
                 add_prs(line, 'OC', rfsnames, rfs)
+            elif "PRS_PC" in line:    # alpha=0.45,zscore=0.1234
+                add_prs(line, 'PC', rfsnames, rfs)
             elif "ethnicity" in line.lower():
                 line = line.replace("##ethnicity=", "").strip().split(";")
                 if len(line)==2 and line[1] == "":
