@@ -25,7 +25,7 @@ from bws.risk_factors.ethnicity import UKBioBankEthnicty
 
 def get_ws_results(args, calc_ages):
     ''' Parse web-service tab file and return breast and ovarian cancer risks and mutation carrier probabilities. '''
-    bc_ws, oc_ws, bc_mp_ws, oc_mp_ws = {}, {}, None, None
+    bc_ws, oc_ws, pc_ws, bc_mp_ws, oc_mp_ws, pc_mp_ws = {}, {}, {}, None, None, None
     sages = '|'.join([str(c) for c in calc_ages])
     with open(args.tab, 'r') as f:
         model = 'BC'
@@ -34,21 +34,27 @@ def get_ws_results(args, calc_ages):
                 model = 'BC'
             elif 'OVARIAN MODEL' in line:
                 model = 'OC'
+            elif 'PROSTATE MODEL' in line:
+                model = 'PC'
             crisks = re.match("^(.*\t.+\t("+sages+")\t(\d*\.?\d*[e\-\d*]*)).*", line)
             if crisks:
                 if model == 'BC':
                     bc_ws[int(crisks.group(2))] = crisks.group(3)
                 elif model == 'OC':
                     oc_ws[int(crisks.group(2))] = crisks.group(3)
+                elif model == 'PC':
+                    pc_ws[int(crisks.group(2))] = crisks.group(3)
             elif 'no mutation' in line:
                 gkeys = line.strip().split('\t')[1:]    # ignore FamID in first column
                 vals = next(f).strip().split('\t')[1:]
                 if model == 'BC':
                     bc_mp_ws = {gkeys[idx].strip(): val for idx, val in enumerate(vals)}
-                else:
+                elif model == 'OC':
                     oc_mp_ws = {gkeys[idx].strip(): val for idx, val in enumerate(vals)}
+                elif model == 'PC':
+                    pc_mp_ws = {gkeys[idx].strip(): val for idx, val in enumerate(vals)}
         f.close()
-    return bc_ws, oc_ws, bc_mp_ws, oc_mp_ws
+    return bc_ws, oc_ws, pc_ws, bc_mp_ws, oc_mp_ws, pc_mp_ws
 
 
 def glob_re(path_pattern):
@@ -67,6 +73,8 @@ parser.add_argument('-u', '--user', help='Username')
 parser.add_argument('-p', '--ped', help='CanRisk (or BOADICEA v4) pedigree file or directory of pedigree file(s)')
 parser.add_argument('-f', '--fortran', help='Path to BOADICEA model code',
                     default=os.path.join(expanduser("~"), "boadicea_classic/github/Model-Batch-Processing/"))
+parser.add_argument('--mut_freq', default='UK', choices=['UK', 'UK, non-European', 'Ashkenazi', 'Iceland'],
+                    help='Mutation Frequencies (default: %(default)s)')
 parser.add_argument('--cancer_rates', default='UK',
                     choices=['UK', 'Australia', 'Canada', 'USA', 'Denmark', 'Estonia', 'Finland', 'France',
                              'Iceland', 'Netherlands', 'New-Zealand', 'Norway', 'Slovenia', 'Spain', 'Sweden'],
@@ -74,24 +82,30 @@ parser.add_argument('--cancer_rates', default='UK',
 parser.add_argument('--token', help='authentication token')
 parser.add_argument('--bc_rr_tolerance', default=1e-09, help='BC tolerance comparing web-service & batch risks')
 parser.add_argument('--oc_rr_tolerance', default=1e-09, help='OC tolerance comparing web-service & batch risks')
+parser.add_argument('--pc_rr_tolerance', default=1e-09, help='PC tolerance comparing web-service & batch risks')
 
 parser.add_argument('--bc_probs_tolerance', default=1e-09, help='BC tolerance comparing web-service & batch probs')
 parser.add_argument('--oc_probs_tolerance', default=1e-09, help='OC tolerance comparing web-service & batch probs')
+parser.add_argument('--pc_probs_tolerance', default=1e-09, help='PC tolerance comparing web-service & batch probs')
 
 args = parser.parse_args()
 
 bc_rr_tol = float(args.bc_rr_tolerance)
 oc_rr_tol = float(args.oc_rr_tolerance)
+pc_rr_tol = float(args.oc_rr_tolerance)
 
 bc_probs_tol = float(args.bc_probs_tolerance)
 oc_probs_tol = float(args.oc_probs_tolerance)
+pc_probs_tol = float(args.oc_probs_tolerance)
 
 print("=============================================")
 print("BC Risk Tolerance "+str(bc_rr_tol))
 print("OC Risk Tolerance "+str(oc_rr_tol))
+print("PC Risk Tolerance "+str(pc_rr_tol))
 
 print("BC Probs Tolerance "+str(bc_probs_tol))
 print("OC Probs Tolerance "+str(oc_probs_tol))
+print("PC Probs Tolerance "+str(pc_probs_tol))
 
 irates = args.cancer_rates.replace('New-Zealand', 'New_Zealand')+".nml"
 print('Cancer Incidence Rates: '+args.cancer_rates)
@@ -124,11 +138,17 @@ for bwa in bwalist:
 
         # run webservice
         if UKBioBankEthnicty.GROUPS[biobank_ethnicity.ethnicity] ==  "UK-pop":
-            args.mut_freq = 'UK'
+            oc_mut_freq = args.mut_freq.upper()
+            bc_mut_freq = args.mut_freq.upper()
+            pc_mut_freq = args.mut_freq.upper()
         else:
-            args.mut_freq = 'UK, non-European'
+            oc_mut_freq = args.mut_freq.upper()
+            bc_mut_freq = 'UK, non-European'
+            pc_mut_freq = args.mut_freq.upper()
+
+        args.mut_freq = bc_mut_freq
         args.tab = os.path.join(cwd, 'webservice.tab')
-        runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea', 'ovarian'], token, url)
+        runws(args, {"user_id": "end_user_id"}, bwa, ['boadicea', 'ovarian', 'prostate'], token, url)
 
         # create pedigree csv file for batch script
         csvfile = os.path.join(cwd, "ped.csv")
@@ -137,19 +157,22 @@ for bwa in bwalist:
         # run batch script
         BC_BATCH_RISKS = os.path.join(cwd, "batch_boadicea_risks.out")
         BC_BATCH_PROBS = os.path.join(cwd, "batch_boadicea_probs.out")
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_PROBS, irates, ashkn=ashkn, biobank_ethnicity=biobank_ethnicity, muts=True)
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_RISKS, irates, ashkn=ashkn, biobank_ethnicity=biobank_ethnicity)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_PROBS, irates, ashkn=ashkn, mut_freq=bc_mut_freq, biobank_ethnicity=biobank_ethnicity, muts=True)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, BC_BATCH_RISKS, irates, ashkn=ashkn, mut_freq=bc_mut_freq, biobank_ethnicity=biobank_ethnicity)
         OC_BATCH_RISKS = os.path.join(cwd, "batch_ovarian_risks.out")
         OC_BATCH_PROBS = os.path.join(cwd, "batch_ovarian_probs.out")
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_RISKS, irates, ashkn=ashkn, model='OC', biobank_ethnicity=biobank_ethnicity)
-        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_PROBS, irates, ashkn=ashkn, model='OC', biobank_ethnicity=biobank_ethnicity, muts=True)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_RISKS, irates, ashkn=ashkn, mut_freq=oc_mut_freq, model='OC', biobank_ethnicity=biobank_ethnicity)
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, OC_BATCH_PROBS, irates, ashkn=ashkn, mut_freq=oc_mut_freq, model='OC', biobank_ethnicity=biobank_ethnicity, muts=True)
+        PC_BATCH_RISKS = os.path.join(cwd, "batch_prostate_risks.out")
+        outs, errs = run_batch(FORTRAN, cwd, csvfile, PC_BATCH_RISKS, irates, ashkn=ashkn, mut_freq=pc_mut_freq, model='PC', biobank_ethnicity=biobank_ethnicity)
 
         # get results
         c_ages = get_censoring_ages(bwa)
-        bc_ws, oc_ws, bc_mp_ws, oc_mp_ws = get_ws_results(args, c_ages)
+        bc_ws, oc_ws, pc_ws, bc_mp_ws, oc_mp_ws, pc_mp_ws = get_ws_results(args, c_ages)
 
         bc_batch = get_batch_results(BC_BATCH_RISKS, c_ages)
         oc_batch = get_batch_results(OC_BATCH_RISKS, c_ages)
+        pc_batch = get_batch_results(PC_BATCH_RISKS, c_ages)
         bc_mp_batch = get_mp(BC_BATCH_PROBS)
         oc_mp_batch = get_mp(OC_BATCH_PROBS)
 
@@ -178,6 +201,16 @@ for bwa in bwalist:
                 else:
                     print(f"OC DIFFERENCE ["+str(float(oc_ws[age])-float(oc_batch[age])) +
                           f"]***    webservice: {oc_ws[age]} batch: {oc_batch[age]}")
+                    exact_matches += 1
+                    diffs.append(bwa)
+
+            if len(pc_ws) > 0 or pc_batch is not None:
+                if pc_ws[age] and pc_batch[age] and math.isclose(float(pc_ws[age]), float(pc_batch[age]),
+                                                                 abs_tol=pc_rr_tol):
+                    print(f"PC EXACT MATCH ::: {age}    webservice: {pc_ws[age]} batch: {pc_batch[age]}")
+                else:
+                    print(f"PC DIFFERENCE ["+str(float(pc_ws[age])-float(pc_batch[age])) +
+                          f"]*** {age}    webservice: {pc_ws[age]} batch: {pc_batch[age]}")
                     exact_matches += 1
                     diffs.append(bwa)
         if exact_matches != 0:
