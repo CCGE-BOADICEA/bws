@@ -145,7 +145,7 @@ class PedigreeFile(object):
                 else:
                     raise PedigreeFileError(
                         "The first header record in the pedigree file has unexpected characters. " +
-                        "The first header record must be '##CanRisk 3.0'.")
+                        "The first header record must be '##CanRisk 4.0'." + line)
             elif (idx == 1 and file_type == 'bwa') or line.startswith('##FamID'):
                 self.column_names = line.replace("##FamID", "FamID").split()
                 if (((self.column_names[0] != 'FamID') or
