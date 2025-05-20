@@ -14,6 +14,7 @@ from bws.cancer import Cancer, GeneticTest, PathologyTests, PathologyTest, Cance
 import bws.consts as consts
 from bws.exceptions import PedigreeError, PersonError
 import bws.pedigree as pedigree
+import re
 
 
 class Person(object):
@@ -155,14 +156,13 @@ class Person(object):
                               str(settings.MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB) + ")")
 
     @staticmethod
-    def factory(ped_file_line, file_type=None):
+    def factory(ped_file_line, file_type=None, delim=r'\s+'):
         ''' Factory method for creating types of people given a record from
         a BOADICEA import pedigree file .
         @type  ped_file_line: str
         @param ped_file_line: Pedigree file line.
         '''
-        cols = ped_file_line.split()
-
+        cols = re.split(delim, ped_file_line)
         famid = cols[0]
         name = cols[1]
         pid = cols[3]

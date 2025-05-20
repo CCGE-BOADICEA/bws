@@ -24,10 +24,10 @@ def get_alpha(ref_file):
     alpha = ""
     try:
         moduledir = Path(vcf2prs.__file__).parent.parent
-        ref_file = os.path.join(moduledir, "PRS_files", ref_file)
+        ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", ref_file)
         try:
             snp_file = open(ref_file, 'r')
-            alpha = vcf2prs.prsinfo.PrsInfo.extract_alpha(line_that_contain('alpha', "=", snp_file))
+            alpha = float(re.sub('^\s*alpha\s*=', '', line_that_contain('alpha', "=", snp_file).lower()))
         except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
             raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
         finally:
@@ -71,6 +71,7 @@ MIN_YEAR_OF_BIRTH = 1850
 BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS = 32
 BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS = 26
 BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS = 27
+BOADICEA_CANRISK_FORMAT_FOUR_DATA_FIELDS = 28
 MAX_LENGTH_PEDIGREE_NUMBER_STR = 13
 MIN_FAMILY_ID_STR_LENGTH = 1
 MAX_FAMILY_ID_STR_LENGTH = 7
@@ -179,6 +180,7 @@ BC_MODEL = {
             ('MAINZ 309', 'MAINZ_309_PRS.prs'),
             ('PERSPECTIVE 295', 'PERSPECTIVE_295_PRS.prs'),
             ('PRISMA 268', 'PRISM_268_PRS.prs'),
+            ('STRATEGIC 171', 'STRATEGIC_171_PRS.prs'),
             ('WISDOM 75', 'WISDOM_75_PRS.prs'),
             ('WISDOM 128', 'WISDOM_128_PRS.prs')
         ],
@@ -274,7 +276,8 @@ OC_MODEL = {
     'PRS_REFERENCE_FILES': {
         "EUROPEAN": [
             ('OC-EGLH-CEN 34', 'OC_EGLH-CEN_34_PRS.prs'),
-            ('OCAC 36 European', 'OCAC_36_PRS-UKB_european.prs')
+            ('OCAC 36 European', 'OCAC_36_PRS-UKB_european.prs'),
+            ('OCAC 36 Unknown ancestry', 'OCAC_36_PRS-pop.prs')
         ],
         "AFRICAN": [
             ('OCAC 36 African', 'OCAC_36_PRS-UKB_african.prs'),
@@ -348,7 +351,9 @@ PC_MODEL = {
         ('Other', 'UK')
     ]),
     'PRS_REFERENCE_FILES': {
-        "EUROPEAN": [],
+        "EUROPEAN": [
+            ('Nyberg 268', 'PC_Nyberg_268_PRS-pop.prs')
+        ],
         "AFRICAN": [],
         "EAST_ASIAN": [],
         "SOUTH_ASIAN": []

@@ -9,6 +9,7 @@ import abc
 import logging
 import os
 from random import randint
+import re
 
 from django.conf import settings
 
@@ -16,7 +17,7 @@ from bws.cancer import GeneticTest, PathologyTest, BWSGeneticTests, Genes
 import bws.consts as consts
 from bws.exceptions import PedigreeError
 from bws.person import Person, Male, Female
-from bws.risk_factors.mdensity import Volpara, Stratus
+from bws.risk_factors.mdensity import Volpara, Stratus, Birads
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class Pedigree(metaclass=abc.ABCMeta):
     A pedigree object.
     """
 
-    def __init__(self, pedigree_records=None, people=None, file_type=None,
+    def __init__(self, pedigree_records=None, people=None, file_type=None, delim=r'\s+',
                  bc_risk_factor_code=None, oc_risk_factor_code=None,
                  bc_prs=None, oc_prs=None, pc_prs=None, hgt=-1, mdensity=None, 
                  ons_ethnicity=None, biobank_ethnicity=None):
@@ -43,10 +44,10 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         self.people = []
         if pedigree_records is not None:
-            self.famid = pedigree_records[0].split()[0]
+            self.famid = re.split(delim, pedigree_records[0])[0]
             ids = []
             for record in pedigree_records:
-                p = Person.factory(record, file_type=file_type)
+                p = Person.factory(record, file_type=file_type, delim=delim)
                 if p.target != '0' and p.target != '1':
                     raise PedigreeError("A value in the Target data column has been set to '" + p.target +
                                         "'. Target column parameters must be set to '0' or '1'.", p.famid)
@@ -92,10 +93,19 @@ class Pedigree(metaclass=abc.ABCMeta):
             if pc_prs is not None:
                 self.pc_prs = pc_prs
 
+    def validateAll(self):
+        """ Validation check for pedigree, people, cancers, pathology and genetic tests. """
+        warnings = []
+        self.validate()                                 # Validate pedigree input data
+        for p in self.people:
+            p.validate(self)                            # Validate person data
+            type(p.cancers).validate(p)                 # Validate cancer diagnoses
+            warnings.extend(PathologyTest.validate(p))  # Validate pathology status
+            GeneticTest.validate(p)                     # Validate genetic tests
+        return warnings
+
     def validate(self):
-        """ Validation check for pedigree input.
-        @param p: Person to validate pedigree data.
-        """
+        """ Validation check for pedigree input. """
         if(len(self.famid) > settings.MAX_LENGTH_PEDIGREE_NUMBER_STR or
            not consts.REGEX_ALPHANUM_HYPHENS.match(self.famid) or       # must be alphanumeric plus hyphen
            consts.REGEX_ONLY_HYPHENS.match(self.famid) or               # but not just hyphens
@@ -304,7 +314,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         # list of the individuals not connected to the target.
         return [p.pid for p in self.people if p.pid not in connected]
 
-    def is_risks_calc_viable(self, target=None, allowMale=False):
+    def is_risks_calc_viable(self, target=None, allowMale=None):
         """
         Return False if the target meets any of the following:
             - is male and allowMale is false
@@ -313,9 +323,11 @@ class Pedigree(metaclass=abc.ABCMeta):
         otherwise return True.
         @return: true if risks calculation is viable
         """
-        allowFemale = not allowMale
         if target is None:
             target = self.get_target()
+        if allowMale is None:
+            allowMale = isinstance(target, Male)
+        allowFemale = not allowMale
         d = target.cancers.diagnoses
         if ((target is None or
              (not allowMale and isinstance(target, Male)) or
@@ -346,11 +358,12 @@ class Pedigree(metaclass=abc.ABCMeta):
         """
         Write input pedigree file for fortran.
         """
-        
-        if (mdensity is not None
-            and not settings.IS_VOLPARA_STRATUS_SUPPORTED
-            and (isinstance(mdensity, Volpara) or isinstance(mdensity, Stratus))):
-            raise Exception("Unsupported mammographic density type")
+
+        if (mdensity is not None):
+            if not isinstance(mdensity, (Birads, Volpara, Stratus)):
+                raise Exception("Unsupported mammographic density type")
+            elif mdensity.md.lower() == "na":
+                mdensity = None
         
         f = open(filepath, "w")
         

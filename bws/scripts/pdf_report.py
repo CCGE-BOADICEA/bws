@@ -66,7 +66,6 @@ class HttpServer:
     cwd = os.getcwd()
     server_thread = None
     base = join(TMPDIR, 'base.html')
-    print(base)
 
     def run_server(self):
         PORT = 8081

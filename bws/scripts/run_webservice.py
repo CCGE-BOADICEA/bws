@@ -37,9 +37,6 @@
 # run_webservice.py -u username -p boadicea/tests_selenium/canrisk_format_data/canrisk_data1.txt \
 #       --vcf sample_data/sample_BCAC_313.vcf -s SampleA --bc_prs_reference_file BCAC_313_PRS.prs
 #
-# © 2023 University of Cambridge
-# SPDX-FileCopyrightText: 2023 University of Cambridge
-# SPDX-License-Identifier: GPL-3.0-or-later
 
 import getpass
 import json
@@ -59,6 +56,10 @@ from os import listdir
 from os.path import join, isfile
 
 
+bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm', 'bard1']
+oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
+pc_genes = ['hoxb13']
+
 def post_requests(url, **kwargs):
     ''' Post requests via <code>grequests</code> if installed otherwise via <code>requests</code>. '''
     if 'grequests' in sys.modules:
@@ -72,11 +73,11 @@ def mutation_probability_output(res, writer):
     if 'mutation_probabilties' in res:
         writer.writerow(['Mutation Carrier Probabilties'])
         muts = res['mutation_probabilties']
-        col = []
-        val = []
+        col = ['FamID']
+        val = [res['family_id']]
         for m in muts:
             k = list(m.keys())[0]
-            col.append(k)
+            col.append(k+"    "+("  " if k == "ATM" else ""))
             val.append(m[k]['decimal'])
         writer.writerow(col)
         writer.writerow(val)
@@ -85,20 +86,30 @@ def mutation_probability_output(res, writer):
 
 def summary_output_tab(tabf, cmodel, rjson, bwa):
     ''' Tab delimited output file '''
+    if 'version' not in rjson:
+        return
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age",
                   "+5 BC Risk", "+10 BC Risk", "80 BC Risk", "BC Lifetime"]
         ctype = "breast cancer risk"
-    else:
+    elif cmodel == "ovarian":
         header = ["FamID", "IndivID", "Age",
                   "+5 OC Risk", "+10 OC Risk", "80 OC Risk", "OC Lifetime"]
         ctype = "ovarian cancer risk"
+    elif cmodel == "prostate":
+        header = ["FamID", "IndivID", "Age",
+                  "+5 PC Risk", "+10 PC Risk", "80 PC Risk", "PC Lifetime"]
+        ctype = "prostate cancer risk"
 
     with open(tabf, 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t')
-        writer.writerow(["pedigree", bwa, "version", rjson["version"], "timestamp", rjson["timestamp"],
-                         "cancer incidence rates", rjson["cancer_incidence_rates"]])
-        writer.writerow(header)
+        writer.writerow([rjson["version"].upper()])
+        writer.writerow(["===================================="])
+        writer.writerow(["Pedigree: "+bwa])
+        writer.writerow([rjson["timestamp"]])
+        writer.writerow(["Cancer incidence rates: "+rjson["cancer_incidence_rates"]])
+        writer.writerow(["Pathogenic Variant Frequency: "+list(rjson["mutation_frequency"].keys())[0]])
+
         results = rjson["pedigree_result"]
         for res in results:
             famid = res["family_id"]
@@ -108,6 +119,8 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
             c5, c10, c80, clt = "-", "-", "-", "-"
 
             if "cancer_risks" in res:
+                writer.writerow([])
+                writer.writerow(header)
                 cancer_risks = res["cancer_risks"]
                 for cr in cancer_risks:
                     if age == "-" or int(cr["age"]) < age:
@@ -128,7 +141,6 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
                 clt = cr["breast cancer risk"]["decimal"]
 
             writer.writerow([famid, indivID, age, c5, c10, c80, clt])
-
             mutation_probability_output(res, writer)
         writer.writerow([])
     csvfile.close()
@@ -136,19 +148,27 @@ def summary_output_tab(tabf, cmodel, rjson, bwa):
 
 def output_tab(tabf, cmodel, rjson, bwa):
     ''' Tab delimited output file '''
+    if 'version' not in rjson:
+        return
     if cmodel == "boadicea":
         header = ["FamID", "IndivID", "Age", "BCRisk          ", "BCRisk%"]
         cname = "breast"
-    else:
+    elif cmodel == "ovarian":
         header = ["FamID", "IndivID", "Age", "OCRisk          ", "OCRisk%"]
         cname = "ovarian"
+    elif cmodel == "prostate":
+        header = ["FamID", "IndivID", "Age", "PCRisk          ", "PCRisk%"]
+        cname = "prostate"
+        
     with open(tabf, 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t')
-        writer.writerow(["pedigree", bwa])
-        writer.writerow(["version", rjson["version"]])
-        writer.writerow(["timestamp", rjson["timestamp"]])
-        writer.writerow(["cancer incidence rates", rjson["cancer_incidence_rates"]])
-        writer.writerow(["note: baseline cancer risks are provided in brackets"])
+        writer.writerow([rjson["version"].upper()])
+        writer.writerow(["===================================="])
+        writer.writerow(["Pedigree", bwa])
+        writer.writerow([rjson["timestamp"]])
+        writer.writerow(["Cancer Incidence Rates", rjson["cancer_incidence_rates"]])
+        writer.writerow(["Pathogenic Variant Frequency", list(rjson["mutation_frequency"].keys())[0]])
+        writer.writerow(["NOTE: baseline cancer risks are provided in brackets"])
         results = rjson["pedigree_result"]
         for res in results:
             famid = res["family_id"]
@@ -181,7 +201,8 @@ def output_tab(tabf, cmodel, rjson, bwa):
 
             writer.writerow([])
 
-            mutation_probability_output(res, writer)
+            if cmodel != "prostate":
+                mutation_probability_output(res, writer)
 
     csvfile.close()
 
@@ -278,7 +299,7 @@ if __name__ == "__main__":
     #
     # define optional command line arguments
     parser = argparse.ArgumentParser('run a risk prediction via the web-service')
-    parser.add_argument('-c', '--can', default='boadicea', choices=['boadicea', 'ovarian', 'both'],
+    parser.add_argument('-c', '--can', default='boadicea', choices=['boadicea', 'ovarian', 'prostate', 'all'],
                         help='Cancer risk models')
 
     # VCF to PRS
@@ -292,12 +313,10 @@ if __name__ == "__main__":
     group1.add_argument('--vcfonly', help='Only run VCF to PRS', action='store_true')
 
     # Mutation frequencies
-    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'Ashkenazi', 'Iceland'],
+    parser.add_argument('--mut_freq', default='UK', choices=['UK', 'UK, non-European', 'Ashkenazi', 'Iceland'],
                         help='Mutation Frequencies (default: %(default)s)')
 
-    bc_genes = ['brca1', 'brca2', 'palb2', 'chek2', 'atm']
-    oc_genes = ['brca1', 'brca2', 'rad51c', 'rad51d', 'brip1']
-    genes = list(set(bc_genes + oc_genes))
+    genes = list(set(bc_genes + oc_genes + pc_genes))
 
     group2 = parser.add_argument_group('Genetic test sensitivity')
     for gene in genes:
@@ -325,15 +344,18 @@ if __name__ == "__main__":
             print("Output file already exists!")
             exit(1)
 
-    if args.can == "both":
-        cancers = ['boadicea', 'ovarian']
-        genes = list(set(bc_genes + oc_genes))
+    if args.can == "all":
+        cancers = ['boadicea', 'ovarian', 'prostate']
+        genes = list(set(bc_genes + oc_genes + pc_genes))
     elif args.can == "ovarian":
         cancers = ['ovarian']
         genes = oc_genes
-    else:
+    elif args.can == "boadicea":
         cancers = ['boadicea']
         genes = bc_genes
+    elif args.can == "prostate":
+        cancers = ['prostate']
+        genes = pc_genes
 
     data = {"user_id": "end_user_id"}
 
@@ -392,7 +414,7 @@ if __name__ == "__main__":
             http_server.start_www(url)
         
         for bwa in bwas:
-            print(bwa)
+            print("PROCESSING: "+bwa)
             runws(args, data, bwa, cancers, token, url, cwd=cwd, prs=prs)
     finally:
         if 'pdf' in args and args.pdf:
