@@ -27,11 +27,16 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js" integrity="sha256-1rA678n2xEx7x4cTZ5x4wpUCj6kUMZEZ5cxLSVSFWxw=" crossorigin="anonymous"></script>
 
 <!-- look for a version of pedigreejs -->
-<script src="{URL}/static/js/pedigreejs.v3.0.0-rc3.min.js"></script>
+<script src="{URL}/static/js/pedigreejs.v3.0.0-rc8.min.js"></script>
 <script src="{URL}/static/js/canrisk_init.js"></script>
 <script src="{URL}/static/js/risk_plots.js"></script>
 
 <script type="text/javascript">
+	var CANRISK_FILE_VERSION = "4";
+	CSP_NONCE = ""
+	RESULT = ""
+	function gettext(s) {return s;}
+
 	////// deconstruct pedigreejs entry point
 	var pedigree_util = window.pedigreejs.pedigreejs_utils;
 	var pedigree_extras  = window.pedigreejs.pedigreejs__extras;

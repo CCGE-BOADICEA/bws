@@ -18,6 +18,7 @@ import os
 from bws.risk_factors.mdensity import Birads, Stratus, Volpara
 from bws.risk_factors.ethnicity import ONSEthnicity
 from django.utils.encoding import force_str
+from builtins import AssertionError
 
 
 class UKBioBankEthnictyTests(TestCase):
@@ -69,6 +70,10 @@ class UKBioBankEthnictyTests(TestCase):
         onsEthnicity = ONSEthnicity("Unknown", None)
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "unknown")
+
+    def test_err(self):
+        with self.assertRaises(AssertionError):
+            ONSEthnicity("xxxx", None)
 
 
 class MammographicDensityTests(TestCase):

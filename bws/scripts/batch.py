@@ -12,19 +12,26 @@ from subprocess import PIPE, Popen
 from bws.pedigree_file import PedigreeFile, CanRiskPedigree
 import re
 import math
+from bws.risk_factors.ethnicity import ONSEthnicity, UKBioBankEthnicty
 
 
-def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", model='BC', muts=False, verbose=False):
+def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", model='BC', muts=False, 
+              verbose=False, biobank_ethnicity=UKBioBankEthnicty()):
     ''' Run batch processing script. '''
     if ashkn or mut_freq == "ASHKENAZI":
         setting = FORTRAN+"settings_"+model+"_AJ"+".ini"
     else:
-        setting = FORTRAN+"settings_"+model+"_"+mut_freq+".ini"
-        
+        if model != "BC" or UKBioBankEthnicty.GROUPS[biobank_ethnicity.ethnicity] ==  "UK-pop":
+            setting = FORTRAN+"settings_"+model+"_"+mut_freq+".ini"
+        else:
+            setting = FORTRAN+"settings_"+model+"_UK_non_european.ini"
+
     if model  == 'OC':
         model_path = os.path.join(FORTRAN, "Ovarian-Cancer-Model")
     elif model == 'BC':
         model_path = os.path.join(FORTRAN, "Breast-Cancer-Model")
+    elif model == 'PC':
+        model_path = os.path.join(FORTRAN, "Prostate-Cancer-Model")
     cmd = [FORTRAN+"run_job.sh",
            "-r", ofile,
            "-i", os.path.join(model_path, "Data/incidences_"+irates.replace('New-Zealand', 'New_Zealand')),
@@ -39,12 +46,17 @@ def run_batch(FORTRAN, cwd, csvfile, ofile, irates, ashkn=False, mut_freq="UK", 
         cmd.append('-c')
         cmd.append('o')
         cmd.append('-e')
-        cmd.append(os.path.join(model_path, "Data/coeffs-OC_UK-pop.nml"))
+        cmd.append(os.path.join(model_path, "Data/coeffs-OC_"+biobank_ethnicity.get_filename()))
     elif model == 'BC':
         cmd.append('-c')
         cmd.append('b')
         cmd.append('-e')
-        cmd.append(os.path.join(model_path, "Data/coeffs-BC_UK-pop.nml"))     
+        cmd.append(os.path.join(model_path, "Data/coeffs-BC_"+biobank_ethnicity.get_filename()))
+    elif model == 'PC':
+        cmd.append('-c')
+        cmd.append('p')
+        cmd.append('-e')
+        cmd.append(os.path.join(model_path, "Data/coeffs-PC_"+biobank_ethnicity.get_filename()))
 
     cmd.append(csvfile)
     
@@ -161,6 +173,7 @@ def get_rfs(bwa):
     '''  Get risk factor names and values plus PRS from CanRisk file for CSV file '''
     rfsnames = []
     rfs = {}
+    biobank_ethnicity = UKBioBankEthnicty()
     menopause_status_code = get_menopause_status_code(bwa)
     f = open(bwa, "r")    
     for line in f:
@@ -169,6 +182,14 @@ def get_rfs(bwa):
                 add_prs(line, 'BC', rfsnames, rfs)
             elif "PRS_OC" in line:    # alpha=0.45,zscore=0.1234
                 add_prs(line, 'OC', rfsnames, rfs)
+            elif "PRS_PC" in line:    # alpha=0.45,zscore=0.1234
+                add_prs(line, 'PC', rfsnames, rfs)
+            elif "ethnicity" in line.lower():
+                line = line.replace("##ethnicity=", "").strip().split(";")
+                if len(line)==2 and line[1] == "":
+                    line[1] = None
+                onsEthnicity = ONSEthnicity(line[0], line[1] if len(line)==2 else None)
+                biobank_ethnicity = ONSEthnicity.ons2UKBioBank(onsEthnicity)
             else:
                 line = line.replace("##", "").strip().split("=")
 
@@ -217,7 +238,7 @@ def get_rfs(bwa):
 
     pedigree = PedigreeFile(pedigree_data).pedigrees[0]
     ashkn = pedigree.is_ashkn()
-    return rfsnames, rfs, ashkn
+    return rfsnames, rfs, ashkn, biobank_ethnicity
 
 
 def compare_mp(model, mp_batch, mp_ws, exact_matches, abs_tol=1e-09):

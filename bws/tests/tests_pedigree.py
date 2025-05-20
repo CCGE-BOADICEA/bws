@@ -87,7 +87,7 @@ class RiskTests(TestCase):
     def test_calculations(self):
         """ Test prediction of cancer risk and mutation probability. """
         pedigree = deepcopy(self.pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         calcs = Predictions(pedigree, cwd=self.cwd)
 
         # each gene should have a mutation probability plus a result for no mutations
@@ -128,7 +128,7 @@ class RiskTests(TestCase):
         maternal_grandmother.cancers = Cancers(bc1=Cancer("42"), bc2=Cancer(), oc=Cancer(),
                                                prc=Cancer(), pac=Cancer())
 
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         calcs = Predictions(pedigree, cwd=self.cwd)
 
         # each gene should have a mutation probability plus a result for no mutations
@@ -150,7 +150,7 @@ class RiskTests(TestCase):
         pedigree = CanRiskPedigree(people=[target])
         # parents
         (_father, _mother) = pedigree.add_parents(target, gtests=CanRiskGeneticTests.default_factory())
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         params = ModelParams(mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
                              mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'])
         calcs = Predictions(pedigree, cwd=self.cwd, model_params=params,
@@ -187,20 +187,20 @@ class RiskTests(TestCase):
         pedigree = deepcopy(self.pedigree)
         t = pedigree.get_target()
         t.age = '20'
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         c80, lif = RiskTests.run_calc('breast', pedigree, calcs=['remaining_lifetime', "lifetime"], cwd=self.cwd)
         self.assertEqual(c80, lif)
 
         # 2. ovarian cancer risk
         pedigree = deepcopy(self.canrisk_pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         c80, lif = RiskTests.run_calc('ovarian', pedigree, calcs=['remaining_lifetime', "lifetime"], cwd=self.cwd)
         self.assertEqual(c80, lif)
 
     def test_10yr_range_risk(self):
         """ Test ten year range (40-49) risk calculation matches the risk to 50 for a 40 year old. """
         pedigree = deepcopy(self.pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         calcs1 = Predictions(pedigree, cwd=self.cwd)
 
         t = pedigree.get_target()
@@ -218,7 +218,7 @@ class RiskTests(TestCase):
     def test_incidence_rates(self):
         """ Test prediction of cancer risk and mutation probability for different incidence rates. """
         pedigree = deepcopy(self.pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         target = pedigree.get_target()
         target.age = 78
         crates = settings.BC_MODEL['CANCER_RATES']
@@ -257,7 +257,7 @@ class RiskTests(TestCase):
     def test_mutation_frequencies(self):
         """ Test prediction of cancer risk and mutation probability for different mutation frequencies. """
         pedigree = deepcopy(self.pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         target = pedigree.get_target()
         target.age = 78
         mutation_frequencies = settings.BC_MODEL['MUTATION_FREQUENCIES']
@@ -278,7 +278,7 @@ class RiskTests(TestCase):
     def test_subproces_err(self):
         """ Test subprocess raises an error when the fortran can not be run. """
         pedigree = deepcopy(self.pedigree)
-        PedigreeFile.validate(pedigree)
+        pedigree.validateAll()
         with self.assertRaises(FileNotFoundError):
             model_settings = copy.deepcopy(settings.BC_MODEL)
             model_settings['HOME'] = 'xyz'

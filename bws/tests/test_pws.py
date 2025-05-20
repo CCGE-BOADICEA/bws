@@ -6,7 +6,6 @@ SPDX-FileCopyrightText: 2024 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
-from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -17,7 +16,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
-import unittest
 
 
 class PwsTests(TestCase):
@@ -28,9 +26,6 @@ class PwsTests(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(PwsTests, cls).setUpClass()
-        if not settings.PROSTATE_CANCER:
-            return
-
         cls.client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
@@ -41,16 +36,17 @@ class PwsTests(TestCase):
         cls.url = reverse('pws')
 
     def setUp(self):
-        self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        self.pedigree_datav3 = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        self.pedigree_datav4 = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
 
     def tearDown(self):
         TestCase.tearDown(self)
-        self.pedigree_data.close()
+        self.pedigree_datav3.close()
+        self.pedigree_datav4.close()
 
-    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_pws_output(self):
         ''' Test output of POSTing to the PWS using token authentication. '''
-        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data,
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav4,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
         PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -65,7 +61,21 @@ class PwsTests(TestCase):
         self.assertGreater(len(pedigree_result["cancer_risks"]), 0)
         self.assertTrue("family_id" in pedigree_result)
 
-    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
+    def test_pws_output_prs(self):
+        ''' Test output of POSTing to the PWS with different PRS zscore. '''
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav3,
+                'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
+        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        res1 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
+
+        data['pedigree_data'] = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+        data['prs'] = json.dumps({'alpha': 0.45, 'zscore': 1.12})
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        res2 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
+        self.assertEqual(res1['age'], res2['age'])
+        self.assertGreater(res1['prostate cancer risk']['percent'], res2['prostate cancer risk']['percent'])
+
     def test_bws_file(self):
         '''
         Test running prostate cancer model using a BOADICEA v4 formatted file.
@@ -76,11 +86,10 @@ class PwsTests(TestCase):
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_pws_warnings(self):
         ''' Test warning when proband has already had prostate cancer and no risks are reported. '''
         # change proband to have had OC
-        pd = self.pedigree_data.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t51')
+        pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t51')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         PwsTests.client.force_authenticate(user=PwsTests.user)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
@@ -88,12 +97,22 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('PROBAND HAS ALREADY HAD A CANCER' in content['Model Error'])
 
-    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
-    @override_settings(FORTRAN_TIMEOUT=0.001)
+    def test_pws_err(self):
+        ''' Test error with an invalid gene test resuly. '''
+        # change proband to have had OC
+        pd = self.pedigree_datav4.read().replace('T:HOM', 'T:ZZZ')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        PwsTests.client.force_authenticate(user=PwsTests.user)
+        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        content = json.loads(force_str(response.content))
+        self.assertTrue('assigned an invalid genetic test result' in content['Gene Test Error'])
+
+    @override_settings(FORTRAN_TIMEOUT=0.0001)
     def test_pws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
-                'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
+                'pedigree_data': self.pedigree_datav4, 'user_id': 'test_XXX'}
         PwsTests.client.force_authenticate(user=PwsTests.user)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
@@ -108,8 +127,6 @@ class PwsTestsPRS(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(PwsTestsPRS, cls).setUpClass()
-        if not settings.PROSTATE_CANCER:
-            return
 
         cls.client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
@@ -126,7 +143,6 @@ class PwsTestsPRS(TestCase):
     def setUp(self):
         self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
 
-    @unittest.skipIf(not settings.PROSTATE_CANCER, "prostate cancer model not used")
     def test_prs_in_canrisk_file(self):
         '''
         Test prostate cancer PRS parameters defined in the header of CanRisk formatted file.
@@ -138,11 +154,9 @@ class PwsTestsPRS(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         prisk1 = json.loads(force_str(response.content))
 
-        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
-        pd = ped.read().replace('##CanRisk 3', '##CanRisk 4\n##PRS_PC=alpha=0.45,zscore=0.982')
+        ped = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
+        pd = ped.read().replace('##CanRisk 4', '##CanRisk 4\n##PRS_PC=alpha=0.45,zscore=0.982')
         ped.close()
-        pd = pd.replace("\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0",         # add extra column for HOXB13
-                        "\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0\t0:0")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
 
         response = PwsTestsPRS.client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
