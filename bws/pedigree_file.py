@@ -129,16 +129,16 @@ class PedigreeFile(object):
             if idx == 0:
                 if consts.REGEX_CANRISK1_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk1'
-                    nfields = settings.BOADICEA_CANRISK_FORMAT_ONE_DATA_FIELDS
+                    nfields = settings.CANRISK_FORMAT_ONE_DATA_FIELDS
                 elif consts.REGEX_CANRISK2_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk2'
-                    nfields = settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS
+                    nfields = settings.CANRISK_FORMAT_TWO_DATA_FIELDS
                 elif consts.REGEX_CANRISK3_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk3'
-                    nfields = settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS
+                    nfields = settings.CANRISK_FORMAT_TWO_DATA_FIELDS
                 elif consts.REGEX_CANRISK4_PEDIGREE_FILE_HEADER.match(line):
                     file_type = 'canrisk4'
-                    nfields = settings.BOADICEA_CANRISK_FORMAT_FOUR_DATA_FIELDS
+                    nfields = settings.CANRISK_FORMAT_FOUR_DATA_FIELDS
                 elif consts.REGEX_BWA_PEDIGREE_FILE_HEADER_ONE.match(line):
                     file_type = 'bwa'
                     nfields = settings.BOADICEA_PEDIGREE_FORMAT_FOUR_DATA_FIELDS
@@ -185,8 +185,8 @@ class PedigreeFile(object):
                                             " data items per line.")
                 elif ((file_type == 'canrisk2' or file_type == 'canrisk3') and len(record) != nfields):
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
-                                            "CanRisk format 2 pedigree files should have " +
-                                            str(settings.BOADICEA_CANRISK_FORMAT_TWO_DATA_FIELDS) +
+                                            "CanRisk format 2 and 3 pedigree files should have " +
+                                            str(nfields) +
                                             " data items per line.")
                 elif ((file_type == 'canrisk4') and len(record) != nfields):
                     raise PedigreeFileError("A data record has an unexpected number of data items. " +
