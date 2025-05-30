@@ -109,7 +109,7 @@ class PedigreeFileTests(TestCase, ErrorTests):
         pd = self.canrisk1_data
         pd = pd.replace('CanRisk 1', 'CanRisk 2', 1)
         with self.assertRaisesRegex(PedigreeFileError,
-                                    r"CanRisk format 2 pedigree files should have 27 data items per line."):
+                                    r"CanRisk format 2 and 3 pedigree files should have 27 data items per line."):
             PedigreeFile(pd)
 
     def test_num_columns3(self):
