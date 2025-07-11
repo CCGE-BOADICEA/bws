@@ -9,8 +9,8 @@
 ##height=168.4
 ##ethnicity=White;English/Welsh/Scottish/Northern Irish/British
 ##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	BARD1	RAD51D	RAD51C	BRIP1	HOXB13	ER:PR:HER2:CK14:CK56
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa	F1	1	PB	PF	PM	F	0	0	55	1969	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa	202	0	PM	0	0	F	0	0	77	1948	55	0	0	0	0	0	S:N	S:P	S:N	S:N	S:N	S:N	S:N	S:N	S:N	T:N	P:N:N:0:0
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa	201	0	PF	PGA	PGO	M	0	1	80	1945	0	0	0	76	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa	NA	0	PGA	0	0	M	0	1	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa	NA	0	PGO	0	0	F	0	1	40	1915	40	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+aaaa	F1	1	PB	PF	PM	F	0	0	55	1969	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+aaaa	202	0	PM	0	0	F	0	0	77	1948	55	0	0	0	0	0	S:N	S:P	S:N	S:N	S:N	S:N	S:N	S:N	S:N	T:N	P:N:N:0:0
+aaaa	201	0	PF	PGA	PGO	M	0	1	80	1945	0	0	0	76	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+aaaa	NA	0	PGA	0	0	M	0	1	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+aaaa	NA	0	PGO	0	0	F	0	1	40	1915	40	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
