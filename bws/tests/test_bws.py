@@ -217,7 +217,17 @@ class BwsTests(BwsMixin):
 
     def test_volpara_white(self):
         ''' Test volpara with an ethnic group it's configured for. '''      
-        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d7.canrisk4"), "r")
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
+        # add volpara with an ethnic group it's configured for
+        pd = ped.read().replace('Asian or Asian British;Chinese', 'White;Irish').replace('menopause', 'volpara')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ped.close()
+
+    def test_stratus_white(self):
+        ''' Test stratus with an ethnic group it's configured for. '''      
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d8.canrisk4"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped.read(), 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
