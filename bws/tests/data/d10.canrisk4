@@ -1,0 +1,14 @@
+##CanRisk 4
+##menarche=14
+##parity=1
+##first_live_birth=27
+##mht_use=C
+##menopause=N
+##stratus=44.3
+##height=162
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	BARD1	RAD51D	RAD51C	BRIP1	HOXB13	ER:PR:HER2:CK14:CK56
+NIC	NA	0	PF	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+NIC	NA	0	DNlz	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+NIC	NA	0	PM	0	0	F	0	1	47	1977	45	0	0	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	S:P	0:0	0:0	0:0	P:0:0:0:0
+NIC	me	1	PB	PF	PM	F	0	0	32	1993	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+NIC	NA	0	vAUB	DNlz	PB	F	0	0	5	2020	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0

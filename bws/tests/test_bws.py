@@ -233,6 +233,14 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
+    def test_stratus_premenopause(self):
+        ''' Test stratus with menopause=N. '''      
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d10.canrisk4"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped.read(), 'user_id': 'test_XXX'}
+        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ped.close()
+
     def test_birads(self):
         ''' Test BIRADS. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d9.canrisk4"), "r")
