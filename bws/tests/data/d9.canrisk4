@@ -4,6 +4,7 @@
 ##menopause=N
 ##birads=c
 ##height=162
+##oc_use=F:12
 ##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	BARD1	RAD51D	RAD51C	BRIP1	HOXB13	ER:PR:HER2:CK14:CK56
 NIC	201	0	PF	0	0	M	0	0	0	0	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
 NIC	202	0	PM	0	0	F	0	1	61	1940	55	0	44	0	0	0	S:P	0:0	0:0	0:0	0:0	0:0	S:P	0:0	0:0	0:0	P:0:0:0:0
