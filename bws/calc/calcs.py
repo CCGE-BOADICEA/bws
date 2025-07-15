@@ -328,6 +328,11 @@ class Predictions():
         cancer_rates = model_params.cancer_rates
         cmd = [os.path.join(model['HOME'], model['EXE'])]
         mname = str(model.get('NAME', ""))
+
+        # For now disallowing UK ethnicity selection for the prostate cancer model
+        if mname == "PC" and model_params.ethnicity.get_filename() != "UK-pop.nml":
+            raise ModelError("prostate cancer model does not support UK ethnicity.")
+
         if param_file is not None:
             cmd.extend(["-s", param_file])
         cmd.extend(["-e", os.path.join(model["HOME"], 'Data', "coeffs-"+mname+"_"+model_params.ethnicity.get_filename())])

@@ -199,7 +199,15 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AgeOfMenopause.get_category('-'), 0)
         self.assertEqual(bc.AgeOfMenopause.get_category('N'), 0)
         self.assertEqual(bc.AgeOfMenopause.get_category('39'), 1)
+        self.assertEqual(bc.AgeOfMenopause.get_category(54), 4)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
+
+    def test_get_value(self):
+        self.assertEqual(bc.OralContraception.get_value("F"), 'F')
+        self.assertEqual(bc.OralContraception.get_value("F:2"), 'F:2')
+        self.assertEqual(bc.AgeOfMenopause.get_value("45-49"), '45')
+        self.assertEqual(bc.AgeOfMenopause.get_value(">54"), '55')
+        self.assertEqual(bc.AgeOfMenopause.get_value("<40"), '39')
 
 
 class RiskFactorsCodeTests(TestCase):
