@@ -1,5 +1,6 @@
 ##CanRisk 1.0
 ##height=162
+##oc_use=C:2
 ##PRS_BC=alpha=0.45,zscore=0.11
 ##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
 NICE	102	0	PGO	0	0	F	0	1	40	1915	40	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
