@@ -16,6 +16,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import json
 import os
+from bws.pedigree_file import PedigreeFile
 
 
 class OwsTests(TestCase):
@@ -59,6 +60,9 @@ class OwsTests(TestCase):
 
         # check results returned for input pedigree
         pedigree_result = content["pedigree_result"][0]
+        self.assertTrue("lifetime_cancer_risk" in pedigree_result)
+        self.assertTrue("baseline_lifetime_cancer_risk" in pedigree_result)
+        self.assertTrue("baseline_cancer_risks" in pedigree_result)
         self.assertTrue("cancer_risks" in pedigree_result)
         self.assertGreater(len(pedigree_result["cancer_risks"]), 0)
         self.assertTrue("family_id" in pedigree_result)
@@ -74,9 +78,29 @@ class OwsTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertEqual(len(content['pedigree_result']), 3, "three results")
-        family_ids = ["XXX0", "XXX1", "XXX2"]
+        multi_pedigree_data.close()
+
+        #
+        with open(os.path.join(OwsTests.TEST_DATA_DIR, "multi", "d2.canrisk"), "r") as f:
+            multi_pedigree_data = f.read()
+        f.close()
+        pf = PedigreeFile(multi_pedigree_data)
+        family_ids = []
+        pedigrees = {}
+        for p in pf.pedigrees:
+            family_ids.append(p.famid)
+            pedigrees[p.famid] = p
+
         for res in content['pedigree_result']:
             self.assertTrue(res['family_id'] in family_ids)
+            p = pedigrees[res['family_id']]
+            t = p.get_target()
+            if not t.cancers.is_cancer_diagnosed(): # if no cancer diagnosis lifetime cancer risks present
+                self.assertTrue("lifetime_cancer_risk" in res)
+                self.assertTrue("baseline_lifetime_cancer_risk" in res)
+            
+            self.assertTrue("baseline_cancer_risks" in res)
+            self.assertTrue("cancer_risks" in res)
 
     def test_ows_bwa(self):
         ''' Test web-service takes BWA file as input. '''
