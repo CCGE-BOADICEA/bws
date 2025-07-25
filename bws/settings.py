@@ -210,7 +210,7 @@ OC_MODEL = {
     'CANCERS': ['bc1', 'bc2', 'oc', 'prc', 'pac'],      # NOTE: order used by fortran pedigree file
     'GENES': ['BRCA1', 'BRCA2', 'RAD51D', 'RAD51C',     # NOTE: order used by fortran pedigree file
               'BRIP1', 'PALB2'],
-    'CALCS': ['carrier_probs', 'remaining_lifetime'],
+    'CALCS': ['carrier_probs', 'remaining_lifetime', 'lifetime'],
     'MUTATION_FREQUENCIES': OrderedDict([(
         'UK', {
             'BRCA1': 0.0007947,
