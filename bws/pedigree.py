@@ -332,7 +332,7 @@ class Pedigree(metaclass=abc.ABCMeta):
         if ((target is None or
              (not allowMale and isinstance(target, Male)) or
              (not allowFemale and isinstance(target, Female)) or
-             (d.bc2.age != "-1") or (d.pac.age != "-1") or (d.oc.age != "-1") or
+             (d.bc2.age != "-1") or (d.pac.age != "-1") or (d.oc.age != "-1") or (d.prc.age != "-1") or
              (int(target.age) > settings.MAX_AGE_FOR_RISK_CALCS) or
              (int(target.yob) < settings.MIN_YEAR_OF_BIRTH))):
             return False

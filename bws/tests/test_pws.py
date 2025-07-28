@@ -87,15 +87,17 @@ class PwsTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pws_warnings(self):
-        ''' Test warning when proband has already had prostate cancer and no risks are reported. '''
+        ''' Test when proband has already had prostate cancer that no risks are reported. '''
         # change proband to have had OC
-        pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t51')
+        pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t33')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
         PwsTests.client.force_authenticate(user=PwsTests.user)
         response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
-        self.assertTrue('PROBAND HAS ALREADY HAD A CANCER' in content['Model Error'])
+        self.assertTrue("pedigree_result" in content)
+        self.assertTrue('cancer_risks not provided' in content['warnings'])
+        self.assertTrue('mutation_probabilties' in content['pedigree_result'][0])
 
     def test_pws_err(self):
         ''' Test error with an invalid gene test resuly. '''
