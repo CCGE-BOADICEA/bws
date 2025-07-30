@@ -152,7 +152,7 @@ class ModelWebServiceMixin(APIView):
                         this_pedigree["prs"] = {'alpha': prs.alpha, 'zscore': prs.zscore}
                     this_pedigree["mutation_frequency"] = {this_params.population: this_params.mutation_frequency}
                     self.add_attr("version", output, calcs, output)
-                    self.add_attr("mutation_probabilties", this_pedigree, calcs, output)
+                    self.add_attr("mutation_probabilities", this_pedigree, calcs, output)
                     self.add_attr("cancer_risks", this_pedigree, calcs, output)
                     self.add_attr("baseline_cancer_risks", this_pedigree, calcs, output)
                     self.add_attr("lifetime_cancer_risk", this_pedigree, calcs, output)
