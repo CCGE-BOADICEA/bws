@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 15:57+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -168,18 +168,18 @@ msgstr ""
 msgid "Request has timed out."
 msgstr ""
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
 "%(id)s to be included in a calculation"
 msgstr ""
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr ""
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr ""
 
