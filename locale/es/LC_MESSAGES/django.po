@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 15:57+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -33,16 +33,17 @@ msgid ""
 "negative). "
 msgstr ""
 "Por favor, tenga en cuenta las normas siguientes relacionadas con los datos "
-"patológicos del cáncer de mama:  (1) si el estado ER de un sujeto no está "
+"patológicos del cáncer de mama: (1) si el estado ER de un sujeto no está "
 "especificado, no se tendrá en cuenta en el cálculo ningún tipo de "
 "información patológica para dicho individuo; (2) si el cáncer de mama es ER "
 "positivo, no se tendrá en cuenta en el cálculo ningún otro tipo de "
 "información patológica; (3) si el cáncer de mama es ER negativo, la "
-"información sobre PR y HER2 de dicho sujeto solamente será considerada en el "
-"cálculo si se especifican tanto PR como HER2; y (4) el estado CK14 y CK5/6 "
+"información sobre PR y HER2 de dicho sujeto solamente será considerada "
+"conjuntamente; es decir si el cáncer es triple negativo (ER-/PR-/HER2-) o no "
+"(es decir, ER-/PR-/HER2+ o ER-/PR+/HER2- o ER-/PR+/HER2+); y (4) el estado CK14 y CK5/6 "
 "de un sujeto solamente será considerado en el cálculo si tanto CK14 como "
 "CK5/6 son especificados y si el cáncer de mama es triple negativo (ER "
-"negativo, PR negativo y HER2 negativo). "
+"negativo, PR negativo y HER2 negativo)."
 
 #: bws/cancer.py:134
 #, python-format
@@ -67,7 +68,7 @@ msgid ""
 msgstr ""
 "Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
 "tiene una patología de cáncer de mama en donde se especifica el estado PR "
-"pero no se especifica el estado HER2 (o viceversa).  %(rules)sComo resultado, "
+"pero no se especifica el estado HER2 (o viceversa). %(rules)sComo resultado, "
 "los estados PR y HER2 no serán considerados en este caso."
 
 #: bws/cancer.py:153
@@ -95,7 +96,7 @@ msgstr ""
 "Registro de datos incompleto en el linaje familiar: El pariente \"%(id)s\" "
 "tiene una patología de cáncer de mama en donde los estados CK14 o CK5/6 han "
 "sido especificados pero la patología de cáncer de mama no es triple negativo "
-"(ER negativo, PR negativo y HER2 negativo).  %(rules)s Como resultado, los "
+"(ER negativo, PR negativo y HER2 negativo). %(rules)s Como resultado, los "
 "estados CK14 y CK5/6 no serán considerados en este caso."
 
 #: bws/cancer.py:172
@@ -119,8 +120,8 @@ msgid ""
 "direct gene test."
 msgstr ""
 "El pariente \"%(id)s\" ha recibido asignado un tipo de prueba genética "
-"inválida. Debe especificarse con '0' para no sometido a prueba, 'S' para "
-"búsqueda de mutación o 'T' para prueba de gen directo."
+"inválido. Debe especificarse con '0' para no analizado, 'S' para "
+"estudio completo o 'T' para prueba de gen directo."
 
 #: bws/cancer.py:219
 #, python-format
@@ -131,7 +132,7 @@ msgid ""
 msgstr ""
 "El pariente \"%(id)s\" ha recibido asignado un resultado de prueba genética "
 "inválido. Los resultados de la prueba genética deben ser '0' para no "
-"sometido a prueba, 'N' para sin mutación y 'P' para mutación detectada."
+"analizado, 'N' para sin mutación, 'P' para mutación detectada."
 
 #: bws/cancer.py:225
 #, python-format
@@ -159,8 +160,8 @@ msgid ""
 "unaffected, 'AU' for affected at unknown age, or specified with an integer "
 "in the range 1-%(max_age)s."
 msgstr ""
-"La edad del pariente \"%(id)s\" en el momento del diagnóstico del cáncer "
-"(%(ctype)s) ha sido especificada como %(dage)s. La edad en el momento de "
+"El pariente \"%(id)s\" en el momento del diagnóstico de cáncer ""tiene una edad "
+"(%(ctype)s) especificada como %(dage)s. La edad en el momento del "
 "diagnóstico del cáncer debe ser '0' para no afectado, 'AU' para afectado a "
 "edad desconocida o especificarse con un número entero dentro del intervalo "
 "de 1-%(max_age)s."
@@ -232,7 +233,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "La solicitud ha expirado."
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -241,11 +242,11 @@ msgstr ""
 "Debe especificar el año de nacimiento y la edad en el momento del último "
 "chequeo para poder incluir %(id)s en un cálculo"
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr "Densidad mamográfica"
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr "Altura (cm)"
 

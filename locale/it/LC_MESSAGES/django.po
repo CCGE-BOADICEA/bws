@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 15:57+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -32,17 +32,18 @@ msgid ""
 "breast cancer is triple negative (ER negative, PR negative and HER2 "
 "negative). "
 msgstr ""
-"Osservare le seguenti regole per i dati patologici del tumore della "
+"Si tenga conto delle seguenti regole per i dati patologici del tumore della "
 "mammella: (1) se lo stato ER di un soggetto non è specificato, nel calcolo "
 "non sarà presa in considerazione alcuna informazione patologica per tale "
 "soggetto; (2) se un tumore della mammella è ER positivo, nel calcolo non "
 "saranno prese in considerazione altre informazioni patologiche per tale "
-"soggetto; (3) se un tumore della mammella è ER negativo, nel calcolo si "
-"terrà conto delle informazioni su PR e HER2 per tale soggetto solo se PR e "
-"HER2 sono entrambi specificati; e (4) lo stato CK14 e CK5/6 di un soggetto "
+"soggetto; (3) se un tumore della mammella è ER negativo, le informazioni su PR e "
+"HER2 vengono impiegate solo in modo congiunto: vale a dire, il tumore è triplo negativo "
+"(ER-/PR-/HER2-) o non lo è (cioè ER-/PR-/HER2+ o ER-/PR+/HER2- o ER-/PR+/HER2+), e non "
+"viene considerata alcun’altra opzione; e (4) lo stato CK14 e CK5/6 di un soggetto "
 "sarà preso in considerazione nel calcolo solo se CK14 e CK5/6 sono entrambi "
 "specificati e se il tumore della mammella è triplo negativo (ER negativo, PR "
-"negativo e HER2 negativo). "
+"negativo e HER2 negativo)."
 
 #: bws/cancer.py:134
 #, python-format
@@ -52,12 +53,11 @@ msgid ""
 "CK5/6) has been specified. %(rules)s As a result, this individual's "
 "pathology information will not be taken into account in this case."
 msgstr ""
-"Dati incompleti nell'albero genealogico: nei dati patologici del tumore "
-"della mammella sviluppato dal membro della famiglia \"%(id)s\" lo stato ER "
-"non è specificato, tuttavia è stato specificato un altro parametro "
-"patologico (PR, HER2, CK14 o CK5/6). %(rules)s Di conseguenza, in questo "
-"caso non saranno prese in considerazione le informazioni patologiche di "
-"questo soggetto."
+"Dati incompleti nell'albero genealogico: per il membro della famiglia "
+"\"%(id)s\" lo stato ER non è specificato, tuttavia è stato specificato "
+"un altro parametro patologico (PR, HER2, CK14 o CK5/6). %(rules)s Di "
+"conseguenza, in questo caso non saranno prese in considerazione le "
+"informazioni patologiche di questo soggetto."
 
 #: bws/cancer.py:144
 #, python-format
@@ -124,8 +124,8 @@ msgid ""
 "direct gene test."
 msgstr ""
 "Al membro della famiglia \"%(id)s\" è stato assegnato un tipo di test "
-"genetico non valido. Deve essere specificato \"0\" per \"non testato\", "
-"\"S\" per \"ricerca di mutazioni\" o \"T\" per \"test genetico mirato\"."
+"genetico non valido. Deve essere specificato \"0\" per non testato, "
+"\"S\" per ricerca di mutazioni o \"T\" per test genetico mirato."
 
 #: bws/cancer.py:219
 #, python-format
@@ -134,10 +134,10 @@ msgid ""
 "Genetic test results must be '0' for untested, 'N' for no mutation, 'P' "
 "mutation detected."
 msgstr ""
-"Al membro della famiglia \"%(id)s\" è stato assegnato un risultato del test "
+"Al membro della famiglia \"%(id)s\" è stato assegnato un risultato di test "
 "genetico non valido. Per i risultati del test genetico deve essere "
-"specificato \"0\" per \"non testato\", \"N\" per \"nessuna mutazione\" e "
-"\"P\" per \"mutazione rilevata\"."
+"specificato \"0\" per non testato, \"N\" per nessuna mutazione e "
+"\"P\" per mutazione rilevata."
 
 #: bws/cancer.py:225
 #, python-format
@@ -167,8 +167,8 @@ msgid ""
 msgstr ""
 "Per il membro della famiglia \"%(id)s\" è stata specificata un'età alla "
 "diagnosi di tumore (%(ctype)s) pari a %(dage)s. L'età alla diagnosi di "
-"tumore deve essere impostata su \"0\" per \"non affetto\", su \"AU\" per "
-"\"affetto a un'età non nota\", oppure specificata con un numero intero "
+"tumore deve essere specificata come \"0\" per \"non affetto\", \"AU\" per "
+"\"affetto a un'età non nota\", oppure con un numero intero "
 "compreso nell'intervallo 1-%(max_age)s."
 
 #: bws/cancer.py:380
@@ -179,8 +179,8 @@ msgid ""
 "age at last follow up."
 msgstr ""
 "Al membro della famiglia \"%(id)s\" è stata assegnata un'età alla diagnosi "
-"di tumore che supera l'età all'ultimo follow-up. L'età alla diagnosi di "
-"tumore non deve superare l'età all'ultimo follow-up."
+"di tumore che supera l'età registrata all'ultimo follow-up. L'età alla diagnosi "
+"di tumore non deve superare l'età registrata all'ultimo follow-up."
 
 #: bws/cancer.py:387
 #, python-format
@@ -209,7 +209,7 @@ msgid ""
 "better to provide some estimate of it so that risks are not underestimated."
 msgstr ""
 "Il membro della famiglia \"%(id)s\" ha ricevuto una diagnosi di tumore, ma "
-"non è stato specificato alcun anno di nascita per il soggetto. Per tutti i "
+"il suo anno di nascita non è stato specificato. Per tutti i "
 "membri della famiglia affetti da tumore deve essere specificato un anno di "
 "nascita valido. Se l'anno di nascita di un membro della famiglia affetto da "
 "tumore non è noto, è sempre consigliabile fornire un anno di nascita "
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "La richiesta è scaduta."
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -249,11 +249,11 @@ msgstr ""
 "È necessario specificare l'anno di nascita e l'età all'ultimo follow-up "
 "affinché %(id)s sia incluso nel calcolo"
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr "Densità mammografica"
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr "Altezza (cm)"
 
