@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-23 15:10+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -43,7 +43,7 @@ msgstr ""
 "HER2+), nenhuma outra opção será considerada; e (4) o estado de CK14 e de "
 "CK5/6 de um indivíduo só será levado em consideração nos cálculos se CK14 e "
 "CK5/6 forem especificados e o câncer de mama for triplo negativo (RE "
-"negativo, RP negativo e HER2 negativo). "
+"negativo, RP negativo e HER2 negativo)."
 
 #: bws/cancer.py:134
 #, python-format
@@ -206,7 +206,7 @@ msgid ""
 "birth. If an affected family member's year of birth is unknown, it is always "
 "better to provide some estimate of it so that risks are not underestimated."
 msgstr ""
-"Um membro da família \"%(id)s\" foi diagnosticado com câncer, mas ano de seu "
+"Um membro da família \"%(id)s\" foi diagnosticado com câncer, mas o ano de seu "
 "nascimento não foi especificado. Todos os membros da família com câncer "
 "devem ter um ano de nascimento válido. Se o ano de nascimento de um membro "
 "da família afetado for desconhecido, é sempre melhor fornecer uma estimativa "
@@ -236,7 +236,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "O seu pedido expirou."
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -245,11 +245,11 @@ msgstr ""
 "o ano de nascimento e a idade no último acompanhamento têm de ser "
 "especificados a fim de %(id)s ser incluído num cálculo"
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr "Densidade mamográfica"
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr "Altura (cm)"
 
@@ -271,7 +271,7 @@ msgstr "Uso de contraceptivo oral"
 
 #: bws/risk_factors/bc.py:51 bws/risk_factors/oc.py:49
 msgid "Hormone Replacement Therapy"
-msgstr "Terapêutica de reposição hormonal"
+msgstr "Terapia de reposição hormonal"
 
 #: bws/risk_factors/bc.py:67 bws/risk_factors/oc.py:95
 msgid "Body Mass Index"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 15:57+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -35,16 +35,16 @@ msgstr ""
 "Bitte beachten Sie die folgenden Regeln für die Daten zur "
 "Brustkrebspathologie: (1) Wird der ER-Status einer Person nicht angegeben, "
 "werden bei der Berechnung keine Pathologiedaten für diese Person "
-"berücksichtigt; (2) ist ein Brustkrebs ER-positiv, werden bei der Berechnung "
-"keine weiteren Pathologiedaten für diese Person berücksichtigt; (3) ist ein "
+"berücksichtigt. (2) Ist ein Brustkrebs ER-positiv, werden bei der Berechnung "
+"keine weiteren Pathologiedaten für diese Person berücksichtigt. (3) Ist ein "
 "Brustkrebs ER-negativ, werden PR- und HER2-Daten für diese Person bei der "
 "Berechnung nur zusammen berücksichtigt: d. h. der Krebs ist entweder "
 "dreifach negativ (ER-/PR-/HER2-) oder er ist es nicht (d. h. ER-/PR-/HER2+ "
 "oder ER-/PR+/HER2- oder ER-/PR+/HER2+); andere Möglichkeiten werden nicht "
-"berücksichtigt; und (4) der CK14- und CK5/6-Status einer Person wird nur "
+"berücksichtigt. (4) Der CK14- und CK5/6-Status einer Person wird nur "
 "dann bei der Berechnung berücksichtigt, wenn sowohl CK14 als auch CK5/6 "
-"spezifiziert wurde und der Brustkrebs dreifach negativ (ER-negativ, PR-"
-"negativ und HER2-negativ) ist. "
+"spezifiziert wurden und der Brustkrebs dreifach negativ (ER-negativ, PR-"
+"negativ und HER2-negativ) ist."
 
 #: bws/cancer.py:134
 #, python-format
@@ -174,9 +174,9 @@ msgid ""
 "exceeds age at last follow up. An age at cancer diagnosis must not exceed an "
 "age at last follow up."
 msgstr ""
-"Familienmitglied \"%(id)s\" wurde ein Alter bei Krebsdiagnose zugewiesen, "
+"Familienmitglied \"%(id)s\" wurde ein Alter bei der Krebsdiagnose zugewiesen, "
 "das höher ist als das Alter bei der letzten Nachuntersuchung. Das Alter bei "
-"Krebsdiagnose darf das Alter bei der letzten Nachuntersuchung nicht "
+"der Krebsdiagnose darf das Alter bei der letzten Nachuntersuchung nicht "
 "übersteigen."
 
 #: bws/cancer.py:387
@@ -235,7 +235,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "Zeitüberschreitung der Anforderung."
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -244,11 +244,11 @@ msgstr ""
 "Damit %(id)s bei der Berechnung berücksichtigt werden kann, müssen "
 "Geburtsjahr und Alter bei der letzten Nachuntersuchung eingegeben werden."
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr "Mammographisch ermittelte Brustdrüsendichte"
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr "Körpergröße (cm)"
 
