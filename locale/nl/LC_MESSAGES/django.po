@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-16 15:57+0000\n"
+"POT-Creation-Date: 2025-07-29 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 #: bws/cancer.py:117
 msgid ""
 "Please note the following rules for breast cancer pathology data: (1) if an "
@@ -45,7 +45,7 @@ msgstr ""
 "Dan worden er geen andere opties overwogen. En (4) er wordt bij de "
 "berekening alleen rekening gehouden met de status CK14 en CK5/6 van "
 "individuen als zowel CK14 als CK5/6 zijn gespecificeerd en de borstkanker "
-"triple-negatief is (ER-negatief, PR-negatief en HER2-negatief). "
+"triple-negatief is (ER-negatief, PR-negatief en HER2-negatief)."
 
 #: bws/cancer.py:134
 #, python-format
@@ -70,7 +70,7 @@ msgid ""
 msgstr ""
 "Onvolledige gegevens in de stamboom: familielid \"%(id)s\" heeft borstkanker "
 "waarbij de PR-status is gespecificeerd maar de HER2-status niet is "
-"gespecificeerd (of omgekeerd).  %(rules)sDaarom wordt in dit geval geen "
+"gespecificeerd (of omgekeerd). %(rules)sDaarom wordt in dit geval geen "
 "rekening gehouden met de PR-status en HER2-status."
 
 #: bws/cancer.py:153
@@ -94,9 +94,9 @@ msgid ""
 "HER2 negative). %(rules)s As a result, CK14 and CK5/6 status will not be "
 "taken into account in this case."
 msgstr ""
-"Onvolledige gegevens in de stamboom: familielid \"%(id)s\" heeft borstkanker "
-"waarbij de status CK14 of CK5/ 6 is gespecificeerd maar de borstkanker "
-"niet triple-negatief is (ER-negatief, PR-negatief en HER2-negatief).  %(rules)s "
+"Onvolledige gegevens in uw stamboom: familielid \"%(id)s\" heeft borstkanker "
+"waarbij de status CK14 of CK5/6 is gespecificeerd maar de borstkanker "
+"niet triple-negatief is (ER-negatief, PR-negatief en HER2-negatief). %(rules)s "
 "Daarom wordt in dit geval geen rekening gehouden met de status CK14 of CK5/6."
 
 #: bws/cancer.py:172
@@ -176,9 +176,9 @@ msgid ""
 "age at last follow up."
 msgstr ""
 "Er is een leeftijd ten tijde van de diagnose van kanker toegewezen aan "
-"familielid \"%(id)s\" die hoger is dan bij de laatste follow up. De leeftijd "
+"familielid \"%(id)s\" die hoger is dan bij de laatste follow-up. De leeftijd "
 "ten tijde van de diagnose van kanker mag niet hoger zijn dan de leeftijd bij "
-"de laatste follow up."
+"de laatste follow-up."
 
 #: bws/cancer.py:387
 #, python-format
@@ -236,7 +236,7 @@ msgstr ""
 msgid "Request has timed out."
 msgstr "Time-out bij verzoek."
 
-#: bws/pedigree_file.py:221
+#: bws/pedigree_file.py:224
 #, python-format
 msgid ""
 "year of birth and age at last follow up must be specified in order for "
@@ -245,11 +245,11 @@ msgstr ""
 "Geboortejaar en leeftijd ten tijde van laatste follow-up moet worden "
 "gespecificeerd voor %(id)s opname in een berekening"
 
-#: bws/rest_api.py:136
+#: bws/rest_api.py:147
 msgid "Mammographic Density"
 msgstr "Borstdensiteit"
 
-#: bws/rest_api.py:139
+#: bws/rest_api.py:150
 msgid "Height (cm)"
 msgstr "Lengte (cm)"
 
