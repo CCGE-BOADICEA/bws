@@ -11,6 +11,7 @@ from altcha.altcha import ChallengeOptions, create_challenge, \
 from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,8 @@ ALTCHA_HMAC_KEY = os.getenv(
 
 
 class ChallengeView(APIView):
-    
+
+    @extend_schema(exclude=True)    # exclude from the swagger docs
     def get(self, _request):
         try:
             logger.debug(ALTCHA_HMAC_KEY)
@@ -40,6 +42,7 @@ class ChallengeView(APIView):
 
 class SubmitView(APIView):
 
+    @extend_schema(exclude=True)    # exclude from the swagger docs
     def post(self, request):
         form_data = request.form.to_dict()
         payload = request.form.get("altcha")
@@ -59,6 +62,7 @@ class SubmitView(APIView):
 
 class SubmitSpamFilter(APIView):
 
+    @extend_schema(exclude=True)    # exclude from the swagger docs
     def post(self, request):
         form_data = request.form.to_dict()
         payload = request.form.get("altcha")
