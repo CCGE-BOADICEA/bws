@@ -395,3 +395,7 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_FAVICON_HREF": "/static/favicon.ico",
     'SORT_OPERATION_PARAMETERS': False,
 }
+
+# update this
+ALTCHA_HMAC_KEY = 'secret-hmac-key'
+
