@@ -8,6 +8,7 @@ import time
 
 from altcha.altcha import ChallengeOptions, create_challenge, \
     verify_server_signature, verify_fields_hash, verify_solution
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Get HMAC key from environment variables
 ALTCHA_HMAC_KEY = os.getenv(
-    "ALTCHA_HMAC_KEY", "secret-hmac-key"
+    "ALTCHA_HMAC_KEY", settings.ALTCHA_HMAC_KEY
 )
 
 
