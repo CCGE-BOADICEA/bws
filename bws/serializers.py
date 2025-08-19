@@ -120,7 +120,7 @@ class PedigreeResultSerializer(serializers.Serializer):
     ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False, help_text="10 year age range risks")
     baseline_ten_yr_cancer_risk = serializers.ListField(read_only=True, required=False, help_text="Baseline/population 10 year age range risks")
     ten_yr_nhs_protocol = serializers.ListField(read_only=True, required=False, help_text="NHS protocol 10 year breast cancer risks")
-    mutation_probabilties = serializers.ListField(read_only=True, help_text="Pathogenic variant carrier probability")
+    mutation_probabilities = serializers.ListField(read_only=True, help_text="Pathogenic variant carrier probability")
 
 
 class OutputSerializer(serializers.Serializer):
