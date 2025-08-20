@@ -384,7 +384,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'CanRisk API',
-    'DESCRIPTION': ("API for BOADICEA models to calculate breast and ovarian cancer risks "
+    'DESCRIPTION': ("CanRisk API for models to calculate breast, ovarian and prostate cancer risks "
                     "based on information entered for the individual which can include "
                     "personal risk factors, cancer family history, genetic testing for "
                     "high- and moderate-risk genes, polygenic scores and mammographic density."),
