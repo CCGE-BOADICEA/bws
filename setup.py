@@ -18,7 +18,7 @@ setup(
     url='https://github.com/CCGE-BOADICEA/bws',
     description='Django app for web-services for CaanRisk',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
-    install_requires=["requests>=2.26.0", "Django>=4.2.3,<5", "djangorestframework>=3.15.0",
+    install_requires=["requests>=2.26.0", "Django>=4.2.3,<5", "djangorestframework>=3.16.0",
                       "drf-spectacular>=0.28.0", "PyVCF==0.6.8", "altcha==0.2.0"],
     classifiers=[
         'Environment :: Web Environment',
