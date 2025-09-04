@@ -361,6 +361,7 @@ class BwsTests(BwsMixin):
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d5.dead.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
         response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        canrisk_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
