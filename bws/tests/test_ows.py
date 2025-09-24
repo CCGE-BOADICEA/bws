@@ -27,7 +27,7 @@ class OwsTests(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(OwsTests, cls).setUpClass()
-        cls.client = APIClient(enforce_csrf_checks=True)
+        cls.drf_client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
@@ -51,8 +51,8 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
-        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
@@ -73,8 +73,8 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': multi_pedigree_data,
                 'user_id': 'test_XXX'}
-        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertEqual(len(content['pedigree_result']), 3, "three results")
@@ -108,8 +108,8 @@ class OwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': pedigree_data,
                 'user_id': 'test_XXX'}
-        OwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
+        response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_ows_warnings(self):
@@ -118,8 +118,8 @@ class OwsTests(TestCase):
         pd = self.pedigree_data.read().replace('1967\t0\t0\t0', '1967\t0\t0\t51')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTests.drf_client.force_authenticate(user=OwsTests.user)
+        response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
@@ -129,8 +129,8 @@ class OwsTests(TestCase):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
-        OwsTests.client.force_authenticate(user=OwsTests.user)
-        response = OwsTests.client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTests.drf_client.force_authenticate(user=OwsTests.user)
+        response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
@@ -143,7 +143,7 @@ class OwsTestsPRS(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(OwsTestsPRS, cls).setUpClass()
-        cls.client = APIClient(enforce_csrf_checks=True)
+        cls.drf_client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
@@ -164,15 +164,15 @@ class OwsTestsPRS(TestCase):
         Calculate the cancer risk with and without a PRS and ensure that they are different.
         '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
-        OwsTestsPRS.client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTestsPRS.token.key)
-        response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        OwsTestsPRS.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTestsPRS.token.key)
+        response = OwsTestsPRS.drf_client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk1 = json.loads(force_str(response.content))
 
         ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,zscore=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = OwsTestsPRS.drf_client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk2 = json.loads(force_str(response.content))
 
@@ -184,7 +184,7 @@ class OwsTestsPRS(TestCase):
         ped = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         pd = ped.read().replace('##CanRisk 1.0', '##CanRisk 1.0\n##PRS_OC=alpha=0.45,beta=0.982')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = OwsTestsPRS.client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = OwsTestsPRS.drf_client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk3 = json.loads(force_str(response.content))
 
