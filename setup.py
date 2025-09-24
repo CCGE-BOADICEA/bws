@@ -19,7 +19,7 @@ setup(
     description='Django app for web-services for CaanRisk',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
     install_requires=["requests>=2.26.0", "Django>=5.2,<6", "djangorestframework>=3.16.0",
-                      "drf-spectacular>=0.28.0", "PyVCF==0.6.8", "altcha==0.2.0"],
+                      "drf-spectacular>=0.28.0", "altcha==0.2.0"],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
