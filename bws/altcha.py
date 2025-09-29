@@ -28,7 +28,6 @@ class ChallengeView(APIView):
     @extend_schema(exclude=True)    # exclude from the swagger docs
     def get(self, _request):
         try:
-            logger.debug(ALTCHA_HMAC_KEY)
             challenge = create_challenge(
                 ChallengeOptions(
                     hmac_key=ALTCHA_HMAC_KEY,
