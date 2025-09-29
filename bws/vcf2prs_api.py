@@ -24,15 +24,15 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.serializers import FileField
 from rest_framework.views import APIView
-import vcf
+from vcf2prs import myPyVCF
 import vcf2prs
 from vcf2prs.exception import Vcf2PrsError
 from vcf2prs.prs import Prs
 
 from bws.rest_api import RequiredAnyPermission
+from bws.serializers import PRSField
 from bws.settings import BC_MODEL, OC_MODEL, PC_MODEL
 from bws.throttles import BurstRateThrottle, EndUserIDRateThrottle, SustainedRateThrottle
-from bws.serializers import PRSField
 
 
 #from django.conf import settings
@@ -159,7 +159,7 @@ class Vcf2PrsView(APIView):
         """ Get the samples in the VCF file. """
         try:
             fsock = io.StringIO(vcf_file)
-            vcf_content = vcf.Reader(fsock)
+            vcf_content = myPyVCF.Reader(fsock)
             samples = vcf_content.samples
             fsock.close()
             return samples
