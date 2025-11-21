@@ -26,7 +26,7 @@ class PwsTests(TestCase):
     def setUpClass(cls):
         ''' Create a user and set up the test client. '''
         super(PwsTests, cls).setUpClass()
-        cls.client = APIClient(enforce_csrf_checks=True)
+        cls.drf_client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         cls.user.user_permissions.add(Permission.objects.get(name='Commercial PC webservices'))
@@ -48,8 +48,9 @@ class PwsTests(TestCase):
         ''' Test output of POSTing to the PWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav4,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
-        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
@@ -65,13 +66,13 @@ class PwsTests(TestCase):
         ''' Test output of POSTing to the PWS with different PRS zscore. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_datav3,
                 'user_id': 'test_XXX', 'prs': json.dumps({'alpha': 0.45, 'zscore': 1.652})}
-        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         res1 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
 
         data['pedigree_data'] = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
         data['prs'] = json.dumps({'alpha': 0.45, 'zscore': 1.12})
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         res2 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
         self.assertEqual(res1['age'], res2['age'])
         self.assertGreater(res1['prostate cancer risk']['percent'], res2['prostate cancer risk']['percent'])
@@ -82,8 +83,8 @@ class PwsTests(TestCase):
         '''
         bwa = open(os.path.join(PwsTests.TEST_DATA_DIR, "d3.male.bwa"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': bwa, 'user_id': 'test_XXX'}
-        PwsTests.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pws_warnings(self):
@@ -91,8 +92,8 @@ class PwsTests(TestCase):
         # change proband to have had OC
         pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t33')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        PwsTests.client.force_authenticate(user=PwsTests.user)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTests.drf_client.force_authenticate(user=PwsTests.user)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
@@ -104,8 +105,8 @@ class PwsTests(TestCase):
         # change proband to have had OC
         pd = self.pedigree_datav4.read().replace('T:HOM', 'T:ZZZ')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        PwsTests.client.force_authenticate(user=PwsTests.user)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTests.drf_client.force_authenticate(user=PwsTests.user)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         self.assertTrue('assigned an invalid genetic test result' in content['Gene Test Error'])
@@ -115,8 +116,8 @@ class PwsTests(TestCase):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
                 'pedigree_data': self.pedigree_datav4, 'user_id': 'test_XXX'}
-        PwsTests.client.force_authenticate(user=PwsTests.user)
-        response = PwsTests.client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTests.drf_client.force_authenticate(user=PwsTests.user)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
@@ -130,7 +131,7 @@ class PwsTestsPRS(TestCase):
         ''' Create a user and set up the test client. '''
         super(PwsTestsPRS, cls).setUpClass()
 
-        cls.client = APIClient(enforce_csrf_checks=True)
+        cls.drf_client = APIClient(enforce_csrf_checks=True)
         cls.user = User.objects.create_user('testuser', email='testuser@test.com',
                                             password='testing')
         # add user details
@@ -151,8 +152,8 @@ class PwsTestsPRS(TestCase):
         Calculate the cancer risk with and without a PRS and ensure that they are different.
         '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
-        PwsTestsPRS.client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTestsPRS.token.key)
-        response = PwsTestsPRS.client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        PwsTestsPRS.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTestsPRS.token.key)
+        response = PwsTestsPRS.drf_client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         prisk1 = json.loads(force_str(response.content))
 
@@ -161,7 +162,7 @@ class PwsTestsPRS(TestCase):
         ped.close()
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
 
-        response = PwsTestsPRS.client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = PwsTestsPRS.drf_client.post(PwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         prisk2 = json.loads(force_str(response.content))
 
