@@ -86,6 +86,7 @@ class PwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': bwa, 'user_id': 'test_XXX'}
         PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
         response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        bwa.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pws_warnings(self):

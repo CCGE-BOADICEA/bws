@@ -32,13 +32,13 @@ class ErrorTests(object):
         ''' Read in pedigree data. '''
         with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d3.bwa"), "r") as f:
             self.pedigree_data = f.read()
-        f.close()
         self.pedigree_file = PedigreeFile(self.pedigree_data)
+        f.close()
 
         with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d0.canrisk"), "r") as f:
             self.canrisk1_data = f.read()
-        f.close()
         self.canrisk1_file = PedigreeFile(self.canrisk1_data)
+        f.close()
 
         with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d1.canrisk2"), "r") as f:
             self.canrisk2_data = f.read()

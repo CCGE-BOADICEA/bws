@@ -110,6 +110,7 @@ class OwsTests(TestCase):
                 'user_id': 'test_XXX'}
         OwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + OwsTests.token.key)
         response = OwsTests.drf_client.post(OwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        pedigree_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_ows_warnings(self):
@@ -158,6 +159,9 @@ class OwsTestsPRS(TestCase):
     def setUp(self):
         self.pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
 
+    def tearDown(self):
+        self.pedigree_data.close()
+
     def test_prs_in_canrisk_file(self):
         '''
         Test ovarian cancer PRS parameters defined in the header of CanRisk formatted file.
@@ -187,7 +191,7 @@ class OwsTestsPRS(TestCase):
         response = OwsTestsPRS.drf_client.post(OwsTestsPRS.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         orisk3 = json.loads(force_str(response.content))
-
+        ped.close()
         self.assertEqual(self.get_percent(orisk3, 80), self.get_percent(orisk2, 80),
                          "ovarian cancer at 80 different values")
 
