@@ -39,8 +39,8 @@ class BwsMixin(TestCase):
         cls.user.user_permissions.add(Permission.objects.get(name='Can risk'))
         cls.token.save()
         cls.url = reverse('bws')
-        cls.client = APIClient(enforce_csrf_checks=True)
-        cls.client.credentials(HTTP_AUTHORIZATION='Token ' + cls.token.key)
+        cls.drf_client = APIClient(enforce_csrf_checks=True)
+        cls.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + cls.token.key)
 
 
 class MutFreqTests(BwsMixin):
@@ -52,7 +52,7 @@ class MutFreqTests(BwsMixin):
         '''
         pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d3.4xAJ.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pedigree_data, 'user_id': 'test_XXX'}
-        response = MutFreqTests.client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = MutFreqTests.drf_client.post(MutFreqTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         pedigree_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
@@ -93,7 +93,7 @@ class BwsTests(BwsMixin):
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("mutation_frequency" in content)
@@ -104,7 +104,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing multiple pedigrees to the BWS. '''
         multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d1.bwa"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': multi_pedigree_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertEqual(len(content['pedigree_result']), 2, "two results")
@@ -117,7 +117,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
@@ -130,7 +130,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d1.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
@@ -146,7 +146,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing canrisk v4 format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d7.canrisk4"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
@@ -166,7 +166,7 @@ class BwsTests(BwsMixin):
         pd = ped.read().replace('1961\t57', '1961\t97')
 
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         ped.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
@@ -177,7 +177,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing ethnicity with non UK cancer rates. '''
         uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': uk_ped, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         self.assertTrue('cancer rates with a UK ethnicity parameter' in content['Pedigree Error'])
@@ -187,7 +187,7 @@ class BwsTests(BwsMixin):
         ''' Test POSTing ethnicity with UK cancer rates. '''
         uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': uk_ped, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         uk_ped.close()
    
@@ -197,7 +197,7 @@ class BwsTests(BwsMixin):
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
         pd = ped.read().replace('Asian or Asian British;Chinese', 'XXX;YYYY')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         self.assertTrue('CanRisk header format contains an error in: ##ethnicity=XXX;YYYY' in content['Pedigree File Error'])
@@ -209,7 +209,7 @@ class BwsTests(BwsMixin):
         # add volpara with an ethnic group it's configured for
         pd = ped.read().replace('menopause', 'volpara')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         ped.close()
@@ -221,7 +221,7 @@ class BwsTests(BwsMixin):
         # add volpara with an ethnic group it's configured for
         pd = ped.read().replace('Asian or Asian British;Chinese', 'White;Irish').replace('menopause', 'volpara')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
@@ -229,7 +229,7 @@ class BwsTests(BwsMixin):
         ''' Test stratus with an ethnic group it's configured for. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d8.canrisk4"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped.read(), 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
@@ -237,7 +237,7 @@ class BwsTests(BwsMixin):
         ''' Test stratus with menopause=N. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d10.canrisk4"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped.read(), 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
@@ -245,7 +245,7 @@ class BwsTests(BwsMixin):
         ''' Test BIRADS. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d9.canrisk4"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped.read(), 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
@@ -274,7 +274,7 @@ class BwsTests(BwsMixin):
         # data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
         #              'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
-        # response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        # response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
         # content = json.loads(force_str(response.content))
         #
@@ -291,7 +291,7 @@ class BwsTests(BwsMixin):
         # data.update({'mut_freq': 'Custom', 'cancer_rates': 'UK',
         #              'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'})
 
-        # response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        # response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         # self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # content = json.loads(force_str(response.content))
         # self.assertEqual(len(content.keys()), len(genes))
@@ -301,7 +301,7 @@ class BwsTests(BwsMixin):
     def test_missing_fields(self):
         ''' Test POSTing with missing required fields. '''
         data = {'mut_freq': 'UK'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         self.assertEqual(content['user_id'][0], 'This field is required.')
@@ -314,7 +314,7 @@ class BwsTests(BwsMixin):
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
         pd = ped.read().replace('1963', '1600')
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         ped.close()
@@ -324,7 +324,7 @@ class BwsTests(BwsMixin):
     def test_field_validate_errors(self):
         ''' Test error with superfluous fields included. '''
         data = {'mut_freq': 'UK', 'nosuchflag': '1234', 'nosuchflag2': 77}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         content = json.loads(force_str(response.content))
         self.assertTrue('Input Field Error' in content)
@@ -334,7 +334,7 @@ class BwsTests(BwsMixin):
     def test_bws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_408_REQUEST_TIMEOUT)
         content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
@@ -360,7 +360,7 @@ class BwsTests(BwsMixin):
         ''' Test deceased target produces mutation carrier probabilities and no risks. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d5.dead.canrisk2"), "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'France', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        response = BwsTests.client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         canrisk_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         content = json.loads(force_str(response.content))
@@ -381,14 +381,14 @@ class CombineModelResultsTests(BwsMixin):
         fn = os.path.join(BwsTests.TEST_DATA_DIR, "d4.AJ.canrisk2")
         canrisk_data = open(fn, "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        bws_result = CombineModelResultsTests.client.post(reverse('bws'), data, format='multipart',
+        bws_result = CombineModelResultsTests.drf_client.post(reverse('bws'), data, format='multipart',
                                                           HTTP_ACCEPT="application/json")
         self.assertEqual(bws_result.status_code, status.HTTP_200_OK)
 
         # 2. calculate ovarian cancer risks
         canrisk_data = open(fn, "r")
         data = {'mut_freq': 'UK', 'cancer_rates': 'Spain', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
-        ows_result = CombineModelResultsTests.client.post(reverse('ows'), data,
+        ows_result = CombineModelResultsTests.drf_client.post(reverse('ows'), data,
                                                           format='multipart', HTTP_ACCEPT="application/json")
         self.assertEqual(ows_result.status_code, status.HTTP_200_OK)
 
@@ -396,5 +396,5 @@ class CombineModelResultsTests(BwsMixin):
         data = {"ows_result": json.dumps(ows_result.json(), separators=(',', ':')),
                 "bws_result": json.dumps(bws_result.json(), separators=(',', ':'))}
 
-        response = CombineModelResultsTests.client.post(reverse('combine'), data=data)
+        response = CombineModelResultsTests.drf_client.post(reverse('combine'), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
