@@ -27,7 +27,7 @@ def get_alpha(ref_file):
         ref_file = os.path.join(moduledir, "PRSmodels_CanRisk", ref_file)
         try:
             snp_file = open(ref_file, 'r')
-            alpha = float(re.sub('^\s*alpha\s*=', '', line_that_contain('alpha', "=", snp_file).lower()))
+            alpha = float(re.sub(r'^\s*alpha\s*=', '', line_that_contain('alpha', "=", snp_file).lower()))
         except (IOError, UnicodeDecodeError, StopIteration, vcf2prs.exception.Vcf2PrsError):
             raise vcf2prs.exception.Vcf2PrsError('Error: Unable to open the file "{0}".'.format(ref_file))
         finally:
