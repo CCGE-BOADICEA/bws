@@ -76,6 +76,7 @@ class PwsTests(TestCase):
         res2 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
         self.assertEqual(res1['age'], res2['age'])
         self.assertGreater(res1['prostate cancer risk']['percent'], res2['prostate cancer risk']['percent'])
+        data['pedigree_data'].close()
 
     def test_bws_file(self):
         '''
@@ -145,6 +146,9 @@ class PwsTestsPRS(TestCase):
 
     def setUp(self):
         self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+
+    def tearDown(self):
+        self.pedigree_data.close()
 
     def test_prs_in_canrisk_file(self):
         '''
