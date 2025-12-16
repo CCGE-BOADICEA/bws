@@ -76,6 +76,7 @@ class PwsTests(TestCase):
         res2 = json.loads(force_str(response.content))["pedigree_result"][0]['cancer_risks'][0]
         self.assertEqual(res1['age'], res2['age'])
         self.assertGreater(res1['prostate cancer risk']['percent'], res2['prostate cancer risk']['percent'])
+        data['pedigree_data'].close()
 
     def test_bws_file(self):
         '''
@@ -85,6 +86,7 @@ class PwsTests(TestCase):
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': bwa, 'user_id': 'test_XXX'}
         PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
         response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        bwa.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pws_warnings(self):
@@ -145,6 +147,9 @@ class PwsTestsPRS(TestCase):
 
     def setUp(self):
         self.pedigree_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "male.canrisk3"), "r")
+
+    def tearDown(self):
+        self.pedigree_data.close()
 
     def test_prs_in_canrisk_file(self):
         '''
