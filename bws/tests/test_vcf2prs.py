@@ -18,7 +18,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 import vcf2prs
 from vcf2prs.prs import Prs
-from bws.vcf2prs_api import Vcf2PrsView
 
 
 class Vcf2PrsWebServices(TestCase):
@@ -46,6 +45,10 @@ class Vcf2PrsWebServices(TestCase):
         self.vcf_data = open(self.vcf_file, "r")
         self.prs_reference_file = "BCAC_313_PRS.prs"
         self.prs_file_name = os.path.join(Vcf2PrsWebServices.moduledir, "PRSmodels_CanRisk", self.prs_reference_file)
+
+    def tearDown(self):
+        ''' Close VCF file '''
+        self.vcf_data.close()
 
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
