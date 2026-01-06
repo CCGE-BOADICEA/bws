@@ -27,6 +27,7 @@ class ChallengeView(APIView):
 
     @extend_schema(exclude=True)    # exclude from the swagger docs
     def get(self, _request):
+        ''' Fetches a new random challenge to be used by the ALTCHA widget '''
         try:
             challenge = create_challenge(
                 ChallengeOptions(
