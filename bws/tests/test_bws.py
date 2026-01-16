@@ -225,6 +225,27 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
+    def test_volpara_menopause_na(self):
+        ''' 
+        Test volpara with menopause set to NA is the same as without the menopause line.
+        Bug fix, https://github.com/CCGE-BOADICEA/bws/commit/3c7bca
+        '''      
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d11.canrisk4"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': ped, 'user_id': 'test_XXX'}
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        content = json.loads(force_str(response.content))
+        ped.close()
+        ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d11.canrisk4"), "r")
+        
+        # remove menopause NA line
+        pd = ped.read().replace('\n##menopause=NA', '')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = BwsTests.drf_client.post(BwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        content1 = json.loads(force_str(response.content))
+        ped.close()
+
+        self.assertEqual(content['pedigree_result'][0]['cancer_risks'], content1['pedigree_result'][0]['cancer_risks'], '')
+
     def test_stratus_white(self):
         ''' Test stratus with an ethnic group it's configured for. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d8.canrisk4"), "r")
