@@ -96,7 +96,8 @@ class CanRiskHeader():
                         ons_ethnicity = ONSEthnicity(e[0], e[1] if len(e) > 1 and e[1] != "" else None)
                         biobank_ethnicity = ONSEthnicity.ons2UKBioBank(ons_ethnicity)
                     elif rfnam == 'menopause':
-                        menopause_status = "N" if rfval == "N" else "Y"
+                        if rfval != 'NA':
+                            menopause_status = "N" if rfval == "N" else "Y"
 
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
