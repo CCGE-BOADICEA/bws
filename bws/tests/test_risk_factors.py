@@ -7,6 +7,7 @@ from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
 from bws.risk_factors.bc import BCRiskFactors
 from bws.risk_factors.oc import OCRiskFactors
+from bws.pedigree_file import PedigreeFile
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.urls import reverse
@@ -79,10 +80,13 @@ class UKBioBankEthnictyTests(TestCase):
 class MammographicDensityTests(TestCase):
     '''
     Encoding for the pedigree (Fortran) file:
-    If employing BIRAD, the value should be an integer between 1 and 4. If employing
-    continuous methods, the value should be a real number in the form N.xxxx. 
-    In this case, N refers to the method (10=Stratus, 20= Volpara) whereas xxxxx
-    is the mammographic density percentage. 
+    The formatting, for the pedigree file and for the batching script, should be
+    · for BIRADS: 1,2,3,4
+    · for STRATUS: 10 + density - expressed as a number in (0,1) + menopause status
+    · for Volpara: 20 + density  - expressed as a number in (0,1) + menopause status
+    
+    Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+
     Example 1: MD = 42.42% measured with Volpara should be coded as “20.42420”
     Example 2: MD = category 3 of Birads should be coded as “3”
     '''
@@ -120,6 +124,80 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(vol.get_pedigree_str(), "20.05000")
         self.assertEqual(vol.get_display_str(), "Volpara 5")
 
+    def test_Volpara_premenopause(self):
+        ''' Given Volpara value and premenopausal status check the pedigree encoding. '''
+        # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        vol = Volpara("55.6")
+        vol.set_menopause_status('N') 	# premenopause
+        self.assertEqual(vol.get_pedigree_str(), "21.55600")
+        self.assertEqual(vol.get_display_str(), "Volpara 55.6")
+
+    def test_Volpara_postmenopause(self):
+        ''' Given Volpara value and postmenopausal status check the pedigree encoding. '''
+        # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        vol = Volpara("55.6")
+        vol.set_menopause_status('Y') 	# postmenopause
+        self.assertEqual(vol.get_pedigree_str(), "22.55600")
+        self.assertEqual(vol.get_display_str(), "Volpara 55.6")
+
+    def test_Volpara_premenopause_file(self):
+        with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
+            d = f2.read()
+        pf = PedigreeFile(d).pedigrees[0]
+        
+        # Volpara mammographic denstity
+        mdensity = pf.mdensity
+        self.assertTrue(isinstance(mdensity, Volpara), "Volpara mammographic denstity")
+
+##menarche=14              -- cat 5 (age 14)
+##parity                   -- cat 2 (1 child)
+##age_of_first_live_birth  -- cat 3 (25-29)
+##oc_use=F:2               -- cat 2 (former)
+##mht_use=N                -- cat 1 (never/former)
+##BMI=22.22                -- cat 2 (18.5-<25)
+##alcohol=8.8              -- cat 3 (5-<15)
+##menopause=N              -- cat 0 (unspecified)
+        #  premenopause
+        cats = BCRiskFactors.decode(pf.bc_risk_factor_code)
+        self.assertListEqual(cats, [5, 2, 3, 2, 1, 2, 3, 0], "Risk factor categories")
+        self.assertEqual(mdensity.get_display_str(), "Volpara 67", "Mammographic density string")
+        # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        self.assertEqual(mdensity.get_pedigree_str(), "21.67000", "Fortran representation Volpara 67, premenopause")
+
+    def test_Volpara_menopause_na_file(self):
+        with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
+            d = f2.read()
+        d = d.replace('##menopause=N', '##menopause=NA')
+        pf = PedigreeFile(d).pedigrees[0]
+        
+        # Volpara mammographic denstity
+        mdensity = pf.mdensity
+        self.assertTrue(isinstance(mdensity, Volpara), "Volpara mammographic denstity")
+
+        #  menopause unspecified
+        cats = BCRiskFactors.decode(pf.bc_risk_factor_code)
+        self.assertListEqual(cats, [5, 2, 3, 2, 1, 2, 3, 0], "Risk factor categories")
+        self.assertEqual(mdensity.get_display_str(), "Volpara 67", "Mammographic density string")
+        # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        self.assertEqual(mdensity.get_pedigree_str(), "20.67000", "Fortran representation Volpara 67, menopause unspecified")
+
+
+    def test_Volpara_postmenopause_file(self):
+        with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
+            d = f2.read()
+        d = d.replace('##menopause=N', '##menopause=32')
+        pf = PedigreeFile(d).pedigrees[0]
+        
+        # Volpara mammographic denstity
+        mdensity = pf.mdensity
+        self.assertTrue(isinstance(mdensity, Volpara), "Volpara mammographic denstity")
+
+        #  menopause 32
+        cats = BCRiskFactors.decode(pf.bc_risk_factor_code)
+        self.assertListEqual(cats, [5, 2, 3, 2, 1, 2, 3, 1], "Risk factor categories")
+        self.assertEqual(mdensity.get_display_str(), "Volpara 67", "Mammographic density string")
+        # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
+        self.assertEqual(mdensity.get_pedigree_str(), "22.67000", "Fortran representation Volpara 67, postmenopause")
 
 class RiskFactorsCategoryTests(TestCase):
 
