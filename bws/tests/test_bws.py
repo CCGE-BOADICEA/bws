@@ -5,7 +5,7 @@ BOADICEA web-service testing.
 SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
-
+import pytest
 from bws.calc.calcs import Predictions
 from bws.cancer import CanRiskGeneticTests
 from bws.exceptions import ModelError
@@ -45,6 +45,7 @@ class BwsMixin(TestCase):
 
 class MutFreqTests(BwsMixin):
 
+    @pytest.mark.req_ws_001
     def test_ashkn_mut_freq(self):
         '''
         Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
@@ -90,6 +91,8 @@ class BwsTests(BwsMixin):
         TestCase.tearDown(self)
         self.pedigree_data.close()
 
+    @pytest.mark.req_ws_010
+    @pytest.mark.req_ws_011
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
@@ -100,6 +103,8 @@ class BwsTests(BwsMixin):
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("family_id" in content["pedigree_result"][0])
 
+    @pytest.mark.req_ws_010
+    @pytest.mark.req_ws_012
     def test_multi_pedigree_bws(self):
         ''' Test POSTing multiple pedigrees to the BWS. '''
         multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d1.bwa"), "r")
