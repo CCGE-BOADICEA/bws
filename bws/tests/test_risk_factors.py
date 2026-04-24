@@ -3,6 +3,7 @@
 SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
+import pytest
 from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
 from bws.risk_factors.bc import BCRiskFactors
@@ -90,15 +91,17 @@ class MammographicDensityTests(TestCase):
     Example 1: MD = 42.42% measured with Volpara should be coded as “20.42420”
     Example 2: MD = category 3 of Birads should be coded as “3”
     '''
-    
+    @pytest.mark.req_ws_036
     def test_get_Birads_category(self):
         ''' Given a Birads value check the category is correctly assigned. '''
         self.assertEqual(Birads.get_category('-'), 0)
+        self.assertEqual(Birads.get_category('NA'), 0)
         self.assertEqual(Birads.get_category('3'), 3)
         self.assertEqual(Birads.get_category("BI-RADS 3"), 3)
         self.assertEqual(Birads.get_category('c'), 3)
         self.assertEqual(Birads.get_category("BI-RADS c"), 3)
         self.assertEqual(Birads.get_category('a'), 1)
+        self.assertRaises(RiskFactorError, Birads.get_category, 'x')
 
     def test_Stratus_pedigree(self):
         ''' Given a Stratus value check the pedigree encoding and display string. '''
