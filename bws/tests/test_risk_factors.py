@@ -25,55 +25,83 @@ from builtins import AssertionError
 
 class UKBioBankEthnictyTests(TestCase):
     
+    @pytest.mark.req_ws_101
     def test_white(self):
+        ''' Test ONS for "White", "English/Welsh/Scottish/Northern Irish/British" 
+            to UK BioBank "white" ethnicity 
+        '''
         onsEthnicity = ONSEthnicity("White", "English/Welsh/Scottish/Northern Irish/British")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-white.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
 
+    @pytest.mark.req_ws_101
     def test_white_other(self):
+        ''' Test ONS mapping for "White", "Other" to UK BioBank "white" ethnicity '''
         onsEthnicity = ONSEthnicity("White", "XXXX")    # white / any other white background
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-white.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
 
+    @pytest.mark.req_ws_101
     def test_chinese(self):
+        ''' Test ONS mapping for "Chinese", "Asian or Asian British"
+            to UK BioBank "chinese" ethnicity '''
         onsEthnicity = ONSEthnicity("Asian or Asian British", "Chinese")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "chinese")
-        
+
+    @pytest.mark.req_ws_101
     def test_asian(self):
+        ''' Test ONS mapping for "Asian or Asian British", "Indian"
+            to UK BioBank "asian" ethnicity '''
         onsEthnicity = ONSEthnicity("Asian or Asian British", "Indian")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "asian")
-        
+
+    @pytest.mark.req_ws_101
     def test_mixed(self):
+        ''' Test ONS mapping for "Mixed/Multiple ethnic groups", "White and Black African"
+            to UK BioBank "mixed" ethnicity '''
         onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "White and Black African")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
 
+    @pytest.mark.req_ws_101
     def test_mixed2(self):
+        ''' Test ONS mapping for "Mixed/Multiple ethnic groups", "white and black african"
+            to UK BioBank "mixed" ethnicity '''
         onsEthnicity = ONSEthnicity("Mixed/Multiple ethnic groups", "white and black african")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "mixed")
 
+    @pytest.mark.req_ws_101
     def test_black(self):
+        ''' Test ONS mapping for "Black or Black British", "Caribbean"
+            to UK BioBank "black" ethnicity '''
         onsEthnicity = ONSEthnicity("Black or Black British", "Caribbean")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.get_filename(), "UK-black.nml")
         self.assertEqual(ethnicityUKBioBank.ethnicity, "black")
 
+    @pytest.mark.req_ws_101
     def test_other(self):
+        ''' Test ONS mapping for "Other ethnic group", "other ethnic"
+            to UK BioBank "other" ethnicity '''
         onsEthnicity = ONSEthnicity("Other ethnic group", "other ethnic")
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "other")
 
+    @pytest.mark.req_ws_101
     def test_unknown(self):
+        ''' Test ONS mapping for "Unknown" to UK BioBank "unknown" ethnicity '''
         onsEthnicity = ONSEthnicity("Unknown", None)
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "unknown")
 
+    @pytest.mark.req_ws_101
     def test_err(self):
+        ''' Test non-existant ONS ethnicity raises an error '''
         with self.assertRaises(AssertionError):
             ONSEthnicity("xxxx", None)
 
@@ -103,6 +131,7 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(Birads.get_category('a'), 1)
         self.assertRaises(RiskFactorError, Birads.get_category, 'x')
 
+    @pytest.mark.req_ws_110
     def test_Stratus_pedigree(self):
         ''' Given a Stratus value check the pedigree encoding and display string. '''
         stratus = Stratus("10.67")
@@ -115,6 +144,7 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(stratus.get_pedigree_str(), "10.88000")
         self.assertEqual(stratus.get_display_str(), "Stratus 88")
 
+    @pytest.mark.req_ws_111
     def test_Volpara_pedigree(self):
         ''' Given a Volpara value check the pedigree encoding and display string. '''
         vol = Volpara("12.67333333")
@@ -127,6 +157,7 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(vol.get_pedigree_str(), "20.05000")
         self.assertEqual(vol.get_display_str(), "Volpara 5")
 
+    @pytest.mark.req_ws_111
     def test_Volpara_premenopause(self):
         ''' Given Volpara value and premenopausal status check the pedigree encoding. '''
         # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
@@ -135,6 +166,7 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(vol.get_pedigree_str(), "21.55600")
         self.assertEqual(vol.get_display_str(), "Volpara 55.6")
 
+    @pytest.mark.req_ws_111
     def test_Volpara_postmenopause(self):
         ''' Given Volpara value and postmenopausal status check the pedigree encoding. '''
         # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
@@ -143,6 +175,7 @@ class MammographicDensityTests(TestCase):
         self.assertEqual(vol.get_pedigree_str(), "22.55600")
         self.assertEqual(vol.get_display_str(), "Volpara 55.6")
 
+    @pytest.mark.req_ws_111
     def test_Volpara_premenopause_file(self):
         with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
             d = f2.read()
@@ -167,6 +200,7 @@ class MammographicDensityTests(TestCase):
         # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
         self.assertEqual(mdensity.get_pedigree_str(), "21.67000", "Fortran representation Volpara 67, premenopause")
 
+    @pytest.mark.req_ws_111
     def test_Volpara_menopause_na_file(self):
         with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
             d = f2.read()
@@ -184,7 +218,7 @@ class MammographicDensityTests(TestCase):
         # Menopause status should be 0 if unspecified, 1 if premenopause and 2 if postmenopause
         self.assertEqual(mdensity.get_pedigree_str(), "20.67000", "Fortran representation Volpara 67, menopause unspecified")
 
-
+    @pytest.mark.req_ws_111
     def test_Volpara_postmenopause_file(self):
         with open(os.path.join(WSRiskFactors.TEST_DATA_DIR, "d11.canrisk4"), 'r') as f2:
             d = f2.read()
@@ -204,11 +238,15 @@ class MammographicDensityTests(TestCase):
 
 class RiskFactorsCategoryTests(TestCase):
 
+    @pytest.mark.req_ws_120
+    @pytest.mark.req_ws_130
     def test_get_Parity_category(self):
         ''' Given a parity value check the category is correctly assigned. '''
         self.assertEqual(bc.Parity.get_category(3), 4)
         self.assertEqual(oc.Parity.get_category(3), 3)
 
+    @pytest.mark.req_ws_121
+    @pytest.mark.req_ws_131
     def test_get_MHT_category(self):
         ''' Given a MHT value check the category is correctly assigned. '''
         self.assertEqual(bc.MHT.get_category("N"), 1)
@@ -217,16 +255,21 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.MHT.get_category("never/former"), 1)
         self.assertEqual(oc.MHT.get_category("ever"), 2)
 
+    @pytest.mark.req_ws_122
+    @pytest.mark.req_ws_132
     def test_get_BMI_category(self):
         ''' Given a BMI value check the category is correctly assigned. '''
         self.assertEqual(bc.BMI.get_category(" 22 "), 2)
         self.assertEqual(oc.BMI.get_category(22), 1)
         self.assertEqual(bc.BMI.get_category(25), 3)
 
+        self.assertEqual(oc.BMI.get_category("NA"), 0)
         self.assertEqual(oc.BMI.get_category(25), 2)
         self.assertEqual(bc.BMI.get_category(30), 4)
         self.assertEqual(oc.BMI.get_category(30), 3)
 
+    @pytest.mark.req_ws_123
+    @pytest.mark.req_ws_133
     def test_get_OralContraception_category(self):
         ''' Given a Oral Contraception value check the category is correctly assigned. '''
         self.assertEqual(bc.OralContraception.get_category('-'), 0)
@@ -246,18 +289,21 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
         self.assertEqual(oc.OralContraception.get_category('F'), 0)
 
+    @pytest.mark.req_ws_134
     def test_get_Endometriosis_category(self):
         ''' Given a endometriosis value check the category is correctly assigned. '''
         self.assertEqual(oc.Endometriosis.get_category('NA'), 0)
         self.assertEqual(oc.Endometriosis.get_category('YES '), 2)
         self.assertEqual(oc.Endometriosis.get_category('n '), 1)
 
+    @pytest.mark.req_ws_135
     def test_get_TubalLigation_category(self):
         ''' Given a Tubal Ligation value check the category is correctly assigned. '''
         self.assertEqual(oc.TubalLigation.get_category('-'), 0)
         self.assertEqual(oc.TubalLigation.get_category('no'), 1)
         self.assertEqual(oc.TubalLigation.get_category(' Y'), 2)
 
+    @pytest.mark.req_ws_124
     def test_get_FirstLiveBirth_category(self):
         ''' Given a First Live Birth value check the category is correctly assigned. '''
         self.assertEqual(bc.AgeOfFirstLiveBirth.get_category('-'), 0)
@@ -265,6 +311,7 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AgeOfFirstLiveBirth.get_category(23), 2)
         self.assertEqual(bc.AgeOfFirstLiveBirth.get_category(32), 4)
 
+    @pytest.mark.req_ws_125
     def test_get_Alcohol_category(self):
         ''' Given a Alcohol Intake value check the category is correctly assigned. '''
         self.assertEqual(bc.AlcoholIntake.get_category('NA'), 0)
@@ -275,6 +322,7 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AlcoholIntake.get_category(44.5), 6)
         self.assertEqual(bc.AlcoholIntake.get_category(45), 7)
 
+    @pytest.mark.req_ws_126
     def test_get_AgeOfMenopause_category(self):
         ''' Given an Age Of Menopause value check the category is correctly assigned. '''
         self.assertEqual(bc.AgeOfMenopause.get_category('-'), 0)
@@ -293,6 +341,7 @@ class RiskFactorsCategoryTests(TestCase):
 
 class RiskFactorsCodeTests(TestCase):
 
+    @pytest.mark.req_ws_140
     def test_BC_risk_factor_code(self):
         '''
         Test the breast cancer risk factor code generated
@@ -340,6 +389,7 @@ class RiskFactorsCodeTests(TestCase):
 
         self.assertEqual(BCRiskFactors.encode(bc_risk_categories), rfc)
 
+    @pytest.mark.req_ws_141
     def test_OC_risk_factor_code(self):
         '''
         Test the ovarian cancer risk factor code generated
@@ -376,43 +426,51 @@ class RiskFactorsCodeTests(TestCase):
         rfc += 2*648
         self.assertEqual(OCRiskFactors.encode(oc_risk_categories), rfc)
 
+    @pytest.mark.req_ws_142
     def test_round_trip(self):
         ''' Test encoding of risk categories and decoding returns same risk categories. '''
         category1 = list(BCRiskFactors.categories.values())
         category2 = BCRiskFactors.decode(BCRiskFactors.encode(category1))
         self.assertListEqual(category1, category2, "round trip encode/decode")
 
+    @pytest.mark.req_ws_143
     def test_wrong_no_risks(self):
         ''' Test that an error is raised when the wrong number of risks is submitted '''
         self.assertRaises(RiskFactorError, BCRiskFactors.encode, [7, 4, 4, 3, 4])
 
+    @pytest.mark.req_ws_144
     def test_bounds_exceeded_u_encoding(self):
         ''' Test that an error is raised when a risk is above bounds - encoding '''
         category = list(BCRiskFactors.categories.values())
         category[0] += 1
         self.assertRaises(RiskFactorError, BCRiskFactors.encode, category)
 
+    @pytest.mark.req_ws_144
     def test_bounds_exceeded_l_encoding(self):
         ''' Test that an error is raised when a risk is below bounds - encoding '''
         category = list(BCRiskFactors.categories.values())
         category[0] = -1
         self.assertRaises(RiskFactorError, BCRiskFactors.encode, category)
 
+    @pytest.mark.req_ws_145
     def test_non_numeric_encoding(self):
         ''' Test that an error is raised when passed a non numeric argument - encoding '''
         category = list(BCRiskFactors.categories.values())
         category[0] = 'a'
         self.assertRaises(RiskFactorError, BCRiskFactors.encode, category)
 
+    @pytest.mark.req_ws_146
     def test_bounds_exceeded_u_decoding(self):
         ''' Test that an error is raised when a risk is above bounds - decoding '''
         max_plus_1 = BCRiskFactors.encode(list(BCRiskFactors.categories.values())) + 1
         self.assertRaises(RiskFactorError, BCRiskFactors.decode, max_plus_1)
 
+    @pytest.mark.req_ws_146
     def test_bounds_exceeded_l_decoding(self):
         ''' Test that an error is raised when a risk is below bounds - decoding '''
         self.assertRaises(RiskFactorError, BCRiskFactors.decode, -1)
 
+    @pytest.mark.req_ws_147
     def test_non_numeric_decoding(self):
         ''' Test that an error is raised when passed a non numeric argument - decoding '''
         self.assertRaises(RiskFactorError, BCRiskFactors.decode, 'a')
@@ -465,12 +523,14 @@ class WSRiskFactors(TestCase):
         self.assertLess(cancer_risks1[0][f'{cancer} cancer risk']['decimal'],
                         cancer_risks2[0][f'{cancer} cancer risk']['decimal'])
 
+    @pytest.mark.req_ws_150
     def test_bws_risk_factor(self):
         ''' Test affect of including the risk factors in BWS. '''
         self.ws_risk_factor(WSRiskFactors.bws_url, bc.BMI.get_category(30)*3200)
 
+    @pytest.mark.req_ws_150
     def test_ows_risk_factor(self):
-        ''' Test affect of including the risk factors in oWS. '''
+        ''' Test affect of including the risk factors in OWS. '''
         self.ws_risk_factor(WSRiskFactors.ows_url, oc.BMI.get_category(30)*3200, cancer='ovarian')
 
     def ws_prs(self, url, cancer='breast'):
@@ -491,10 +551,12 @@ class WSRiskFactors(TestCase):
         self.assertLess(cancer_risks1[0][f'{cancer} cancer risk']['decimal'],
                         cancer_risks2[0][f'{cancer} cancer risk']['decimal'])
 
+    @pytest.mark.req_ws_151
     def test_bws_prs(self):
         ''' Test affect of including the PRS in BWS. '''
         self.ws_prs(WSRiskFactors.bws_url)
 
+    @pytest.mark.req_ws_151
     def test_ows_prs(self):
         ''' Test affect of including the PRS in OWS. '''
         self.ws_prs(WSRiskFactors.ows_url, cancer='ovarian')
