@@ -11,10 +11,7 @@ from datetime import date
 import os
 import random
 import re
-
-from django.conf import settings
-from django.test import TestCase
-from django.test.utils import override_settings
+import pytest
 
 from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests, \
     Genes
@@ -22,6 +19,9 @@ from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
 from bws.pedigree_file import PedigreeFile
 from bws.person import Male, Female
+from django.conf import settings
+from django.test import TestCase
+from django.test.utils import override_settings
 
 
 class ErrorTests(object):
@@ -43,6 +43,10 @@ class ErrorTests(object):
         with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d1.canrisk2"), "r") as f:
             self.canrisk2_data = f.read()
         self.canrisk2_file = PedigreeFile(self.canrisk2_data)
+        
+        with open(os.path.join(ErrorTests.TEST_DATA_DIR, "d10.canrisk4"), "r") as f:
+            self.canrisk4_data = f.read()
+        self.canrisk4_file = PedigreeFile(self.canrisk2_data)
         f.close()
 
     def get_pedigree_data(self):
@@ -63,6 +67,7 @@ class PedigreeFileTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_170
     def test_header(self):
         ''' Test pedigree file header. '''
         pd = self.get_pedigree_data()
@@ -70,13 +75,15 @@ class PedigreeFileTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeFileError, r"header record in the pedigree file has unexpected characters"):
             PedigreeFile(pd)
 
-    def test_header_line2(self):
+    @pytest.mark.req_ws_170
+    def test_header_column_names(self):
         ''' Test pedigree file column header. '''
         pd = self.get_pedigree_data()
         pd = pd.replace('FamID', 'FamIDa', 1)
         with self.assertRaisesRegex(PedigreeFileError, r"headers in the pedigree file contains unexpected characters"):
             PedigreeFile(pd)
 
+    @pytest.mark.req_ws_171
     def test_multiple_pedigrees(self):
         ''' Test multiple pedigrees in a single file. '''
         pedigree_data1 = copy.copy(self.pedigree_data)
@@ -89,22 +96,16 @@ class PedigreeFileTests(TestCase, ErrorTests):
             warnings = PedigreeFile.get_incomplete_age_yob(p)
             self.assertEqual(len(warnings), 0)
 
+    @pytest.mark.req_ws_172
     def test_columns(self):
-        ''' Test number of columns in pedigree file. '''
-        pd = self.get_pedigree_data()
-        pd = pd.replace('F1', 'F1    F1')
+        ''' Test additional of columns in pedigree file. '''
+        pd = self.canrisk4_data
+        pd = pd.replace('vAUB', 'vAUB    F1')
         with self.assertRaisesRegex(PedigreeFileError, r"data record has an unexpected number of data items"):
             PedigreeFile(pd)
 
-    def test_num_columns(self):
-        ''' Test number of columns in file with CanRisk version 1 header. '''
-        pd = self.canrisk2_data
-        pd = pd.replace('CanRisk 2', 'CanRisk 1', 1)
-        with self.assertRaisesRegex(PedigreeFileError,
-                                    r"CanRisk format 1 pedigree files should have 26 data items per line."):
-            PedigreeFile(pd)
-
-    def test_num_columns2(self):
+    @pytest.mark.req_ws_172
+    def test_num_cols_v1(self):
         ''' Test number of columns in file with CanRisk version 2 header. '''
         pd = self.canrisk1_data
         pd = pd.replace('CanRisk 1', 'CanRisk 2', 1)
@@ -112,12 +113,22 @@ class PedigreeFileTests(TestCase, ErrorTests):
                                     r"CanRisk format 2 and 3 pedigree files should have 27 data items per line."):
             PedigreeFile(pd)
 
-    def test_num_columns3(self):
-        ''' Test number of columns in file with CanRisk version 4 header. '''
+    @pytest.mark.req_ws_172
+    def test_num_cols_v2(self):
+        ''' Test number of columns in file with CanRisk version 2 header. '''
         pd = self.canrisk2_data
         pd = pd.replace('CanRisk 2', 'CanRisk 4', 1)
         with self.assertRaisesRegex(PedigreeFileError,
                                     r"CanRisk format 4 pedigree files should have 28 data items per line."):
+            PedigreeFile(pd)
+
+    @pytest.mark.req_ws_172
+    def test_num_cols_v4(self):
+        ''' Test number of columns in file with CanRisk version 4 header. '''
+        pd = self.canrisk4_data
+        pd = pd.replace('CanRisk 4', 'CanRisk 2', 1)
+        with self.assertRaisesRegex(PedigreeFileError,
+                                    r"CanRisk format 2 and 3 pedigree files should have 27 data items per line."):
             PedigreeFile(pd)
 
 
@@ -128,6 +139,7 @@ class PersonTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_180
     def test_name(self):
         """ Test an error is raised if the individuals name is not an alphanumeric string. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -137,6 +149,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"is unspecified or is not an alphanumeric string"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_181
     def test_indvid_id(self):
         """ Test an error is raised if the individuals ID is not an alphanumeric or is too large.  """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -158,6 +171,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Individual identifiers must be alphanumeric strings with a max"):
             m2.validate(apedigree)
 
+    @pytest.mark.req_ws_190
     def test_fathid_id(self):
         """ Test an error is raised if the father ID is not an alphanumeric or is too large.  """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -175,6 +189,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Father identifier .* unexpected character"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190    
     def test_mothid_id(self):
         """ Test an error is raised if the mother ID is not an alphanumeric or is too large.  """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -192,6 +207,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Mother identifier .* unexpected character"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_parent_unspecified(self):
         """ Test an error is raised if only one of the parents is specified. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -201,6 +217,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"only one parent specified"):
             m2.validate(apedigree)
 
+    @pytest.mark.req_ws_190
     def test_father_sex(self):
         ''' Test an error is raised if the sex of the father is not 'M'. '''
         # change sex of father to 'F'
@@ -212,6 +229,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"All fathers in the pedigree must have sex specified as 'M'"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mother_sex(self):
         ''' Test an error is raised if the sex of the mother is not 'F'. '''
         # change sex of mother to 'M'
@@ -223,6 +241,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"All mothers in the pedigree must have sex specified as 'F'"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_missing_mother(self):
         ''' Test an error is raised if the mother is missing. '''
         # remove mother F2 from pedigree
@@ -233,6 +252,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"The mother (.*) is missing"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_missing_father(self):
         ''' Test an error is raised if the father is missing. '''
         # remove father M2 from pedigree
@@ -243,6 +263,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"The father (.*) is missing"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_191
     def test_dead(self):
         ''' Test an error is raised if the dead attribute is incorrectly specified (not 0 or 1). '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -253,6 +274,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"alive must be specified as '0', and dead specified as '1'"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_191
     def test_age_yob(self):
         ''' Test a warning is returned if the yob and age attribute is not specified. '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -263,6 +285,7 @@ class PersonTests(TestCase, ErrorTests):
         warnings = PedigreeFile.get_incomplete_age_yob(pedigree_file.pedigrees)
         self.assertRegex(warnings[0], "year of birth and age at last follow up must be specified")
 
+    @pytest.mark.req_ws_191
     def test_age(self):
         ''' Test an error is raised if the age attribute is incorrectly specified (not 0 or 1-MAX_AGE). '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -273,6 +296,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Ages must be specified with as '0' for unknown, or in the range"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_191
     def test_yob(self):
         ''' Test error is raised if the year of birth attribute is incorrectly specified. '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -291,6 +315,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Years of birth must be in the range"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_191
     def test_ashkn(self):
         """ Test an error is raised if the Ashkenazi origin is incorrectly assigned (i.e. not 0 or 1). """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -300,6 +325,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"invalid Ashkenazi"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     @override_settings(MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY=1)
     def test_siblings(self):
         """ Check max no. of siblings not exceeded. """
@@ -313,6 +339,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"exceeded the maximum number of siblings"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     @override_settings(MAX_NUMBER_OF_SIBS_PER_NUCLEAR_FAMILY_WITH_SAME_YOB=1)
     def test_siblings_same_yob(self):
         """ Check max no. of siblings with same year of birth is not exceeded. """
@@ -334,6 +361,7 @@ class PedigreeTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_190
     def test_target(self):
         """ Test an error is raised if target column is not between 0 and 1. """
         pedigree_data = copy.copy(self.pedigree_data)
@@ -341,6 +369,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"value in the Target data column"):
             PedigreeFile(pedigree_data)
 
+    @pytest.mark.req_ws_190
     def test_no_target(self):
         """ Test an error is raised if there is no target. """
         pedigree_data = copy.copy(self.pedigree_data)
@@ -348,6 +377,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"has either no index or more than 1"):
             PedigreeFile(pedigree_data)
 
+    @pytest.mark.req_ws_190
     def test_duplicate_person(self):
         """ Test an error is raised if an individual appears more than once. """
         pedigree_data1 = copy.copy(self.pedigree_data)
@@ -356,12 +386,14 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"appears more than once in the pedigree"):
             PedigreeFile(pedigree_data1)
 
+    @pytest.mark.req_ws_190
     @override_settings(MAX_PEDIGREE_SIZE=2)
     def test_no_family_members(self):
         """ Test an error is raised if number of people in a pedigree is > MAX_PEDIGREE_SIZE. """
         with self.assertRaisesRegex(PedigreeError, r"unexpected number of family members"):
             PedigreeFile(self.pedigree_data)
 
+    @pytest.mark.req_ws_190
     def test_sex(self):
         """ Test an error is raised if individuals sex is not M or F. """
         pedigree_data = copy.copy(self.pedigree_data)
@@ -369,6 +401,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"individuals sex must be specified as"):
             PedigreeFile(pedigree_data)
 
+    @pytest.mark.req_ws_190
     def test_famid(self):
         """ Test an error is raised if the family ID is incorrectly specified. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -385,6 +418,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"Family IDs must be specified with between 1 and "):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_target_yob(self):
         """ The target must be assigned a valid year of birth. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -394,6 +428,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"This person must be assigned a valid year of birth"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_target_age(self):
         """ The target must be assigned a valid year of birth. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -403,6 +438,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"This person must be assigned an age"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_target_risk_prob_calcs(self):
         """ Check if an error is raised if the carrier probabilities and cancer risk can not be
         calculated.
@@ -417,6 +453,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"cannot compute mutation carrier probabilities"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_ununconnected(self):
         pedigree_file = deepcopy(self.pedigree_file)
         apedigree = pedigree_file.pedigrees[0]
@@ -425,6 +462,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"family members are not physically connected to the target"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_pair(self):
         """ Check if an error is raised if the number of people specified in a set of twins is not 2. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -434,6 +472,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"Only MZ twins are permitted in the pedigree"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     @override_settings(MAX_NUMBER_MZ_TWIN_PAIRS=0)
     def test_mztwin_number(self):
         """ Check if an error is raised if the number of people specified in a set of twins is not 2. """
@@ -443,6 +482,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"Maximum number of MZ twin pairs has been exceeded"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_key(self):
         """ Check if an error is raised if MZ twin characters are not valid. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -451,6 +491,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"MZ twins must be identified using one"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_parents(self):
         """ Check if an error is raised if MZ twin have different parents. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -462,6 +503,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"MZ twins must have the same parents"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_yob(self):
         """ Check if an error is raised if MZ twin have different years of birth. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -472,6 +514,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"MZ twins must have the same year of birth"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_age(self):
         """ Check if an error is raised if MZ twin are alive and have different ages at last followup. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -482,6 +525,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"If both MZ twins are alive, they must have the same age at last"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_sex(self):
         """ Check if an error is raised if MZ twins are not the same sex. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -496,6 +540,7 @@ class PedigreeTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PedigreeError, r"MZ twins must have the same sex"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_190
     def test_mztwin_genetic_tests(self):
         """ Check if an error is raised if MZ twins have different genetic test results. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -529,18 +574,21 @@ class PedigreeTests(TestCase, ErrorTests):
 
 class GenesTests(TestCase):
 
+    @pytest.mark.req_ws_194
     def test_unique_oc_genes(self):
         ''' Test method to get genes unique to ovarian cancer model. '''
         g_oc = Genes.get_unique_oc_genes()
         self.assertEqual(len(g_oc), 1)
         self.assertListEqual(g_oc, ['BRIP1'])
 
+    @pytest.mark.req_ws_194
     def test_unique_pc_genes(self):
         ''' Test method to get genes unique to prostate cancer model. '''
         g_oc = Genes.get_unique_pc_genes()
         self.assertEqual(len(g_oc), 1)
         self.assertListEqual(g_oc, ['HOXB13'])
 
+    @pytest.mark.req_ws_194
     def test_all_genes(self):
         ''' Test method to get all genes. '''
         g_all = Genes.get_all_model_genes()
@@ -557,6 +605,7 @@ class CancerTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_192
     def test_cancer_age(self):
         ''' Test an error is raised if the cancer diagnosis age is incorrectly specified (not 0 or 1-MAX_AGE). '''
         pfile = self.get_pedigree_file()
@@ -570,6 +619,7 @@ class CancerTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(CancerError, f1.pid+".*. Age at cancer diagnosis"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_cancer_age2(self):
         ''' Test an error is raised if the cancer diagnosis age is greater than age at last follow up. '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -580,6 +630,7 @@ class CancerTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(CancerError, m2.pid+"*. diagnosis that exceeds age at last follow up"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_cancer_yob(self):
         ''' Test an error is raised if the yob is not specified when a cancer is diagnosed. '''
         pedigree_file = deepcopy(self.pedigree_file)
@@ -589,6 +640,7 @@ class CancerTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(CancerError, m2.pid+"*. diagnosed with cancer but has no year of birth specified"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_male_with_ovarian_cancer(self):
         """ Test an error is raised if a male has been designated ovarian cancer. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -598,6 +650,7 @@ class CancerTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(CancerError, m2.pid+"*. male but has been assigned an ovarian"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_female_with_prostate_cancer(self):
         """ Test an error is raised if a female has been designated prostate cancer. """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -607,6 +660,7 @@ class CancerTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(CancerError, ".*\""+f1.pid+"\".* female but has been assigned an prostate"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_bc1_missing(self):
         """ Test an error is raised if the age of a second breast cancer is present but age of first is missing. """
         pfile = self.get_pedigree_file()
@@ -618,6 +672,7 @@ class CancerTests(TestCase, ErrorTests):
                                     "first breast cancer is missing"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_bc1_missing2(self):
         """ Test an error is raised if the age of a second breast cancer is AU but age of first is missing. """
         pfile = self.get_pedigree_file()
@@ -629,6 +684,7 @@ class CancerTests(TestCase, ErrorTests):
                                     "first breast cancer is missing"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_192
     def test_bc1_and_bc2(self):
         """ Test an error is raised if the age of a first breast cancer exceeds that of the second. """
         pfile = self.get_pedigree_file()
@@ -648,6 +704,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_193
     def test_type(self):
         """ Check that the genetic test type is valid. """
         pfile = self.get_pedigree_file()
@@ -657,6 +714,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test type"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_193
     def test_type_specified(self):
         """ Check if there is a genetic test result check the test type is specified. """
         pfile = self.get_pedigree_file()
@@ -667,6 +725,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* genetic test type has not been specified"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_193
     def test_result(self):
         """ Check that the mutation status is valid. """
         pfile = self.get_pedigree_file()
@@ -677,6 +736,7 @@ class GeneticTestTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(GeneticTestError, "\"" + f1.pid + "\" .* invalid genetic test result"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_193
     def test_result_specified(self):
         """ Check that the mutation status is specified if tested. """
         pfile = self.get_pedigree_file()
@@ -696,6 +756,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         ''' Read in pedigree data. '''
         super().setUpErrorTests()
 
+    @pytest.mark.req_ws_194
     def test_pathology_status(self):
         """ Check that the pathology results are correctly set (0, N, P). """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -705,6 +766,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PathologyError, "must be 'N' for negative, 'P' for positive, or '0' for unknown"):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_194
     def test_patholgy_bc1_setting(self):
         """ Check that pathology test results are only provided for family members with a first breast cancer """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -716,6 +778,7 @@ class PathologyTestTests(TestCase, ErrorTests):
                                     "members who have developed breast cancer."):
             apedigree.validateAll()
 
+    @pytest.mark.req_ws_194
     def test_er_unspecified(self):
         """
         If an individual has breast cancer and ER is unspecified but another pathology parameter has
@@ -733,6 +796,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         warnings = apedigree.validateAll()
         self.assertRegex(warnings[0], "this individual's pathology information will not be taken into account")
 
+    @pytest.mark.req_ws_194
     def test_er_positive(self):
         """
         If an individual has breast cancer and ER positive, and PR or HER2 or CK14 or CK5/6 specified
@@ -750,6 +814,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         warnings = apedigree.validateAll()
         self.assertRegex(warnings[0], "ER positive, where an additional pathology parameter ")
 
+    @pytest.mark.req_ws_194
     def test_pr_or_her_unspecified(self):
         """
         If an individual has breast cancer and ER negative and PR status is specified but HER2 status
@@ -767,6 +832,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         warnings = apedigree.validateAll()
         self.assertRegex(warnings[0], "PR status is specified but HER2 status is unspecified")
 
+    @pytest.mark.req_ws_194
     def test_ck14_ck56_unspecified(self):
         """
         If an individual has breast cancer and either CK14 or CK5/6 has been specified (one without the
@@ -784,6 +850,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         warnings = apedigree.validateAll()
         self.assertRegex(warnings[0], "only CK14 or CK5/6 status has been specified")
 
+    @pytest.mark.req_ws_194
     def test_triple_negative(self):
         """
         If an individual has breast cancer and not triple Negative (ER, PR, HER2) but
@@ -801,6 +868,7 @@ class PathologyTestTests(TestCase, ErrorTests):
         warnings = apedigree.validateAll()
         self.assertRegex(warnings[0], "CK14 or CK5/6 status is specified but the breast cancer pathology is not triple")
 
+    @pytest.mark.req_ws_194
     def test_pathology_codes(self):
         """
         Test codes used for tumour pathology of first breast cancer (only applicable to females

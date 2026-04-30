@@ -8,6 +8,8 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
 from django.contrib.auth.models import User, Permission
 from django.test.testcases import TestCase
 from django.test.utils import override_settings
@@ -50,6 +52,7 @@ class Vcf2PrsWebServices(TestCase):
         ''' Close VCF file '''
         self.vcf_data.close()
 
+    @pytest.mark.req_ws_210
     def test_prs(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score. '''
         data = {'vcf_file': self.vcf_data, 'sample_name': 't0.5', 'bc_prs_reference_file': self.prs_reference_file}
@@ -60,6 +63,7 @@ class Vcf2PrsWebServices(TestCase):
         self.assertContains(response, "alpha")
         self.assertContains(response, "zscore")
 
+    @pytest.mark.req_ws_210
     def test_prs_v_direct(self):
         ''' Test POSTing to a vcf file to get a polygenic risk score and
         compare with the direct call to calculate a PRS. '''
@@ -78,6 +82,7 @@ class Vcf2PrsWebServices(TestCase):
         #zscore = prs.z_Score
         self.assertEqual(prs.z_Score[0], content['breast_cancer_prs']['zscore'], 'web-service and direct calculation')
 
+    @pytest.mark.req_ws_211
     def test_prs_err(self):
         ''' Test POSTing to the 400 returned without the vcf specified. '''
         data = {'sample_name': 'SampleA'}
@@ -87,6 +92,7 @@ class Vcf2PrsWebServices(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['vcf_file'][0], 'No file was submitted.')
 
+    @pytest.mark.req_ws_212
     @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=1)
     def test_prs_upload_limit(self):
         ''' Test POSTing to a vcf file that is too large. '''
