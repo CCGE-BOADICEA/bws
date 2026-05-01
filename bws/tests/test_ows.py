@@ -48,7 +48,7 @@ class OwsTests(TestCase):
         TestCase.tearDown(self)
         self.pedigree_data.close()
 
-    @pytest.mark.req_ws_160
+    @pytest.mark.req_WS_CANCER_160
     def test_ows_output(self):
         ''' Test output of POSTing to the OWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK',
@@ -70,7 +70,7 @@ class OwsTests(TestCase):
         self.assertGreater(len(pedigree_result["cancer_risks"]), 0)
         self.assertTrue("family_id" in pedigree_result)
 
-    @pytest.mark.req_ws_161
+    @pytest.mark.req_WS_CANCER_161
     def test_multi_pedigree_ows(self):
         ''' Test POSTing multiple pedigrees to the OWS. '''
         multi_pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "multi", "d2.canrisk"), "r")
@@ -106,7 +106,7 @@ class OwsTests(TestCase):
             self.assertTrue("baseline_cancer_risks" in res)
             self.assertTrue("cancer_risks" in res)
 
-    @pytest.mark.req_ws_017
+    @pytest.mark.req_WS_CORE_017
     def test_ows_bwa(self):
         ''' Test web-service takes BWA file as input. '''
         pedigree_data = open(os.path.join(OwsTests.TEST_DATA_DIR, "d3.bwa"), "r")
@@ -118,7 +118,7 @@ class OwsTests(TestCase):
         pedigree_data.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @pytest.mark.req_ws_162
+    @pytest.mark.req_WS_CANCER_162
     def test_ows_warnings(self):
         ''' Test warning when proband has already had ovarian cancer and no risks are reported. '''
         # change proband to have had OC
@@ -131,7 +131,7 @@ class OwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('cancer_risks not provided' in content['warnings'])
 
-    @pytest.mark.req_ws_041
+    @pytest.mark.req_WS_CORE_041
     @override_settings(FORTRAN_TIMEOUT=0.001)
     def test_ows_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
@@ -169,7 +169,7 @@ class OwsTestsPRS(TestCase):
     def tearDown(self):
         self.pedigree_data.close()
 
-    @pytest.mark.req_ws_163
+    @pytest.mark.req_WS_CANCER_163
     def test_prs_in_canrisk_file(self):
         '''
         Test ovarian cancer PRS parameters defined in the header of CanRisk formatted file.

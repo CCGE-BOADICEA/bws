@@ -45,7 +45,7 @@ class BwsMixin(TestCase):
 
 class MutFreqTests(BwsMixin):
 
-    @pytest.mark.req_ws_001
+    @pytest.mark.req_WS_CORE_001
     def test_ashkn_mut_freq(self):
         '''
         Test POSTing CanRisk file with multiple families with and without Ashkenazi Jewish ancestry.
@@ -91,8 +91,8 @@ class BwsTests(BwsMixin):
         TestCase.tearDown(self)
         self.pedigree_data.close()
 
-    @pytest.mark.req_ws_010
-    @pytest.mark.req_ws_011
+    @pytest.mark.req_WS_CORE_010
+    @pytest.mark.req_WS_CORE_011
     def test_token_auth_bws(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data, 'user_id': 'test_XXX'}
@@ -103,8 +103,8 @@ class BwsTests(BwsMixin):
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("family_id" in content["pedigree_result"][0])
 
-    @pytest.mark.req_ws_010
-    @pytest.mark.req_ws_012
+    @pytest.mark.req_WS_CORE_010
+    @pytest.mark.req_WS_CORE_012
     def test_multi_pedigree_bws(self):
         ''' Test POSTing multiple pedigrees to the BWS. '''
         multi_pedigree_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "multi", "d1.bwa"), "r")
@@ -118,7 +118,7 @@ class BwsTests(BwsMixin):
             self.assertTrue(res['family_id'] in family_ids)
         multi_pedigree_data.close()
 
-    @pytest.mark.req_ws_013
+    @pytest.mark.req_WS_CORE_013
     def test_canrisk_format(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d0.canrisk"), "r")
@@ -132,7 +132,7 @@ class BwsTests(BwsMixin):
             self.assertTrue(g in content['mutation_frequency']['UK'])
         canrisk_data.close()
 
-    @pytest.mark.req_ws_014
+    @pytest.mark.req_WS_CORE_014
     def test_canrisk_v2_format(self):
         ''' Test POSTing canrisk format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d1.canrisk2"), "r")
@@ -149,7 +149,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(content['cancer_incidence_rates'], 'France')
         canrisk_data.close()
 
-    @pytest.mark.req_ws_015
+    @pytest.mark.req_WS_CORE_015
     def test_canrisk_v3_format(self):
         ''' Test POSTing canrisk v3 format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d11.canrisk3"), "r")
@@ -166,7 +166,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(content['cancer_incidence_rates'], 'UK')
         canrisk_data.close()
         
-    @pytest.mark.req_ws_016
+    @pytest.mark.req_WS_CORE_016
     def test_canrisk_v4_format(self):
         ''' Test POSTing canrisk v4 format pedigree to the BWS. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d7.canrisk4"), "r")
@@ -183,7 +183,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(content['cancer_incidence_rates'], 'UK')
         canrisk_data.close()
 
-    @pytest.mark.req_ws_030
+    @pytest.mark.req_WS_CORE_030
     def test_multi_with_err(self):
         '''
         Test POSTing CanRisk file with multiple families with an error in one of them.
@@ -199,7 +199,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(len(content['pedigree_result']), 2, "two results")
         self.assertEqual(len(content['errors']), 1, "one pedigree with an error")
 
-    @pytest.mark.req_ws_031
+    @pytest.mark.req_WS_CORE_031
     def test_non_UK_cancer_rates_ethnicity(self):
         ''' Test POSTing ethnicity with non UK cancer rates. '''
         uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
@@ -210,7 +210,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('cancer rates with a UK ethnicity parameter' in content['Pedigree Error'])
         uk_ped.close()
 
-    @pytest.mark.req_ws_031
+    @pytest.mark.req_WS_CORE_031
     def test_UK_cancer_rates_ethnicity(self):
         ''' Test POSTing ethnicity with UK cancer rates. '''
         uk_ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
@@ -219,7 +219,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         uk_ped.close()
    
-    @pytest.mark.req_ws_032
+    @pytest.mark.req_WS_CORE_032
     def test_ethnicity_error(self):
         ''' Test ethnicity not valid ONS category. '''
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
@@ -231,7 +231,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('CanRisk header format contains an error in: ##ethnicity=XXX;YYYY' in content['Pedigree File Error'])
         ped.close()
 
-    @pytest.mark.req_ws_033
+    @pytest.mark.req_WS_CORE_033
     def test_volpara_asian(self):
         ''' Test an error is reported for volpara with an ethnic group it's not configured for. '''
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
@@ -244,7 +244,7 @@ class BwsTests(BwsMixin):
         ped.close()
         self.assertTrue('Volpara and Stratus are currently not configured for all ethnic groups' in content['Pedigree Error'])
 
-    @pytest.mark.req_ws_033
+    @pytest.mark.req_WS_CORE_033
     def test_volpara_white(self):
         ''' Test volpara with an ethnic group it's configured for. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d6.canrisk3"), "r")
@@ -255,7 +255,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
-    @pytest.mark.req_ws_034
+    @pytest.mark.req_WS_CORE_034
     def test_volpara_menopause_na(self):
         ''' 
         Test volpara with menopause set to NA is the same as without the menopause line.
@@ -277,7 +277,7 @@ class BwsTests(BwsMixin):
 
         self.assertEqual(content['pedigree_result'][0]['cancer_risks'], content1['pedigree_result'][0]['cancer_risks'], '')
 
-    @pytest.mark.req_ws_033
+    @pytest.mark.req_WS_CORE_033
     def test_stratus_white(self):
         ''' Test stratus with an ethnic group it's configured for. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d8.canrisk4"), "r")
@@ -286,7 +286,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ped.close()
 
-    @pytest.mark.req_ws_035
+    @pytest.mark.req_WS_CORE_035
     def test_stratus_premenopause(self):
         ''' Test stratus with unspecified, pre and post menopausal.
             Continuous mammographic density uses menopause status (unspecified, pre/postmenopausal)
@@ -321,7 +321,7 @@ class BwsTests(BwsMixin):
         self.assertNotEqual( content['pedigree_result'][0]['cancer_risks'], content2['pedigree_result'][0]['cancer_risks'], '')
         self.assertNotEqual(content1['pedigree_result'][0]['cancer_risks'], content2['pedigree_result'][0]['cancer_risks'], '')
 
-    @pytest.mark.req_ws_036
+    @pytest.mark.req_WS_CORE_036
     def test_birads(self):
         ''' Test BIRADS. '''      
         ped = open(os.path.join(BwsTests.TEST_DATA_DIR, "d9.canrisk4"), "r")
@@ -337,7 +337,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         ped.close()
 
-    @pytest.mark.req_ws_037
+    @pytest.mark.req_WS_CORE_037
     def test_token_auth_err(self):
         ''' Test POSTing to the BWS using token authentication. '''
         data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': self.pedigree_data}
@@ -387,7 +387,7 @@ class BwsTests(BwsMixin):
         # for k in content.keys():
         #     self.assertTrue(k.split("_")[0].upper() in genes)
 
-    @pytest.mark.req_ws_038
+    @pytest.mark.req_WS_CORE_038
     def test_missing_fields(self):
         ''' Test POSTing with missing required fields. '''
         data = {'mut_freq': 'UK'}
@@ -398,7 +398,7 @@ class BwsTests(BwsMixin):
         self.assertEqual(content['cancer_rates'][0], 'This field is required.')
         self.assertEqual(content['pedigree_data'][0], 'No file was submitted.')
 
-    @pytest.mark.req_ws_039
+    @pytest.mark.req_WS_CORE_039
     def test_bws_errors(self):
         ''' Test an error is reported by the web-service for an invalid year of birth. '''
         # force an error changing to an invalid year of birth
@@ -412,7 +412,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('Person Error' in content)
         self.assertTrue('year of birth' in content['Person Error'])
 
-    @pytest.mark.req_ws_040
+    @pytest.mark.req_WS_CORE_040
     def test_field_validate_errors(self):
         ''' Test error with superfluous fields included. '''
         data = {'mut_freq': 'UK', 'nosuchflag': '1234', 'nosuchflag2': 77}
@@ -422,7 +422,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('Input Field Error' in content)
         self.assertEqual('Extra input field(s) found: nosuchflag, nosuchflag2', content['Input Field Error'])
 
-    @pytest.mark.req_ws_041
+    @pytest.mark.req_WS_CORE_041
     @override_settings(FORTRAN_TIMEOUT=0.0005)
     def test_bws_timeout(self):
         ''' Test a timeout error is reported by the web-service. '''
@@ -433,7 +433,7 @@ class BwsTests(BwsMixin):
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
 
-    @pytest.mark.req_ws_042
+    @pytest.mark.req_WS_CORE_042
     def test_calcs_validation_err(self):
         """ Test invalid calculation type raise ValidationError. """
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
@@ -442,7 +442,7 @@ class BwsTests(BwsMixin):
         with self.assertRaisesRegex(ValidationError, r"Unknown calculation requested: dribble"):
             Predictions(pedigree, model_settings=settings.OC_MODEL, calcs=['dribble'])
 
-    @pytest.mark.req_ws_043
+    @pytest.mark.req_WS_CORE_043
     def test_bws_model_err(self):
         ''' Test ModelError raised because of pedigree file with only one twin. '''
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20", mztwin="1",
@@ -451,7 +451,7 @@ class BwsTests(BwsMixin):
         with self.assertRaisesRegex(ModelError, r"ERRORS IN THE PEDIGREE FILE"):
             Predictions(pedigree)
 
-    @pytest.mark.req_ws_044
+    @pytest.mark.req_WS_CORE_044
     def test_bws_model_deceased_no_risks(self):
         ''' Test deceased target produces mutation carrier probabilities and no risks. '''
         canrisk_data = open(os.path.join(BwsTests.TEST_DATA_DIR, "d5.dead.canrisk2"), "r")
@@ -471,7 +471,7 @@ class BwsTests(BwsMixin):
 
 class CombineModelResultsTests(BwsMixin):
 
-    @pytest.mark.req_ws_050
+    @pytest.mark.req_WS_CORE_050
     def test_results_page(self):
         ''' Get results from breast and ovarian web-services and test calling combine results web-service. '''
         # 1. calculate breast cancer risks

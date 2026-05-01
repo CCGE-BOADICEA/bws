@@ -9,3 +9,7 @@ __pycache__/
 *.swp
 migrations
 *log
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

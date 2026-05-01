@@ -49,7 +49,7 @@ class ThrottlingTests(TestCase):
                                              password='testing1')
         self.user.save()
 
-    @pytest.mark.req_util_003
+    @pytest.mark.req_UTILITIES_003
     def test_requests_are_throttled(self):
         ''' Ensure request rate is limited by user_id '''
         for dummy in range(1, MockEndUserIDRateThrottle.max_rate+2):
@@ -60,7 +60,7 @@ class ThrottlingTests(TestCase):
             else:
                 self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
-    @pytest.mark.req_util_003
+    @pytest.mark.req_UTILITIES_003
     def test_authenticated_requests_are_throttled(self):
         ''' Ensure request rate is limited by user_id '''
         for dummy in range(1, MockEndUserIDRateThrottle.max_rate+2):
