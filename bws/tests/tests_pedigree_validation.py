@@ -574,21 +574,21 @@ class PedigreeTests(TestCase, ErrorTests):
 
 class GenesTests(TestCase):
 
-    @pytest.mark.req_ws_194
+    @pytest.mark.req_util_004
     def test_unique_oc_genes(self):
         ''' Test method to get genes unique to ovarian cancer model. '''
         g_oc = Genes.get_unique_oc_genes()
         self.assertEqual(len(g_oc), 1)
         self.assertListEqual(g_oc, ['BRIP1'])
 
-    @pytest.mark.req_ws_194
+    @pytest.mark.req_util_004
     def test_unique_pc_genes(self):
         ''' Test method to get genes unique to prostate cancer model. '''
         g_oc = Genes.get_unique_pc_genes()
         self.assertEqual(len(g_oc), 1)
         self.assertListEqual(g_oc, ['HOXB13'])
 
-    @pytest.mark.req_ws_194
+    @pytest.mark.req_util_004
     def test_all_genes(self):
         ''' Test method to get all genes. '''
         g_all = Genes.get_all_model_genes()
