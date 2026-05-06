@@ -331,8 +331,10 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(bc.AgeOfMenopause.get_category(54), 4)
         self.assertEqual(bc.AgeOfMenopause.get_category(55), 5)
 
-    @pytest.mark.req_util_001
+    @pytest.mark.req_WS_RISK_126
+    @pytest.mark.req_WS_RISK_133
     def test_get_value(self):
+        ''' Given a risk factor OC usage and menopause value check the value is correctly returned. '''
         self.assertEqual(bc.OralContraception.get_value("F"), 'F')
         self.assertEqual(bc.OralContraception.get_value("F:2"), 'F:2')
         self.assertEqual(bc.AgeOfMenopause.get_value("45-49"), '45')
