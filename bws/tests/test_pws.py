@@ -7,11 +7,18 @@ SPDX-License-Identifier: GPL-3.0-or-later
 """
 
 import pytest
+from bws.calc.calcs import Predictions
+from bws.calc.model import ModelParams
+from bws.cancer import CanRiskGeneticTests
+from bws.pedigree import CanRiskPedigree, Male
+from bws.exceptions import ModelError
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str
+from django.conf import settings
+from datetime import date
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -82,7 +89,7 @@ class PwsTests(TestCase):
         data['pedigree_data'].close()
 
     @pytest.mark.req_WS_CORE_017
-    def test_bws_file(self):
+    def test_pws_bwa(self):
         '''
         Test running prostate cancer model using a BOADICEA v4 formatted file.
         '''
@@ -92,6 +99,24 @@ class PwsTests(TestCase):
         response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
         bwa.close()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @pytest.mark.req_WS_CORE_016
+    def test_canrisk_v4_format(self):
+        ''' Test POSTing canrisk v4 format pedigree to the PWS. '''
+        canrisk_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertTrue("pedigree_result" in content)
+        genes = settings.PC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
+
+        self.assertDictEqual(settings.PC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
+        self.assertEqual(content['cancer_incidence_rates'], 'UK')
+        canrisk_data.close()
 
     @pytest.mark.req_WS_CANCER_221
     def test_pws_warnings(self):
@@ -119,6 +144,31 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('assigned an invalid genetic test result' in content['Gene Test Error'])
 
+    @pytest.mark.req_WS_CANCER_223
+    def test_pws_valid_genetic_test_hom(self):
+        ''' Test T:HOM genetic test result is valid. '''
+        canrisk_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': canrisk_data, 'user_id': 'test_XXX'}
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        canrisk_data.close()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertTrue("pedigree_result" in content)
+        self.assertTrue("mutation_frequency" in content)
+
+    @pytest.mark.req_WS_CANCER_224
+    def test_pws_valid_genetic_test_het(self):
+        ''' Test T:HET genetic test result is valid. '''
+        pd = self.pedigree_datav4.read().replace('T:HOM', 'T:HET')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        PwsTests.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + PwsTests.token.key)
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertTrue("pedigree_result" in content)
+        self.assertTrue("mutation_frequency" in content)
+
     @pytest.mark.req_WS_CORE_041
     @override_settings(FORTRAN_TIMEOUT=0.0001)
     def test_pws_timeout(self):
@@ -131,6 +181,23 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('detail' in content)
         self.assertTrue('Request has timed out.' in content['detail'])
+
+    @pytest.mark.req_WS_CORE_044
+    def test_pws_model_deceased_no_risks(self):
+        ''' Test deceased target produces mutation carrier probabilities and no risks. '''
+        # Modify male.canrisk3 to make proband deceased with PC at age 33
+        pd = self.pedigree_datav3.read().replace('1962\t0\t0\t0\t0', '1962\t0\t0\t0\t33')
+        data = {'mut_freq': 'UK', 'cancer_rates': 'UK', 'pedigree_data': pd, 'user_id': 'test_XXX'}
+        response = PwsTests.drf_client.post(PwsTests.url, data, format='multipart', HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        content = json.loads(force_str(response.content))
+        self.assertTrue("pedigree_result" in content)
+        self.assertFalse('cancer_risks' in content["pedigree_result"][0])
+        self.assertFalse('lifetime_cancer_risk' in content["pedigree_result"][0])
+        self.assertFalse('baseline_cancer_risks' in content["pedigree_result"][0])
+        genes = settings.PC_MODEL['GENES']
+        for g in genes:
+            self.assertTrue(g in content['mutation_frequency']['UK'])
 
 
 class PwsTestsPRS(TestCase):
