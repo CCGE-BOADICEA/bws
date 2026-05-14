@@ -144,7 +144,7 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue('assigned an invalid genetic test result' in content['Gene Test Error'])
 
-    @pytest.mark.req_WS_CANCER_223
+    @pytest.mark.req_WS_CANCER_222
     def test_pws_valid_genetic_test_hom(self):
         ''' Test T:HOM genetic test result is valid. '''
         canrisk_data = open(os.path.join(PwsTests.TEST_DATA_DIR, "batch", "male.canrisk4"), "r")
@@ -157,7 +157,7 @@ class PwsTests(TestCase):
         self.assertTrue("pedigree_result" in content)
         self.assertTrue("mutation_frequency" in content)
 
-    @pytest.mark.req_WS_CANCER_224
+    @pytest.mark.req_WS_CANCER_222
     def test_pws_valid_genetic_test_het(self):
         ''' Test T:HET genetic test result is valid. '''
         pd = self.pedigree_datav4.read().replace('T:HOM', 'T:HET')
