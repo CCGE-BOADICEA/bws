@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
 
+import pytest
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, APIClient, force_authenticate
@@ -19,14 +20,14 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 
 
-class TestEndUserIDRateThrottle(EndUserIDRateThrottle):
+class MockEndUserIDRateThrottle(EndUserIDRateThrottle):
     max_rate = 3
     rate = str(max_rate)+'/min'
     scope = 'test_enduser_burst'
 
 
 class MockView_Throttling(APIView):
-    throttle_classes = (TestEndUserIDRateThrottle,)
+    throttle_classes = (MockEndUserIDRateThrottle,)
 
     def post(self, request):
         return Response('foo')
@@ -48,23 +49,25 @@ class ThrottlingTests(TestCase):
                                              password='testing1')
         self.user.save()
 
+    @pytest.mark.req_UTILITIES_003
     def test_requests_are_throttled(self):
         ''' Ensure request rate is limited by user_id '''
-        for dummy in range(1, TestEndUserIDRateThrottle.max_rate+2):
+        for dummy in range(1, MockEndUserIDRateThrottle.max_rate+2):
             request = self.factory.post('/', data={"user_id": "testuserA"})
             response = MockView_Throttling.as_view()(request)
-            if dummy <= TestEndUserIDRateThrottle.max_rate:
+            if dummy <= MockEndUserIDRateThrottle.max_rate:
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
             else:
                 self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
+    @pytest.mark.req_UTILITIES_003
     def test_authenticated_requests_are_throttled(self):
         ''' Ensure request rate is limited by user_id '''
-        for dummy in range(1, TestEndUserIDRateThrottle.max_rate+2):
+        for dummy in range(1, MockEndUserIDRateThrottle.max_rate+2):
             request = self.factory.post('/', data={"user_id": "testuserA"})
             force_authenticate(request, user=self.user)
             response = MockView_Authenticated_Throttling.as_view()(request)
-            if dummy <= TestEndUserIDRateThrottle.max_rate:
+            if dummy <= MockEndUserIDRateThrottle.max_rate:
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
             else:
                 self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

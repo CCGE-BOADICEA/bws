@@ -1,0 +1,20 @@
+##CanRisk 3
+##PRS_BC=alpha=0.501,zscore=0.678
+##PRS_OC=alpha=0.223,zscore=0.789
+##menarche=14
+##parity=1
+##first_live_birth=23
+##oc_use=F:2
+##mht_use=N
+##BMI=24.09
+##alcohol=13.200000000000001
+##menopause=N
+##height=168
+##ethnicity=White;English/Welsh/Scottish/Northern Irish/British
+##FamID	Name	Target	IndivID	FathID	MothID	Sex	MZtwin	Dead	Age	Yob	BC1	BC2	OC	PRO	PAN	Ashkn	BRCA1	BRCA2	PALB2	ATM	CHEK2	BARD1	RAD51D	RAD51C	BRIP1	ER:PR:HER2:CK14:CK56
+ABCD	father	0	m21	0	0	M	0	0	56	1969	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+ABCD	NA	0	WsLV	0	0	M	0	0	29	1996	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+ABCD	mother	0	f21	0	0	F	0	0	57	1968	49	0	0	0	0	0	S:N	S:N	S:N	S:N	S:N	S:N	S:N	S:N	S:N	0:0:0:0:0
+ABCD	NA	0	jNFc	m21	f21	F	0	0	25	2000	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+ABCD	me	1	ch1	m21	f21	F	0	0	28	1996	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
+ABCD	NA	0	lqRc	WsLV	ch1	M	0	0	6	2019	0	0	0	0	0	0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0	0:0:0:0:0
