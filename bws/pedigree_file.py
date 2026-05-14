@@ -102,7 +102,7 @@ class CanRiskHeader():
                     bc_rfs.add_category(rfnam, rfval)
                     oc_rfs.add_category(rfnam, rfval)
             except Exception as e:
-                logger.error("CanRisk header format contains an error.", e)
+                logger.error("CanRisk header format contains an error: %s", e)
                 raise PedigreeFileError("CanRisk header format contains an error in: "+line)
 
         # add menopause status to volpara/stratus

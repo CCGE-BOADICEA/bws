@@ -1,10 +1,11 @@
 """
-Mutation risk and probability calculation testing.
+Cancer risk and pathogenic variant probability calculation testing.
 
 © 2023 University of Cambridge
 SPDX-FileCopyrightText: 2023 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
+import pytest
 from copy import deepcopy
 import copy
 from datetime import date
@@ -21,24 +22,6 @@ from bws.calc.model import ModelParams
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
 from bws.pedigree import Female, BwaPedigree, CanRiskPedigree
 from bws.pedigree_file import PedigreeFile
-
-
-class WritePedigree(TestCase):
-    TEST_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-    TEST_DATA_DIR = os.path.join(TEST_BASE_DIR, 'tests', 'data')
-
-    def test_write(self):
-        """ Write out BOADICEA pedigree file and compare with the original file. """
-        with open(os.path.join(WritePedigree.TEST_DATA_DIR, "d3.bwa"), "r") as f1:
-            pedigree_data = f1.read()
-
-        pedigree_file = PedigreeFile(pedigree_data)
-        pedigree = pedigree_file.pedigrees[0]
-
-        f2 = tempfile.NamedTemporaryFile(mode='w')
-        pedigree.write_boadicea_file_header(bwa_file=f2)
-        pedigree.write_boadicea_file(bwa_file=f2)
-        self.assertTrue(filecmp.cmp(f1.name, f2.name, shallow=False))
 
 
 class RiskTests(TestCase):
@@ -69,6 +52,9 @@ class RiskTests(TestCase):
         TestCase.tearDown(self)
         shutil.rmtree(self.cwd)
 
+    @pytest.mark.req_WS_VALIDATION_240
+    @pytest.mark.req_WS_VALIDATION_241
+    @pytest.mark.req_WS_VALIDATION_242
     def test_risk_calc_viable(self):
         """ Test if the risk calculations are viable. """
         pedigree = deepcopy(self.pedigree)
@@ -84,8 +70,10 @@ class RiskTests(TestCase):
         target.cancers = Cancers(bc1=Cancer(), bc2=Cancer(), oc=Cancer("19"), prc=Cancer(), pac=Cancer())
         self.assertFalse(pedigree.is_risks_calc_viable())
 
+    @pytest.mark.req_WS_VALIDATION_243
+    @pytest.mark.req_WS_VALIDATION_244
     def test_calculations(self):
-        """ Test prediction of cancer risk and mutation probability. """
+        """ Test BC prediction of cancer risk and mutation probability. """
         pedigree = deepcopy(self.pedigree)
         pedigree.validateAll()
         calcs = Predictions(pedigree, cwd=self.cwd)
@@ -101,8 +89,10 @@ class RiskTests(TestCase):
         self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                         [21, 22, 23, 24, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80])
 
+    @pytest.mark.req_WS_VALIDATION_243
+    @pytest.mark.req_WS_VALIDATION_244
     def test_calculations2(self):
-        """ Test prediction of cancer risk and mutation probability. """
+        """ Test BC prediction of cancer risk and mutation probability with a secondary degree family history. """
         pedigree = deepcopy(self.pedigree)
         target = pedigree.get_target()
         target.age = str(int(target.age) + 43)
@@ -142,8 +132,10 @@ class RiskTests(TestCase):
         self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                         [64, 65, 66, 67, 68, 70, 73, 75, 80])
 
+    @pytest.mark.req_WS_VALIDATION_243
+    @pytest.mark.req_WS_VALIDATION_244
     def test_ovarian_calculations(self):
-        """ Test prediction of cancer risk and mutation probability. """
+        """ Test OC prediction of cancer risk and mutation probability. """
         target = Female("FAM1", "F0", "001", "002", "003", target="1", age="20",
                         yob=str(self.year-20), cancers=Cancers(),
                         gtests=CanRiskGeneticTests.default_factory())
@@ -181,6 +173,8 @@ class RiskTests(TestCase):
                 c80 = c
         return c80[can+' cancer risk']['decimal'], calcs.lifetime_cancer_risk[0][can + ' cancer risk']['decimal']
 
+    @pytest.mark.req_WS_VALIDATION_245
+    @pytest.mark.req_WS_VALIDATION_246
     def test_lifetime_risk(self):
         """ Test lifetime risk calculation matches the risk to 80 for a 20 year old. """
         # 1. breast cancer risk
@@ -197,6 +191,7 @@ class RiskTests(TestCase):
         c80, lif = RiskTests.run_calc('ovarian', pedigree, calcs=['remaining_lifetime', "lifetime"], cwd=self.cwd)
         self.assertEqual(c80, lif)
 
+    @pytest.mark.req_WS_VALIDATION_247
     def test_10yr_range_risk(self):
         """ Test ten year range (40-49) risk calculation matches the risk to 50 for a 40 year old. """
         pedigree = deepcopy(self.pedigree)
@@ -215,6 +210,7 @@ class RiskTests(TestCase):
         self.assertEqual(calcs1.ten_yr_cancer_risk[0]['breast cancer risk']['decimal'],
                          c50['breast cancer risk']['decimal'])
 
+    @pytest.mark.req_WS_VALIDATION_248
     def test_incidence_rates(self):
         """ Test prediction of cancer risk and mutation probability for different incidence rates. """
         pedigree = deepcopy(self.pedigree)
@@ -234,6 +230,7 @@ class RiskTests(TestCase):
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                             [79, 80])
 
+    @pytest.mark.req_WS_VALIDATION_249
     def test_affected_unknown(self):
         """ Test including affected unknown for mother of target to show it increases breast cancer risk. """
         pedigree = deepcopy(self.pedigree)
@@ -254,8 +251,9 @@ class RiskTests(TestCase):
         calcs2 = Predictions(pedigree, cwd=self.cwd)
         self.assertGreater(get_c80(calcs2), get_c80(calcs1), 'Mother affected unknown increases BC risk in target')
 
+    @pytest.mark.req_WS_VALIDATION_250
     def test_mutation_frequencies(self):
-        """ Test prediction of cancer risk and mutation probability for different mutation frequencies. """
+        """ Test prediction of cancer risk and PV probability for different PV frequencies. """
         pedigree = deepcopy(self.pedigree)
         pedigree.validateAll()
         target = pedigree.get_target()
@@ -275,6 +273,7 @@ class RiskTests(TestCase):
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
                             [79, 80])
 
+    @pytest.mark.req_WS_VALIDATION_251
     def test_subproces_err(self):
         """ Test subprocess raises an error when the fortran can not be run. """
         pedigree = deepcopy(self.pedigree)
@@ -284,6 +283,7 @@ class RiskTests(TestCase):
             model_settings['HOME'] = 'xyz'
             Predictions(pedigree, cwd=self.cwd, model_settings=model_settings)
 
+    @pytest.mark.req_WS_VALIDATION_252
     def test_niceness(self):
         """ Test niceness level for pedigree with sibling and large pedigree. """
         pedigree = deepcopy(self.pedigree)

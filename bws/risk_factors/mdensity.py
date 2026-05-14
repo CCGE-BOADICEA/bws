@@ -64,6 +64,8 @@ class Birads(MammographicDensity):
         for idx, _cat in enumerate(cats):
             if val == alt1[idx] or val == alt2[idx]:
                 return idx
+        if val not in ['-', 'na']:
+            raise RiskFactorError("Unknown BI-RADS status: "+val)
         return 0
 
 class Stratus(MammographicDensity):

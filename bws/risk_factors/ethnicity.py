@@ -91,7 +91,7 @@ class ONSEthnicity(Ethnicity):
         if e == "white":
             return UKBioBankEthnicty(e);
         elif e == "mixed/multiple ethnic groups": 
-            return UKBioBankEthnicty("mixed");#
+            return UKBioBankEthnicty("mixed")
         elif e == "asian or asian british":
             if ebg == "chinese":
                 return UKBioBankEthnicty("chinese")
