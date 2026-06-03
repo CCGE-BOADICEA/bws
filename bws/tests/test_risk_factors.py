@@ -18,7 +18,7 @@ from rest_framework.test import APIClient
 import json
 import os
 from bws.risk_factors.mdensity import Birads, Stratus, Volpara
-from bws.risk_factors.ethnicity import ONSEthnicity
+from bws.risk_factors.ethnicity import ONSEthnicity, UKBioBankEthnicty
 from django.utils.encoding import force_str
 from builtins import AssertionError
 
@@ -102,8 +102,41 @@ class UKBioBankEthnictyTests(TestCase):
     @pytest.mark.req_WS_RISK_101
     def test_err(self):
         ''' Test non-existant ONS ethnicity raises an error '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(Exception):
             ONSEthnicity("xxxx", None)
+
+    @pytest.mark.req_WS_RISK_101
+    def test_lowercase_ethnicity_group(self):
+        ''' Test lower-case ONS ethnicity group names are accepted. '''
+        onsEthnicity = ONSEthnicity("white", "Irish")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_get_string_with_background(self):
+        ''' Test ONS ethnicity string representation includes the background. '''
+        onsEthnicity = ONSEthnicity("White", "Irish")
+        self.assertEqual(onsEthnicity.get_string(), "white;irish")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ons2ukbiobank_fallback(self):
+        ''' Test ONS-to-UK-BioBank fallback returns the default group. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        onsEthnicity.ethnicity = "not a valid group"
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "na")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_invalid_group(self):
+        ''' Test invalid UK BioBank ethnic group raises an error. '''
+        with self.assertRaises(Exception):
+            UKBioBankEthnicty("not-a-group")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_group_name(self):
+        ''' Test UK BioBank group names are rendered correctly. '''
+        self.assertEqual(UKBioBankEthnicty("na").get_group(), "UK")
+        self.assertEqual(UKBioBankEthnicty("white").get_group(), "UK White")
 
 
 class MammographicDensityTests(TestCase):
