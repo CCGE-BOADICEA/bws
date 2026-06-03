@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 '''
 from django.conf import settings
 from bws.risk_factors.ethnicity import UKBioBankEthnicty
+from bws.exceptions import ModelError
 
 
 class ModelOpts():
@@ -87,14 +88,27 @@ class ModelParams():
     @classmethod
     def factory(cls, data, model_settings):
         """
-        Generate ModelParams from web-service validated data
+        Generate ModelParams from web-service validated data and model settings
         @keyword data: validated request data
         @keyword model_settings: model settings
         @return: ModelParams
         """
+        # Validate required top-level keys
+        required_keys = ['GENETIC_TEST_SENSITIVITY', 'CANCER_RATES', 'MUTATION_FREQUENCIES']
+        missing = [k for k in required_keys if k not in model_settings]
+        if missing:
+            raise ModelError(f"Invalid model settings, missing required keys: {missing}")
+
         population = data.get('mut_freq', 'UK')
         gts = model_settings['GENETIC_TEST_SENSITIVITY']
         mut_sens = {k: float(data.get(k.lower() + "_mut_sensitivity", gts[k])) for k in gts.keys()}
+        # Validate population is a known key in MUTATION_FREQUENCIES
+        if population not in model_settings['MUTATION_FREQUENCIES']:
+            raise ModelError(
+                f"Unknown population '{population}'. "
+                f"Valid options are: {list(model_settings['MUTATION_FREQUENCIES'].keys())}"
+            )
+
         return ModelParams(population,
                            cancer_rates=model_settings['CANCER_RATES'].get(data.get('cancer_rates')),
                            mutation_frequency=model_settings['MUTATION_FREQUENCIES'][population],
