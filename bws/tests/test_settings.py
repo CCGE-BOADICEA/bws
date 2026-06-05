@@ -10,9 +10,10 @@ import sys
 import tempfile
 from pathlib import Path
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import mock_open, patch
 
 import bws.settings as settings
+from vcf2prs.exception import Vcf2PrsError
 
 
 class SettingsTests(TestCase):
@@ -50,3 +51,17 @@ class SettingsTests(TestCase):
 
         with self.assertRaises(AssertionError):
             settings.get_prs_alpha_dict(model)
+
+    @patch('bws.settings.line_that_contain', 
+           side_effect=UnicodeDecodeError('utf-8', b'', 0, 1, 'invalid'))
+    @patch('builtins.open', new_callable=mock_open)
+    def test_unicode_error_raises_vcf2prserror(self, mock_file, mock_line):
+        """Test UnicodeDecodeError raises VCF2PrsError."""
+
+        with self.assertRaisesRegex(Vcf2PrsError, "Unable to open the file"):
+            settings.get_alpha("test.txt")
+
+    def test_missing_prs_file_returns_empty_string(self):
+        """Test that get_alpha returns an empty string when the PRS reference file is missing."""
+        self.assertTrue(settings.get_alpha("test.txt") == "")
+

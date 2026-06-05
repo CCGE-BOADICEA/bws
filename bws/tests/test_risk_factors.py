@@ -349,6 +349,9 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
         self.assertEqual(oc.OralContraception.get_category('F'), 0)
 
+        with self.assertRaisesRegex(RiskFactorError, r"Unknown category for: OralContraception"):
+            oc.OralContraception.get_category('X:aaa')
+
     @pytest.mark.req_WS_RISK_134
     def test_get_Endometriosis_category(self):
         ''' Given a endometriosis value check the category is correctly assigned. '''
