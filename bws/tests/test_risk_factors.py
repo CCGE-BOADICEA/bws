@@ -119,12 +119,39 @@ class UKBioBankEthnictyTests(TestCase):
         self.assertEqual(onsEthnicity.get_string(), "white;irish")
 
     @pytest.mark.req_WS_RISK_101
+    def test_get_string_without_background(self):
+        ''' Test get_string() returns the group only when no background is provided. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        self.assertEqual(onsEthnicity.get_string(), "unknown")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_type_error_invalid_ons_ethnicity(self):
+        ''' Test invalid ONS ethnicity type raises TypeError. '''
+        with self.assertRaises(TypeError):
+            ONSEthnicity(123)
+
+    @pytest.mark.req_WS_RISK_101
+    def test_validate_fails_for_unknown_group(self):
+        ''' Test validate() raises when the ethnicity group is not an ONS group. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        onsEthnicity.ethnicity = "not an ons group"
+        with self.assertRaises(Exception) as cm:
+            onsEthnicity.validate()
+        self.assertIn("not an ONS ethnic group", str(cm.exception))
+
+    @pytest.mark.req_WS_RISK_101
     def test_ons2ukbiobank_fallback(self):
         ''' Test ONS-to-UK-BioBank fallback returns the default group. '''
         onsEthnicity = ONSEthnicity("Unknown")
         onsEthnicity.ethnicity = "not a valid group"
         ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
         self.assertEqual(ethnicityUKBioBank.ethnicity, "na")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_invalid_type(self):
+        ''' Test invalid UK BioBank ethnicity type raises TypeError. '''
+        with self.assertRaises(TypeError):
+            UKBioBankEthnicty(123)
 
     @pytest.mark.req_WS_RISK_101
     def test_ukbiobank_invalid_group(self):
