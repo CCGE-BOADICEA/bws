@@ -133,7 +133,7 @@ class PwsInputSerializerFieldTests(TestCase):
 class GetMutationFrequencyFieldTests(TestCase):
     """ Tests for BaseInputSerializer.get_mutation_frequency_field(). """
 
-    @pytest.mark.req_WS_CORE_113
+    @pytest.mark.req_WS_CORE_115
     def test_returns_choice_field_with_model_keys(self):
         """ Returns a ChoiceField whose choices match the model's MUTATION_FREQUENCIES keys. """
         model = settings.BC_MODEL
