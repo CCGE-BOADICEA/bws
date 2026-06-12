@@ -520,16 +520,6 @@ class Pedigree(metaclass=abc.ABCMeta):
         f.close()
         return filepath
 
-    @classmethod
-    def get_column_idx(cls, name):
-        """
-        Get the BOADICEA file column index from the column name
-        """
-        for idx, val in enumerate(cls.COLUMNS):
-            if val == name or val.lower == name.lower():
-                return idx
-        return -1
-
     def get_columns(self):
         return type(self).COLUMNS
 
@@ -542,6 +532,16 @@ class BwaPedigree(Pedigree):
                "1stBrCa", "2ndBrCa", "OvCa", "ProCa", "PanCa", "Ashkn",
                "BRCA1t", "BRCA1r", "BRCA2t", "BRCA2r", "PALB2t", "PALB2r", "ATMt", "ATMr", "CHEK2t", "CHEK2r",
                "ER", "PR", "HER2", "CK14", "CK56"]
+
+    @classmethod
+    def get_column_idx(cls, name):
+        """
+        Get the BOADICEA file column index from the column name
+        """
+        for idx, val in enumerate(cls.COLUMNS):
+            if val == name or val.lower() == name.lower():
+                return idx
+        return -1
 
 
 class CanRiskPedigree(Pedigree):
@@ -587,7 +587,7 @@ class CanRiskPedigree(Pedigree):
     @classmethod
     def get_column_idx(cls, name, file_type="canrisk2"):
         """
-        Get the BOADICEA file column index from the column name
+        Get the CanRisk file column index from the column name
         """
         if file_type == "canrisk1":
             cols = cls.COLUMNS1
@@ -597,6 +597,6 @@ class CanRiskPedigree(Pedigree):
             cols = cls.COLUMNS2
 
         for idx, val in enumerate(cols):
-            if val == name or val.lower == name.lower():
+            if val == name or val.lower() == name.lower():
                 return idx
         return -1
