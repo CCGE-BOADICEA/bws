@@ -6,8 +6,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 import pytest
 from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
-from bws.risk_factors.bc import BCRiskFactors
+from bws.risk_factors.bc import BCRiskFactors, MenarcheAge, AgeOfFirstLiveBirth
 from bws.risk_factors.oc import OCRiskFactors
+from bws.risk_factors.pc import PCRiskFactors
+from bws.risk_factors.rfs import RiskFactor
 from bws.pedigree_file import PedigreeFile
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
@@ -639,3 +641,83 @@ class WSRiskFactors(TestCase):
 #        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 #        content = json.loads(force_text(response.content))
 #        self.assertTrue('Model Error' in content)
+
+
+class RiskFactorBaseTests(TestCase):
+    ''' Tests for RiskFactor and RiskFactors base class utility methods (rfs.py). '''
+
+    @pytest.mark.req_WS_RISK_100
+    def test_camel_to_snake(self):
+        ''' camel_to_snake converts CamelCase class names to snake_case. '''
+        self.assertEqual(RiskFactor.camel_to_snake('AgeOfFirstLiveBirth'), 'age_of_first_live_birth')
+        self.assertEqual(RiskFactor.camel_to_snake('MenarcheAge'), 'menarche_age')
+        self.assertEqual(RiskFactor.camel_to_snake('BMI'), 'bmi')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_camel_to_space(self):
+        ''' camel_to_space converts CamelCase class names to space-separated strings. '''
+        self.assertEqual(RiskFactor.camel_to_space('AgeOfFirstLiveBirth'), 'Age Of First Live Birth')
+        self.assertEqual(RiskFactor.camel_to_space('MenarcheAge'), 'Menarche Age')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_snake_name(self):
+        ''' snake_name returns the class name in snake_case. '''
+        self.assertEqual(MenarcheAge.snake_name(), 'menarche_age')
+        self.assertEqual(AgeOfFirstLiveBirth.snake_name(), 'age_of_first_live_birth')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_space_name(self):
+        ''' space_name returns the class name in space-separated form. '''
+        self.assertEqual(MenarcheAge.space_name(), 'Menarche Age')
+        self.assertEqual(AgeOfFirstLiveBirth.space_name(), 'Age Of First Live Birth')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_classname(self):
+        ''' isclass matches the lowercase class name. '''
+        self.assertTrue(MenarcheAge.isclass('menarcheage'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_snake_name(self):
+        ''' isclass matches the snake_case class name. '''
+        self.assertTrue(MenarcheAge.isclass('menarche_age'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_synonym(self):
+        ''' isclass matches defined synonyms. '''
+        self.assertTrue(MenarcheAge.isclass('menarche'))
+        self.assertTrue(AgeOfFirstLiveBirth.isclass('first_live_birth'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_no_match(self):
+        ''' isclass returns False for unrelated names. '''
+        self.assertFalse(MenarcheAge.isclass('something_else'))
+        self.assertFalse(MenarcheAge.isclass('parity'))
+
+
+class PCRiskFactorsTests(TestCase):
+    ''' Tests for PCRiskFactors (prostate cancer risk factors). '''
+
+    @pytest.mark.req_WS_RISK_152
+    def test_risk_factors_is_empty(self):
+        ''' PCRiskFactors currently defines no risk factors. '''
+        self.assertEqual(PCRiskFactors.risk_factors, [])
+
+    @pytest.mark.req_WS_RISK_152
+    def test_categories_is_empty(self):
+        ''' PCRiskFactors categories OrderedDict is empty (no risk factors defined). '''
+        self.assertEqual(len(PCRiskFactors.categories), 0)
+
+    @pytest.mark.req_WS_RISK_152
+    def test_encode_empty(self):
+        ''' Encoding an empty risk category list returns 0. '''
+        self.assertEqual(PCRiskFactors.encode([]), 0)
+
+    @pytest.mark.req_WS_RISK_152
+    def test_decode_zero(self):
+        ''' Decoding 0 with no risk factors returns an empty list. '''
+        self.assertEqual(PCRiskFactors.decode(0), [])
+
+    @pytest.mark.req_WS_RISK_152
+    def test_get_max_factor_empty(self):
+        ''' Maximum risk factor code is 0 when there are no risk factors. '''
+        self.assertEqual(PCRiskFactors.get_max_factor(), 0)
