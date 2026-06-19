@@ -6,6 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 import json
 import os
+from io import BytesIO
 from pathlib import Path
 
 import pytest
@@ -101,3 +102,39 @@ class Vcf2PrsWebServices(TestCase):
         response = Vcf2PrsWebServices.drf_client.post(Vcf2PrsWebServices.url, data, format='multipart',
                                                   HTTP_ACCEPT="application/json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @pytest.mark.req_WS_VALIDATION_211
+    def test_prs_invalid_sample_name(self):
+        ''' Test POSTing to a vcf file with an invalid sample name. '''
+        data = {'vcf_file': self.vcf_data, 'sample_name': 'invalid_sample',
+                'bc_prs_reference_file': self.prs_reference_file}
+        Vcf2PrsWebServices.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
+        response = Vcf2PrsWebServices.drf_client.post(Vcf2PrsWebServices.url, data, format='multipart',
+                                                  HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertIn('notin the genotype file', response.data['error'])
+        self.assertIn('t0.5', response.data['samples'])
+
+    @pytest.mark.req_WS_VALIDATION_211
+    def test_prs_missing_sample_name(self):
+        ''' Test POSTing to a multi-sample vcf file without selecting a sample name. '''
+        data = {'vcf_file': self.vcf_data, 'bc_prs_reference_file': self.prs_reference_file}
+        Vcf2PrsWebServices.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
+        response = Vcf2PrsWebServices.drf_client.post(Vcf2PrsWebServices.url, data, format='multipart',
+                                                  HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertEqual(response.data['error'], 'Please select a sample name to use')
+        self.assertIn('t0.5', response.data['samples'])
+
+    @pytest.mark.req_WS_VALIDATION_211
+    def test_prs_corrupted_vcf(self):
+        ''' Test POSTing a corrupted VCF file returns an error with no sample list. '''
+        corrupted_file = BytesIO(b'not a valid vcf file\n')
+        corrupted_file.name = 'corrupted.vcf'
+        data = {'vcf_file': corrupted_file, 'bc_prs_reference_file': self.prs_reference_file}
+        Vcf2PrsWebServices.drf_client.credentials(HTTP_AUTHORIZATION='Token ' + Vcf2PrsWebServices.token.key)
+        response = Vcf2PrsWebServices.drf_client.post(Vcf2PrsWebServices.url, data, format='multipart',
+                                                  HTTP_ACCEPT="application/json")
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertIn('No samples found in the genotype file.', response.data['error'])
+        self.assertIn(response.data.get('samples'), (None, []))

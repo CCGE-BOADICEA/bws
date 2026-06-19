@@ -520,80 +520,6 @@ class Pedigree(metaclass=abc.ABCMeta):
         f.close()
         return filepath
 
-    def write_boadicea_file(self, bwa_file=None):
-        """
-        Write BOADICEA pedigree file.
-        """
-        if bwa_file is None:
-            try:
-                bwa_file = open("/tmp/test.bwa.txt", "a")
-            except Exception:
-                return
-
-        for person in self.people:
-            print(("%-" + str(settings.MAX_LENGTH_PEDIGREE_NUMBER_STR) + "s\t") % person.famid, file=bwa_file, end="")
-            print(("%-8s\t%s\t") % (person.name, person.target), file=bwa_file, end="")
-            print(("%-" + str(settings.MAX_FAMILY_ID_STR_LENGTH) + "s\t" +
-                   "%-" + str(settings.MAX_FAMILY_ID_STR_LENGTH) + "s\t" +
-                   "%-" + str(settings.MAX_FAMILY_ID_STR_LENGTH) + "s\t") %
-                  (person.pid, person.fathid, person.mothid), file=bwa_file, end="")
-
-            print('\t'.join([person.sex(), person.mztwin, person.dead]) + '\t', file=bwa_file, end="")
-            print("%-3s\t" % person.age, file=bwa_file, end="")
-            print("%-4s\t" % person.yob, file=bwa_file, end="")
-
-            d = person.cancers.diagnoses
-            print("%-3s\t%-3s\t%-3s\t%-3s\t%-3s\t" %
-                  (d.bc1.age if d.bc1.age != "-1" else "0",
-                   d.bc2.age if d.bc2.age != "-1" else "0",
-                   d.oc.age if d.oc.age != "-1" else "0",
-                   d.prc.age if d.prc.age != "-1" else "0",
-                   d.pac.age if d.pac.age != "-1" else "0"),
-                  file=bwa_file, end="")
-
-            record = [person.ashkn]
-            # genetic tests
-            gt = person.gtests
-            # NOTE: order is different to settings.BC_MODEL['GENES'] so use column header
-            idx = type(self).get_column_idx('Ashkn') + 1
-            columns = self.get_columns()
-            ngene_test_columns = 5*2
-            for i in range(idx, idx+ngene_test_columns, 2):
-                gene = columns[i][:-1].lower()
-                gtest = getattr(gt, gene)
-                record.extend([gtest.test_type, gtest.result])
-
-            # pathology
-            record.extend([p.result for p in person.pathology])
-
-            print('\t'.join(record), file=bwa_file)
-        bwa_file.flush()
-        return bwa_file
-
-    def write_boadicea_file_header(self, bwa_file=None):
-        """
-        Write header for BOADICEA pedigree file.
-        """
-        if bwa_file is None:
-            try:
-                bwa_file = open("/tmp/test.bwa.txt", "a")
-            except Exception:
-                return
-        print("BOADICEA import pedigree file format 4.0", file=bwa_file)
-        print("\t".join(self.get_columns()), file=bwa_file)
-        bwa_file.flush()
-        return bwa_file
-
-    @classmethod
-    def get_column_idx(cls, name):
-        """
-        Get the BOADICEA file column index from the column name
-        """
-        for idx, val in enumerate(cls.COLUMNS):
-            if val == name or val.lower == name.lower():
-                return idx
-        return -1
-
     def get_columns(self):
         return type(self).COLUMNS
 
@@ -606,6 +532,16 @@ class BwaPedigree(Pedigree):
                "1stBrCa", "2ndBrCa", "OvCa", "ProCa", "PanCa", "Ashkn",
                "BRCA1t", "BRCA1r", "BRCA2t", "BRCA2r", "PALB2t", "PALB2r", "ATMt", "ATMr", "CHEK2t", "CHEK2r",
                "ER", "PR", "HER2", "CK14", "CK56"]
+
+    @classmethod
+    def get_column_idx(cls, name):
+        """
+        Get the BOADICEA file column index from the column name
+        """
+        for idx, val in enumerate(cls.COLUMNS):
+            if val == name or val.lower() == name.lower():
+                return idx
+        return -1
 
 
 class CanRiskPedigree(Pedigree):
@@ -651,7 +587,7 @@ class CanRiskPedigree(Pedigree):
     @classmethod
     def get_column_idx(cls, name, file_type="canrisk2"):
         """
-        Get the BOADICEA file column index from the column name
+        Get the CanRisk file column index from the column name
         """
         if file_type == "canrisk1":
             cols = cls.COLUMNS1
@@ -661,6 +597,6 @@ class CanRiskPedigree(Pedigree):
             cols = cls.COLUMNS2
 
         for idx, val in enumerate(cols):
-            if val == name or val.lower == name.lower():
+            if val == name or val.lower() == name.lower():
                 return idx
         return -1

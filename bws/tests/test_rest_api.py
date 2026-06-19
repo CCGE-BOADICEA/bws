@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from rest_framework.exceptions import ValidationError
 from types import SimpleNamespace
 
@@ -439,3 +439,95 @@ class TestModelWebServiceMixinIntegration(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # Should contain error details
         self.assertIn('Test model error', str(json.loads(response.content)))
+
+    @pytest.mark.req_WS_CORE_112
+    @patch('bws.rest_api.PedigreeFile')
+    def test_post_to_model_invalid_model_settings(self, mock_pedigree_file):
+        """Test post_to_model raises ModelError for model settings with missing required keys."""
+
+        class MockView(ModelWebServiceMixin):
+            serializer_class = MagicMock()
+            any_perms = ['boadicea_auth.can_risk']
+
+        view = MockView()
+        request = APIRequestFactory().post(
+            '/', {'user_id': 'test', 'pedigree_data': 'test_data'}, format='json'
+        )
+        request.user = self.user
+        request.data = {'user_id': 'test', 'pedigree_data': 'test_data'}
+
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.validated_data = {'pedigree_data': 'test_data', 'user_id': 'test'}
+        view.serializer_class.return_value = mock_serializer
+
+        mock_pedigree_file.return_value = MagicMock()
+
+        # Missing GENETIC_TEST_SENSITIVITY, CANCER_RATES, MUTATION_FREQUENCIES
+        invalid_model_settings = {'NAME': 'INVALID'}
+        with self.assertRaisesRegex(ModelError, 'Invalid model settings, missing required keys'):
+            view.post_to_model(request, invalid_model_settings)
+
+    @pytest.mark.req_WS_CORE_112
+    def test_bws_view_malformed_json_returns_400(self):
+        """Test that malformed JSON returns a 400 response."""
+        raw_body = '{"user_id": "test", "pedigree_data": "test"'  # missing closing brace
+        request = APIRequestFactory().post('/', raw_body, content_type='application/json')
+        force_authenticate(request, user=self.user)
+
+        response = BwsView.as_view()(request)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+
+    @pytest.mark.req_WS_CORE_112
+    def test_bws_view_missing_required_fields_returns_400(self):
+        """Test that missing required fields trigger serializer validation errors."""
+        invalid_data = {
+            'user_id': 'testuser',
+            'mut_freq': 'UK',
+            'cancer_rates': 'UK',
+            'brca1_mut_sensitivity': 0.9,
+            'brca2_mut_sensitivity': 0.9,
+            'atm_mut_sensitivity': 0.9,
+            'chek2_mut_sensitivity': 0.9,
+            'bard1_mut_sensitivity': 0.9,
+            'palb2_mut_sensitivity': 0.9,
+            'rad51c_mut_sensitivity': 0.9,
+            'rad51d_mut_sensitivity': 0.9
+        }
+
+        request = APIRequestFactory().post('/', invalid_data, format='json')
+        force_authenticate(request, user=self.user)
+
+        response = BwsView.as_view()(request)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('pedigree_data', response.data)
+        self.assertIn('No file was submitted.', response.data['pedigree_data'][0])
+
+    @pytest.mark.req_WS_CORE_112
+    def test_bws_view_missing_multiple_required_fields_returns_400(self):
+        """Test that missing multiple required fields returns consolidated validation errors."""
+        invalid_data = {
+            'pedigree_data': '##CanRisk 4.0\n',
+            'mut_freq': 'UK',
+            'brca1_mut_sensitivity': 0.9,
+            'brca2_mut_sensitivity': 0.9,
+            'atm_mut_sensitivity': 0.9,
+            'chek2_mut_sensitivity': 0.9,
+            'bard1_mut_sensitivity': 0.9,
+            'palb2_mut_sensitivity': 0.9,
+            'rad51c_mut_sensitivity': 0.9,
+            'rad51d_mut_sensitivity': 0.9,
+        }
+
+        request = APIRequestFactory().post('/', json.dumps(invalid_data), content_type='application/json')
+        force_authenticate(request, user=self.user)
+
+        response = BwsView.as_view()(request)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('user_id', response.data)
+        self.assertIn('cancer_rates', response.data)
+        self.assertNotIn('pedigree_data', response.data)
