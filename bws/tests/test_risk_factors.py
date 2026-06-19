@@ -6,8 +6,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 import pytest
 from bws.exceptions import RiskFactorError
 from bws.risk_factors import bc, oc
-from bws.risk_factors.bc import BCRiskFactors
+from bws.risk_factors.bc import BCRiskFactors, MenarcheAge, AgeOfFirstLiveBirth
 from bws.risk_factors.oc import OCRiskFactors
+from bws.risk_factors.pc import PCRiskFactors
+from bws.risk_factors.rfs import RiskFactor
 from bws.pedigree_file import PedigreeFile
 from django.contrib.auth.models import User, Permission
 from django.test import TestCase
@@ -18,7 +20,7 @@ from rest_framework.test import APIClient
 import json
 import os
 from bws.risk_factors.mdensity import Birads, Stratus, Volpara
-from bws.risk_factors.ethnicity import ONSEthnicity
+from bws.risk_factors.ethnicity import ONSEthnicity, UKBioBankEthnicty
 from django.utils.encoding import force_str
 from builtins import AssertionError
 
@@ -102,8 +104,68 @@ class UKBioBankEthnictyTests(TestCase):
     @pytest.mark.req_WS_RISK_101
     def test_err(self):
         ''' Test non-existant ONS ethnicity raises an error '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(Exception):
             ONSEthnicity("xxxx", None)
+
+    @pytest.mark.req_WS_RISK_101
+    def test_lowercase_ethnicity_group(self):
+        ''' Test lower-case ONS ethnicity group names are accepted. '''
+        onsEthnicity = ONSEthnicity("white", "Irish")
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "white")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_get_string_with_background(self):
+        ''' Test ONS ethnicity string representation includes the background. '''
+        onsEthnicity = ONSEthnicity("White", "Irish")
+        self.assertEqual(onsEthnicity.get_string(), "white;irish")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_get_string_without_background(self):
+        ''' Test get_string() returns the group only when no background is provided. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        self.assertEqual(onsEthnicity.get_string(), "unknown")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_type_error_invalid_ons_ethnicity(self):
+        ''' Test invalid ONS ethnicity type raises TypeError. '''
+        with self.assertRaises(TypeError):
+            ONSEthnicity(123)
+
+    @pytest.mark.req_WS_RISK_101
+    def test_validate_fails_for_unknown_group(self):
+        ''' Test validate() raises when the ethnicity group is not an ONS group. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        onsEthnicity.ethnicity = "not an ons group"
+        with self.assertRaises(Exception) as cm:
+            onsEthnicity.validate()
+        self.assertIn("not an ONS ethnic group", str(cm.exception))
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ons2ukbiobank_fallback(self):
+        ''' Test ONS-to-UK-BioBank fallback returns the default group. '''
+        onsEthnicity = ONSEthnicity("Unknown")
+        onsEthnicity.ethnicity = "not a valid group"
+        ethnicityUKBioBank = ONSEthnicity.ons2UKBioBank(onsEthnicity)
+        self.assertEqual(ethnicityUKBioBank.ethnicity, "na")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_invalid_type(self):
+        ''' Test invalid UK BioBank ethnicity type raises TypeError. '''
+        with self.assertRaises(TypeError):
+            UKBioBankEthnicty(123)
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_invalid_group(self):
+        ''' Test invalid UK BioBank ethnic group raises an error. '''
+        with self.assertRaises(Exception):
+            UKBioBankEthnicty("not-a-group")
+
+    @pytest.mark.req_WS_RISK_101
+    def test_ukbiobank_group_name(self):
+        ''' Test UK BioBank group names are rendered correctly. '''
+        self.assertEqual(UKBioBankEthnicty("na").get_group(), "UK")
+        self.assertEqual(UKBioBankEthnicty("white").get_group(), "UK White")
 
 
 class MammographicDensityTests(TestCase):
@@ -288,6 +350,9 @@ class RiskFactorsCategoryTests(TestCase):
         self.assertEqual(oc.OralContraception.get_category('C:<1'), 1)
         self.assertEqual(oc.OralContraception.get_category('C'), 0)
         self.assertEqual(oc.OralContraception.get_category('F'), 0)
+
+        with self.assertRaisesRegex(RiskFactorError, r"Unknown category for: OralContraception"):
+            oc.OralContraception.get_category('X:aaa')
 
     @pytest.mark.req_WS_RISK_134
     def test_get_Endometriosis_category(self):
@@ -576,3 +641,83 @@ class WSRiskFactors(TestCase):
 #        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 #        content = json.loads(force_text(response.content))
 #        self.assertTrue('Model Error' in content)
+
+
+class RiskFactorBaseTests(TestCase):
+    ''' Tests for RiskFactor and RiskFactors base class utility methods (rfs.py). '''
+
+    @pytest.mark.req_WS_RISK_100
+    def test_camel_to_snake(self):
+        ''' camel_to_snake converts CamelCase class names to snake_case. '''
+        self.assertEqual(RiskFactor.camel_to_snake('AgeOfFirstLiveBirth'), 'age_of_first_live_birth')
+        self.assertEqual(RiskFactor.camel_to_snake('MenarcheAge'), 'menarche_age')
+        self.assertEqual(RiskFactor.camel_to_snake('BMI'), 'bmi')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_camel_to_space(self):
+        ''' camel_to_space converts CamelCase class names to space-separated strings. '''
+        self.assertEqual(RiskFactor.camel_to_space('AgeOfFirstLiveBirth'), 'Age Of First Live Birth')
+        self.assertEqual(RiskFactor.camel_to_space('MenarcheAge'), 'Menarche Age')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_snake_name(self):
+        ''' snake_name returns the class name in snake_case. '''
+        self.assertEqual(MenarcheAge.snake_name(), 'menarche_age')
+        self.assertEqual(AgeOfFirstLiveBirth.snake_name(), 'age_of_first_live_birth')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_space_name(self):
+        ''' space_name returns the class name in space-separated form. '''
+        self.assertEqual(MenarcheAge.space_name(), 'Menarche Age')
+        self.assertEqual(AgeOfFirstLiveBirth.space_name(), 'Age Of First Live Birth')
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_classname(self):
+        ''' isclass matches the lowercase class name. '''
+        self.assertTrue(MenarcheAge.isclass('menarcheage'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_snake_name(self):
+        ''' isclass matches the snake_case class name. '''
+        self.assertTrue(MenarcheAge.isclass('menarche_age'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_by_synonym(self):
+        ''' isclass matches defined synonyms. '''
+        self.assertTrue(MenarcheAge.isclass('menarche'))
+        self.assertTrue(AgeOfFirstLiveBirth.isclass('first_live_birth'))
+
+    @pytest.mark.req_WS_RISK_100
+    def test_isclass_no_match(self):
+        ''' isclass returns False for unrelated names. '''
+        self.assertFalse(MenarcheAge.isclass('something_else'))
+        self.assertFalse(MenarcheAge.isclass('parity'))
+
+
+class PCRiskFactorsTests(TestCase):
+    ''' Tests for PCRiskFactors (prostate cancer risk factors). '''
+
+    @pytest.mark.req_WS_RISK_152
+    def test_risk_factors_is_empty(self):
+        ''' PCRiskFactors currently defines no risk factors. '''
+        self.assertEqual(PCRiskFactors.risk_factors, [])
+
+    @pytest.mark.req_WS_RISK_152
+    def test_categories_is_empty(self):
+        ''' PCRiskFactors categories OrderedDict is empty (no risk factors defined). '''
+        self.assertEqual(len(PCRiskFactors.categories), 0)
+
+    @pytest.mark.req_WS_RISK_152
+    def test_encode_empty(self):
+        ''' Encoding an empty risk category list returns 0. '''
+        self.assertEqual(PCRiskFactors.encode([]), 0)
+
+    @pytest.mark.req_WS_RISK_152
+    def test_decode_zero(self):
+        ''' Decoding 0 with no risk factors returns an empty list. '''
+        self.assertEqual(PCRiskFactors.decode(0), [])
+
+    @pytest.mark.req_WS_RISK_152
+    def test_get_max_factor_empty(self):
+        ''' Maximum risk factor code is 0 when there are no risk factors. '''
+        self.assertEqual(PCRiskFactors.get_max_factor(), 0)

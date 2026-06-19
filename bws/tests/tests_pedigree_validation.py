@@ -14,9 +14,10 @@ import re
 import pytest
 
 from bws.cancer import GeneticTest, PathologyTest, PathologyTests, BWSGeneticTests, \
-    Genes
+    Genes, Cancers
 from bws.exceptions import PathologyError, PedigreeError, GeneticTestError, \
     CancerError, PersonError, PedigreeFileError
+from bws.pedigree import BwaPedigree, CanRiskPedigree
 from bws.pedigree_file import PedigreeFile
 from bws.person import Male, Female
 from django.conf import settings
@@ -149,6 +150,16 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"is unspecified or is not an alphanumeric string"):
             apedigree.validateAll()
 
+    @pytest.mark.req_WS_VALIDATION_180
+    def test_name_empty(self):
+        """ Test an error is raised if the individual's name is blank. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        m2 = apedigree.get_person_by_name('M2')
+        m2.name = ""
+        with self.assertRaisesRegex(PersonError, r"is unspecified or is not an alphanumeric string"):
+            apedigree.validateAll()
+
     @pytest.mark.req_WS_VALIDATION_181
     def test_indvid_id(self):
         """ Test an error is raised if the individuals ID is not an alphanumeric or is too large.  """
@@ -171,6 +182,72 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Individual identifiers must be alphanumeric strings with a max"):
             m2.validate(apedigree)
 
+    @pytest.mark.req_WS_VALIDATION_181
+    def test_valid_pid_boundaries(self):
+        """ Test that IDs at the valid minimum and maximum lengths are accepted. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        m2 = apedigree.get_person_by_name('M2')
+        m2.pid = '1' * settings.MIN_FAMILY_ID_STR_LENGTH
+        m2.validate(apedigree)
+
+        m2.pid = '1' * settings.MAX_FAMILY_ID_STR_LENGTH
+        m2.validate(apedigree)
+
+    @pytest.mark.req_WS_VALIDATION_191
+    def test_age_yob_boundaries(self):
+        """ Test boundary values for age and year of birth validate successfully. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        m2 = apedigree.get_person_by_name('M2')
+        m2.age = str(settings.MAX_AGE)
+        m2.yob = str(settings.MIN_YEAR_OF_BIRTH)
+        m2.validate(apedigree)
+
+        m2.age = '0'
+        m2.yob = str(date.today().year)
+        m2.validate(apedigree)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_valid_parent_sex_consistency(self):
+        """ Test that a father specified as male and mother specified as female passes validation. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        m2 = apedigree.get_person_by_name('M2')
+        # baseline pedigree already has valid parents, so validateAll should pass.
+        apedigree.validateAll()
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_person_missing_one_parent_raises(self):
+        """ Test one-parent-only status is rejected by Person.validate. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        f1 = apedigree.get_person_by_name('F1')
+        f1.mothid = '0'
+        with self.assertRaisesRegex(PersonError, r"only one parent specified"):
+            f1.validate(apedigree)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_parent_sex_consistency_after_sex_change(self):
+        """ Test gender consistency check for father/mother relationships after a sex swap. """
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        child = apedigree.get_person_by_name('F1')
+        father = apedigree.get_person(child.fathid)
+        mother = apedigree.get_person(child.mothid)
+        father_idx = next(i for i, p in enumerate(apedigree.people) if p is not None and p.pid == father.pid)
+        mother_idx = next(i for i, p in enumerate(apedigree.people) if p is not None and p.pid == mother.pid)
+        apedigree.people[father_idx] = Female(father.famid, father.name, father.pid, father.fathid, father.mothid,
+                                              target=father.target, dead=father.dead, age=father.age, yob=father.yob,
+                                              ashkn=father.ashkn, cancers=father.cancers, mztwin=father.mztwin,
+                                              gtests=father.gtests, pathology=father.pathology)
+        apedigree.people[mother_idx] = Male(mother.famid, mother.name, mother.pid, mother.fathid, mother.mothid,
+                                            target=mother.target, dead=mother.dead, age=mother.age, yob=mother.yob,
+                                            ashkn=mother.ashkn, cancers=mother.cancers, mztwin=mother.mztwin,
+                                            gtests=mother.gtests, pathology=mother.pathology)
+        with self.assertRaisesRegex(PersonError, r"All fathers in the pedigree must have sex specified as 'M'"):
+            apedigree.validateAll()
+
     @pytest.mark.req_WS_VALIDATION_190
     def test_fathid_id(self):
         """ Test an error is raised if the father ID is not an alphanumeric or is too large.  """
@@ -189,7 +266,7 @@ class PersonTests(TestCase, ErrorTests):
         with self.assertRaisesRegex(PersonError, r"Father identifier .* unexpected character"):
             apedigree.validateAll()
 
-    @pytest.mark.req_WS_VALIDATION_190    
+    @pytest.mark.req_WS_VALIDATION_190
     def test_mothid_id(self):
         """ Test an error is raised if the mother ID is not an alphanumeric or is too large.  """
         pedigree_file = deepcopy(self.pedigree_file)
@@ -385,6 +462,71 @@ class PedigreeTests(TestCase, ErrorTests):
         pedigree_data1 = pedigree_data1 + pedigree_data2
         with self.assertRaisesRegex(PedigreeError, r"appears more than once in the pedigree"):
             PedigreeFile(pedigree_data1)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_add_parents_creates_missing_parents(self):
+        """Test add_parents assigns parent IDs and adds parents to the pedigree."""
+        target = Female("FAM1", "F1", "001", "0", "0", target="1", age="30",
+                        yob="1993", cancers=Cancers())
+        pedigree = CanRiskPedigree(people=[target])
+
+        parent_father, parent_mother = pedigree.add_parents(target)
+        self.assertNotEqual(target.fathid, "0")
+        self.assertNotEqual(target.mothid, "0")
+        self.assertEqual(parent_father.famid, target.famid)
+        self.assertEqual(parent_mother.famid, target.famid)
+        self.assertIs(pedigree.get_person(parent_father.pid), parent_father)
+        self.assertIs(pedigree.get_person(parent_mother.pid), parent_mother)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_multiple_targets_raises(self):
+        """Test that a pedigree with more than one target fails initialization."""
+        target1 = Female("FAM1", "F1", "001", "0", "0", target="1", age="30",
+                         yob="1993", cancers=Cancers())
+        target2 = Female("FAM1", "F2", "002", "0", "0", target="1", age="28",
+                         yob="1995", cancers=Cancers())
+        with self.assertRaisesRegex(PedigreeError, r"has either no index or more than 1"):
+            CanRiskPedigree(people=[target1, target2])
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_valid_mztwin_pair(self):
+        """Test that a valid MZ twin pair is accepted by pedigree validation."""
+        target = Female("FAM1", "F1", "001", "002", "003", target="1", age="30",
+                        yob="1993", cancers=Cancers())
+        father = Male("FAM1", "Ffather", "002", "0", "0", target="0",
+                      age="55", yob="1968", cancers=Cancers())
+        mother = Female("FAM1", "Fmother", "003", "0", "0", target="0",
+                        age="53", yob="1970", cancers=Cancers())
+        twin1 = Female("FAM1", "T1", "004", "002", "003", target="0",
+                        age="20", yob="2003", mztwin="1", cancers=Cancers())
+        twin2 = Female("FAM1", "T2", "005", "002", "003", target="0",
+                        age="20", yob="2003", mztwin="1", cancers=Cancers())
+        pedigree = CanRiskPedigree(people=[target, father, mother, twin1, twin2])
+        pedigree.validateAll()
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_deceased_target_still_risk_viable(self):
+        """Test that a deceased target does not fail risk viability checks."""
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        target = apedigree.get_target()
+        target.dead = "1"
+        target.age = "35"
+        target.yob = str(date.today().year - 35)
+        self.assertTrue(apedigree.is_risks_calc_viable())
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_get_siblings_finds_related_siblings(self):
+        """Test get_siblings returns siblings and same-year siblings correctly."""
+        pedigree_file = deepcopy(self.pedigree_file)
+        apedigree = pedigree_file.pedigrees[0]
+        f1 = apedigree.get_person_by_name('F1')
+        sibling = Female(f1.famid, "F1s", "111", f1.fathid, f1.mothid,
+                         age=f1.age, yob=f1.yob, cancers=Cancers())
+        apedigree.people.append(sibling)
+        siblings, siblings_same_yob = apedigree.get_siblings(f1)
+        self.assertIn(sibling, siblings)
+        self.assertIn(sibling, siblings_same_yob)
 
     @pytest.mark.req_WS_VALIDATION_190
     @override_settings(MAX_PEDIGREE_SIZE=2)

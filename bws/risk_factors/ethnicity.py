@@ -61,7 +61,10 @@ class ONSEthnicity(Ethnicity):
     GROUPS_LOWERCASE = dict((k.lower(), ([v.lower() for v in vs]) if vs is not None else None) for k,vs in GROUPS.items())
 
     def __init__(self, ethnicity="Unknown", ethnicityBackground=None):
-        assert ethnicity in ONSEthnicity.GROUPS, "Invalid ethnicity"
+        if not isinstance(ethnicity, str):
+            raise TypeError("Invalid ethnicity")
+        if ONSEthnicity.GROUPS_LOWERCASE.get(ethnicity.lower(), False) is False:
+            raise Exception("Invalid ethnicity: "+str(ethnicity))
         super().__init__(ethnicity, ethnicityBackground)
 
     def validate(self):
@@ -132,6 +135,8 @@ class UKBioBankEthnicty(Ethnicity):
     }
 
     def __init__(self, ethnicity="na"):
+        if not isinstance(ethnicity, str):
+            raise TypeError("Invalid ethnicity")
         assert(ethnicity in UKBioBankEthnicty.GROUPS)
         super().__init__(ethnicity)
 

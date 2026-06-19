@@ -5,6 +5,8 @@ BOADICEA web-service testing.
 SPDX-FileCopyrightText: 2026 University of Cambridge
 SPDX-License-Identifier: GPL-3.0-or-later
 """
+import os
+
 import pytest
 from collections import OrderedDict
 from unittest.mock import MagicMock, patch, mock_open
@@ -278,6 +280,91 @@ class TestRun(TestCase):
         self.assertEqual(result, "output data")
 
     @pytest.mark.req_WS_CORE_102
+    @patch("bws.calc.calcs.os.remove")
+    @patch("bws.calc.calcs.open", new_callable=mock_open, read_data="output data")
+    @patch("bws.calc.calcs.Popen")
+    def test_successful_run_ignores_missing_previous_output_file(
+        self, mock_popen, mock_file, mock_remove
+    ):
+        """If the previous output file does not exist, the run function should
+        continue without raising and still return the new output."""
+        proc = MagicMock()
+        proc.communicate.return_value = (b"", b"")
+        proc.wait.return_value = 0
+        mock_popen.return_value = proc
+
+        # os.remove raises OSError (e.g. file not found) — should be silently swallowed
+        mock_remove.side_effect = OSError("no such file")
+
+        model_opts = self._base_model_opts()   # out = e.g. "BC_predictions.txt"
+        model_params = self._base_model_params()
+
+        result = Predictions.run(
+            request=make_mock_request(),
+            bat_file="/tmp/risk.bat",
+            model_opts=model_opts,
+            model_params=model_params,
+            cwd="/tmp",
+            model=BC_MODEL_SETTINGS,
+        )
+
+        # The function should return the output despite the OSError on remove
+        self.assertEqual(result, "output data")
+
+        # Assert remove was called with the correct path — cwd + model_opts.out
+        expected_out_path = os.path.join("/tmp", model_opts.out)
+        mock_remove.assert_called_once_with(expected_out_path)
+
+    @pytest.mark.req_WS_CORE_102
+    @patch("bws.calc.calcs.os.remove")
+    @patch("bws.calc.calcs.open", new_callable=mock_open, read_data="output data")
+    @patch("bws.calc.calcs.Popen")
+    def test_run_builds_correct_subprocess_command(
+        self, mock_popen, mock_file, mock_remove
+    ):
+        """The run function should include param file and incidence file in the
+        subprocess command line."""
+        proc = MagicMock()
+        proc.communicate.return_value = (b"", b"")
+        proc.wait.return_value = 0
+        mock_popen.return_value = proc
+
+        model_params = self._base_model_params()
+        opts = self._base_model_opts()
+
+        result = Predictions.run(
+            request=make_mock_request(),
+            bat_file="/tmp/risk.bat",
+            model_opts=opts,
+            model_params=model_params,
+            param_file="/tmp/params.params",
+            cwd="/tmp",
+            model=BC_MODEL_SETTINGS,
+        )
+
+        self.assertEqual(result, "output data")
+
+        cmd = mock_popen.call_args[0][0]
+
+        # Executable
+        self.assertEqual(cmd[0], os.path.join(BC_MODEL_SETTINGS['HOME'], BC_MODEL_SETTINGS['EXE']))
+
+        # Param file flag
+        self.assertEqual(cmd[1], "-s")
+        self.assertEqual(cmd[2], "/tmp/params.params")
+
+        # Ethnicity flag and file
+        self.assertEqual(cmd[3], "-e")
+        expected_ethnicity = os.path.join(BC_MODEL_SETTINGS["HOME"], 'Data', 
+                                          "coeffs-"+BC_MODEL_SETTINGS['NAME']+"_"+model_params.ethnicity.get_filename())
+        self.assertEqual(cmd[4], expected_ethnicity)
+
+        # bat file and incidence file
+        self.assertEqual(cmd[-2], "/tmp/risk.bat")
+        expected_incidence = BC_MODEL_SETTINGS['INCIDENCE'] + model_params.cancer_rates + ".nml"
+        self.assertEqual(cmd[-1], expected_incidence)
+
+    @pytest.mark.req_WS_CORE_102
     @patch("bws.calc.calcs.open", new_callable=mock_open, read_data="")
     @patch("bws.calc.calcs.Popen")
     def test_nonzero_exit_raises_model_error(
@@ -471,6 +558,28 @@ class TestParseRisksOutput(TestCase):
         rl, rr, ry, rj, mp = p._parse_risks_output("", self._all_opts())
         self.assertEqual(rl, [])
         self.assertEqual(rr, [])
+        self.assertEqual(ry, [])
+        self.assertEqual(rj, [])
+        self.assertEqual(mp, [])
+
+    @pytest.mark.req_WS_CORE_103
+    def test_parse_risks_output_ignores_comments_and_blank_lines(self):
+        ''' The parser should ignore comment lines and blank lines within the
+            output and still return structured risk arrays. '''
+        p = self._make_predictions()
+        output = (
+            "# comment line\n"
+            "## LIFETIME RISK\n"
+            "FollowUp Age,Censor Age,Risk\n"
+            "20,80,0.1200146\n"
+            "\n"
+            "## REMAINING LIFETIME RISK\n"
+            "Censor Age,Risk\n"
+            "26,0.0000735\n"
+        )
+        rl, rr, ry, rj, mp = p._parse_risks_output(output, self._all_opts())
+        self.assertEqual(len(rl), 1)
+        self.assertEqual(len(rr), 1)
         self.assertEqual(ry, [])
         self.assertEqual(rj, [])
         self.assertEqual(mp, [])

@@ -296,3 +296,43 @@ class RiskTests(TestCase):
                         yob=str(self.year-23), cancers=Cancers(bc1=Cancer("20")))
         pedigree.people.append(sister)
         self.assertEqual(Predictions._get_niceness(pedigree), 1)
+
+
+class ColumnIdxTests(TestCase):
+    ''' Tests for BwaPedigree.get_column_idx and CanRiskPedigree.get_column_idx. '''
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_bwa_exact_match(self):
+        ''' get_column_idx returns the correct index for an exact column name match. '''
+        self.assertEqual(BwaPedigree.get_column_idx('Age'), 9)
+        self.assertEqual(BwaPedigree.get_column_idx('FamID'), 0)
+        self.assertEqual(BwaPedigree.get_column_idx('BRCA1t'), 17)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_bwa_case_insensitive(self):
+        ''' get_column_idx matches column names case-insensitively. '''
+        self.assertEqual(BwaPedigree.get_column_idx('age'), 9)
+        self.assertEqual(BwaPedigree.get_column_idx('famid'), 0)
+        self.assertEqual(BwaPedigree.get_column_idx('brca1t'), 17)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_bwa_not_found(self):
+        ''' get_column_idx returns -1 for unknown column names. '''
+        self.assertEqual(BwaPedigree.get_column_idx('nonexistent'), -1)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_canrisk_exact_match(self):
+        ''' CanRiskPedigree.get_column_idx returns the correct index for an exact match. '''
+        self.assertEqual(CanRiskPedigree.get_column_idx('Age'), 9)
+        self.assertEqual(CanRiskPedigree.get_column_idx('FamID'), 0)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_canrisk_case_insensitive(self):
+        ''' CanRiskPedigree.get_column_idx matches column names case-insensitively. '''
+        self.assertEqual(CanRiskPedigree.get_column_idx('age'), 9)
+        self.assertEqual(CanRiskPedigree.get_column_idx('famid'), 0)
+
+    @pytest.mark.req_WS_VALIDATION_190
+    def test_canrisk_not_found(self):
+        ''' CanRiskPedigree.get_column_idx returns -1 for unknown column names. '''
+        self.assertEqual(CanRiskPedigree.get_column_idx('nonexistent'), -1)
