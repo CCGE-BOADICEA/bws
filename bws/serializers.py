@@ -50,7 +50,7 @@ class BaseInputSerializer(serializers.Serializer):
     @classmethod
     def get_gene_mutation_sensitivity_fields(cls, model):
         """ Get a list of the gene mutation sensitivity fields strings. """
-        gts = model['GENETIC_TEST_SENSITIVITY']
+        gts = model['GENETIC_TEST_SENSITIVITY']['DEFAULT']
         fields = []
         for gene in model['GENES']:
             fields.append(gene.lower() + "_mut_sensitivity = serializers.FloatField(required=False, default=" +

@@ -144,7 +144,7 @@ class RiskTests(TestCase):
         (_father, _mother) = pedigree.add_parents(target, gtests=CanRiskGeneticTests.default_factory())
         pedigree.validateAll()
         params = ModelParams(mutation_frequency=settings.OC_MODEL['MUTATION_FREQUENCIES']["UK"],
-                             mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY'])
+                             mutation_sensitivity=settings.OC_MODEL['GENETIC_TEST_SENSITIVITY']['DEFAULT'])
         calcs = Predictions(pedigree, cwd=self.cwd, model_params=params,
                             model_settings=settings.OC_MODEL, calcs=[])
 
@@ -164,7 +164,7 @@ class RiskTests(TestCase):
         """ Run rrisk calculations """
         msettings = settings.BC_MODEL if can == 'breast' else settings.OC_MODEL
         mparams = ModelParams(mutation_frequency=msettings['MUTATION_FREQUENCIES']["UK"],
-                              mutation_sensitivity=msettings['GENETIC_TEST_SENSITIVITY'])
+                              mutation_sensitivity=msettings['GENETIC_TEST_SENSITIVITY']['DEFAULT'])
         calcs = Predictions(pedigree, cwd=cwd, model_settings=msettings, model_params=mparams,
                             calcs=calcs)
         c80 = None

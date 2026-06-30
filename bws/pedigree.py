@@ -447,7 +447,7 @@ class Pedigree(metaclass=abc.ABCMeta):
     def write_param_file(self, filepath="/tmp/params",
                          model_settings=settings.BC_MODEL,
                          mutation_freq=settings.BC_MODEL['MUTATION_FREQUENCIES']['UK'],
-                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                         sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY']['DEFAULT'],
                          isashk=False):
         """
         Write model parameters file.

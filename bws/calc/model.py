@@ -68,7 +68,7 @@ class ModelOpts():
 class ModelParams():
 
     def __init__(self, population="UK", mutation_frequency=settings.BC_MODEL['MUTATION_FREQUENCIES']["UK"],
-                 mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY'],
+                 mutation_sensitivity=settings.BC_MODEL['GENETIC_TEST_SENSITIVITY']['DEFAULT'],
                  cancer_rates=settings.BC_MODEL['CANCER_RATES'].get("UK"),
                  ethnicity=UKBioBankEthnicty()):
         """
@@ -100,7 +100,7 @@ class ModelParams():
             raise ModelError(f"Invalid model settings, missing required keys: {missing}")
 
         population = data.get('mut_freq', 'UK')
-        gts = model_settings['GENETIC_TEST_SENSITIVITY']
+        gts = model_settings['GENETIC_TEST_SENSITIVITY']['DEFAULT']
         mut_sens = {k: float(data.get(k.lower() + "_mut_sensitivity", gts[k])) for k in gts.keys()}
         # Validate population is a known key in MUTATION_FREQUENCIES
         if population not in model_settings['MUTATION_FREQUENCIES']:
