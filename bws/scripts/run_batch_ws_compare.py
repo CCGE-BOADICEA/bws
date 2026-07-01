@@ -36,7 +36,7 @@ def get_ws_results(args, calc_ages):
                 model = 'OC'
             elif 'PROSTATE MODEL' in line:
                 model = 'PC'
-            crisks = re.match("^(.*\t.+\t("+sages+")\t(\d*\.?\d*[e\-\d*]*)).*", line)
+            crisks = re.match(r"^(.*\t.+\t("+sages+r")\t(\d*\.?\d*[e\-\d*]*)).*", line)
             if crisks:
                 if model == 'BC':
                     bc_ws[int(crisks.group(2))] = crisks.group(3)
