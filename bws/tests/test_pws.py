@@ -114,7 +114,7 @@ class PwsTests(TestCase):
         for g in genes:
             self.assertTrue(g in content['mutation_frequency']['UK'])
 
-        self.assertDictEqual(settings.PC_MODEL['GENETIC_TEST_SENSITIVITY'], content['mutation_sensitivity'])
+        self.assertDictEqual(settings.PC_MODEL['GENETIC_TEST_SENSITIVITY']['DEFAULT'], content['mutation_sensitivity'])
         self.assertEqual(content['cancer_incidence_rates'], 'UK')
         canrisk_data.close()
 

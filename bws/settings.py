@@ -139,14 +139,26 @@ BC_MODEL = {
     ]),
     # Default genetic test sensitivities; updated BRCA1/2 as agreed with AA 10/04/17
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.89,
-        "BRCA2": 0.96,
-        "PALB2": 0.92,
-        "ATM": 0.94,
-        "CHEK2": 0.98,
-        "BARD1": 0.89,
-        "RAD51C": 0.78,
-        "RAD51D": 0.86,
+        'DEFAULT': {
+            "BRCA1": 0.98,
+            "BRCA2": 0.99,
+            "PALB2": 0.99,
+            "ATM": 0.99,
+            "CHEK2": 0.99,
+            "BARD1": 0.99,
+            "RAD51C": 0.98,
+            "RAD51D": 0.98
+        },
+        'LEGACY': {
+            "BRCA1": 0.89,
+            "BRCA2": 0.96,
+            "PALB2": 0.92,
+            "ATM": 0.94,
+            "CHEK2": 0.98,
+            "BARD1": 0.89,
+            "RAD51C": 0.78,
+            "RAD51D": 0.86
+        }
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -247,12 +259,22 @@ OC_MODEL = {
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.89,
-        "BRCA2": 0.96,
-        "RAD51D": 0.86,
-        "RAD51C": 0.78,
-        "BRIP1": 0.95,
-        "PALB2": 0.92
+        'DEFAULT': {
+            "BRCA1": 0.98,
+            "BRCA2": 0.99,
+            "RAD51D": 0.98,
+            "RAD51C": 0.98,
+            "BRIP1": 0.99,
+            "PALB2": 0.99
+        },
+        'LEGACY': {
+            "BRCA1": 0.89,
+            "BRCA2": 0.96,
+            "RAD51D": 0.86,
+            "RAD51C": 0.78,
+            "BRIP1": 0.95,
+            "PALB2": 0.92
+        }
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
@@ -327,9 +349,16 @@ PC_MODEL = {
     ]),
     # Default genetic test sensitivities
     'GENETIC_TEST_SENSITIVITY': {
-        "BRCA1": 0.89,
-        "BRCA2": 0.96,
-        "HOXB13": 1
+        'DEFAULT': {
+            "BRCA1": 0.98,
+            "BRCA2": 0.99,
+            "HOXB13": 1
+        },
+        'LEGACY': {
+            "BRCA1": 0.89,
+            "BRCA2": 0.96,
+            "HOXB13": 1
+        }
     },
     # cancer incidence rate display name and corresponding file name
     'CANCER_RATES': OrderedDict([
