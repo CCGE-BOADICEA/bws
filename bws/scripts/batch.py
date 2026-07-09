@@ -140,8 +140,8 @@ def add_prs(line, cancer, rfsnames, rfs):
     @param rfsnames: array of risk factor names
     @param rfs: risk factor values
     '''
-    zscore = re.match("##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
-    alpha = re.match("##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
+    zscore = re.match(r"##PRS.*(zscore=([-]?\d*\.\d+)).*", line)
+    alpha  = re.match(r"##PRS.*(alpha=([-]?\d*\.\d+)).*", line)
     if zscore is not None:
         rfsnames.append(['PRS_'+cancer+'_z', cancer+'_PRS_z'])
         rfs['PRS_'+cancer+'_z'] = "%8.5f" % float(zscore.group(2))
