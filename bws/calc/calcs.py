@@ -128,7 +128,7 @@ class Predictions():
             elif ry is not None:
                 self.ten_yr_nhs_protocol = ry
         if mp is not None:
-            self.mutation_probabilties = mp
+            self.mutation_probabilities = mp
 
         # remaining lifetime baseline
         if rr is not None:

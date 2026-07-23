@@ -130,7 +130,7 @@ class PwsTests(TestCase):
         content = json.loads(force_str(response.content))
         self.assertTrue("pedigree_result" in content)
         self.assertTrue('cancer_risks not provided' in content['warnings'])
-        self.assertTrue('mutation_probabilties' in content['pedigree_result'][0])
+        self.assertTrue('mutation_probabilities' in content['pedigree_result'][0])
 
     @pytest.mark.req_WS_CANCER_222
     def test_pws_err(self):

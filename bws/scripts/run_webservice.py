@@ -70,9 +70,9 @@ def post_requests(url, **kwargs):
 
 def mutation_probability_output(res, writer):
     ''' Write out mutation carrier probabilities '''
-    if 'mutation_probabilties' in res:
-        writer.writerow(['Mutation Carrier Probabilties'])
-        muts = res['mutation_probabilties']
+    if 'mutation_probabilities' in res:
+        writer.writerow(['Mutation Carrier probabilities'])
+        muts = res['mutation_probabilities']
         col = ['FamID']
         val = [res['family_id']]
         for m in muts:

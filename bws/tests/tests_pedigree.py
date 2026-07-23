@@ -79,10 +79,10 @@ class RiskTests(TestCase):
         calcs = Predictions(pedigree, cwd=self.cwd)
 
         # each gene should have a mutation probability plus a result for no mutations
-        for mp in calcs.mutation_probabilties:
+        for mp in calcs.mutation_probabilities:
             key = list(mp.keys())[0]
             self.assertTrue(key in settings.BC_MODEL['GENES'] or key == "no mutation")
-        self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
+        self.assertEqual(len(calcs.mutation_probabilities), len(settings.BC_MODEL['GENES']) + 1)
 
         # risks calculated at 16 different ages:
         self.assertEqual(len(calcs.cancer_risks), 16)
@@ -122,10 +122,10 @@ class RiskTests(TestCase):
         calcs = Predictions(pedigree, cwd=self.cwd)
 
         # each gene should have a mutation probability plus a result for no mutations
-        for mp in calcs.mutation_probabilties:
+        for mp in calcs.mutation_probabilities:
             key = list(mp.keys())[0]
             self.assertTrue(key in settings.BC_MODEL['GENES'] or key == "no mutation")
-        self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
+        self.assertEqual(len(calcs.mutation_probabilities), len(settings.BC_MODEL['GENES']) + 1)
 
         # risks calculated at different ages:
         self.assertEqual(len(calcs.cancer_risks), 9)
@@ -149,10 +149,10 @@ class RiskTests(TestCase):
                             model_settings=settings.OC_MODEL, calcs=[])
 
         # each gene should have a mutation probability plus a result for no mutations
-        for mp in calcs.mutation_probabilties:
+        for mp in calcs.mutation_probabilities:
             key = list(mp.keys())[0]
             self.assertTrue(key in settings.OC_MODEL['GENES'] or key == "no mutation")
-        self.assertEqual(len(calcs.mutation_probabilties), len(settings.OC_MODEL['GENES']) + 1)
+        self.assertEqual(len(calcs.mutation_probabilities), len(settings.OC_MODEL['GENES']) + 1)
 
         # risks calculated at 16 different ages:
         self.assertEqual(len(calcs.cancer_risks), 16)
@@ -224,7 +224,7 @@ class RiskTests(TestCase):
             calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
-            self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
+            self.assertEqual(len(calcs.mutation_probabilities), len(settings.BC_MODEL['GENES']) + 1)
 
             # risks calculated at different ages:
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
@@ -267,7 +267,7 @@ class RiskTests(TestCase):
             calcs = Predictions(pedigree, cwd=self.cwd, model_params=params)
 
             # each gene should have a mutation probability plus a result for no mutations
-            self.assertEqual(len(calcs.mutation_probabilties), len(settings.BC_MODEL['GENES']) + 1)
+            self.assertEqual(len(calcs.mutation_probabilities), len(settings.BC_MODEL['GENES']) + 1)
 
             # risks calculated at different ages:
             self.assertTrue([c.get('age') for c in calcs.cancer_risks] ==
