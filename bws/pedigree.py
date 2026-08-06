@@ -138,7 +138,7 @@ class Pedigree(metaclass=abc.ABCMeta):
                 "' has a positive genetic test. Also BOADICEA cannot compute breast and ovarian cancer "
                 "risks because the target is: (1) over " + str(settings.MAX_AGE_FOR_RISK_CALCS) +
                 " years old or (2) male, or (3) an affected female who has developed contralateral "
-                "breast cancer, ovarian cancer or pancreatic cancer.", target.famid)
+                "breast cancer, ovarian cancer or pancreatic cancer, or (4) deceased.", target.famid)
 
         # Volpara and Stratus are currently not configured for all ethnic groups.
         if hasattr(self, 'ons_ethnicity') and hasattr(self, 'mdensity'):
@@ -320,6 +320,7 @@ class Pedigree(metaclass=abc.ABCMeta):
             - is male and allowMale is false
             - has additional cancers to only one breast cancer
             - has an age not in specified range or year of birth is not valid
+            - is deceased
         otherwise return True.
         @return: true if risks calculation is viable
         """
@@ -334,7 +335,8 @@ class Pedigree(metaclass=abc.ABCMeta):
              (not allowFemale and isinstance(target, Female)) or
              (d.bc2.age != "-1") or (d.pac.age != "-1") or (d.oc.age != "-1") or (d.prc.age != "-1") or
              (int(target.age) > settings.MAX_AGE_FOR_RISK_CALCS) or
-             (int(target.yob) < settings.MIN_YEAR_OF_BIRTH))):
+             (int(target.yob) < settings.MIN_YEAR_OF_BIRTH) or
+             (target.dead == "1"))):
             return False
         return True
 
