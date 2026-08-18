@@ -20,6 +20,7 @@ from django.test import TestCase
 from bws.calc.calcs import Predictions
 from bws.calc.model import ModelParams
 from bws.cancer import Cancer, Cancers, CanRiskGeneticTests
+from bws.exceptions import PedigreeError
 from bws.pedigree import Female, BwaPedigree, CanRiskPedigree
 from bws.pedigree_file import PedigreeFile
 
@@ -69,6 +70,35 @@ class RiskTests(TestCase):
         # OC diagnosis
         target.cancers = Cancers(bc1=Cancer(), bc2=Cancer(), oc=Cancer("19"), prc=Cancer(), pac=Cancer())
         self.assertFalse(pedigree.is_risks_calc_viable())
+
+    @pytest.mark.req_WS_VALIDATION_240
+    def test_risk_calc_not_viable_when_deceased(self):
+        """ Risks are not calculated for a deceased target, so the calculation is not viable.
+
+        The deceased check belongs here rather than in ModelOpts.factory: a pedigree that has
+        neither risks nor carrier probabilities to calculate has to be reported by validateAll()
+        as a pedigree error. Left out of here, such a pedigree passed validation and the model
+        was then run with no calculation options at all.
+        """
+        pedigree = deepcopy(self.pedigree)
+        target = pedigree.get_target()
+        self.assertTrue(pedigree.is_risks_calc_viable())
+        target.dead = "1"
+        self.assertFalse(pedigree.is_risks_calc_viable())
+
+    @pytest.mark.req_WS_VALIDATION_240
+    def test_deceased_target_with_positive_test_is_a_pedigree_error(self):
+        """ A deceased target with a positive genetic test has nothing to calculate - no risks
+            and no carrier probabilities - and is reported rather than passed to the model. """
+        pedigree = deepcopy(self.canrisk_pedigree)
+        target = pedigree.get_target()
+        target.dead = "1"
+        target.gtests.brca1.result = "P"
+        target.gtests.brca1.test_type = "T"
+        self.assertFalse(pedigree.is_risks_calc_viable())
+        self.assertFalse(pedigree.is_carrier_probs_viable())
+        with self.assertRaisesRegex(PedigreeError, "deceased"):
+            pedigree.validateAll()
 
     @pytest.mark.req_WS_VALIDATION_243
     @pytest.mark.req_WS_VALIDATION_244
