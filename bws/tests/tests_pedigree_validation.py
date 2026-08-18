@@ -505,15 +505,22 @@ class PedigreeTests(TestCase, ErrorTests):
         pedigree.validateAll()
 
     @pytest.mark.req_WS_VALIDATION_190
-    def test_deceased_target_still_risk_viable(self):
-        """Test that a deceased target does not fail risk viability checks."""
+    def test_deceased_target_not_risk_viable(self):
+        """Test that a deceased target fails risk viability checks.
+
+        No risks are calculated for a deceased target. This check was previously made only
+        when the model options were built, so a pedigree with neither risks nor carrier
+        probabilities to calculate passed validation and the model was run with no calculation
+        options at all - it then wrote its default output, which could not be parsed.
+        """
         pedigree_file = deepcopy(self.pedigree_file)
         apedigree = pedigree_file.pedigrees[0]
         target = apedigree.get_target()
-        target.dead = "1"
         target.age = "35"
         target.yob = str(date.today().year - 35)
         self.assertTrue(apedigree.is_risks_calc_viable())
+        target.dead = "1"
+        self.assertFalse(apedigree.is_risks_calc_viable())
 
     @pytest.mark.req_WS_VALIDATION_190
     def test_get_siblings_finds_related_siblings(self):
