@@ -428,3 +428,10 @@ SPECTACULAR_SETTINGS = {
 # update this
 ALTCHA_HMAC_KEY = 'secret-hmac-key'
 
+# ALTCHA proof-of-work (v2) parameters, see bws.altcha.ChallengeView.
+# The cost is the number of key derivation iterations the client runs per candidate
+# counter value; the environment overrides allow it to be lowered for test runs.
+ALTCHA_ALGORITHM = os.getenv('ALTCHA_ALGORITHM', 'PBKDF2/SHA-256')
+ALTCHA_COST = int(os.getenv('ALTCHA_COST', '5000'))
+ALTCHA_EXPIRY_SECONDS = int(os.getenv('ALTCHA_EXPIRY_SECONDS', '1800'))
+
