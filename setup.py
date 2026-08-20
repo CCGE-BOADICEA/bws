@@ -10,7 +10,7 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='bws',
-    version='v3.0.0',
+    version='v4.2.0',
     packages=find_packages(),
     package_data={'bws': ['tests/data/*txt'], },
     include_package_data=True,
@@ -19,7 +19,7 @@ setup(
     description='Django app for web-services for CaanRisk',
     long_description=open(os.path.join(ROOT, 'README.rst')).read(),
     install_requires=["requests>=2.26.0", "Django>=5.2,<6", "djangorestframework>=3.16.0",
-                      "drf-spectacular>=0.28.0", "altcha==1.0.0", "pytest>=9.0.3"],
+                      "drf-spectacular>=0.28.0", "altcha==2.1.0", "pytest>=9.0.3"],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
